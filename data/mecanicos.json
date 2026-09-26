@@ -1,0 +1,26 @@
+[
+  {
+    "id": "MEC-01",
+    "nombre": "Carlos Mendoza",
+    "especialidad": "Mecánico Senior de Planta",
+    "telefono": "+57 310 123 4567"
+  },
+  {
+    "id": "MEC-02",
+    "nombre": "Juan David Rodríguez",
+    "especialidad": "Técnico Electromecánico",
+    "telefono": "+57 312 987 6543"
+  },
+  {
+    "id": "MEC-03",
+    "nombre": "Andrés Pérez",
+    "especialidad": "Especialista Hidráulico y Neumático",
+    "telefono": "+57 315 456 7890"
+  },
+  {
+    "id": "MEC-04",
+    "nombre": "Sofía Gómez",
+    "especialidad": "Técnico Predictivo y Vibraciones",
+    "telefono": "+57 318 654 3210"
+  }
+]

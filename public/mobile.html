@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Portal Mecánico - SIMAN Móvil</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.svg">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+    /* Estilo para simular app nativa en el móvil */
+    .pb-safe { padding-bottom: env(safe-area-inset-bottom, 1rem); }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col antialiased select-none">
+
+  <!-- BANNER DE INSTALACIÓN PWA (APP NATIVA EN CELULAR) -->
+  <div id="banner-instalar-app" class="hidden bg-gradient-to-r from-emerald-950 via-slate-900 to-slate-900 border-b border-emerald-500/40 px-3.5 py-2.5 flex items-center justify-between z-50">
+    <div class="flex items-center space-x-2.5 text-xs mr-2">
+      <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm flex-shrink-0 border border-emerald-500/30">
+        <i class="fa-solid fa-mobile-screen"></i>
+      </div>
+      <div>
+        <span class="font-bold text-white block text-xs">Instalar SIMAN en tu Celular</span>
+        <span class="text-[10px] text-slate-300">Úsala como app directa sin QR ni enlaces</span>
+      </div>
+    </div>
+    <div class="flex items-center space-x-1.5 flex-shrink-0">
+      <button id="btn-instalar-pwa" onclick="instalarPWA()" class="bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold text-xs px-3 py-1.5 rounded-lg shadow-md transition">
+        Instalar
+      </button>
+      <button onclick="document.getElementById('banner-instalar-app').classList.add('hidden')" class="text-slate-400 hover:text-white p-1 text-xs">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- TOP MOBILE HEADER -->
+  <header class="bg-slate-800/95 backdrop-blur-md border-b border-slate-700/80 sticky top-0 z-40 px-4 py-3 shadow-md">
+    <div class="flex items-center justify-between">
+      
+      <!-- Brand & Status -->
+      <div class="flex items-center space-x-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center shadow-md shadow-emerald-500/30">
+          <i class="fa-solid fa-wrench text-white text-base"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-sm text-white flex items-center gap-1.5">
+            SIMAN Móvil
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          </h1>
+          <p id="label-usuario-activo" class="text-[10px] text-emerald-400 font-semibold truncate max-w-[120px]">Cargando...</p>
+        </div>
+      </div>
+
+      <!-- Selector de Mecánico & Salir -->
+      <div class="flex items-center space-x-2">
+        <div class="flex items-center space-x-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1">
+          <i class="fa-solid fa-user-gear text-emerald-400 text-xs"></i>
+          <select id="select-mecanico-activo" onchange="cambiarMecanicoActivo()" class="bg-transparent text-xs text-white focus:outline-none max-w-[110px] truncate">
+            <option value="todos">Todos</option>
+          </select>
+        </div>
+        <button onclick="cerrarSesion()" title="Cerrar sesión" class="p-1.5 bg-slate-900 hover:bg-slate-700 text-slate-400 hover:text-rose-400 rounded-lg border border-slate-700 transition text-xs">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Pestañas Rápidas para Móvil -->
+    <div class="flex items-center space-x-1 mt-3 bg-slate-900/80 p-1 rounded-xl border border-slate-700/60 overflow-x-auto" id="mobile-tabs">
+      <button onclick="cambiarTabMovil('pendientes', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold text-center transition bg-emerald-600 text-white shadow">
+        Pendientes (<span id="mob-count-pendientes">0</span>)
+      </button>
+      <button onclick="cambiarTabMovil('en_progreso', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+        En Curso (<span id="mob-count-progreso">0</span>)
+      </button>
+      <button onclick="cambiarTabMovil('completadas', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+        Listas (<span id="mob-count-completadas">0</span>)
+      </button>
+      <button onclick="cambiarTabMovil('todas', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+        Todas (<span id="mob-count-todas">0</span>)
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENIDO MÓVIL: LISTA DE TAREAS -->
+  <main class="flex-1 p-3.5 space-y-3 pb-24 overflow-y-auto" id="contenedor-tareas-movil">
+    <!-- Spinner inicial -->
+    <div class="py-20 text-center text-slate-400 space-y-2">
+      <i class="fa-solid fa-spinner fa-spin text-3xl text-emerald-400"></i>
+      <p class="text-sm">Cargando órdenes de trabajo...</p>
+    </div>
+  </main>
+
+  <!-- BARRA INFERIOR FLOTANTE MÓVIL -->
+  <div class="fixed bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 px-4 py-2.5 flex items-center justify-between z-30 pb-safe">
+    <div class="flex items-center space-x-2 text-xs text-slate-400">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span id="txt-mecanico-actual-pie">Viendo: Todos</span>
+    </div>
+    <div class="flex items-center space-x-2">
+      <a href="/" target="_blank" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1">
+        <i class="fa-solid fa-desktop"></i> PC
+      </a>
+      <button onclick="cargarTareasMovil(true)" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5">
+        <i class="fa-solid fa-arrows-rotate" id="mob-icon-recarga"></i> Actualizar
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL DE COMPLETAR TAREA Y TOMAR FOTO ==================== -->
+  <div id="modal-completar-movil" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border-t sm:border border-slate-700 rounded-t-3xl sm:rounded-2xl w-full max-w-lg mx-auto overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
+      
+      <!-- Encabezado Modal -->
+      <div class="bg-slate-900 px-5 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm">Finalizar Tarea & Subir Foto</h3>
+            <p id="modal-subtitulo-tarea" class="text-[11px] text-slate-400">TSK-1001 - Bomba</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalCompletar()" class="text-slate-400 hover:text-white p-1 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Formulario de Finalización -->
+      <form id="form-completar-tarea" onsubmit="enviarFinalizacion(event)" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto pb-safe">
+        
+        <input type="hidden" id="input-tarea-id" name="tarea_id">
+
+        <!-- RESUMEN DE LA TAREA Y HORA DE OCURRENCIA -->
+        <div class="bg-slate-900/80 rounded-xl p-3 border border-slate-700 space-y-1 text-xs">
+          <div class="flex items-center justify-between text-slate-400">
+            <span>Equipo:</span>
+            <span id="modal-equipo-txt" class="font-bold text-white">--</span>
+          </div>
+          <div class="flex items-center justify-between text-slate-400">
+            <span>Tipo:</span>
+            <span id="modal-tipo-badge" class="font-semibold text-emerald-400">PREVENTIVO</span>
+          </div>
+          <div class="flex items-center justify-between text-slate-400">
+            <span>Ocurrió:</span>
+            <span id="modal-ocurrio-txt" class="font-mono text-amber-300">--</span>
+          </div>
+        </div>
+
+        <!-- REQUERIMIENTO PRINCIPAL: TOMAR FOTO CON LA CÁMARA DEL CELULAR -->
+        <div>
+          <label class="block text-xs font-bold text-slate-200 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+            <i class="fa-solid fa-camera text-emerald-400 text-sm"></i> Fotografía del Arreglo Realizado <span class="text-rose-400">*</span>
+          </label>
+          
+          <!-- Botón de Cámara Nativa Móvil -->
+          <div class="relative">
+            <input 
+              type="file" 
+              id="input-camara-file" 
+              name="foto" 
+              accept="image/*" 
+              capture="environment" 
+              onchange="previsualizarFoto(event)"
+              class="sr-only"
+            >
+            
+            <label for="input-camara-file" class="cursor-pointer border-2 border-dashed border-emerald-500/50 hover:border-emerald-400 bg-slate-900/80 rounded-2xl p-4 flex flex-col items-center justify-center text-center transition group active:scale-[0.98]">
+              
+              <!-- Si NO hay foto aún -->
+              <div id="box-sin-foto-previa" class="py-2 space-y-2 flex flex-col items-center">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-2xl group-hover:scale-110 transition shadow-inner">
+                  <i class="fa-solid fa-camera-retro"></i>
+                </div>
+                <div>
+                  <span class="text-sm font-bold text-emerald-400 block">Tocar aquí para Tomar Foto</span>
+                  <span class="text-[11px] text-slate-400">Abre la cámara de tu celular o selecciona de la galería</span>
+                </div>
+              </div>
+
+              <!-- Si YA tomó foto: vista previa -->
+              <div id="box-con-foto-previa" class="hidden w-full space-y-2">
+                <div class="relative rounded-xl overflow-hidden max-h-56 bg-black flex items-center justify-center border border-slate-700">
+                  <img id="img-previa-elemento" src="" alt="Vista previa" class="w-full h-auto max-h-52 object-contain">
+                  <div class="absolute bottom-2 right-2 bg-black/75 backdrop-blur px-2.5 py-1 rounded-lg text-[10px] text-white flex items-center gap-1">
+                    <i class="fa-solid fa-arrows-rotate"></i> Cambiar Foto
+                  </div>
+                </div>
+                <p class="text-[11px] text-emerald-400 font-medium">✓ Fotografía capturada correctamente</p>
+              </div>
+
+            </label>
+          </div>
+        </div>
+
+        <!-- REQUERIMIENTO: FECHA Y HORA AL MOMENTO DE ARREGLAR -->
+        <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-emerald-400 uppercase tracking-wide flex items-center gap-1.5">
+              <i class="fa-solid fa-clock-check"></i> Momento de Arreglar (Fecha y Hora) <span class="text-rose-400">*</span>
+            </label>
+            <button type="button" onclick="fijarArregloAhora()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-600 transition flex items-center gap-1">
+              <i class="fa-solid fa-bolt text-amber-400"></i> Ahora
+            </button>
+          </div>
+          <input 
+            type="datetime-local" 
+            id="input-fecha-arreglo" 
+            name="fecha_arreglo" 
+            required 
+            class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono"
+          >
+          <p class="text-[10px] text-slate-400">Se pre-llena con la hora exacta actual para calcular el tiempo de reparación.</p>
+        </div>
+
+        <!-- NOTAS TÉCNICAS U OBSERVACIONES -->
+        <div>
+          <label class="block text-xs font-bold text-slate-200 uppercase tracking-wide mb-1">
+            Observaciones & Repuestos Usados
+          </label>
+          <textarea 
+            name="notas_mecanico" 
+            id="input-notas-mecanico"
+            rows="2" 
+            placeholder="Ej: Se cambió rodamiento 6308 y sellos viton. Prueba con agua a 4 bar sin novedad." 
+            class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none placeholder-slate-500"
+          ></textarea>
+        </div>
+
+        <!-- BOTÓN DE CONFIRMACIÓN -->
+        <div class="pt-2">
+          <button 
+            type="submit" 
+            id="btn-confirmar-finalizar"
+            class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-[0.98] text-white text-sm font-extrabold rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+            <span>Confirmar y Finalizar Trabajo</span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICACIÓN MÓVIL -->
+  <div id="mob-toast" class="fixed top-4 inset-x-4 z-50 transform -translate-y-24 opacity-0 transition-all duration-300 bg-emerald-950/95 border border-emerald-500 text-white text-xs px-4 py-3 rounded-2xl shadow-2xl flex items-center space-x-2">
+    <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+    <span id="mob-toast-msg">Mensaje</span>
+  </div>
+
+  <!-- SCRIPTS MÓVIL -->
+  <script src="/js/mobile.js"></script>
+</body>
+</html>

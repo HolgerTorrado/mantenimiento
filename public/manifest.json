@@ -1,0 +1,24 @@
+{
+  "name": "SIMAN - Mantenimiento Industrial",
+  "short_name": "SIMAN",
+  "description": "Sistema Integral de Mantenimiento con control de tareas y reporte fotográfico",
+  "start_url": "/mecanico",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#10b981",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

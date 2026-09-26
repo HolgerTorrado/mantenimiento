@@ -1,0 +1,61 @@
+[
+  {
+    "id": "USR-01",
+    "username": "Holger",
+    "password_hash": "a94a885b2cd4f2d0a9b48065f5c86491cff6f75db0054dc2a1ee2f967763d3e2",
+    "nombre": "Holger Torrado",
+    "rol": "admin",
+    "email": "holger@mantenimiento.com",
+    "creado_en": "2026-09-26T18:00:00.000Z"
+  },
+  {
+    "id": "USR-02",
+    "username": "carlos",
+    "password_hash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "nombre": "Carlos Mendoza",
+    "rol": "mecanico",
+    "especialidad": "Mecánico Senior de Planta",
+    "email": "carlos@planta.com",
+    "creado_en": "2026-09-26T18:00:00.000Z"
+  },
+  {
+    "id": "USR-03",
+    "username": "juan",
+    "password_hash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "nombre": "Juan David Rodríguez",
+    "rol": "mecanico",
+    "especialidad": "Técnico Electromecánico",
+    "email": "juan@planta.com",
+    "creado_en": "2026-09-26T18:00:00.000Z"
+  },
+  {
+    "id": "USR-04",
+    "username": "andres",
+    "password_hash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "nombre": "Andrés Pérez",
+    "rol": "mecanico",
+    "especialidad": "Especialista Hidráulico y Neumático",
+    "email": "andres@planta.com",
+    "creado_en": "2026-09-26T18:00:00.000Z"
+  },
+  {
+    "id": "USR-05",
+    "username": "sofia",
+    "password_hash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "nombre": "Sofía Gómez",
+    "rol": "mecanico",
+    "especialidad": "Técnico Predictivo y Vibraciones",
+    "email": "sofia@planta.com",
+    "creado_en": "2026-09-26T18:00:00.000Z"
+  },
+  {
+    "id": "USR-06",
+    "username": "visor",
+    "password_hash": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4",
+    "nombre": "Invitado Observador",
+    "rol": "visualizador",
+    "especialidad": "Consulta y Auditoría",
+    "email": "auditor@planta.com",
+    "creado_en": "2026-09-26T18:25:00.000Z"
+  }
+]

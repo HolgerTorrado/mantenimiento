@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%">
+  <defs>
+    <radialGradient id="heat" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="35%" stop-color="#f59e0b"/>
+      <stop offset="70%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </radialGradient>
+  </defs>
+  <rect width="600" height="400" fill="#090d16"/>
+  <rect x="20" y="20" width="560" height="360" rx="12" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="6,6"/>
+  <!-- Switchboard breaker representation with thermal overlay -->
+  <rect x="150" y="100" width="300" height="180" rx="8" fill="#1e293b" stroke="#475569" stroke-width="3"/>
+  <rect x="180" y="130" width="60" height="120" rx="4" fill="url(#heat)" opacity="0.85"/>
+  <rect x="270" y="130" width="60" height="120" rx="4" fill="#0284c7" opacity="0.6"/>
+  <rect x="360" y="130" width="60" height="120" rx="4" fill="#0284c7" opacity="0.6"/>
+  <!-- Crosshair temperature probe -->
+  <circle cx="210" cy="190" r="14" fill="none" stroke="#ffffff" stroke-width="2"/>
+  <line x1="210" y1="170" x2="210" y2="210" stroke="#ffffff" stroke-width="2"/>
+  <line x1="190" y1="190" x2="230" y2="190" stroke="#ffffff" stroke-width="2"/>
+  <rect x="235" y="175" width="70" height="26" rx="4" fill="#000" fill-opacity="0.8"/>
+  <text x="242" y="193" fill="#facc15" font-family="monospace" font-size="14" font-weight="bold">37.8°C</text>
+  <!-- Status badge -->
+  <rect x="40" y="40" width="220" height="34" rx="6" fill="#4c1d95" stroke="#a855f7" stroke-width="1.5"/>
+  <circle cx="58" cy="57" r="6" fill="#c084fc"/>
+  <text x="74" y="62" fill="#faf5ff" font-family="system-ui, sans-serif" font-size="14" font-weight="700">TERMOGRAFÍA NORMAL</text>
+  <!-- Overlay info banner -->
+  <rect x="40" y="300" width="520" height="60" rx="8" fill="#1e293b" fill-opacity="0.9" stroke="#334155"/>
+  <text x="60" y="325" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="15" font-weight="600">Tablero General TG-01 | Ruta Termográfica Infrarroja</text>
+  <text x="60" y="345" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Técnico: Sofía Gómez | Delta T &lt; 5°C, Operación Segura</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="400" fill="url(#bg2)"/>
+  <rect x="20" y="20" width="560" height="360" rx="12" fill="none" stroke="#334155" stroke-width="2" stroke-dasharray="6,6"/>
+  <!-- Motor body -->
+  <rect x="180" y="130" width="220" height="130" rx="10" fill="#334155" stroke="#60a5fa" stroke-width="3"/>
+  <!-- Cooling fins -->
+  <line x1="210" y1="130" x2="210" y2="260" stroke="#475569" stroke-width="4"/>
+  <line x1="240" y1="130" x2="240" y2="260" stroke="#475569" stroke-width="4"/>
+  <line x1="270" y1="130" x2="270" y2="260" stroke="#475569" stroke-width="4"/>
+  <line x1="300" y1="130" x2="300" y2="260" stroke="#475569" stroke-width="4"/>
+  <line x1="330" y1="130" x2="330" y2="260" stroke="#475569" stroke-width="4"/>
+  <line x1="360" y1="130" x2="360" y2="260" stroke="#475569" stroke-width="4"/>
+  <!-- Shaft and pulley -->
+  <rect x="120" y="175" width="60" height="40" rx="3" fill="#94a3b8"/>
+  <circle cx="120" cy="195" r="35" fill="#475569" stroke="#94a3b8" stroke-width="4"/>
+  <!-- Terminal box -->
+  <rect x="250" y="100" width="80" height="30" rx="4" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  <!-- Status badge -->
+  <rect x="40" y="40" width="200" height="34" rx="6" fill="#065f46" stroke="#10b981" stroke-width="1.5"/>
+  <circle cx="58" cy="57" r="6" fill="#34d399"/>
+  <text x="74" y="62" fill="#ecfdf5" font-family="system-ui, sans-serif" font-size="14" font-weight="700">PREVENTIVO APROBADO</text>
+  <!-- Overlay info banner -->
+  <rect x="40" y="300" width="520" height="60" rx="8" fill="#1e293b" fill-opacity="0.9" stroke="#334155"/>
+  <text x="60" y="325" fill="#f8fafc" font-family="system-ui, sans-serif" font-size="15" font-weight="600">Motor Reductor MR-04 | Lubricación y Tensión de Bandas</text>
+  <text x="60" y="345" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Mecánico: Juan David Rodríguez | Aceite ISO VG 220 recargado</text>
+</svg>

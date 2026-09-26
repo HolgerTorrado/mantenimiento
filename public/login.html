@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f172a">
+  <title>Iniciar Sesión - SIMAN Mantenimiento</title>
+  <link rel="manifest" href="/manifest.json">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden">
+    
+    <!-- Glow decorativo superior -->
+    <div class="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Logo & Encabezado -->
+    <div class="text-center space-y-2">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/20">
+        <i class="fa-solid fa-screwdriver-wrench text-white text-2xl"></i>
+      </div>
+      <div>
+        <h1 class="text-2xl font-extrabold text-white tracking-tight">SIMAN</h1>
+        <p class="text-xs text-slate-400">Sistema Integral de Mantenimiento Industrial</p>
+      </div>
+    </div>
+
+    <!-- Pestañas: Login vs Registro -->
+    <div class="grid grid-cols-2 gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+      <button onclick="cambiarModo('login')" id="tab-login" class="py-2 text-xs font-bold rounded-lg transition bg-emerald-600 text-white shadow">
+        Iniciar Sesión
+      </button>
+      <button onclick="cambiarModo('registro')" id="tab-registro" class="py-2 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white">
+        Crear Usuario
+      </button>
+    </div>
+
+    <!-- 1. FORMULARIO DE LOGIN -->
+    <form id="form-login" onsubmit="ejecutarLogin(event)" class="space-y-4">
+      
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          Usuario
+        </label>
+        <div class="relative">
+          <i class="fa-solid fa-user absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+          <input type="text" id="login-username" required placeholder="Ej: admin o carlos" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+          Contraseña
+        </label>
+        <div class="relative">
+          <i class="fa-solid fa-lock absolute left-3.5 top-3 text-slate-500 text-xs"></i>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-xl pl-9 pr-3 py-2.5 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+      </div>
+
+      <button type="submit" id="btn-login-submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-extrabold text-sm rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-right-to-bracket"></i>
+        <span>Ingresar al Sistema</span>
+      </button>
+
+      <!-- Botones de acceso rápido demo -->
+      <div class="pt-3 border-t border-slate-800 space-y-2">
+        <span class="text-[11px] text-slate-400 block font-medium">Accesos rápidos de prueba:</span>
+        <div class="grid grid-cols-3 gap-1.5 text-xs">
+          <button type="button" onclick="loginRapido('Holger', 'Mayode1996#')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition text-center">
+            <span class="w-2 h-2 rounded-full bg-blue-400 inline-block mr-1"></span>
+            <span class="font-bold block text-[11px]">Holger</span>
+            <span class="text-[9px] text-slate-400">Admin</span>
+          </button>
+          <button type="button" onclick="loginRapido('carlos', '1234')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition text-center">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block mr-1"></span>
+            <span class="font-bold block text-[11px]">Carlos</span>
+            <span class="text-[9px] text-slate-400">Mecánico</span>
+          </button>
+          <button type="button" onclick="loginRapido('visor', '1234')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition text-center">
+            <span class="w-2 h-2 rounded-full bg-purple-400 inline-block mr-1"></span>
+            <span class="font-bold block text-[11px]">Visor</span>
+            <span class="text-[9px] text-slate-400">Solo Ver</span>
+          </button>
+        </div>
+      </div>
+
+    </form>
+
+    <!-- 2. FORMULARIO DE REGISTRO DE NUEVO USUARIO -->
+    <form id="form-registro" onsubmit="ejecutarRegistro(event)" class="space-y-3.5 hidden">
+      
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Nombre Completo</label>
+        <input type="text" id="reg-nombre" required placeholder="Ej: Roberto Morales" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Usuario</label>
+          <input type="text" id="reg-username" required placeholder="rmorales" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Contraseña</label>
+          <input type="password" id="reg-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Rol en el Sistema</label>
+        <select id="reg-rol" onchange="toggleEspecialidad(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          <option value="mecanico">🔧 Mecánico / Técnico (Toma fotos y repara)</option>
+          <option value="visualizador">👁️ Solo Visualizar (Consultas y Auditoría)</option>
+          <option value="admin">💻 Administrador (Control total)</option>
+        </select>
+      </div>
+
+      <div id="campo-especialidad">
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Especialidad Técnica</label>
+        <input type="text" id="reg-especialidad" placeholder="Ej: Mecánica Pesada, Hidráulica, Motores" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+      </div>
+
+      <button type="submit" id="btn-reg-submit" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-sm rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-user-plus"></i>
+        <span>Registrar Nuevo Usuario</span>
+      </button>
+
+    </form>
+
+    <!-- Error / Alerta -->
+    <div id="alerta-error" class="hidden bg-rose-950/80 border border-rose-500/50 text-rose-300 text-xs p-3 rounded-xl flex items-center gap-2">
+      <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+      <span id="alerta-error-txt">Usuario o contraseña incorrectos</span>
+    </div>
+
+  </div>
+
+  <script>
+    function cambiarModo(modo) {
+      const fLogin = document.getElementById('form-login');
+      const fReg = document.getElementById('form-registro');
+      const tLogin = document.getElementById('tab-login');
+      const tReg = document.getElementById('tab-registro');
+      ocultarError();
+
+      if (modo === 'login') {
+        fLogin.classList.remove('hidden');
+        fReg.classList.add('hidden');
+        tLogin.className = 'py-2 text-xs font-bold rounded-lg transition bg-emerald-600 text-white shadow';
+        tReg.className = 'py-2 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white';
+      } else {
+        fLogin.classList.add('hidden');
+        fReg.classList.remove('hidden');
+        tReg.className = 'py-2 text-xs font-bold rounded-lg transition bg-blue-600 text-white shadow';
+        tLogin.className = 'py-2 text-xs font-medium rounded-lg transition text-slate-400 hover:text-white';
+      }
+    }
+
+    function toggleEspecialidad(rol) {
+      const el = document.getElementById('campo-especialidad');
+      if (rol === 'admin') el.classList.add('hidden');
+      else el.classList.remove('hidden');
+    }
+
+    function loginRapido(u, p) {
+      document.getElementById('login-username').value = u;
+      document.getElementById('login-password').value = p;
+      document.getElementById('btn-login-submit').click();
+    }
+
+    async function ejecutarLogin(e) {
+      e.preventDefault();
+      ocultarError();
+
+      const username = document.getElementById('login-username').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Credenciales inválidas');
+
+        // Guardar sesión
+        localStorage.setItem('siman_token', data.token);
+        localStorage.setItem('siman_user', JSON.stringify(data.user));
+        localStorage.setItem('siman_mecanico_activo', data.user.nombre);
+
+        // Redirigir según rol
+        if (data.user.rol === 'admin') {
+          window.location.href = '/';
+        } else {
+          window.location.href = '/mecanico';
+        }
+      } catch (err) {
+        mostrarError(err.message);
+      }
+    }
+
+    async function ejecutarRegistro(e) {
+      e.preventDefault();
+      ocultarError();
+
+      const nombre = document.getElementById('reg-nombre').value.trim();
+      const username = document.getElementById('reg-username').value.trim();
+      const password = document.getElementById('reg-password').value.trim();
+      const rol = document.getElementById('reg-rol').value;
+      const especialidad = document.getElementById('reg-especialidad').value.trim();
+
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, username, password, rol, especialidad })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al registrar usuario');
+
+        alert('¡Usuario registrado con éxito! Ahora puede iniciar sesión.');
+        cambiarModo('login');
+        document.getElementById('login-username').value = username;
+        document.getElementById('login-password').value = password;
+      } catch (err) {
+        mostrarError(err.message);
+      }
+    }
+
+    function mostrarError(msg) {
+      const el = document.getElementById('alerta-error');
+      const txt = document.getElementById('alerta-error-txt');
+      txt.innerText = msg;
+      el.classList.remove('hidden');
+    }
+
+    function ocultarError() {
+      document.getElementById('alerta-error').classList.add('hidden');
+    }
+
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW no registrado', e));
+      });
+    }
+  </script>
+</body>
+</html>
