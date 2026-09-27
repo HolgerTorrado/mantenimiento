@@ -25,5 +25,14 @@
     "rol": "mecanico",
     "especialidad": "Mecánico de Planta",
     "creado_en": "2026-09-27T04:09:15.774Z"
+  },
+  {
+    "id": "USR-04",
+    "username": "mcastillejo",
+    "password_hash": "03e9d83f895dbf7b0ace9dcc6e6fb6804c8b7c79629d98ed05c8ea7f629a32ae",
+    "nombre": "Marwin Castillejo",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta",
+    "creado_en": "2026-09-27T04:09:55.769Z"
   }
 ]
