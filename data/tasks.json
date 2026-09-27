@@ -1,5 +1,22 @@
 [
   {
+    "id": "TSK-1007",
+    "equipo": "Décanter",
+    "titulo": "Cambio de rodamientos en los motores",
+    "tipo": "preventivo",
+    "prioridad": "alta",
+    "ubicacion": "Clarificacion",
+    "descripcion": "Cambio de rodamientos internos de los motores del décanter",
+    "mecanico_asignado": "Sin Asignar",
+    "fecha_ocurrencia": "2026-09-27T06:30",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_en": "2026-09-27T14:04:31.349Z"
+  },
+  {
     "id": "TSK-1006",
     "equipo": "Tambor saca moños",
     "titulo": "Rellenado de los rodillos del tambor saca moños",
