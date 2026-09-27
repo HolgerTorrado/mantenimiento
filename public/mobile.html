@@ -69,22 +69,14 @@
             SIMAN Móvil
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           </h1>
-          <p id="label-usuario-activo" class="text-[10px] text-emerald-400 font-semibold truncate max-w-[120px]">Cargando...</p>
+          <p id="label-usuario-activo" class="text-[10px] text-emerald-400 font-semibold truncate max-w-[160px]">Cargando...</p>
         </div>
       </div>
 
-      <!-- Selector de Mecánico & Salir -->
-      <div class="flex items-center space-x-2">
-        <div class="flex items-center space-x-1 bg-slate-900 border border-slate-700 rounded-lg px-2 py-1">
-          <i class="fa-solid fa-user-gear text-emerald-400 text-xs"></i>
-          <select id="select-mecanico-activo" onchange="cambiarMecanicoActivo()" class="bg-transparent text-xs text-white focus:outline-none max-w-[110px] truncate">
-            <option value="todos">Todos</option>
-          </select>
-        </div>
-        <button onclick="cerrarSesion()" title="Cerrar sesión" class="p-1.5 bg-slate-900 hover:bg-slate-700 text-slate-400 hover:text-rose-400 rounded-lg border border-slate-700 transition text-xs">
-          <i class="fa-solid fa-right-from-bracket"></i>
-        </button>
-      </div>
+      <!-- Salir -->
+      <button onclick="cerrarSesion()" title="Cerrar sesión" class="p-1.5 bg-slate-900 hover:bg-slate-700 text-slate-400 hover:text-rose-400 rounded-lg border border-slate-700 transition text-xs">
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
 
     </div>
 
@@ -98,9 +90,6 @@
       </button>
       <button onclick="cambiarTabMovil('completadas', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
         Listas (<span id="mob-count-completadas">0</span>)
-      </button>
-      <button onclick="cambiarTabMovil('todas', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
-        Todas (<span id="mob-count-todas">0</span>)
       </button>
     </div>
   </header>
@@ -116,15 +105,12 @@
 
   <!-- BARRA INFERIOR FLOTANTE MÓVIL -->
   <div class="fixed bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur border-t border-slate-800 px-4 py-2.5 flex items-center justify-between z-30 pb-safe">
-    <div class="flex items-center space-x-2 text-xs text-slate-400">
-      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-      <span id="txt-mecanico-actual-pie">Viendo: Todos</span>
+    <div class="flex items-center space-x-2 text-xs text-slate-300">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span id="txt-mecanico-actual-pie" class="font-medium">Mantenimiento en línea</span>
     </div>
     <div class="flex items-center space-x-2">
-      <a href="/" target="_blank" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1">
-        <i class="fa-solid fa-desktop"></i> PC
-      </a>
-      <button onclick="cargarTareasMovil(true)" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1.5">
+      <button onclick="cargarTareasMovil(true)" class="text-xs bg-emerald-700/80 hover:bg-emerald-600 text-white font-semibold px-3 py-1.5 rounded-lg border border-emerald-500/50 flex items-center gap-1.5 shadow">
         <i class="fa-solid fa-arrows-rotate" id="mob-icon-recarga"></i> Actualizar
       </button>
     </div>

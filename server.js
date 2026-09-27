@@ -17,9 +17,29 @@ const TASKS_FILE = path.join(DATA_DIR, 'tasks.json');
 const MECANICOS_FILE = path.join(DATA_DIR, 'mecanicos.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
-// Asegurar directorios
+// Asegurar directorios y persistencia permanente
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+// Inicializar archivos solo si no existen (nunca sobrescribe lo que ya existe)
+if (!fs.existsSync(TASKS_FILE)) {
+  fs.writeFileSync(TASKS_FILE, JSON.stringify([], null, 2), 'utf-8');
+}
+if (!fs.existsSync(MECANICOS_FILE)) {
+  fs.writeFileSync(MECANICOS_FILE, JSON.stringify([], null, 2), 'utf-8');
+}
+if (!fs.existsSync(USERS_FILE)) {
+  const adminHolger = [{
+    id: "USR-01",
+    username: "Holger",
+    password_hash: "a94a885b2cd4f2d0a9b48065f5c86491cff6f75db0054dc2a1ee2f967763d3e2",
+    nombre: "Holger Torrado",
+    rol: "admin",
+    email: "holger@mantenimiento.com",
+    creado_en: new Date().toISOString()
+  }];
+  fs.writeFileSync(USERS_FILE, JSON.stringify(adminHolger, null, 2), 'utf-8');
+}
 
 // Middlewares
 app.use(cors());
@@ -285,7 +305,7 @@ app.get('/api/mecanicos', (req, res) => {
 
 // 3. Obtener tareas con filtros opcionales
 app.get('/api/tasks', (req, res) => {
-  const { tipo, estado, mecanico, search } = req.query;
+  const { tipo, estado, mecanico, search, periodo } = req.query;
   let tareas = leerTareas();
 
   if (tipo && tipo !== 'todos') {
@@ -311,7 +331,39 @@ app.get('/api/tasks', (req, res) => {
     );
   }
 
-  // Ordenar: primero pendientes/en_progreso (más recientes primero), luego completadas
+  // Filtro por período
+  if (periodo && periodo !== 'todo') {
+    const ahora = new Date();
+    let desde = null;
+    switch (periodo) {
+      case 'dia':
+        desde = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 0, 0, 0, 0);
+        break;
+      case 'semana':
+        desde = new Date(ahora);
+        desde.setDate(ahora.getDate() - ahora.getDay());
+        desde.setHours(0, 0, 0, 0);
+        break;
+      case 'mes':
+        desde = new Date(ahora.getFullYear(), ahora.getMonth(), 1, 0, 0, 0, 0);
+        break;
+      case 'semestre':
+        const inicioSemestre = ahora.getMonth() < 6 ? 0 : 6;
+        desde = new Date(ahora.getFullYear(), inicioSemestre, 1, 0, 0, 0, 0);
+        break;
+      case 'anual':
+        desde = new Date(ahora.getFullYear(), 0, 1, 0, 0, 0, 0);
+        break;
+    }
+    if (desde) {
+      tareas = tareas.filter(t => {
+        const fecha = new Date(t.fecha_ocurrencia || t.creado_en);
+        return !isNaN(fecha) && fecha >= desde;
+      });
+    }
+  }
+
+  // Ordenar: más recientes primero
   tareas.sort((a, b) => new Date(b.fecha_ocurrencia || b.creado_en) - new Date(a.fecha_ocurrencia || a.creado_en));
 
   res.json(tareas);
@@ -489,9 +541,44 @@ app.delete('/api/tasks/:id', (req, res) => {
   res.json({ mensaje: 'Tarea eliminada exitosamente' });
 });
 
-// 9. Métricas y KPIs para el dashboard
+// 9. Métricas y KPIs para el dashboard (con filtro de período)
 app.get('/api/metrics', (req, res) => {
-  const tareas = leerTareas();
+  let tareas = leerTareas();
+
+  // Filtro por período basado en fecha_ocurrencia
+  const periodo = req.query.periodo || 'todo';
+  if (periodo !== 'todo') {
+    const ahora = new Date();
+    let desde = null;
+    switch (periodo) {
+      case 'dia':
+        desde = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate(), 0, 0, 0, 0);
+        break;
+      case 'semana':
+        const diaSemana = ahora.getDay(); // 0=Dom
+        desde = new Date(ahora);
+        desde.setDate(ahora.getDate() - diaSemana);
+        desde.setHours(0, 0, 0, 0);
+        break;
+      case 'mes':
+        desde = new Date(ahora.getFullYear(), ahora.getMonth(), 1, 0, 0, 0, 0);
+        break;
+      case 'semestre':
+        const mesActual = ahora.getMonth();
+        const inicioSemestre = mesActual < 6 ? 0 : 6;
+        desde = new Date(ahora.getFullYear(), inicioSemestre, 1, 0, 0, 0, 0);
+        break;
+      case 'anual':
+        desde = new Date(ahora.getFullYear(), 0, 1, 0, 0, 0, 0);
+        break;
+    }
+    if (desde) {
+      tareas = tareas.filter(t => {
+        const fecha = new Date(t.fecha_ocurrencia || t.creado_en);
+        return !isNaN(fecha) && fecha >= desde;
+      });
+    }
+  }
 
   const total = tareas.length;
   const pendientes = tareas.filter(t => t.estado === 'pendiente').length;
@@ -538,7 +625,8 @@ app.get('/api/metrics', (req, res) => {
     mttr_global_minutos,
     mttr_global_formato: formatMinutes(mttr_global_minutos),
     mttr_por_tipo,
-    tasa_completitud: total > 0 ? Math.round((completadas / total) * 100) : 0
+    tasa_completitud: total > 0 ? Math.round((completadas / total) * 100) : 0,
+    periodo
   });
 });
 

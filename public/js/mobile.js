@@ -11,12 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const user = verificarSesionMovil();
   if (!user) return; // Detener ejecución si no hay sesión activa
 
-  if (user && user.nombre && !localStorage.getItem('siman_mecanico_activo')) {
-    mecanicoActivo = user.nombre;
-    localStorage.setItem('siman_mecanico_activo', mecanicoActivo);
-  }
-
-  cargarMecanicosMovil();
   cargarTareasMovil();
 
   // Registrar Service Worker para PWA
@@ -148,21 +142,46 @@ function cambiarTabMovil(tab, btn) {
   renderTareasMovil();
 }
 
+// Obtener usuario activo
+function getUsuarioActivo() {
+  try {
+    return JSON.parse(localStorage.getItem('siman_user') || '{}');
+  } catch(e) {
+    return {};
+  }
+}
+
+// Filtrar tareas según el rol del usuario conectado
+function filtrarTareasPorUsuario(tareas) {
+  const user = getUsuarioActivo();
+  if (!user || user.rol === 'admin' || user.rol === 'visualizador') {
+    return tareas;
+  }
+  // Si es mecánico, ver las tareas asignadas a su nombre o disponibles
+  const miNombre = (user.nombre || user.username || '').toLowerCase().trim();
+  return tareas.filter(t => {
+    const asig = (t.mecanico_asignado || '').toLowerCase().trim();
+    return asig === miNombre || asig.includes(miNombre) || asig === 'sin asignar' || asig === 'todos';
+  });
+}
+
 // Actualizar badges numéricos
 function actualizarContadoresMovil() {
-  let filtradasPorMecanico = tareasMovil;
-  if (mecanicoActivo !== 'todos') {
-    filtradasPorMecanico = tareasMovil.filter(t => (t.mecanico_asignado || '').toLowerCase().includes(mecanicoActivo.toLowerCase()));
-  }
+  const filtradasPorMecanico = filtrarTareasPorUsuario(tareasMovil);
 
   const p = filtradasPorMecanico.filter(t => t.estado === 'pendiente').length;
   const prog = filtradasPorMecanico.filter(t => t.estado === 'en_progreso').length;
   const c = filtradasPorMecanico.filter(t => t.estado === 'completado').length;
 
-  document.getElementById('mob-count-pendientes').innerText = p;
-  document.getElementById('mob-count-progreso').innerText = prog;
-  document.getElementById('mob-count-completadas').innerText = c;
-  document.getElementById('mob-count-todas').innerText = filtradasPorMecanico.length;
+  const elP = document.getElementById('mob-count-pendientes');
+  const elProg = document.getElementById('mob-count-progreso');
+  const elC = document.getElementById('mob-count-completadas');
+  const elT = document.getElementById('mob-count-todas');
+
+  if (elP) elP.innerText = p;
+  if (elProg) elProg.innerText = prog;
+  if (elC) elC.innerText = c;
+  if (elT) elT.innerText = filtradasPorMecanico.length;
 }
 
 // Renderizado de Tarjetas Móviles
@@ -170,11 +189,7 @@ function renderTareasMovil() {
   const contenedor = document.getElementById('contenedor-tareas-movil');
   if (!contenedor) return;
 
-  // Filtrar por mecánico activo
-  let lista = tareasMovil;
-  if (mecanicoActivo !== 'todos') {
-    lista = lista.filter(t => (t.mecanico_asignado || '').toLowerCase().includes(mecanicoActivo.toLowerCase()));
-  }
+  let lista = filtrarTareasPorUsuario(tareasMovil);
 
   // Filtrar por tab
   if (tabActual === 'pendientes') {

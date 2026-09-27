@@ -1,6 +1,7 @@
 // Variables globales del Dashboard
 let todasLasTareas = [];
 let filtroEstadoActual = 'todos';
+let periodoActual = 'todo';
 let tareaSeleccionadaId = null;
 let chartTipos = null;
 let chartTiempos = null;
@@ -10,16 +11,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const user = verificarSesionDashboard();
   if (!user) return; // Detener ejecución si no hay sesión activa
   iniciarReloj();
-  cargarInfoRed();
   cargarMecanicosSelect();
   cargarTareas();
   fijarOcurrenciaAhora();
 
-  // Auto-refresco cada 15 segundos para recibir fotos del móvil
+  // Auto-refresco cada 30 segundos
   setInterval(() => {
     cargarTareas(false);
-  }, 15000);
+  }, 30000);
 });
+
+// Cambiar período de visualización
+function cambiarPeriodo(periodo, btn) {
+  periodoActual = periodo;
+
+  // Actualizar estilos de botones de período
+  document.querySelectorAll('#btn-periodo-group .periodo-btn').forEach(b => {
+    b.className = 'periodo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700';
+  });
+  if (btn) {
+    btn.className = 'periodo-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-md';
+  }
+
+  cargarTareas(false);
+}
+
 
 function verificarSesionDashboard() {
   const userJson = localStorage.getItem('siman_user');
@@ -122,12 +138,12 @@ async function cargarTareas(animarRecarga = true) {
   if (animarRecarga && icon) icon.classList.add('fa-spin');
 
   try {
-    // 1. Obtener tareas
-    const resTasks = await fetch('/api/tasks');
+    // 1. Obtener tareas filtradas por período
+    const resTasks = await fetch(`/api/tasks?periodo=${periodoActual}`);
     todasLasTareas = await resTasks.json();
 
-    // 2. Obtener métricas
-    const resMetrics = await fetch('/api/metrics');
+    // 2. Obtener métricas filtradas por período
+    const resMetrics = await fetch(`/api/metrics?periodo=${periodoActual}`);
     const metrics = await resMetrics.json();
 
     actualizarKPIs(metrics);
@@ -140,37 +156,71 @@ async function cargarTareas(animarRecarga = true) {
   }
 }
 
+
 // Actualizar contadores y KPIs
 function actualizarKPIs(m) {
-  document.getElementById('kpi-total').innerText = m.total;
-  document.getElementById('kpi-pendientes').innerText = m.pendientes;
-  document.getElementById('kpi-progreso').innerText = m.en_progreso;
-  document.getElementById('kpi-completadas').innerText = m.completadas;
-  document.getElementById('kpi-mttr').innerText = m.mttr_global_formato || '0 min';
+  if (!m) return;
+  const pt = m.por_tipo || { preventivo: 0, correctivo: 0, predictivo: 0 };
+  const mt = m.mttr_por_tipo || {
+    preventivo: { formato: '0 min' },
+    correctivo: { formato: '0 min' },
+    predictivo: { formato: '0 min' }
+  };
+
+  const elTotal = document.getElementById('kpi-total');
+  const elPend = document.getElementById('kpi-pendientes');
+  const elProg = document.getElementById('kpi-progreso');
+  const elComp = document.getElementById('kpi-completadas');
+  const elMttr = document.getElementById('kpi-mttr');
+
+  if (elTotal) elTotal.innerText = m.total ?? 0;
+  if (elPend) elPend.innerText = m.pendientes ?? 0;
+  if (elProg) elProg.innerText = m.en_progreso ?? 0;
+  if (elComp) elComp.innerText = m.completadas ?? 0;
+  if (elMttr) elMttr.innerText = m.mttr_global_formato || '0 min';
 
   // Contadores en pestañas
-  document.getElementById('count-todos').innerText = m.total;
-  document.getElementById('count-tab-pendientes').innerText = m.pendientes;
-  document.getElementById('count-tab-progreso').innerText = m.en_progreso;
-  document.getElementById('count-tab-completadas').innerText = m.completadas;
+  const cTot = document.getElementById('count-todos');
+  const cPend = document.getElementById('count-tab-pendientes');
+  const cProg = document.getElementById('count-tab-progreso');
+  const cComp = document.getElementById('count-tab-completadas');
+  if (cTot) cTot.innerText = m.total ?? 0;
+  if (cPend) cPend.innerText = m.pendientes ?? 0;
+  if (cProg) cProg.innerText = m.en_progreso ?? 0;
+  if (cComp) cComp.innerText = m.completadas ?? 0;
 
   // Estadísticas por tipo
-  document.getElementById('stat-preventivo').innerText = m.por_tipo.preventivo;
-  document.getElementById('stat-correctivo').innerText = m.por_tipo.correctivo;
-  document.getElementById('stat-predictivo').innerText = m.por_tipo.predictivo;
+  const sPrev = document.getElementById('stat-preventivo');
+  const sCorr = document.getElementById('stat-correctivo');
+  const sPred = document.getElementById('stat-predictivo');
+  if (sPrev) sPrev.innerText = pt.preventivo ?? 0;
+  if (sCorr) sCorr.innerText = pt.correctivo ?? 0;
+  if (sPred) sPred.innerText = pt.predictivo ?? 0;
 
   // Tiempos por tipo
-  document.getElementById('mttr-preventivo-txt').innerText = m.mttr_por_tipo.preventivo.formato;
-  document.getElementById('mttr-correctivo-txt').innerText = m.mttr_por_tipo.correctivo.formato;
-  document.getElementById('mttr-predictivo-txt').innerText = m.mttr_por_tipo.predictivo.formato;
+  const mPrev = document.getElementById('mttr-preventivo-txt');
+  const mCorr = document.getElementById('mttr-correctivo-txt');
+  const mPred = document.getElementById('mttr-predictivo-txt');
+  if (mPrev) mPrev.innerText = mt.preventivo?.formato || '0 min';
+  if (mCorr) mCorr.innerText = mt.correctivo?.formato || '0 min';
+  if (mPred) mPred.innerText = mt.predictivo?.formato || '0 min';
 }
 
 // Actualizar Gráficas con Chart.js
 function actualizarGraficas(m) {
+  if (!m) return;
+  const pt = m.por_tipo || { preventivo: 0, correctivo: 0, predictivo: 0 };
+  const mt = m.mttr_por_tipo || {
+    preventivo: { minutos: 0 },
+    correctivo: { minutos: 0 },
+    predictivo: { minutos: 0 }
+  };
+
   // 1. Gráfica de Donut: Tipos
   const ctxTipos = document.getElementById('chart-tipos')?.getContext('2d');
   if (ctxTipos) {
-    const dataTipos = [m.por_tipo.preventivo, m.por_tipo.correctivo, m.por_tipo.predictivo];
+    const totalTipos = (pt.preventivo || 0) + (pt.correctivo || 0) + (pt.predictivo || 0);
+    const dataTipos = totalTipos > 0 ? [pt.preventivo, pt.correctivo, pt.predictivo] : [0, 0, 0];
     if (chartTipos) {
       chartTipos.data.datasets[0].data = dataTipos;
       chartTipos.update();
@@ -202,9 +252,9 @@ function actualizarGraficas(m) {
   // 2. Gráfica de Barra Horizontal: Minutos MTTR
   const ctxTiempos = document.getElementById('chart-tiempos')?.getContext('2d');
   if (ctxTiempos) {
-    const minPreventivo = m.mttr_por_tipo.preventivo.minutos;
-    const minCorrectivo = m.mttr_por_tipo.correctivo.minutos;
-    const minPredictivo = m.mttr_por_tipo.predictivo.minutos;
+    const minPreventivo = mt.preventivo?.minutos || 0;
+    const minCorrectivo = mt.correctivo?.minutos || 0;
+    const minPredictivo = mt.predictivo?.minutos || 0;
 
     if (chartTiempos) {
       chartTiempos.data.datasets[0].data = [minPreventivo, minCorrectivo, minPredictivo];

@@ -78,20 +78,14 @@
         </div>
       </div>
 
-      <!-- Actions & QR Link -->
+      <!-- Actions (Nav Right) -->
       <div class="flex items-center space-x-3">
-        
+
         <!-- Reloj / Hora actual -->
         <div class="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-700/60 text-xs text-slate-300">
           <i class="fa-regular fa-clock text-emerald-400"></i>
           <span id="reloj-vivo">--:--:--</span>
         </div>
-
-        <!-- Botón Móvil / QR para Mecánicos -->
-        <button onclick="abrirModalQR()" class="flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium px-3.5 py-2 rounded-lg shadow-md shadow-indigo-600/20 transition-all">
-          <i class="fa-solid fa-mobile-screen-button text-base"></i>
-          <span class="hidden sm:inline">Conectar Móvil (QR)</span>
-        </button>
 
         <!-- Botón Gestión de Usuarios (Exclusivo Admin Holger) -->
         <button id="btn-admin-usuarios" onclick="abrirModalUsuarios()" class="hidden flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition shadow">
@@ -123,32 +117,25 @@
   <!-- MAIN CONTAINER -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- BANNER DE ENLACE MÓVIL DIRECTO -->
-    <div id="banner-movil" class="bg-gradient-to-r from-indigo-950/80 via-slate-800 to-slate-900 border border-indigo-500/30 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
-      <div class="flex items-center space-x-4">
-        <div class="w-12 h-12 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 text-2xl flex-shrink-0">
-          <i class="fa-solid fa-qrcode"></i>
+
+    <!-- BARRA DE FILTRO POR PERÍODO -->
+    <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 text-base flex-shrink-0">
+          <i class="fa-solid fa-calendar-days"></i>
         </div>
         <div>
-          <h3 class="font-bold text-white text-sm sm:text-base flex items-center gap-2">
-            Vista Móvil para Mecánicos Lista
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-900/60 text-emerald-300 border border-emerald-500/30">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span> En Red Local
-            </span>
-          </h3>
-          <p class="text-xs sm:text-sm text-slate-300 mt-0.5">
-            Los mecánicos pueden abrir la app desde su celular en: 
-            <span id="ip-banner-url" class="font-mono text-indigo-300 font-semibold bg-slate-900/80 px-2 py-0.5 rounded border border-indigo-500/30">Cargando IP...</span>
-          </p>
+          <p class="text-xs font-bold text-white">Período de visualización</p>
+          <p class="text-[10px] text-slate-400 mt-0.5">Los indicadores y la lista de tareas se filtran según el rango seleccionado</p>
         </div>
       </div>
-      <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
-        <a id="btn-probar-movil" href="/mecanico" target="_blank" class="text-xs bg-slate-700/80 hover:bg-slate-600 text-slate-200 px-3 py-2 rounded-lg border border-slate-600 transition flex items-center gap-1.5">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i> Probar Vista Móvil
-        </a>
-        <button onclick="abrirModalQR()" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
-          <i class="fa-solid fa-qrcode"></i> Ver Código QR Grande
-        </button>
+      <div class="flex flex-wrap items-center gap-1.5" id="btn-periodo-group" role="group">
+        <button onclick="cambiarPeriodo('todo', this)" class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-600 text-white shadow-md">Todo</button>
+        <button onclick="cambiarPeriodo('dia', this)" class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700">Hoy</button>
+        <button onclick="cambiarPeriodo('semana', this)" class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700">Semana</button>
+        <button onclick="cambiarPeriodo('mes', this)" class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700">Mes</button>
+        <button onclick="cambiarPeriodo('semestre', this)" class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700">Semestre</button>
+        <button onclick="cambiarPeriodo('anual', this)" class="periodo-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700">Año</button>
       </div>
     </div>
 
