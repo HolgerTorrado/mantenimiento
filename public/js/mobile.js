@@ -352,18 +352,66 @@ function renderTareasMovil() {
            </div>`
         : '';
 
+      // Desglose de tiempo de espera vs trabajo activo en móvil
+      let tiempoDetalladoHtml = '';
+      if (t.tiempo_espera_minutos && t.tiempo_espera_minutos > 0) {
+        const activo = (t.tiempo_trabajo_activo_minutos !== undefined && t.tiempo_trabajo_activo_minutos !== null)
+          ? t.tiempo_trabajo_activo_minutos
+          : Math.max(0, t.tiempo_arreglo_minutos - t.tiempo_espera_minutos);
+        tiempoDetalladoHtml = `
+          <div class="mt-1 bg-amber-950/40 border border-amber-500/20 rounded-lg p-2 space-y-0.5 text-[11px]">
+            <div class="flex items-center justify-between text-amber-300">
+              <span class="flex items-center gap-1"><i class="fa-solid fa-hourglass-half text-[10px]"></i> Espera repuesto:</span>
+              <span class="font-mono font-bold">${formatMinutosMovil(t.tiempo_espera_minutos)}</span>
+            </div>
+            ${t.motivo_espera ? `<p class="text-[10px] text-amber-200/70 italic truncate">"${escaparHTMLMovil(t.motivo_espera)}"</p>` : ''}
+            <div class="flex items-center justify-between text-emerald-300 pt-0.5 border-t border-amber-500/20">
+              <span class="flex items-center gap-1"><i class="fa-solid fa-wrench text-[10px]"></i> Trabajo activo:</span>
+              <span class="font-mono font-bold">${formatMinutosMovil(activo)}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // Desglose de horas por especialidad si existen
+      let tiemposRolesHtml = '';
+      if (t.tiempos_por_rol && Object.keys(t.tiempos_por_rol).length > 0) {
+        const tr = t.tiempos_por_rol;
+        const badgesRoles = [];
+        if (tr.mecanico > 0) badgesRoles.push(`🔧 Mec: ${formatMinutosMovil(tr.mecanico)}`);
+        if (tr.electrico > 0) badgesRoles.push(`⚡ Elec: ${formatMinutosMovil(tr.electrico)}`);
+        if (tr.maquinista > 0) badgesRoles.push(`🚜 Maq: ${formatMinutosMovil(tr.maquinista)}`);
+        if (badgesRoles.length > 0) {
+          tiemposRolesHtml = `
+            <div class="text-[10px] text-slate-300 bg-slate-900/60 p-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5 flex-wrap">
+              <span class="font-semibold text-slate-400">Labor:</span>
+              ${badgesRoles.map(b => `<span class="bg-slate-800 px-1.5 py-0.5 rounded font-mono font-bold">${b}</span>`).join('')}
+            </div>
+          `;
+        }
+      }
+
+      const botonCambiarFoto = !esVisualizador ? `
+        <button onclick="iniciarCambioFotoMovil('${t.id}')" class="w-full mt-2 py-2 px-3 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-indigo-300 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+          <i class="fa-solid fa-camera-rotate"></i> Cambiar / Mejorar Foto
+        </button>
+      ` : '';
+
       botonesAccion = `
-        <div class="mt-2.5 pt-2.5 border-t border-slate-700/60 text-xs text-slate-400 space-y-1">
+        <div class="mt-2.5 pt-2.5 border-t border-slate-700/60 text-xs text-slate-400 space-y-1.5">
           <div class="flex items-center justify-between text-emerald-400 font-medium">
             <span class="flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Arreglado:</span>
             <span class="font-mono">${formatearFechaCorta(t.fecha_arreglo)}</span>
           </div>
           <div class="flex items-center justify-between text-slate-300">
-            <span>Duración total:</span>
+            <span>Duración total parada:</span>
             <span class="font-mono font-bold text-purple-300">${formatMinutosMovil(t.tiempo_arreglo_minutos)}</span>
           </div>
+          ${tiempoDetalladoHtml}
+          ${tiemposRolesHtml}
           ${fotoHtml}
           ${t.notas_mecanico ? `<p class="mt-1 text-[11px] text-slate-300 italic bg-slate-900/60 p-2 rounded-lg border border-slate-800">"${escaparHTMLMovil(t.notas_mecanico)}"</p>` : ''}
+          ${botonCambiarFoto}
         </div>
       `;
     }
@@ -469,6 +517,14 @@ function abrirModalCompletar(id) {
   if (inCam) inCam.value = '';
   if (inGal) inGal.value = '';
   document.getElementById('input-notas-mecanico').value = '';
+
+  const inEH = document.getElementById('input-espera-horas-movil');
+  const inEM = document.getElementById('input-espera-minutos-movil');
+  const inMot = document.getElementById('input-motivo-espera-movil');
+  if (inEH) inEH.value = '0';
+  if (inEM) inEM.value = '0';
+  if (inMot) inMot.value = '';
+
   document.getElementById('box-sin-foto-previa').classList.remove('hidden');
   document.getElementById('box-con-foto-previa').classList.add('hidden');
   document.getElementById('img-previa-elemento').src = '';
@@ -567,6 +623,12 @@ async function enviarFinalizacion(e) {
   const fechaArreglo = document.getElementById('input-fecha-arreglo').value;
   const notasMecanico = document.getElementById('input-notas-mecanico').value;
   
+  // Tiempo de espera por repuestos
+  const hEspera = parseInt(document.getElementById('input-espera-horas-movil')?.value) || 0;
+  const mEspera = parseInt(document.getElementById('input-espera-minutos-movil')?.value) || 0;
+  const tiempoEsperaMin = Math.max(0, (hEspera * 60) + mEspera);
+  const motivoEspera = (document.getElementById('input-motivo-espera-movil')?.value || '').trim();
+
   // Usuario autenticado que realiza la acción
   const usuarioActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
   const usuarioNombre = usuarioActual.nombre || 'Técnico de Turno';
@@ -600,7 +662,9 @@ async function enviarFinalizacion(e) {
           fecha_arreglo: fechaArreglo,
           notas_mecanico: notasMecanico,
           mecanico_nombre: usuarioNombre,
-          usuario_username: usuarioLogin
+          usuario_username: usuarioLogin,
+          tiempo_espera_minutos: tiempoEsperaMin,
+          motivo_espera: motivoEspera
         })
       });
     } else {
@@ -611,6 +675,8 @@ async function enviarFinalizacion(e) {
       formData.append('notas_mecanico', notasMecanico);
       formData.append('mecanico_nombre', usuarioNombre);
       formData.append('usuario_username', usuarioLogin);
+      formData.append('tiempo_espera_minutos', tiempoEsperaMin);
+      formData.append('motivo_espera', motivoEspera);
 
       res = await fetch(`/api/tasks/${tareaId}/completar`, {
         method: 'POST',
@@ -696,4 +762,50 @@ function mostrarToastMovil(mensaje) {
   setTimeout(() => {
     toast.classList.add('-translate-y-24', 'opacity-0');
   }, 4000);
+}
+
+// ================= GESTIÓN DE FOTOGRAFÍA EN TAREAS YA COMPLETADAS =================
+let idTareaParaCambiarFoto = null;
+
+function iniciarCambioFotoMovil(id) {
+  idTareaParaCambiarFoto = id;
+  const input = document.getElementById('input-cambiar-foto-movil');
+  if (input) {
+    input.value = '';
+    input.click();
+  }
+}
+
+async function subirNuevaFotoMovil(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file || !idTareaParaCambiarFoto) return;
+
+  mostrarToastMovil('Comprimiendo y actualizando fotografía...');
+  const user = getUsuarioActivo();
+
+  try {
+    const fotoBase64 = await comprimirImagenCanvas(file, 1024, 0.75);
+
+    const res = await fetch(`/api/tasks/${idTareaParaCambiarFoto}/foto`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'mecanico',
+        'x-user-name': user.nombre || 'Técnico',
+        'x-user-username': user.username || 'tecnico'
+      },
+      body: JSON.stringify({ foto_base64: fotoBase64 })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al actualizar foto');
+
+    if (navigator.vibrate) navigator.vibrate([80, 50, 80]);
+    mostrarToastMovil('✅ ¡Fotografía actualizada y respaldada!');
+    e.target.value = '';
+    idTareaParaCambiarFoto = null;
+    cargarTareasMovil(false);
+  } catch (err) {
+    alert('Error al cambiar foto: ' + err.message);
+  }
 }

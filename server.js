@@ -643,7 +643,17 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
     return res.status(404).json({ error: 'Tarea no encontrada' });
   }
 
-  const { fecha_arreglo, notas_mecanico, mecanico_nombre, usuario_username } = req.body;
+  const {
+    fecha_arreglo,
+    notas_mecanico,
+    mecanico_nombre,
+    usuario_username,
+    tiempo_espera_minutos,
+    motivo_espera,
+    tiempo_trabajo_activo_minutos,
+    tiempos_por_rol,
+    tiempos_por_tecnico
+  } = req.body;
   const usernameFinal = req.headers['x-user-username'] || usuario_username || 'tecnico';
   const nombreFinal = req.headers['x-user-name'] || mecanico_nombre || 'Técnico';
   const rolFinal = req.headers['x-user-role'] || 'mecanico';
@@ -690,6 +700,25 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
   tareas[idx].completado_por_nombre = nombreFinal;
   tareas[idx].completado_por_rol = rolFinal;
 
+  // Desglose de tiempos de espera vs trabajo activo del personal
+  const esperaNum = parseInt(tiempo_espera_minutos) || 0;
+  tareas[idx].tiempo_espera_minutos = Math.max(0, esperaNum);
+  if (motivo_espera !== undefined) tareas[idx].motivo_espera = String(motivo_espera || '').trim();
+
+  if (tiempo_trabajo_activo_minutos !== undefined && tiempo_trabajo_activo_minutos !== null) {
+    tareas[idx].tiempo_trabajo_activo_minutos = Math.max(0, parseInt(tiempo_trabajo_activo_minutos) || 0);
+  } else if (tiempoMinutos !== null) {
+    tareas[idx].tiempo_trabajo_activo_minutos = Math.max(0, tiempoMinutos - tareas[idx].tiempo_espera_minutos);
+  }
+
+  // Desglose de horas por rol (ej: mecánico 3h, eléctrico 2h)
+  if (tiempos_por_rol !== undefined) {
+    tareas[idx].tiempos_por_rol = typeof tiempos_por_rol === 'string' ? JSON.parse(tiempos_por_rol || '{}') : tiempos_por_rol;
+  }
+  if (tiempos_por_tecnico !== undefined) {
+    tareas[idx].tiempos_por_tecnico = typeof tiempos_por_tecnico === 'string' ? JSON.parse(tiempos_por_tecnico || '{}') : tiempos_por_tecnico;
+  }
+
   // Si no estaba en técnicos asignados, agregarlo
   if (!tareas[idx].tecnicos_asignados) tareas[idx].tecnicos_asignados = [];
   if (!tareas[idx].tecnicos_asignados.includes(nombreFinal)) {
@@ -708,7 +737,7 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
   });
 });
 
-// 7.1. Actualizar y Modificar Tarea (Exclusivo Administrador Holger)
+// 7.1. Actualizar y Modificar Tarea Completa (Exclusivo Administrador Holger)
 app.put('/api/tasks/:id', (req, res) => {
   const userRol = req.headers['x-user-role'];
   if (userRol !== 'admin') {
@@ -726,6 +755,13 @@ app.put('/api/tasks/:id', (req, res) => {
     mecanico_asignado,
     roles_asignados,
     tecnicos_asignados,
+    foto_base64,
+    foto_comprobante,
+    tiempo_espera_minutos,
+    motivo_espera,
+    tiempo_trabajo_activo_minutos,
+    tiempos_por_rol,
+    tiempos_por_tecnico,
     equipo,
     titulo,
     tipo,
@@ -736,15 +772,28 @@ app.put('/api/tasks/:id', (req, res) => {
   if (fecha_ocurrencia !== undefined) tareas[idx].fecha_ocurrencia = fecha_ocurrencia;
   if (fecha_arreglo !== undefined) tareas[idx].fecha_arreglo = fecha_arreglo || null;
   if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
+
+  // Actualizar fotografía si se envía nueva
+  if (foto_base64 && foto_base64.startsWith('data:image/')) {
+    tareas[idx].foto_comprobante = foto_base64;
+    tareas[idx].foto_actualizada_en = new Date().toISOString();
+  } else if (foto_comprobante !== undefined) {
+    tareas[idx].foto_comprobante = foto_comprobante;
+  }
   
+  // Modificar roles asignados (permite añadir eléctrico o maquinista si se agravó el daño)
   if (roles_asignados !== undefined) {
-    tareas[idx].roles_asignados = Array.isArray(roles_asignados) ? roles_asignados : [roles_asignados];
+    let rFinal = Array.isArray(roles_asignados) ? roles_asignados : [roles_asignados];
+    rFinal = rFinal.filter(r => ROLES_TECNICOS.includes(r));
+    if (rFinal.length === 0) rFinal = ['mecanico'];
+    tareas[idx].roles_asignados = rFinal;
   }
 
+  // Modificar personas asignadas que participaron
   if (tecnicos_asignados !== undefined) {
     const arr = Array.isArray(tecnicos_asignados) ? tecnicos_asignados : [tecnicos_asignados];
-    tareas[idx].tecnicos_asignados = arr;
-    tareas[idx].mecanico_asignado = arr.length > 0 ? arr.join(', ') : 'Sin Asignar';
+    tareas[idx].tecnicos_asignados = arr.map(s => String(s).trim()).filter(Boolean);
+    tareas[idx].mecanico_asignado = tareas[idx].tecnicos_asignados.length > 0 ? tareas[idx].tecnicos_asignados.join(', ') : 'Sin Asignar';
   } else if (mecanico_asignado !== undefined) {
     tareas[idx].mecanico_asignado = mecanico_asignado;
   }
@@ -754,13 +803,21 @@ app.put('/api/tasks/:id', (req, res) => {
                               (tareas[idx].tecnicos_asignados && tareas[idx].tecnicos_asignados.length > 1);
   }
 
+  // Tiempos de espera (por repuestos / logística) vs tiempo de trabajo activo del personal
+  if (tiempo_espera_minutos !== undefined) {
+    tareas[idx].tiempo_espera_minutos = Math.max(0, parseInt(tiempo_espera_minutos) || 0);
+  }
+  if (motivo_espera !== undefined) {
+    tareas[idx].motivo_espera = String(motivo_espera || '').trim();
+  }
+
   if (equipo !== undefined) tareas[idx].equipo = equipo.trim();
   if (titulo !== undefined) tareas[idx].titulo = titulo.trim();
   if (tipo !== undefined) tareas[idx].tipo = tipo.toLowerCase();
   if (prioridad !== undefined) tareas[idx].prioridad = prioridad;
   if (estado !== undefined) tareas[idx].estado = estado;
 
-  // Recalcular tiempo de arreglo (MTTR) con las fechas modificadas
+  // Recalcular tiempo de parada (MTTR) con las fechas modificadas
   if (tareas[idx].fecha_ocurrencia && tareas[idx].fecha_arreglo) {
     try {
       const fO = new Date(tareas[idx].fecha_ocurrencia).getTime();
@@ -776,12 +833,55 @@ app.put('/api/tasks/:id', (req, res) => {
     tareas[idx].tiempo_arreglo_minutos = null;
   }
 
+  // Recalcular tiempo de trabajo activo si no fue explícito
+  if (tiempo_trabajo_activo_minutos !== undefined && tiempo_trabajo_activo_minutos !== null) {
+    tareas[idx].tiempo_trabajo_activo_minutos = Math.max(0, parseInt(tiempo_trabajo_activo_minutos) || 0);
+  } else if (tareas[idx].tiempo_arreglo_minutos !== null) {
+    const espera = tareas[idx].tiempo_espera_minutos || 0;
+    tareas[idx].tiempo_trabajo_activo_minutos = Math.max(0, (tareas[idx].tiempo_arreglo_minutos || 0) - espera);
+  }
+
+  // Desglose de horas por rol (ej: electrico 2h, mecanico 3h)
+  if (tiempos_por_rol !== undefined) {
+    tareas[idx].tiempos_por_rol = typeof tiempos_por_rol === 'string' ? JSON.parse(tiempos_por_rol || '{}') : tiempos_por_rol;
+  }
+  if (tiempos_por_tecnico !== undefined) {
+    tareas[idx].tiempos_por_tecnico = typeof tiempos_por_tecnico === 'string' ? JSON.parse(tiempos_por_tecnico || '{}') : tiempos_por_tecnico;
+  }
+
   tareas[idx].modificado_por_admin = true;
   tareas[idx].modificado_en = new Date().toISOString();
 
   guardarTareas(tareas);
   res.json({
-    mensaje: 'Tarea y fechas actualizadas correctamente por el Administrador',
+    mensaje: 'Tarea, roles, participantes, fotografía y tiempos actualizados correctamente',
+    tarea: tareas[idx]
+  });
+});
+
+// 7.2. Actualizar o Cambiar Fotografía (Disponible incluso si la tarea ya está finalizada)
+app.post('/api/tasks/:id/foto', (req, res) => {
+  const userRol = req.headers['x-user-role'];
+  if (userRol === 'visualizador') {
+    return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para cambiar fotografías.' });
+  }
+
+  let tareas = leerTareas();
+  const idx = tareas.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  const { foto_base64 } = req.body;
+  if (!foto_base64 || !foto_base64.startsWith('data:image/')) {
+    return res.status(400).json({ error: 'Se requiere una imagen válida en formato Data URL Base64.' });
+  }
+
+  tareas[idx].foto_comprobante = foto_base64;
+  tareas[idx].foto_actualizada_en = new Date().toISOString();
+  tareas[idx].foto_actualizada_por = req.headers['x-user-name'] || req.headers['x-user-username'] || 'Usuario';
+
+  guardarTareas(tareas);
+  res.json({
+    mensaje: 'Fotografía actualizada y respaldada en la nube con éxito',
     tarea: tareas[idx]
   });
 });

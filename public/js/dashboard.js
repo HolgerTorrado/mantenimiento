@@ -5,6 +5,8 @@ let periodoActual = 'todo';
 let tareaSeleccionadaId = null;
 let chartTipos = null;
 let chartTiempos = null;
+let nuevaFotoDetalleBase64 = null;
+let fotoDetalleOriginal = null;
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
@@ -460,8 +462,23 @@ function renderTablaTareas(tareas) {
     // Fechas formateadas
     const txtOcurrio = formatearFechaHora(t.fecha_ocurrencia);
     const txtArreglo = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : `<span class="text-slate-500 italic">En proceso...</span>`;
+    
+    let desgloseTiempos = '';
+    if (t.tiempo_arreglo_minutos !== null) {
+      if (t.tiempo_espera_minutos && t.tiempo_espera_minutos > 0) {
+        const activo = (t.tiempo_trabajo_activo_minutos !== undefined && t.tiempo_trabajo_activo_minutos !== null)
+          ? t.tiempo_trabajo_activo_minutos
+          : Math.max(0, t.tiempo_arreglo_minutos - t.tiempo_espera_minutos);
+        desgloseTiempos = `
+          <div class="text-[10px] text-amber-300/90 flex items-center gap-1 mt-1 font-mono" title="Espera repuesto: ${escaparHTML(t.motivo_espera || 'Logística / Repuesto')}">
+            <i class="fa-solid fa-hourglass-half text-[9px] text-amber-400"></i> ${formatMinutos(activo)} activo | ${formatMinutos(t.tiempo_espera_minutos)} espera
+          </div>
+        `;
+      }
+    }
+
     const txtDuracion = t.tiempo_arreglo_minutos !== null 
-      ? `<span class="font-mono font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30">${formatMinutos(t.tiempo_arreglo_minutos)}</span>`
+      ? `<div><span class="font-mono font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30">${formatMinutos(t.tiempo_arreglo_minutos)}</span>${desgloseTiempos}</div>`
       : `<span class="text-slate-500">-</span>`;
 
     return `
@@ -651,6 +668,14 @@ function abrirModalDetalle(id) {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
   const esAdmin = user.rol === 'admin';
 
+  // Guardar estado original de foto
+  fotoDetalleOriginal = t.foto_comprobante || null;
+  nuevaFotoDetalleBase64 = null;
+  const inputFoto = document.getElementById('input-cambiar-foto-detalle');
+  if (inputFoto) inputFoto.value = '';
+  const avisoFoto = document.getElementById('aviso-nueva-foto-detalle');
+  if (avisoFoto) avisoFoto.classList.add('hidden');
+
   // Título e ID
   document.getElementById('det-id-titulo').innerText = `${t.id} - ${t.equipo}`;
   
@@ -666,7 +691,6 @@ function abrirModalDetalle(id) {
   const inArreglo = document.getElementById('edit-det-fecha-arreglo');
   const txtOcurrio = document.getElementById('det-fecha-ocurrio-txt');
   const txtArreglo = document.getElementById('det-fecha-arreglo-txt');
-  const txtDuracion = document.getElementById('det-tiempo-total');
 
   if (inOcurrio) {
     inOcurrio.value = t.fecha_ocurrencia ? t.fecha_ocurrencia.slice(0, 16) : '';
@@ -678,7 +702,45 @@ function abrirModalDetalle(id) {
   }
   if (txtOcurrio) txtOcurrio.innerText = formatearFechaHora(t.fecha_ocurrencia);
   if (txtArreglo) txtArreglo.innerText = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : 'Pendiente de registrar';
-  if (txtDuracion) txtDuracion.innerText = t.tiempo_arreglo_minutos !== null ? formatMinutos(t.tiempo_arreglo_minutos) : 'En ejecución';
+
+  // Tiempos de espera por repuestos o logística
+  const esperaTotal = t.tiempo_espera_minutos || 0;
+  const inEsperaH = document.getElementById('edit-det-espera-horas');
+  const inEsperaM = document.getElementById('edit-det-espera-minutos');
+  const inMotivoEsp = document.getElementById('edit-det-motivo-espera');
+  if (inEsperaH) {
+    inEsperaH.value = Math.floor(esperaTotal / 60);
+    inEsperaH.disabled = !esAdmin;
+  }
+  if (inEsperaM) {
+    inEsperaM.value = esperaTotal % 60;
+    inEsperaM.disabled = !esAdmin;
+  }
+  if (inMotivoEsp) {
+    inMotivoEsp.value = t.motivo_espera || '';
+    inMotivoEsp.disabled = !esAdmin;
+  }
+
+  // Horas por especialidad / rol
+  const tpr = t.tiempos_por_rol || {};
+  const inHorasMec = document.getElementById('edit-horas-mecanico');
+  const inHorasElec = document.getElementById('edit-horas-electrico');
+  const inHorasMaq = document.getElementById('edit-horas-maquinista');
+  if (inHorasMec) {
+    inHorasMec.value = tpr.mecanico ? (tpr.mecanico / 60) : '';
+    inHorasMec.disabled = !esAdmin;
+  }
+  if (inHorasElec) {
+    inHorasElec.value = tpr.electrico ? (tpr.electrico / 60) : '';
+    inHorasElec.disabled = !esAdmin;
+  }
+  if (inHorasMaq) {
+    inHorasMaq.value = tpr.maquinista ? (tpr.maquinista / 60) : '';
+    inHorasMaq.disabled = !esAdmin;
+  }
+
+  // Recalcular indicadores de tiempo activo y parada
+  calcularTiemposDetalle();
 
   // Datos generales
   document.getElementById('det-equipo').innerText = t.equipo;
@@ -686,43 +748,19 @@ function abrirModalDetalle(id) {
   document.getElementById('det-prioridad').innerText = t.prioridad || 'Media';
   document.getElementById('det-descripcion').innerText = t.descripcion || 'Sin descripción';
 
-  // Roles requeridos
-  const contRoles = document.getElementById('det-roles-container');
-  if (contRoles) {
-    const roles = t.roles_asignados || ['mecanico'];
-    contRoles.innerHTML = roles.map(r => {
-      if (r === 'electrico') return '<span class="text-[11px] bg-amber-950 text-amber-300 border border-amber-800 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-bolt"></i> Eléctrica</span>';
-      if (r === 'maquinista') return '<span class="text-[11px] bg-orange-950 text-orange-300 border border-orange-800 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-tractor"></i> Maquinaria</span>';
-      return '<span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-wrench"></i> Mecánica</span>';
-    }).join('');
-  }
+  // Checkboxes de roles dinámicos (mecanico, electrico, maquinista)
+  const roles = (Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0) ? t.roles_asignados : ['mecanico'];
+  const cbMec = document.getElementById('edit-det-rol-mecanico');
+  const cbElec = document.getElementById('edit-det-rol-electrico');
+  const cbMaq = document.getElementById('edit-det-rol-maquinista');
+  if (cbMec) { cbMec.checked = roles.includes('mecanico'); cbMec.disabled = !esAdmin; }
+  if (cbElec) { cbElec.checked = roles.includes('electrico'); cbElec.disabled = !esAdmin; }
+  if (cbMaq) { cbMaq.checked = roles.includes('maquinista'); cbMaq.disabled = !esAdmin; }
 
-  // Tarea en conjunto badge
-  const badgeConjunta = document.getElementById('det-badge-conjunta');
-  if (badgeConjunta) {
-    const esConjunta = t.es_conjunta || (t.roles_asignados && t.roles_asignados.length > 1) || (t.tecnicos_asignados && t.tecnicos_asignados.length > 1);
-    if (esConjunta) badgeConjunta.classList.remove('hidden');
-    else badgeConjunta.classList.add('hidden');
-  }
+  // Checkboxes dinámicos de técnicos participantes
+  poblarCheckboxesTecnicosDetalle(t, esAdmin);
+  actualizarEstadoConjuntaDetalle();
 
-  // Técnicos asignados
-  const contTec = document.getElementById('det-tecnicos-container');
-  if (contTec) {
-    const tecs = (t.tecnicos_asignados && t.tecnicos_asignados.length > 0)
-      ? t.tecnicos_asignados
-      : (t.mecanico_asignado && t.mecanico_asignado !== 'Sin Asignar' ? t.mecanico_asignado.split(',').map(s => s.trim()) : []);
-
-    if (tecs.length > 0) {
-      contTec.innerHTML = tecs.map(nombre => `
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200">
-          <i class="fa-solid fa-user-gear text-indigo-400"></i> ${escaparHTML(nombre)}
-        </span>
-      `).join('');
-    } else {
-      contTec.innerHTML = '<span class="text-xs text-slate-500 italic">Sin técnico asignado específicamente (disponible para el rol)</span>';
-    }
-  }
-  
   // Notas editables
   const inNotas = document.getElementById('edit-det-notas-mecanico');
   if (inNotas) {
@@ -752,16 +790,7 @@ function abrirModalDetalle(id) {
     imgFoto.src = t.foto_comprobante;
     imgFoto.onerror = function() {
       this.classList.add('hidden');
-      if (sinFoto) {
-        sinFoto.classList.remove('hidden');
-        sinFoto.innerHTML = `
-          <div class="py-10 text-center text-slate-400 space-y-1">
-            <i class="fa-solid fa-image text-3xl text-amber-400"></i>
-            <p class="text-xs font-semibold text-white">Comprobante anterior en migración</p>
-            <p class="text-[11px] text-slate-400">A partir de ahora todas las fotos nuevas se guardan de forma permanente e indestructible en la base de datos.</p>
-          </div>
-        `;
-      }
+      if (sinFoto) sinFoto.classList.remove('hidden');
     };
     imgFoto.classList.remove('hidden');
     sinFoto.classList.add('hidden');
@@ -771,7 +800,7 @@ function abrirModalDetalle(id) {
     sinFoto.classList.remove('hidden');
   }
 
-  // Botón eliminar y botón guardar fechas
+  // Botón eliminar y botón guardar cambios
   const btnElim = document.getElementById('btn-eliminar-tarea');
   const btnGuardar = document.getElementById('btn-guardar-edicion-tarea');
   if (btnElim) {
@@ -786,23 +815,201 @@ function abrirModalDetalle(id) {
   document.getElementById('modal-detalle').classList.remove('hidden');
 }
 
-function cerrarModalDetalle() {
-  document.getElementById('modal-detalle').classList.add('hidden');
-  tareaSeleccionadaId = null;
-}
+function poblarCheckboxesTecnicosDetalle(tarea, esAdmin) {
+  const cont = document.getElementById('det-tecnicos-checkboxes-container');
+  if (!cont) return;
 
-// Guardar Modificación de Fechas y Horas (Exclusivo Administrador Holger)
-async function guardarEdicionFechasAdmin() {
-  if (!tareaSeleccionadaId) return;
-  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  if (user.rol !== 'admin') {
-    alert('Solo el Administrador Holger tiene autorización para modificar las fechas.');
+  const tecsAsignados = (tarea.tecnicos_asignados && tarea.tecnicos_asignados.length > 0)
+    ? tarea.tecnicos_asignados
+    : (tarea.mecanico_asignado && tarea.mecanico_asignado !== 'Sin Asignar' ? tarea.mecanico_asignado.split(',').map(s => s.trim()) : []);
+
+  if (listaTecnicosDisponibles.length === 0) {
+    cont.innerHTML = '<p class="text-[11px] text-slate-400 p-2 col-span-2">No hay lista de técnicos cargada.</p>';
     return;
   }
 
-  const fOcurrio = document.getElementById('edit-det-fecha-ocurrio').value;
-  const fArreglo = document.getElementById('edit-det-fecha-arreglo').value;
-  const notas = document.getElementById('edit-det-notas-mecanico').value;
+  cont.innerHTML = listaTecnicosDisponibles.map(t => {
+    let iconRol = 'fa-wrench text-emerald-400';
+    let badgeRol = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+    let rolTxt = 'Mecánico';
+    if (t.rol === 'electrico') {
+      iconRol = 'fa-bolt text-amber-400';
+      badgeRol = 'bg-amber-950 text-amber-300 border-amber-800';
+      rolTxt = 'Eléctrico';
+    } else if (t.rol === 'maquinista') {
+      iconRol = 'fa-tractor text-orange-400';
+      badgeRol = 'bg-orange-950 text-orange-300 border-orange-800';
+      rolTxt = 'Maquinista';
+    }
+
+    const checked = tecsAsignados.some(nombre => nombre.toLowerCase() === t.nombre.toLowerCase());
+    const disabledAttr = esAdmin ? '' : 'disabled';
+
+    return `
+      <label class="cursor-pointer border border-slate-700/80 rounded-lg p-2 flex items-center justify-between text-xs hover:bg-slate-800 transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/30">
+        <div class="flex items-center gap-2 truncate">
+          <input type="checkbox" name="det_tecnicos_asignados" value="${escaparHTML(t.nombre)}" ${checked ? 'checked' : ''} ${disabledAttr} onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
+          <span class="font-medium text-white truncate">${escaparHTML(t.nombre)}</span>
+        </div>
+        <span class="text-[10px] px-1.5 py-0.5 rounded border ${badgeRol} flex items-center gap-1 flex-shrink-0">
+          <i class="fa-solid ${iconRol}"></i> ${rolTxt}
+        </span>
+      </label>
+    `;
+  }).join('');
+}
+
+function cerrarModalDetalle() {
+  document.getElementById('modal-detalle').classList.add('hidden');
+  tareaSeleccionadaId = null;
+  nuevaFotoDetalleBase64 = null;
+  fotoDetalleOriginal = null;
+}
+
+// Calcular tiempos detallados dentro del modal
+function calcularTiemposDetalle() {
+  const fOcurrio = document.getElementById('edit-det-fecha-ocurrio')?.value;
+  const fArreglo = document.getElementById('edit-det-fecha-arreglo')?.value;
+  const hEspera = parseInt(document.getElementById('edit-det-espera-horas')?.value) || 0;
+  const mEspera = parseInt(document.getElementById('edit-det-espera-minutos')?.value) || 0;
+  const totalEsperaMin = Math.max(0, (hEspera * 60) + mEspera);
+
+  let totalParadaMin = null;
+  if (fOcurrio && fArreglo) {
+    try {
+      const diffMs = new Date(fArreglo).getTime() - new Date(fOcurrio).getTime();
+      if (!isNaN(diffMs) && diffMs >= 0) {
+        totalParadaMin = Math.round(diffMs / 60000);
+      }
+    } catch(e) {}
+  }
+
+  const elTotal = document.getElementById('det-tiempo-total');
+  const elResumenParada = document.getElementById('det-resumen-parada-total');
+  const elResumenEspera = document.getElementById('det-resumen-espera');
+  const elActivo = document.getElementById('det-tiempo-activo-calc');
+
+  if (elResumenEspera) elResumenEspera.innerText = formatMinutos(totalEsperaMin);
+
+  if (totalParadaMin !== null) {
+    if (elTotal) elTotal.innerText = formatMinutos(totalParadaMin);
+    if (elResumenParada) elResumenParada.innerText = formatMinutos(totalParadaMin);
+
+    const activoMin = Math.max(0, totalParadaMin - totalEsperaMin);
+    if (elActivo) elActivo.innerText = formatMinutos(activoMin);
+  } else {
+    if (elTotal) elTotal.innerText = 'En ejecución';
+    if (elResumenParada) elResumenParada.innerText = 'En ejecución';
+    if (elActivo) elActivo.innerText = 'Calculando al finalizar';
+  }
+}
+
+// Actualizar indicador de tarea en conjunto en el modal
+function actualizarEstadoConjuntaDetalle() {
+  const roles = [];
+  if (document.getElementById('edit-det-rol-mecanico')?.checked) roles.push('mecanico');
+  if (document.getElementById('edit-det-rol-electrico')?.checked) roles.push('electrico');
+  if (document.getElementById('edit-det-rol-maquinista')?.checked) roles.push('maquinista');
+
+  const tecs = Array.from(document.querySelectorAll('#det-tecnicos-checkboxes-container input[type="checkbox"]:checked'));
+  const badge = document.getElementById('det-badge-conjunta');
+  if (badge) {
+    if (roles.length > 1 || tecs.length > 1) {
+      badge.classList.remove('hidden');
+      badge.innerText = `👥 Tarea en Conjunto (${roles.length} roles, ${tecs.length} técnicos)`;
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
+}
+
+// Procesar y comprimir nueva foto en el modal de detalle
+function procesarNuevaFotoDetalle(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_SIZE = 1024;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_SIZE) {
+          height = Math.round((height * MAX_SIZE) / width);
+          width = MAX_SIZE;
+        }
+      } else {
+        if (height > MAX_SIZE) {
+          width = Math.round((width * MAX_SIZE) / height);
+          height = MAX_SIZE;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      nuevaFotoDetalleBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+      const imgElement = document.getElementById('det-img-foto');
+      const sinFoto = document.getElementById('det-sin-foto');
+      const aviso = document.getElementById('aviso-nueva-foto-detalle');
+
+      if (imgElement) {
+        imgElement.src = nuevaFotoDetalleBase64;
+        imgElement.classList.remove('hidden');
+      }
+      if (sinFoto) sinFoto.classList.add('hidden');
+      if (aviso) aviso.classList.remove('hidden');
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function cancelarNuevaFotoDetalle() {
+  nuevaFotoDetalleBase64 = null;
+  const input = document.getElementById('input-cambiar-foto-detalle');
+  if (input) input.value = '';
+
+  const aviso = document.getElementById('aviso-nueva-foto-detalle');
+  if (aviso) aviso.classList.add('hidden');
+
+  const imgElement = document.getElementById('det-img-foto');
+  const sinFoto = document.getElementById('det-sin-foto');
+
+  if (fotoDetalleOriginal) {
+    if (imgElement) {
+      imgElement.src = fotoDetalleOriginal;
+      imgElement.classList.remove('hidden');
+    }
+    if (sinFoto) sinFoto.classList.add('hidden');
+  } else {
+    if (imgElement) {
+      imgElement.src = '';
+      imgElement.classList.add('hidden');
+    }
+    if (sinFoto) sinFoto.classList.remove('hidden');
+  }
+}
+
+// Guardar Modificación Completa de Tarea (Fechas, Roles, Participantes, Tiempos y Foto)
+async function guardarEdicionDetalleAdmin() {
+  if (!tareaSeleccionadaId) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if (user.rol !== 'admin') {
+    alert('Solo el Administrador Holger tiene autorización para modificar tareas.');
+    return;
+  }
+
+  const fOcurrio = document.getElementById('edit-det-fecha-ocurrio')?.value;
+  const fArreglo = document.getElementById('edit-det-fecha-arreglo')?.value;
+  const notas = document.getElementById('edit-det-notas-mecanico')?.value;
   const btn = document.getElementById('btn-guardar-edicion-tarea');
 
   if (!fOcurrio) {
@@ -810,9 +1017,53 @@ async function guardarEdicionFechasAdmin() {
     return;
   }
 
-  const origHtml = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+  // Roles seleccionados
+  const roles = [];
+  if (document.getElementById('edit-det-rol-mecanico')?.checked) roles.push('mecanico');
+  if (document.getElementById('edit-det-rol-electrico')?.checked) roles.push('electrico');
+  if (document.getElementById('edit-det-rol-maquinista')?.checked) roles.push('maquinista');
+  const rolesFinales = roles.length > 0 ? roles : ['mecanico'];
+
+  // Técnicos participantes
+  const tecsCheckboxes = Array.from(document.querySelectorAll('#det-tecnicos-checkboxes-container input[type="checkbox"]:checked'));
+  const tecnicosFinales = tecsCheckboxes.map(cb => cb.value.trim()).filter(Boolean);
+
+  // Tiempos de espera
+  const hEspera = parseInt(document.getElementById('edit-det-espera-horas')?.value) || 0;
+  const mEspera = parseInt(document.getElementById('edit-det-espera-minutos')?.value) || 0;
+  const tiempoEsperaMin = Math.max(0, (hEspera * 60) + mEspera);
+  const motivoEspera = (document.getElementById('edit-det-motivo-espera')?.value || '').trim();
+
+  // Horas por rol
+  const hMec = parseFloat(document.getElementById('edit-horas-mecanico')?.value) || 0;
+  const hElec = parseFloat(document.getElementById('edit-horas-electrico')?.value) || 0;
+  const hMaq = parseFloat(document.getElementById('edit-horas-maquinista')?.value) || 0;
+  const tiemposPorRol = {
+    mecanico: Math.round(hMec * 60),
+    electrico: Math.round(hElec * 60),
+    maquinista: Math.round(hMaq * 60)
+  };
+
+  const payload = {
+    fecha_ocurrencia: fOcurrio,
+    fecha_arreglo: fArreglo || null,
+    notas_mecanico: notas,
+    roles_asignados: rolesFinales,
+    tecnicos_asignados: tecnicosFinales,
+    tiempo_espera_minutos: tiempoEsperaMin,
+    motivo_espera: motivoEspera,
+    tiempos_por_rol: tiemposPorRol
+  };
+
+  if (nuevaFotoDetalleBase64) {
+    payload.foto_base64 = nuevaFotoDetalleBase64;
+  }
+
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+  }
 
   try {
     const res = await fetch(`/api/tasks/${tareaSeleccionadaId}`, {
@@ -821,25 +1072,28 @@ async function guardarEdicionFechasAdmin() {
         'Content-Type': 'application/json',
         'x-user-role': user.rol
       },
-      body: JSON.stringify({
-        fecha_ocurrencia: fOcurrio,
-        fecha_arreglo: fArreglo || null,
-        notas_mecanico: notas
-      })
+      body: JSON.stringify(payload)
     });
 
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error al actualizar fechas');
+    if (!res.ok) throw new Error(data.error || 'Error al actualizar tarea');
 
-    mostrarToast('✅ Fechas y observaciones actualizadas correctamente');
+    mostrarToast('✅ Tarea, roles, personal, tiempos y fotografía actualizados');
     cerrarModalDetalle();
     cargarTareas(false);
   } catch(err) {
     alert(err.message);
   } finally {
-    btn.disabled = false;
-    btn.innerHTML = origHtml;
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
   }
+}
+
+// Alias por compatibilidad
+function guardarEdicionFechasAdmin() {
+  return guardarEdicionDetalleAdmin();
 }
 
 async function eliminarTarea(id) {

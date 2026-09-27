@@ -250,12 +250,67 @@
           </label>
           <textarea 
             name="notas_mecanico" 
-            id="input-notas-mecanico"
+            id="input-notas-mecanico" 
             rows="2" 
             placeholder="Ej: Se cambió rodamiento 6308 y sellos viton. Prueba con agua a 4 bar sin novedad." 
             class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none placeholder-slate-500"
           ></textarea>
         </div>
+
+        <!-- RETRASO / ESPERA POR REPUESTOS O ALMACÉN (OPCIONAL) -->
+        <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
+              <i class="fa-solid fa-hourglass-half"></i> Retraso por Repuestos (Opcional)
+            </label>
+            <span class="text-[10px] text-slate-400">Si faltó repuesto o proveedor</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">Horas espera:</label>
+              <input 
+                type="number" 
+                id="input-espera-horas-movil" 
+                name="espera_horas" 
+                min="0" 
+                max="999" 
+                value="0" 
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 font-mono"
+              >
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">Minutos espera:</label>
+              <input 
+                type="number" 
+                id="input-espera-minutos-movil" 
+                name="espera_minutos" 
+                min="0" 
+                max="59" 
+                value="0" 
+                class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 font-mono"
+              >
+            </div>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-400 block mb-0.5">Motivo del retraso / falta de repuesto:</label>
+            <input 
+              type="text" 
+              id="input-motivo-espera-movil" 
+              name="motivo_espera" 
+              placeholder="Ej: Esperando rodamiento 6308 o almacén cerrado..." 
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 placeholder-slate-500"
+            >
+          </div>
+        </div>
+
+        <!-- INPUT OCULTO PARA CAMBIAR FOTO EN TAREAS COMPLETADAS -->
+        <input 
+          type="file" 
+          id="input-cambiar-foto-movil" 
+          accept="image/*" 
+          class="hidden" 
+          onchange="subirNuevaFotoMovil(event)"
+        >
 
         <!-- BOTÓN DE CONFIRMACIÓN -->
         <div class="pt-2">

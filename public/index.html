@@ -622,16 +622,41 @@
 
       <div class="p-6 space-y-6">
         
-        <!-- FOTO COMPROBANTE GRANDE -->
-        <div id="det-contenedor-foto" class="bg-slate-950 rounded-xl border border-slate-700 overflow-hidden flex flex-col items-center justify-center">
+        <!-- FOTO COMPROBANTE GRANDE & CAMBIO DE FOTO -->
+        <div id="det-contenedor-foto" class="bg-slate-950 rounded-xl border border-slate-700 overflow-hidden flex flex-col items-center justify-center p-3 relative">
           <!-- Si no hay foto -->
-          <div id="det-sin-foto" class="py-12 text-center text-slate-500 space-y-2">
+          <div id="det-sin-foto" class="py-10 text-center text-slate-500 space-y-2">
             <i class="fa-solid fa-camera text-4xl text-slate-600"></i>
-            <p class="text-sm">Sin fotografía de comprobante aún</p>
-            <p class="text-xs text-slate-500">El mecánico adjuntará la foto desde su celular al finalizar</p>
+            <p class="text-sm font-semibold text-slate-400">Sin fotografía de comprobante aún</p>
+            <p class="text-xs text-slate-500">Puedes cargar o mejorar una foto de la reparación en cualquier momento</p>
           </div>
           <!-- Si hay foto -->
-          <img id="det-img-foto" src="" alt="Comprobante de mantenimiento" class="w-full max-h-[380px] object-contain hidden bg-slate-950">
+          <img id="det-img-foto" src="" alt="Comprobante de mantenimiento" class="w-full max-h-[380px] object-contain rounded-lg hidden bg-slate-950">
+
+          <!-- Barra de acción de fotografía -->
+          <div class="mt-3 flex items-center justify-between w-full pt-2.5 border-t border-slate-800 text-xs">
+            <span id="det-foto-info-txt" class="text-[11px] text-slate-400 truncate flex items-center gap-1.5">
+              <i class="fa-solid fa-cloud-arrow-up text-emerald-400"></i>
+              <span>Foto respaldada con persistencia total</span>
+            </span>
+            <div class="flex items-center gap-2">
+              <input type="file" id="input-cambiar-foto-detalle" accept="image/*" class="hidden" onchange="procesarNuevaFotoDetalle(event)">
+              <button type="button" onclick="document.getElementById('input-cambiar-foto-detalle').click()" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-bold text-xs transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-camera-rotate"></i> Cambiar / Mejorar Foto
+              </button>
+            </div>
+          </div>
+
+          <!-- Alerta de foto nueva seleccionada pendiente de guardar -->
+          <div id="aviso-nueva-foto-detalle" class="hidden mt-2.5 w-full p-2.5 bg-emerald-950/80 border border-emerald-500/50 rounded-lg text-emerald-300 text-xs flex items-center justify-between">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-circle-check text-emerald-400"></i>
+              <span>Nueva foto lista para guardar. Presiona "Guardar Todos los Cambios" abajo.</span>
+            </span>
+            <button type="button" onclick="cancelarNuevaFotoDetalle()" class="text-rose-400 hover:text-rose-300 text-xs font-bold underline ml-2">
+              Descartar
+            </button>
+          </div>
         </div>
 
         <!-- TIEMPOS REGISTRADOS (OCURRIÓ VS ARREGLO - EDITABLES POR ADMIN) -->
@@ -644,7 +669,7 @@
               </span>
               <span class="text-[9px] text-amber-300/80 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/20 font-medium">Editable Admin</span>
             </div>
-            <input type="datetime-local" id="edit-det-fecha-ocurrio" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-300 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none">
+            <input type="datetime-local" id="edit-det-fecha-ocurrio" onchange="calcularTiemposDetalle()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-300 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none">
             <div id="det-fecha-ocurrio-txt" class="text-[10px] text-slate-400 truncate">--</div>
           </div>
 
@@ -655,46 +680,176 @@
               </span>
               <span class="text-[9px] text-emerald-300/80 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/20 font-medium">Editable Admin</span>
             </div>
-            <input type="datetime-local" id="edit-det-fecha-arreglo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-emerald-300 font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+            <input type="datetime-local" id="edit-det-fecha-arreglo" onchange="calcularTiemposDetalle()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-emerald-300 font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none">
             <div id="det-fecha-arreglo-txt" class="text-[10px] text-slate-400 truncate">--</div>
           </div>
 
           <div class="bg-slate-900/80 border border-purple-500/40 rounded-xl p-3 flex flex-col justify-between">
             <span class="text-[11px] text-purple-300 font-semibold uppercase block flex items-center gap-1">
-              <i class="fa-solid fa-stopwatch"></i> Tiempo Total
+              <i class="fa-solid fa-stopwatch"></i> Tiempo Total Parada
             </span>
             <div id="det-tiempo-total" class="text-base font-black text-purple-200 mt-1">--</div>
-            <span class="text-[10px] text-slate-400">Duración / MTTR calculado</span>
+            <span class="text-[10px] text-slate-400">Duración total de inactividad</span>
           </div>
 
         </div>
 
-        <!-- DATOS GENERALES Y ROLES -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-900/60 p-3.5 rounded-xl border border-slate-700">
-          <div>
-            <span class="text-slate-400 block font-medium">Equipo / Máquina:</span>
-            <span id="det-equipo" class="text-white font-bold text-sm">--</span>
+        <!-- DESGLOSE DE TIEMPOS Y MANO DE OBRA (HORAS ACTIVAS, ESPERA DE REPUESTOS, TIEMPO POR ROL) -->
+        <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4 space-y-3.5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-business-time text-amber-400 text-sm"></i>
+              <h4 class="text-xs font-bold text-white uppercase tracking-wider">Desglose de Tiempos & Mano de Obra</h4>
+            </div>
+            <span class="text-[10px] text-amber-400/90 bg-amber-950/50 border border-amber-500/30 px-2 py-0.5 rounded font-medium">
+              Espera por Repuesto vs Trabajo Activo
+            </span>
           </div>
-          <div>
-            <span class="text-slate-400 block font-medium">Ubicación / Planta:</span>
-            <span id="det-ubicacion" class="text-white font-semibold text-sm">--</span>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            
+            <!-- TIEMPO DE ESPERA POR REPUESTOS / LOGÍSTICA -->
+            <div class="bg-slate-950/60 border border-amber-500/30 rounded-xl p-3 space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-hourglass-half"></i> Retraso / Espera de Repuestos
+                </label>
+                <span class="text-[10px] text-slate-400">Por repuesto faltante o proveedor</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-0.5">Horas de espera:</label>
+                  <input type="number" id="edit-det-espera-horas" min="0" max="999" step="1" value="0" oninput="calcularTiemposDetalle()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:ring-1 focus:ring-amber-500 font-mono">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-0.5">Minutos de espera:</label>
+                  <input type="number" id="edit-det-espera-minutos" min="0" max="59" step="1" value="0" oninput="calcularTiemposDetalle()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:ring-1 focus:ring-amber-500 font-mono">
+                </div>
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-0.5">Motivo de espera / retraso:</label>
+                <input type="text" id="edit-det-motivo-espera" placeholder="Ej: Falta de rodamiento 6308 / esperando almacén..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:ring-1 focus:ring-amber-500 placeholder-slate-500">
+              </div>
+            </div>
+
+            <!-- TIEMPO DE TRABAJO ACTIVO EFECTIVO -->
+            <div class="bg-slate-950/60 border border-emerald-500/30 rounded-xl p-3 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                    <i class="fa-solid fa-wrench"></i> Trabajo Activo Efectivo
+                  </label>
+                  <span class="text-[10px] text-slate-400">Total Parada - Espera</span>
+                </div>
+                <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5 text-center">
+                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Tiempo Real de Trabajo</span>
+                  <span id="det-tiempo-activo-calc" class="text-xl font-extrabold text-emerald-400 font-mono">--</span>
+                  <p class="text-[10px] text-slate-400 mt-0.5">Horas de labor técnica aplicada al equipo</p>
+                </div>
+              </div>
+              <div class="text-[10px] text-slate-400 border-t border-slate-800/80 pt-2 flex items-center justify-between">
+                <span>Parada: <strong id="det-resumen-parada-total" class="text-purple-300">--</strong></span>
+                <span>Espera: <strong id="det-resumen-espera" class="text-amber-300">0h</strong></span>
+              </div>
+            </div>
+
           </div>
-          <div>
-            <span class="text-slate-400 block font-medium">Prioridad:</span>
-            <span id="det-prioridad" class="text-white font-semibold text-sm capitalize">--</span>
+
+          <!-- HORAS ESPECÍFICAS POR ESPECIALIDAD / ROL -->
+          <div class="bg-slate-950/60 border border-slate-800 rounded-xl p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-users-gear"></i> Horas Invertidas por Especialidad / Rol
+              </label>
+              <span class="text-[10px] text-slate-400">Ej: 3h Mecánica y 2h Eléctrica en el mismo equipo</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div class="bg-slate-900/90 border border-emerald-800/50 rounded-lg p-2.5 space-y-1">
+                <span class="text-[11px] font-bold text-emerald-300 flex items-center gap-1">
+                  <i class="fa-solid fa-wrench"></i> Horas Mecánica
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" id="edit-horas-mecanico" min="0" step="0.5" placeholder="0" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-white font-mono focus:ring-1 focus:ring-emerald-500">
+                  <span class="text-xs text-slate-400">horas</span>
+                </div>
+              </div>
+              <div class="bg-slate-900/90 border border-amber-800/50 rounded-lg p-2.5 space-y-1">
+                <span class="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+                  <i class="fa-solid fa-bolt"></i> Horas Eléctrica
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" id="edit-horas-electrico" min="0" step="0.5" placeholder="0" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-white font-mono focus:ring-1 focus:ring-amber-500">
+                  <span class="text-xs text-slate-400">horas</span>
+                </div>
+              </div>
+              <div class="bg-slate-900/90 border border-orange-800/50 rounded-lg p-2.5 space-y-1">
+                <span class="text-[11px] font-bold text-orange-300 flex items-center gap-1">
+                  <i class="fa-solid fa-tractor"></i> Horas Maquinaria
+                </span>
+                <div class="flex items-center gap-1.5">
+                  <input type="number" id="edit-horas-maquinista" min="0" step="0.5" placeholder="0" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-white font-mono focus:ring-1 focus:ring-orange-500">
+                  <span class="text-xs text-slate-400">horas</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <span class="text-slate-400 block font-medium">Especialidad Requerida:</span>
-            <div id="det-roles-container" class="flex flex-wrap items-center gap-1.5 mt-1">--</div>
+        </div>
+
+        <!-- DATOS GENERALES, ROLES ASIGNADOS Y PERSONAL TÉCNICO INTERACTIVO -->
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700 space-y-3.5 text-xs">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <span class="text-slate-400 block font-medium">Equipo / Máquina:</span>
+              <span id="det-equipo" class="text-white font-bold text-sm">--</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block font-medium">Ubicación / Planta:</span>
+              <span id="det-ubicacion" class="text-white font-semibold text-sm">--</span>
+            </div>
+            <div>
+              <span class="text-slate-400 block font-medium">Prioridad:</span>
+              <span id="det-prioridad" class="text-white font-semibold text-sm capitalize">--</span>
+            </div>
           </div>
-          <div class="sm:col-span-2 pt-1 border-t border-slate-800">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-slate-400 font-medium">Personal Técnico Asignado:</span>
-              <span id="det-badge-conjunta" class="hidden text-[10px] bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-bold">
+
+          <!-- ESPECIALIDADES / ROLES DINÁMICOS (PERMITE AGREGAR MÁS ROLES SI SE AGRAVÓ EL DAÑO) -->
+          <div class="pt-3 border-t border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-people-group text-indigo-400"></i> Especialidades / Roles Requeridos
+              </label>
+              <span id="det-badge-conjunta" class="hidden text-[10px] bg-purple-900/70 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-bold">
                 👥 Tarea en Conjunto
               </span>
             </div>
-            <div id="det-tecnicos-container" class="flex flex-wrap gap-1.5">--</div>
+            <p class="text-[11px] text-slate-400">Si el daño se agravó o requirió apoyo eléctrico/mecánico/maquinista, marque los roles correspondientes:</p>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="cursor-pointer border border-slate-700 rounded-lg p-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-950/40">
+                <input type="checkbox" id="edit-det-rol-mecanico" value="mecanico" onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-emerald-600 focus:ring-0">
+                <span class="text-xs font-bold text-emerald-300">🔧 Mecánica</span>
+              </label>
+              <label class="cursor-pointer border border-slate-700 rounded-lg p-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-950/40">
+                <input type="checkbox" id="edit-det-rol-electrico" value="electrico" onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-amber-600 focus:ring-0">
+                <span class="text-xs font-bold text-amber-300">⚡ Eléctrica</span>
+              </label>
+              <label class="cursor-pointer border border-slate-700 rounded-lg p-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-950/40">
+                <input type="checkbox" id="edit-det-rol-maquinista" value="maquinista" onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-orange-600 focus:ring-0">
+                <span class="text-xs font-bold text-orange-300">🚜 Maquinaria</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- PERSONAL TÉCNICO PARTICIPANTE -->
+          <div class="pt-3 border-t border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-slate-200 uppercase tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-users text-emerald-400"></i> Personal Técnico Asignado / Participante
+              </label>
+              <span class="text-[10px] text-slate-400">Marque o modifique el personal técnico participante</span>
+            </div>
+            <div id="det-tecnicos-checkboxes-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-36 overflow-y-auto p-1 bg-slate-950/50 rounded-lg border border-slate-800">
+              <!-- Checkboxes generados dinámicamente -->
+            </div>
           </div>
         </div>
 
@@ -724,8 +879,8 @@
           <i class="fa-solid fa-trash-can"></i> Eliminar Registro
         </button>
         <div class="flex items-center space-x-2">
-          <button id="btn-guardar-edicion-tarea" onclick="guardarEdicionFechasAdmin()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow shadow-emerald-600/30">
-            <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios de Fechas
+          <button id="btn-guardar-edicion-tarea" onclick="guardarEdicionDetalleAdmin()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-4 py-2.5 rounded-lg transition flex items-center gap-1.5 shadow shadow-emerald-600/30">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Todos los Cambios
           </button>
           <button onclick="cerrarModalDetalle()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">
             Cerrar
