@@ -72,28 +72,6 @@
         <span>Ingresar al Sistema</span>
       </button>
 
-      <!-- Botones de acceso rápido demo -->
-      <div class="pt-3 border-t border-slate-800 space-y-2">
-        <span class="text-[11px] text-slate-400 block font-medium">Accesos rápidos de prueba:</span>
-        <div class="grid grid-cols-3 gap-1.5 text-xs">
-          <button type="button" onclick="loginRapido('Holger', 'Mayode1996#')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition text-center">
-            <span class="w-2 h-2 rounded-full bg-blue-400 inline-block mr-1"></span>
-            <span class="font-bold block text-[11px]">Holger</span>
-            <span class="text-[9px] text-slate-400">Admin</span>
-          </button>
-          <button type="button" onclick="loginRapido('carlos', '1234')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition text-center">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block mr-1"></span>
-            <span class="font-bold block text-[11px]">Carlos</span>
-            <span class="text-[9px] text-slate-400">Mecánico</span>
-          </button>
-          <button type="button" onclick="loginRapido('visor', '1234')" class="p-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-slate-300 transition text-center">
-            <span class="w-2 h-2 rounded-full bg-purple-400 inline-block mr-1"></span>
-            <span class="font-bold block text-[11px]">Visor</span>
-            <span class="text-[9px] text-slate-400">Solo Ver</span>
-          </button>
-        </div>
-      </div>
-
     </form>
 
     <!-- 2. FORMULARIO DE REGISTRO DE NUEVO USUARIO -->
@@ -169,12 +147,6 @@
       const el = document.getElementById('campo-especialidad');
       if (rol === 'admin') el.classList.add('hidden');
       else el.classList.remove('hidden');
-    }
-
-    function loginRapido(u, p) {
-      document.getElementById('login-username').value = u;
-      document.getElementById('login-password').value = p;
-      document.getElementById('btn-login-submit').click();
     }
 
     async function ejecutarLogin(e) {
