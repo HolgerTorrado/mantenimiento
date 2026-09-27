@@ -7,14 +7,17 @@
     "prioridad": "media",
     "ubicacion": "Australiano",
     "descripcion": "Daño en los tornillos del caracol",
-    "mecanico_asignado": "Sin Asignar",
+    "mecanico_asignado": "Diego Chamorro",
     "fecha_ocurrencia": "2026-09-26T17:40",
-    "fecha_arreglo": null,
-    "estado": "en_progreso",
-    "notas_mecanico": null,
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "fecha_arreglo": "2026-09-26T19:40",
+    "estado": "completado",
+    "notas_mecanico": "Se cambiaron los tornillos ",
+    "foto_comprobante": "/uploads/TSK-1001-1790480897987-234152.jpg",
+    "tiempo_arreglo_minutos": 120,
     "creado_en": "2026-09-27T03:45:57.373Z",
-    "actualizado_en": "2026-09-27T03:47:04.576Z"
+    "actualizado_en": "2026-09-27T03:47:04.576Z",
+    "completado_por_usuario": "dchamorro",
+    "completado_por_nombre": "Diego Chamorro",
+    "completado_en": "2026-09-27T03:48:18.347Z"
   }
 ]
