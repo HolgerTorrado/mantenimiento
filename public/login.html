@@ -16,15 +16,30 @@
           localStorage.removeItem('siman_user');
           localStorage.removeItem('siman_token');
           localStorage.removeItem('siman_mecanico_activo');
+          sessionStorage.removeItem('siman_forzar_pc');
           return;
         }
+
+        function esDispositivoMovil() {
+          var ua = navigator.userAgent || '';
+          var esMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(ua);
+          var esPantallaChica = (window.innerWidth <= 768) || (screen.width <= 768);
+          var esTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+          return esMobileUA || (esPantallaChica && esTouch);
+        }
+
         var userStr = localStorage.getItem('siman_user');
         if (userStr) {
           var user = JSON.parse(userStr);
-          if (user && (user.rol === 'admin' || user.rol === 'visualizador')) {
-            window.location.replace('/dashboard');
-          } else if (user) {
-            window.location.replace('/mecanico');
+          if (user) {
+            // Detección automática: Si es celular/tablet, enviar a la interfaz móvil
+            if (esDispositivoMovil()) {
+              window.location.replace('/mecanico');
+            } else if (user.rol === 'admin' || user.rol === 'visualizador') {
+              window.location.replace('/dashboard');
+            } else {
+              window.location.replace('/mecanico');
+            }
           }
         }
       } catch(e) {}
@@ -160,10 +175,21 @@
         localStorage.setItem('siman_user', JSON.stringify(data.user));
         localStorage.setItem('siman_mecanico_activo', data.user.nombre);
 
-        // Redirigir según rol
-        if (data.user.rol === 'admin' || data.user.rol === 'visualizador') {
+        // Detección inteligente de dispositivo (Móvil vs PC)
+        const ua = navigator.userAgent || '';
+        const esMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(ua);
+        const esPantallaChica = (window.innerWidth <= 768) || (screen.width <= 768);
+        const esTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        const esMovil = esMobileUA || (esPantallaChica && esTouch);
+
+        if (esMovil) {
+          // Si el usuario ingresa desde teléfono celular o tablet -> Versión Móvil adaptada
+          window.location.replace('/mecanico');
+        } else if (data.user.rol === 'admin' || data.user.rol === 'visualizador') {
+          // Si el usuario ingresa desde PC de escritorio o laptop -> Dashboard Completo
           window.location.replace('/dashboard');
         } else {
+          // Técnicos siempre van a interfaz móvil
           window.location.replace('/mecanico');
         }
       } catch (err) {

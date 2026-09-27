@@ -4,18 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIMAN - Dashboard de Mantenimiento</title>
-  <!-- Verificación inmediata de sesión antes de cargar recursos -->
+  <!-- Verificación inmediata de sesión y detección móvil antes de cargar recursos -->
   <script>
     (function() {
       try {
         var u = localStorage.getItem('siman_user');
         if (!u) {
           window.location.replace('/login');
-        } else {
-          var parsed = JSON.parse(u);
-          if (parsed.rol !== 'admin' && parsed.rol !== 'visualizador') {
-            window.location.replace('/mecanico');
-          }
+          return;
+        }
+        var parsed = JSON.parse(u);
+        if (parsed.rol !== 'admin' && parsed.rol !== 'visualizador') {
+          window.location.replace('/mecanico');
+          return;
+        }
+
+        // Detección inteligente de dispositivo (Móvil vs PC)
+        var ua = navigator.userAgent || '';
+        var esMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(ua);
+        var esPantallaChica = (window.innerWidth <= 768) || (screen.width <= 768);
+        var esTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        var esMovil = esMobileUA || (esPantallaChica && esTouch);
+
+        // Si el usuario accede desde celular y no seleccionó expresamente "Vista PC", enviar a la vista móvil
+        if (esMovil && sessionStorage.getItem('siman_forzar_pc') !== 'true') {
+          window.location.replace('/mecanico');
         }
       } catch(e) {
         window.location.replace('/login');
@@ -58,61 +71,69 @@
     .badge-predictivo { background-color: #ede9fe; color: #6d28d9; border: 1px solid #c4b5fd; }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col w-full overflow-x-hidden">
 
-  <!-- TOP NAVIGATION BAR -->
-  <header class="bg-slate-800/90 backdrop-blur border-b border-slate-700/80 sticky top-0 z-40">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+  <!-- TOP NAVIGATION BAR (ADAPTABLE MÓVIL Y ESCRITORIO) -->
+  <header class="bg-slate-800/95 backdrop-blur border-b border-slate-700/80 sticky top-0 z-40 w-full shadow-md">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
       
       <!-- Brand & Title -->
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20">
-          <i class="fa-solid fa-screwdriver-wrench text-white text-lg"></i>
+      <div class="flex items-center space-x-2.5 truncate">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 flex-shrink-0">
+          <i class="fa-solid fa-screwdriver-wrench text-white text-base sm:text-lg"></i>
         </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <span class="font-extrabold text-xl tracking-tight text-white">SIMAN</span>
-            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">Control Industrial</span>
+        <div class="truncate">
+          <div class="flex items-center space-x-1.5">
+            <span class="font-extrabold text-base sm:text-xl tracking-tight text-white">SIMAN</span>
+            <span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[9px] sm:text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider">Industrial</span>
           </div>
-          <p class="text-xs text-slate-400 hidden sm:block">Gestión Integral de Mantenimiento & Control Móvil</p>
+          <p class="text-[11px] text-slate-400 hidden md:block">Gestión Integral de Mantenimiento</p>
         </div>
       </div>
 
-      <!-- Actions (Nav Right) -->
-      <div class="flex items-center space-x-3">
+      <!-- Actions (Nav Right) - Con botón de salir siempre a la vista -->
+      <div class="flex items-center space-x-1.5 sm:space-x-2.5 flex-shrink-0">
 
-        <!-- Reloj / Hora actual -->
-        <div class="hidden md:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-700/60 text-xs text-slate-300">
+        <!-- Botón Cambiar a Vista Móvil (Para que el Admin pueda ir a la app móvil con 1 clic) -->
+        <button onclick="irModoMovilDesdePC()" title="Cambiar a Versión Móvil" class="flex items-center space-x-1 bg-emerald-950/70 hover:bg-emerald-900 text-emerald-300 text-xs font-semibold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg border border-emerald-500/40 transition shadow">
+          <i class="fa-solid fa-mobile-screen text-emerald-400"></i>
+          <span class="hidden sm:inline">Modo Móvil</span>
+        </button>
+
+        <!-- Reloj / Hora actual (Solo en pantallas grandes) -->
+        <div class="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-700/60 text-xs text-slate-300">
           <i class="fa-regular fa-clock text-emerald-400"></i>
           <span id="reloj-vivo">--:--:--</span>
         </div>
 
         <!-- Botón Gestión de Usuarios (Exclusivo Admin Holger) -->
-        <button id="btn-admin-usuarios" onclick="abrirModalUsuarios()" class="hidden flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition shadow">
+        <button id="btn-admin-usuarios" onclick="abrirModalUsuarios()" title="Gestión de Usuarios" class="hidden flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg border border-slate-700 transition shadow">
           <i class="fa-solid fa-users-gear text-indigo-400"></i>
-          <span class="hidden sm:inline">Usuarios</span>
+          <span class="hidden md:inline">Usuarios</span>
         </button>
 
         <!-- Botón Respaldo de Datos (Exclusivo Admin Holger) -->
-        <button id="btn-admin-backup" onclick="abrirModalBackup()" class="hidden flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition shadow">
+        <button id="btn-admin-backup" onclick="abrirModalBackup()" title="Copia de Seguridad" class="hidden flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg border border-slate-700 transition shadow">
           <i class="fa-solid fa-cloud-arrow-down text-emerald-400"></i>
-          <span class="hidden sm:inline">Respaldo</span>
+          <span class="hidden md:inline">Respaldo</span>
         </button>
 
         <!-- Botón Crear Tarea (Exclusivo Admin Holger) -->
-        <button id="btn-crear-tarea-dashboard" onclick="abrirModalCrear()" class="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md shadow-emerald-600/25 transition-all">
-          <i class="fa-solid fa-plus"></i>
-          <span>Nueva Tarea</span>
+        <button id="btn-crear-tarea-dashboard" onclick="abrirModalCrear()" class="flex items-center space-x-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-md shadow-emerald-600/25 transition-all">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span class="hidden sm:inline">Nueva Tarea</span>
+          <span class="sm:hidden">Crear</span>
         </button>
 
-        <!-- Usuario Activo & Salir -->
-        <div class="flex items-center space-x-2 pl-2 border-l border-slate-700">
-          <div class="hidden sm:block text-right">
-            <span id="nav-usuario-nombre" class="text-xs font-bold text-white block">Holger</span>
-            <span id="nav-usuario-rol" class="text-[10px] text-emerald-400 block uppercase font-semibold">Admin</span>
+        <!-- Usuario Activo & Salir Seguro (Directo y sin tener que desplazarse) -->
+        <div class="flex items-center space-x-1.5 pl-1.5 border-l border-slate-700">
+          <div class="hidden sm:block text-right pr-1">
+            <span id="nav-usuario-nombre" class="text-xs font-bold text-white block leading-tight">Holger</span>
+            <span id="nav-usuario-rol" class="text-[9px] text-emerald-400 block uppercase font-semibold leading-tight">Admin</span>
           </div>
-          <button onclick="cerrarSesionDashboard()" title="Cerrar sesión" class="p-2 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 rounded-lg border border-slate-700 transition text-xs">
+          <button onclick="cerrarSesionDashboard()" title="Cerrar sesión del sistema" class="px-2.5 py-1.5 bg-rose-950/80 hover:bg-rose-900 border border-rose-500/50 active:scale-95 text-rose-300 hover:text-white rounded-lg transition text-xs font-bold flex items-center gap-1 shadow">
             <i class="fa-solid fa-right-from-bracket"></i>
+            <span>Salir</span>
           </button>
         </div>
 

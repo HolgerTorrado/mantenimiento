@@ -59,14 +59,35 @@ function verificarSesionMovil() {
     const label = document.getElementById('label-usuario-activo');
     if (label) {
       let icon = '🔧';
-      let rolTexto = 'Mecánico';
-      if (user.rol === 'electrico') { icon = '⚡'; rolTexto = 'Eléctrico'; }
-      else if (user.rol === 'maquinista') { icon = '🚜'; rolTexto = 'Maquinista'; }
-      else if (user.rol === 'admin') { icon = '💻'; rolTexto = 'Admin'; }
-      else if (user.rol === 'visualizador') { icon = '👁️'; rolTexto = 'Visualizador'; }
+      let rolBadge = '<span class="text-[9px] text-emerald-300 opacity-80">(Mecánico)</span>';
+      if (user.rol === 'electrico') { icon = '⚡'; rolBadge = '<span class="text-[9px] text-amber-300 opacity-80">(Eléctrico)</span>'; }
+      else if (user.rol === 'maquinista') { icon = '🚜'; rolBadge = '<span class="text-[9px] text-orange-300 opacity-80">(Maquinista)</span>'; }
+      else if (user.rol === 'admin') { icon = '👑'; rolBadge = '<span class="text-[9px] font-bold text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/40">ADMIN</span>'; }
+      else if (user.rol === 'visualizador') { icon = '👁️'; rolBadge = '<span class="text-[9px] text-purple-300 opacity-80">(Visualizador)</span>'; }
 
-      label.innerHTML = `${icon} <span class="font-bold text-white">${escaparHTMLMovil(user.nombre || user.username)}</span> <span class="text-[9px] text-emerald-300 opacity-80">(${rolTexto})</span>`;
+      label.innerHTML = `${icon} <span class="font-bold text-white">${escaparHTMLMovil(user.nombre || user.username)}</span> ${rolBadge}`;
     }
+
+    // Si es Administrador o Visualizador, habilitar botón de cambiar a Vista PC
+    const btnPC = document.getElementById('btn-ir-pc-dashboard');
+    if (btnPC) {
+      if (user.rol === 'admin' || user.rol === 'visualizador') {
+        btnPC.classList.remove('hidden');
+      } else {
+        btnPC.classList.add('hidden');
+      }
+    }
+
+    // Si es Administrador, habilitar botón de crear tarea en barra móvil
+    const btnCrear = document.getElementById('btn-crear-tarea-movil');
+    if (btnCrear) {
+      if (user.rol === 'admin') {
+        btnCrear.classList.remove('hidden');
+      } else {
+        btnCrear.classList.add('hidden');
+      }
+    }
+
     return user;
   } catch (e) {
     window.location.href = '/login';
@@ -78,7 +99,91 @@ function cerrarSesion() {
   localStorage.removeItem('siman_token');
   localStorage.removeItem('siman_user');
   localStorage.removeItem('siman_mecanico_activo');
+  sessionStorage.removeItem('siman_forzar_pc');
   window.location.replace('/login?logout=true');
+}
+
+function irModoPC() {
+  sessionStorage.setItem('siman_forzar_pc', 'true');
+  window.location.replace('/dashboard');
+}
+
+// Modal Crear Tarea desde Móvil (Administrador)
+function abrirModalCrearMovil() {
+  const modal = document.getElementById('modal-crear-movil');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function cerrarModalCrearMovil() {
+  const modal = document.getElementById('modal-crear-movil');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function guardarNuevaTareaMovil(e) {
+  e.preventDefault();
+  const user = getUsuarioActivo();
+  if (user.rol !== 'admin') {
+    alert('Solo el Administrador tiene permiso para crear tareas.');
+    return;
+  }
+
+  const equipo = document.getElementById('mob-crear-equipo')?.value.trim();
+  const ubicacion = document.getElementById('mob-crear-ubicacion')?.value.trim() || 'Planta Principal';
+  const titulo = document.getElementById('mob-crear-titulo')?.value.trim() || `Revisión de ${equipo}`;
+  const tipo = document.getElementById('mob-crear-tipo')?.value || 'correctivo';
+  const prioridad = document.getElementById('mob-crear-prioridad')?.value || 'media';
+  const descripcion = document.getElementById('mob-crear-descripcion')?.value.trim() || '';
+
+  const roles = Array.from(document.querySelectorAll('input[name="mob_roles"]:checked')).map(cb => cb.value);
+  const rolesFinales = roles.length > 0 ? roles : ['mecanico'];
+
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+
+  const btn = document.getElementById('btn-submit-crear-movil');
+  const txtOrig = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+  }
+
+  try {
+    const res = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger'
+      },
+      body: JSON.stringify({
+        equipo,
+        ubicacion,
+        titulo,
+        tipo,
+        prioridad,
+        descripcion,
+        roles_asignados: rolesFinales,
+        fecha_ocurrencia: localISOTime,
+        tecnicos_asignados: []
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error creando tarea');
+
+    mostrarToastMovil('✅ Tarea creada exitosamente');
+    cerrarModalCrearMovil();
+    document.getElementById('form-crear-tarea-movil')?.reset();
+    cargarTareasMovil(false);
+  } catch(err) {
+    alert(err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = txtOrig;
+    }
+  }
 }
 
 // Cargar mecánicos y restaurar seleccionado

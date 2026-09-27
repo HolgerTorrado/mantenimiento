@@ -77,7 +77,13 @@ function cerrarSesionDashboard() {
   localStorage.removeItem('siman_token');
   localStorage.removeItem('siman_user');
   localStorage.removeItem('siman_mecanico_activo');
+  sessionStorage.removeItem('siman_forzar_pc');
   window.location.replace('/login?logout=true');
+}
+
+function irModoMovilDesdePC() {
+  sessionStorage.removeItem('siman_forzar_pc');
+  window.location.replace('/mecanico');
 }
 
 // Reloj en tiempo real
