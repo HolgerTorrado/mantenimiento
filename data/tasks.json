@@ -27,11 +27,12 @@
     "mecanico_asignado": "Sin Asignar",
     "fecha_ocurrencia": "2026-08-20T10:00",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
-    "creado_en": "2026-09-27T04:07:06.428Z"
+    "creado_en": "2026-09-27T04:07:06.428Z",
+    "actualizado_en": "2026-09-27T05:22:06.902Z"
   },
   {
     "id": "TSK-1003",
