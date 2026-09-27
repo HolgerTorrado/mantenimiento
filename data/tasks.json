@@ -1,5 +1,22 @@
 [
   {
+    "id": "TSK-1006",
+    "equipo": "Tambor saca moños",
+    "titulo": "Rellenado de los rodillos del tambor saca moños",
+    "tipo": "preventivo",
+    "prioridad": "alta",
+    "ubicacion": "Desfibracion",
+    "descripcion": "Desgaste en los patines, se deben rellenar.",
+    "mecanico_asignado": "Sin Asignar",
+    "fecha_ocurrencia": "2026-09-27T06:30",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_en": "2026-09-27T14:02:32.078Z"
+  },
+  {
     "id": "TSK-1005",
     "equipo": "Ciclón cascarilla",
     "titulo": "Daño de motor",
