@@ -7,7 +7,8 @@ let chartTiempos = null;
 
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
-  verificarSesionDashboard();
+  const user = verificarSesionDashboard();
+  if (!user) return; // Detener ejecución si no hay sesión activa
   iniciarReloj();
   cargarInfoRed();
   cargarMecanicosSelect();

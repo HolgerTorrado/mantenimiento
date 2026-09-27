@@ -3,7 +3,7 @@
   "name": "SIMAN - Mantenimiento Industrial",
   "short_name": "SIMAN",
   "description": "Sistema Integral de Mantenimiento con control de tareas y reporte fotográfico",
-  "start_url": "/mecanico",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",

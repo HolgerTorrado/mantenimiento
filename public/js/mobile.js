@@ -9,6 +9,8 @@ let deferredInstallPrompt = null;
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   const user = verificarSesionMovil();
+  if (!user) return; // Detener ejecución si no hay sesión activa
+
   if (user && user.nombre && !localStorage.getItem('siman_mecanico_activo')) {
     mecanicoActivo = user.nombre;
     localStorage.setItem('siman_mecanico_activo', mecanicoActivo);

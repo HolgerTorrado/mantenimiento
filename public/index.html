@@ -4,6 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIMAN - Dashboard de Mantenimiento</title>
+  <!-- Verificación inmediata de sesión antes de cargar recursos -->
+  <script>
+    (function() {
+      try {
+        var u = localStorage.getItem('siman_user');
+        if (!u) {
+          window.location.replace('/login');
+        } else {
+          var parsed = JSON.parse(u);
+          if (parsed.rol !== 'admin' && parsed.rol !== 'visualizador') {
+            window.location.replace('/mecanico');
+          }
+        }
+      } catch(e) {
+        window.location.replace('/login');
+      }
+    })();
+  </script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>

@@ -1,11 +1,14 @@
 // Service Worker para SIMAN PWA
-const CACHE_NAME = 'siman-cache-v1';
+const CACHE_NAME = 'siman-cache-v2';
 const STATIC_ASSETS = [
   '/',
-  '/mobile.html',
-  '/index.html',
+  '/login',
+  '/mecanico',
+  '/dashboard',
   '/login.html',
   '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
   '/icons/icon-192.svg',
   '/icons/icon-512.svg'
 ];
