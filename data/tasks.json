@@ -9,17 +9,19 @@
     "descripcion": "Verificación de los acople de goma de la unidades.",
     "mecanico_asignado": "Sin Asignar",
     "fecha_ocurrencia": "2026-09-27T11:00",
-    "fecha_arreglo": null,
+    "fecha_arreglo": "2026-09-27T12:00",
     "estado": "pendiente",
-    "notas_mecanico": null,
+    "notas_mecanico": "Se encuentran en buen estado ",
     "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "tiempo_arreglo_minutos": 60,
     "creado_en": "2026-09-27T14:10:05.341Z",
     "roles_asignados": [
       "mecanico"
     ],
     "tecnicos_asignados": [],
-    "es_conjunta": false
+    "es_conjunta": false,
+    "modificado_por_admin": true,
+    "modificado_en": "2026-09-27T18:36:39.281Z"
   },
   {
     "id": "TSK-1007",
