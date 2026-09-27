@@ -5,6 +5,7 @@ let periodoActual = 'todo';
 let tareaSeleccionadaId = null;
 let chartTipos = null;
 let chartTiempos = null;
+let chartRolesTiempos = null;
 let nuevaFotoDetalleBase64 = null;
 let fotoDetalleOriginal = null;
 
@@ -258,6 +259,23 @@ function actualizarKPIs(m) {
   if (mPrev) mPrev.innerText = mt.preventivo?.formato || '0 min';
   if (mCorr) mCorr.innerText = mt.correctivo?.formato || '0 min';
   if (mPred) mPred.innerText = mt.predictivo?.formato || '0 min';
+
+  // Nuevos KPIs: Horas por Especialidad y Tiempos Muertos
+  const elTrabajoActivo = document.getElementById('kpi-trabajo-activo');
+  const elHorasMec = document.getElementById('kpi-horas-mecanica');
+  const elHorasElec = document.getElementById('kpi-horas-electrica');
+  const elHorasMaq = document.getElementById('kpi-horas-maquinaria');
+  const elTiempoRep = document.getElementById('kpi-tiempo-repuestos');
+  const elTiempoExt = document.getElementById('kpi-tiempo-fuera-planta');
+  const elTotalAvances = document.getElementById('stat-total-avances-txt');
+
+  if (elTrabajoActivo) elTrabajoActivo.innerText = m.tiempo_trabajo_activo_total_formato || '0 min';
+  if (elHorasMec) elHorasMec.innerText = m.horas_mecanica_formato || '0 min';
+  if (elHorasElec) elHorasElec.innerText = m.horas_electrica_formato || '0 min';
+  if (elHorasMaq) elHorasMaq.innerText = m.horas_maquinaria_formato || '0 min';
+  if (elTiempoRep) elTiempoRep.innerText = m.tiempo_espera_repuestos_formato || '0 min';
+  if (elTiempoExt) elTiempoExt.innerText = m.tiempo_fuera_planta_formato || '0 min';
+  if (elTotalAvances) elTotalAvances.innerText = `📝 ${m.total_avances || 0} avances registrados`;
 }
 
 // Actualizar Gráficas con Chart.js
@@ -345,6 +363,76 @@ function actualizarGraficas(m) {
             tooltip: {
               callbacks: {
                 label: (ctx) => `${ctx.raw} min (${formatMinutos(ctx.raw)})`
+              }
+            }
+          }
+        }
+      });
+    }
+  }
+
+  // 3. Gráfica de Barras Comparativa: Horas por Especialidad vs Tiempos Muertos
+  const ctxRolesTiempos = document.getElementById('chart-roles-tiempos')?.getContext('2d');
+  if (ctxRolesTiempos) {
+    const valMec = Math.round(((m.horas_mecanica_minutos || 0) / 60) * 10) / 10;
+    const valElec = Math.round(((m.horas_electrica_minutos || 0) / 60) * 10) / 10;
+    const valMaq = Math.round(((m.horas_maquinaria_minutos || 0) / 60) * 10) / 10;
+    const valRep = Math.round(((m.tiempo_espera_repuestos_minutos || 0) / 60) * 10) / 10;
+    const valExt = Math.round(((m.tiempo_fuera_planta_minutos || 0) / 60) * 10) / 10;
+    const dataRT = [valMec, valElec, valMaq, valRep, valExt];
+
+    if (chartRolesTiempos) {
+      chartRolesTiempos.data.datasets[0].data = dataRT;
+      chartRolesTiempos.update();
+    } else {
+      chartRolesTiempos = new Chart(ctxRolesTiempos, {
+        type: 'bar',
+        data: {
+          labels: ['Mecánica (🔧)', 'Eléctrica (⚡)', 'Maquinaria (🚜)', 'Espera Repuestos (📦)', 'Fuera Planta / Torno (🏭)'],
+          datasets: [{
+            label: 'Horas Totales',
+            data: dataRT,
+            backgroundColor: [
+              '#10b981cc', // Verde Esmeralda
+              '#f59e0bcc', // Ámbar
+              '#f97316cc', // Naranja
+              '#f43f5ecc', // Rosa/Rojo
+              '#a855f7cc'  // Morado Torno
+            ],
+            borderColor: [
+              '#10b981',
+              '#f59e0b',
+              '#f97316',
+              '#f43f5e',
+              '#a855f7'
+            ],
+            borderWidth: 1.5,
+            borderRadius: 8,
+            maxBarThickness: 38
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              grid: { color: '#334155' },
+              ticks: {
+                color: '#94a3b8',
+                font: { size: 10 },
+                callback: (val) => `${val}h`
+              }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: '#cbd5e1', font: { size: 11, weight: 'bold' } }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.raw} Horas registradas`
               }
             }
           }
@@ -470,14 +558,36 @@ function renderTablaTareas(tareas) {
     const txtArreglo = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : `<span class="text-slate-500 italic">En proceso...</span>`;
     
     let desgloseTiempos = '';
+    const tRep = parseInt(t.tiempo_espera_repuestos_minutos) || 0;
+    const tExt = parseInt(t.tiempo_fuera_planta_minutos) || 0;
+    const tEspLegacy = parseInt(t.tiempo_espera_minutos) || 0;
+    
+    let repMin = tRep;
+    let extMin = tExt;
+    if (repMin === 0 && extMin === 0 && tEspLegacy > 0) {
+      const mot = ((t.motivo_espera || '') + ' ' + (t.motivo_fuera_planta || '')).toLowerCase();
+      if (mot.includes('torno') || mot.includes('taller') || mot.includes('extern') || mot.includes('fuera')) {
+        extMin = tEspLegacy;
+      } else {
+        repMin = tEspLegacy;
+      }
+    }
+    const tMuertoTotal = repMin + extMin;
+
     if (t.tiempo_arreglo_minutos !== null) {
-      if (t.tiempo_espera_minutos && t.tiempo_espera_minutos > 0) {
+      if (tMuertoTotal > 0) {
         const activo = (t.tiempo_trabajo_activo_minutos !== undefined && t.tiempo_trabajo_activo_minutos !== null)
           ? t.tiempo_trabajo_activo_minutos
-          : Math.max(0, t.tiempo_arreglo_minutos - t.tiempo_espera_minutos);
+          : Math.max(0, t.tiempo_arreglo_minutos - tMuertoTotal);
+        
+        const partesMuerto = [];
+        if (repMin > 0) partesMuerto.push(`${formatMinutos(repMin)} repuestos`);
+        if (extMin > 0) partesMuerto.push(`${formatMinutos(extMin)} torno/externo`);
+
         desgloseTiempos = `
-          <div class="text-[10px] text-amber-300/90 flex items-center gap-1 mt-1 font-mono" title="Espera repuesto: ${escaparHTML(t.motivo_espera || 'Logística / Repuesto')}">
-            <i class="fa-solid fa-hourglass-half text-[9px] text-amber-400"></i> ${formatMinutos(activo)} activo | ${formatMinutos(t.tiempo_espera_minutos)} espera
+          <div class="text-[10px] text-amber-300/90 flex flex-col gap-0.5 mt-1 font-mono">
+            <span class="text-emerald-400 font-bold"><i class="fa-solid fa-wrench text-[9px]"></i> ${formatMinutos(activo)} activo</span>
+            <span class="text-rose-300/80"><i class="fa-solid fa-hourglass-half text-[9px]"></i> Inactividad: ${partesMuerto.join(' + ')}</span>
           </div>
         `;
       }
@@ -486,6 +596,27 @@ function renderTablaTareas(tareas) {
     const txtDuracion = t.tiempo_arreglo_minutos !== null 
       ? `<div><span class="font-mono font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30">${formatMinutos(t.tiempo_arreglo_minutos)}</span>${desgloseTiempos}</div>`
       : `<span class="text-slate-500">-</span>`;
+
+    // Avances registrados badge
+    const numAvances = Array.isArray(t.avances) ? t.avances.length : 0;
+    const badgeAvances = numAvances > 0 
+      ? `<button type="button" onclick="abrirModalDetalle('${t.id}'); event.stopPropagation();" class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/40 hover:bg-blue-500/30 transition">
+          <i class="fa-solid fa-list-check text-[9px]"></i> ${numAvances} avance${numAvances > 1 ? 's' : ''} registrado${numAvances > 1 ? 's' : ''}
+         </button>`
+      : '';
+
+    // Horas por rol en la fila si existen
+    let desgloseHorasRoles = '';
+    if (t.tiempos_por_rol) {
+      const tpr = t.tiempos_por_rol;
+      const partes = [];
+      if (tpr.mecanico > 0) partes.push(`🔧 ${formatMinutos(tpr.mecanico)}`);
+      if (tpr.electrico > 0) partes.push(`⚡ ${formatMinutos(tpr.electrico)}`);
+      if (tpr.maquinista > 0) partes.push(`🚜 ${formatMinutos(tpr.maquinista)}`);
+      if (partes.length > 0) {
+        desgloseHorasRoles = `<div class="text-[10px] text-indigo-300 font-mono mt-0.5">${partes.join(' | ')}</div>`;
+      }
+    }
 
     return `
       <tr class="hover:bg-slate-700/40 transition">
@@ -501,6 +632,7 @@ function renderTablaTareas(tareas) {
               <p class="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
                 <i class="fa-solid fa-location-dot text-[10px] text-slate-500"></i> ${escaparHTML(t.ubicacion || 'Planta')}
               </p>
+              ${badgeAvances}
             </div>
           </div>
         </td>
@@ -524,6 +656,7 @@ function renderTablaTareas(tareas) {
             <div class="text-xs text-slate-200 font-medium truncate max-w-[200px]" title="${escaparHTML(t.mecanico_asignado || 'Sin Asignar')}">
               ${escaparHTML(t.mecanico_asignado || 'Sin Asignar')}
             </div>
+            ${desgloseHorasRoles}
           </div>
         </td>
 
@@ -709,23 +842,36 @@ function abrirModalDetalle(id) {
   if (txtOcurrio) txtOcurrio.innerText = formatearFechaHora(t.fecha_ocurrencia);
   if (txtArreglo) txtArreglo.innerText = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : 'Pendiente de registrar';
 
-  // Tiempos de espera por repuestos o logística
-  const esperaTotal = t.tiempo_espera_minutos || 0;
+  // Tiempos de espera por repuestos vs trabajos fuera de planta
+  let tRep = parseInt(t.tiempo_espera_repuestos_minutos) || 0;
+  let tExt = parseInt(t.tiempo_fuera_planta_minutos) || 0;
+  let motRep = t.motivo_espera_repuestos || t.motivo_espera || '';
+  let motExt = t.motivo_fuera_planta || '';
+
+  if (tRep === 0 && tExt === 0 && t.tiempo_espera_minutos > 0) {
+    const txtGeneral = (t.motivo_espera || '').toLowerCase();
+    if (txtGeneral.includes('torno') || txtGeneral.includes('taller') || txtGeneral.includes('extern') || txtGeneral.includes('fuera')) {
+      tExt = t.tiempo_espera_minutos;
+      motExt = t.motivo_espera || '';
+      motRep = '';
+    } else {
+      tRep = t.tiempo_espera_minutos;
+    }
+  }
+
   const inEsperaH = document.getElementById('edit-det-espera-horas');
   const inEsperaM = document.getElementById('edit-det-espera-minutos');
   const inMotivoEsp = document.getElementById('edit-det-motivo-espera');
-  if (inEsperaH) {
-    inEsperaH.value = Math.floor(esperaTotal / 60);
-    inEsperaH.disabled = !esAdmin;
-  }
-  if (inEsperaM) {
-    inEsperaM.value = esperaTotal % 60;
-    inEsperaM.disabled = !esAdmin;
-  }
-  if (inMotivoEsp) {
-    inMotivoEsp.value = t.motivo_espera || '';
-    inMotivoEsp.disabled = !esAdmin;
-  }
+  if (inEsperaH) { inEsperaH.value = Math.floor(tRep / 60); inEsperaH.disabled = !esAdmin; }
+  if (inEsperaM) { inEsperaM.value = tRep % 60; inEsperaM.disabled = !esAdmin; }
+  if (inMotivoEsp) { inMotivoEsp.value = motRep; inMotivoEsp.disabled = !esAdmin; }
+
+  const inFueraH = document.getElementById('edit-det-fuera-horas');
+  const inFueraM = document.getElementById('edit-det-fuera-minutos');
+  const inMotivoFuera = document.getElementById('edit-det-fuera-motivo');
+  if (inFueraH) { inFueraH.value = Math.floor(tExt / 60); inFueraH.disabled = !esAdmin; }
+  if (inFueraM) { inFueraM.value = tExt % 60; inFueraM.disabled = !esAdmin; }
+  if (inMotivoFuera) { inMotivoFuera.value = motExt; inMotivoFuera.disabled = !esAdmin; }
 
   // Horas por especialidad / rol
   const tpr = t.tiempos_por_rol || {};
@@ -826,6 +972,11 @@ function abrirModalDetalle(id) {
   const modalBody = document.getElementById('modal-detalle-body');
   if (modalBody) modalBody.scrollTop = 0;
 
+  // Resetear formulario de nuevo avance y renderizar bitácora
+  const formAvance = document.getElementById('form-nuevo-avance-pc');
+  if (formAvance) formAvance.classList.add('hidden');
+  renderAvancesDetallePC(t, esAdmin);
+
   document.getElementById('modal-detalle').classList.remove('hidden');
 }
 
@@ -914,9 +1065,16 @@ function cerrarModalDetalle() {
 function calcularTiemposDetalle() {
   const fOcurrio = document.getElementById('edit-det-fecha-ocurrio')?.value;
   const fArreglo = document.getElementById('edit-det-fecha-arreglo')?.value;
+  
   const hEspera = parseInt(document.getElementById('edit-det-espera-horas')?.value) || 0;
   const mEspera = parseInt(document.getElementById('edit-det-espera-minutos')?.value) || 0;
   const totalEsperaMin = Math.max(0, (hEspera * 60) + mEspera);
+
+  const hFuera = parseInt(document.getElementById('edit-det-fuera-horas')?.value) || 0;
+  const mFuera = parseInt(document.getElementById('edit-det-fuera-minutos')?.value) || 0;
+  const totalFueraMin = Math.max(0, (hFuera * 60) + mFuera);
+
+  const totalInactividadMin = totalEsperaMin + totalFueraMin;
 
   let totalParadaMin = null;
   if (fOcurrio && fArreglo) {
@@ -933,13 +1091,13 @@ function calcularTiemposDetalle() {
   const elResumenEspera = document.getElementById('det-resumen-espera');
   const elActivo = document.getElementById('det-tiempo-activo-calc');
 
-  if (elResumenEspera) elResumenEspera.innerText = formatMinutos(totalEsperaMin);
+  if (elResumenEspera) elResumenEspera.innerText = formatMinutos(totalInactividadMin);
 
   if (totalParadaMin !== null) {
     if (elTotal) elTotal.innerText = formatMinutos(totalParadaMin);
     if (elResumenParada) elResumenParada.innerText = formatMinutos(totalParadaMin);
 
-    const activoMin = Math.max(0, totalParadaMin - totalEsperaMin);
+    const activoMin = Math.max(0, totalParadaMin - totalInactividadMin);
     if (elActivo) elActivo.innerText = formatMinutos(activoMin);
   } else {
     if (elTotal) elTotal.innerText = 'En ejecución';
@@ -1072,11 +1230,17 @@ async function guardarEdicionDetalleAdmin() {
   const tecsCheckboxes = Array.from(document.querySelectorAll('#det-tecnicos-checkboxes-container input[type="checkbox"]:checked'));
   const tecnicosFinales = tecsCheckboxes.map(cb => cb.value.trim()).filter(Boolean);
 
-  // Tiempos de espera
+  // Tiempos de espera por repuestos
   const hEspera = parseInt(document.getElementById('edit-det-espera-horas')?.value) || 0;
   const mEspera = parseInt(document.getElementById('edit-det-espera-minutos')?.value) || 0;
   const tiempoEsperaMin = Math.max(0, (hEspera * 60) + mEspera);
   const motivoEspera = (document.getElementById('edit-det-motivo-espera')?.value || '').trim();
+
+  // Trabajos fuera de planta / Torno / Talleres externos
+  const hFuera = parseInt(document.getElementById('edit-det-fuera-horas')?.value) || 0;
+  const mFuera = parseInt(document.getElementById('edit-det-fuera-minutos')?.value) || 0;
+  const tiempoFueraMin = Math.max(0, (hFuera * 60) + mFuera);
+  const motivoFuera = (document.getElementById('edit-det-fuera-motivo')?.value || '').trim();
 
   // Horas por rol
   const hMec = parseFloat(document.getElementById('edit-horas-mecanico')?.value) || 0;
@@ -1095,7 +1259,11 @@ async function guardarEdicionDetalleAdmin() {
     roles_asignados: rolesFinales,
     tecnicos_asignados: tecnicosFinales,
     tiempo_espera_minutos: tiempoEsperaMin,
+    tiempo_espera_repuestos_minutos: tiempoEsperaMin,
     motivo_espera: motivoEspera,
+    motivo_espera_repuestos: motivoEspera,
+    tiempo_fuera_planta_minutos: tiempoFueraMin,
+    motivo_fuera_planta: motivoFuera,
     tiempos_por_rol: tiemposPorRol
   };
 
@@ -1411,3 +1579,149 @@ async function restaurarRespaldoJSON(e) {
   };
   reader.readAsText(file);
 }
+
+// ================= GESTIÓN DE BITÁCORA DE AVANCES EN PC =================
+function mostrarFormularioNuevoAvancePC() {
+  const form = document.getElementById('form-nuevo-avance-pc');
+  if (!form) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  const inTec = document.getElementById('pc-avance-tecnico');
+  const inHoras = document.getElementById('pc-avance-horas');
+  const inDesc = document.getElementById('pc-avance-desc');
+  if (inTec) inTec.value = user.nombre || user.username || '';
+  if (inHoras) inHoras.value = '';
+  if (inDesc) inDesc.value = '';
+  form.classList.remove('hidden');
+  if (inDesc) inDesc.focus();
+}
+
+function cancelarNuevoAvancePC() {
+  const form = document.getElementById('form-nuevo-avance-pc');
+  if (form) form.classList.add('hidden');
+}
+
+async function guardarNuevoAvancePC() {
+  if (!tareaSeleccionadaId) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  const inTec = document.getElementById('pc-avance-tecnico')?.value.trim();
+  const inHoras = parseFloat(document.getElementById('pc-avance-horas')?.value) || 0;
+  const inDesc = document.getElementById('pc-avance-desc')?.value.trim();
+
+  if (!inDesc) {
+    alert('Por favor escribe la descripción de lo realizado en este avance.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/tasks/${tareaSeleccionadaId}/avances`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'admin',
+        'x-user-name': inTec || user.nombre || 'Administrador'
+      },
+      body: JSON.stringify({
+        descripcion: inDesc,
+        horas_dedicadas: inHoras,
+        tecnico_nombre: inTec || user.nombre
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al guardar avance');
+
+    mostrarToast('✅ Avance registrado en la bitácora con éxito');
+    cancelarNuevoAvancePC();
+    
+    // Recargar tareas y actualizar modal
+    await cargarTareas(false);
+    abrirModalDetalle(tareaSeleccionadaId);
+  } catch(err) {
+    alert('Error al registrar avance: ' + err.message);
+  }
+}
+
+async function eliminarAvancePC(tareaId, avanceId) {
+  if (!confirm('¿Estás seguro de eliminar este registro de avance de la bitácora?')) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if (user.rol !== 'admin') {
+    alert('Solo el Administrador puede eliminar avances.');
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/tasks/${tareaId}/avances/${avanceId}`, {
+      method: 'DELETE',
+      headers: {
+        'x-user-role': user.rol
+      }
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al eliminar avance');
+
+    mostrarToast('Avance eliminado de la bitácora');
+    await cargarTareas(false);
+    abrirModalDetalle(tareaId);
+  } catch(err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+function renderAvancesDetallePC(tarea, esAdmin) {
+  const cont = document.getElementById('det-avances-lista');
+  if (!cont) return;
+
+  const avances = Array.isArray(tarea.avances) ? tarea.avances : [];
+  if (avances.length === 0) {
+    cont.innerHTML = `
+      <div class="p-3 text-center text-slate-500 bg-slate-950/40 rounded-xl border border-dashed border-slate-800 text-xs">
+        <i class="fa-regular fa-clipboard text-slate-600 text-base block mb-1"></i>
+        <span>No se han registrado avances intermedios aún para esta orden de trabajo.</span>
+      </div>
+    `;
+    return;
+  }
+
+  cont.innerHTML = avances.map(a => {
+    let badgeRol = 'bg-emerald-950/80 text-emerald-300 border-emerald-800';
+    let iconRol = 'fa-wrench';
+    if (a.tecnico_rol === 'electrico') { badgeRol = 'bg-amber-950/80 text-amber-300 border-amber-800'; iconRol = 'fa-bolt'; }
+    else if (a.tecnico_rol === 'maquinista') { badgeRol = 'bg-orange-950/80 text-orange-300 border-orange-800'; iconRol = 'fa-tractor'; }
+    else if (a.tecnico_rol === 'admin') { badgeRol = 'bg-purple-950/80 text-purple-300 border-purple-800'; iconRol = 'fa-crown'; }
+
+    const horasTxt = a.horas_dedicadas > 0 ? `<span class="bg-blue-950/70 border border-blue-500/30 text-blue-300 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold">⏱️ ${a.horas_dedicadas}h</span>` : '';
+    const fotoThumb = a.foto ? `
+      <div class="mt-1.5 cursor-pointer inline-block" onclick="abrirVisorFoto('${a.foto}', 'Avance: ${escaparHTML(a.tecnico_nombre)}'); event.stopPropagation();" title="Ver foto ampliada">
+        <img src="${a.foto}" alt="Avance" class="w-16 h-12 object-cover rounded-lg border border-slate-700 hover:border-blue-400 transition shadow">
+      </div>
+    ` : '';
+
+    const btnElim = esAdmin ? `
+      <button type="button" onclick="eliminarAvancePC('${tarea.id}', '${a.id}')" title="Eliminar registro (Admin)" class="text-slate-500 hover:text-rose-400 text-xs p-1 transition">
+        <i class="fa-solid fa-trash-can"></i>
+      </button>
+    ` : '';
+
+    return `
+      <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-2.5 text-xs space-y-1">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] px-1.5 py-0.5 rounded border ${badgeRol} font-bold flex items-center gap-1">
+              <i class="fa-solid ${iconRol}"></i> ${escaparHTML(a.tecnico_nombre)}
+            </span>
+            ${horasTxt}
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] text-slate-500 font-mono">${formatearFechaHora(a.fecha_hora)}</span>
+            ${btnElim}
+          </div>
+        </div>
+        <p class="text-slate-300 text-[11px] leading-relaxed">${escaparHTML(a.descripcion)}</p>
+        ${fotoThumb}
+      </div>
+    `;
+  }).join('');
+}
+

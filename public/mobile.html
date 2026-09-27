@@ -127,6 +127,123 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL DE REGISTRAR AVANCE (MÓVIL) ==================== -->
+  <div id="modal-avance-movil" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border-t sm:border border-slate-700 rounded-t-3xl sm:rounded-2xl w-full max-w-lg mx-auto overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
+      
+      <!-- Encabezado Modal -->
+      <div class="bg-slate-900 px-5 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm">Registrar Avance de Trabajo</h3>
+            <p id="modal-avance-subtitulo" class="text-[11px] text-slate-400">TSK-1001 - Bomba</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalAvanceMovil()" class="text-slate-400 hover:text-white p-1 text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Formulario de Avance -->
+      <form id="form-avance-tarea" onsubmit="guardarAvanceMovil(event)" class="p-5 space-y-3.5 max-h-[80vh] overflow-y-auto pb-safe text-xs">
+        <input type="hidden" id="input-avance-tarea-id">
+
+        <!-- Horas dedicadas en esta jornada / intervención -->
+        <div>
+          <label class="block text-slate-200 font-bold mb-1 flex items-center justify-between">
+            <span>Horas Dedicadas a Este Avance</span>
+            <span class="text-[10px] text-slate-400">Opcional (se suma a tu rol)</span>
+          </label>
+          <input 
+            type="number" 
+            id="input-avance-horas-movil" 
+            min="0" 
+            step="0.5" 
+            placeholder="Ej: 2.5" 
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono focus:ring-1 focus:ring-blue-500"
+          >
+        </div>
+
+        <!-- Descripción de lo realizado -->
+        <div>
+          <label class="block text-slate-200 font-bold mb-1">
+            ¿Qué labor o avance realizaste? <span class="text-rose-400">*</span>
+          </label>
+          <textarea 
+            id="input-avance-desc-movil" 
+            required 
+            rows="3" 
+            placeholder="Ej: Se desmontó polea y motor para llevar a torno. Se limpió el área y se dejó listo para ensamble..." 
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-white focus:ring-1 focus:ring-blue-500 placeholder-slate-500"
+          ></textarea>
+        </div>
+
+        <!-- Fotografía opcional del avance -->
+        <div>
+          <label class="block text-slate-200 font-bold mb-1 flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-camera text-blue-400"></i> Foto de Evidencia / Avance</span>
+            <span class="text-[10px] text-slate-400">Opcional</span>
+          </label>
+
+          <input 
+            type="file" 
+            id="input-avance-camara-file" 
+            accept="image/*" 
+            capture="environment" 
+            onchange="previsualizarFotoAvanceMovil(event)"
+            class="hidden"
+          >
+          <input 
+            type="file" 
+            id="input-avance-galeria-file" 
+            accept="image/*" 
+            onchange="previsualizarFotoAvanceMovil(event)"
+            class="hidden"
+          >
+
+          <!-- Botones Foto -->
+          <div id="box-sin-foto-avance" class="border border-dashed border-slate-700 bg-slate-950/60 rounded-xl p-3 text-center space-y-2">
+            <div class="flex items-center justify-center gap-2">
+              <button type="button" onclick="document.getElementById('input-avance-camara-file').click()" class="py-2 px-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-lg transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-camera"></i> Tomar Foto
+              </button>
+              <button type="button" onclick="document.getElementById('input-avance-galeria-file').click()" class="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-lg transition flex items-center gap-1.5">
+                <i class="fa-solid fa-images text-indigo-400"></i> Galería
+              </button>
+            </div>
+            <span class="text-[10px] text-slate-400 block">Captura el estado actual antes de pausar la tarea</span>
+          </div>
+
+          <!-- Preview Foto Avance -->
+          <div id="box-con-foto-avance" class="hidden relative border border-slate-700 bg-slate-950 rounded-xl p-2 space-y-2">
+            <img id="img-previa-avance" src="" alt="Previa Avance" class="w-full max-h-40 object-contain rounded-lg bg-black">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-check"></i> Foto adjunta</span>
+              <button type="button" onclick="quitarFotoAvanceMovil()" class="text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-trash-can"></i> Quitar foto
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botón Guardar -->
+        <div class="pt-2">
+          <button 
+            type="submit" 
+            id="btn-confirmar-avance"
+            class="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-[0.98] text-white font-extrabold rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2"
+          >
+            <i class="fa-solid fa-floppy-disk text-sm"></i>
+            <span>Guardar Avance en Bitácora</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== MODAL DE COMPLETAR TAREA Y TOMAR FOTO ==================== -->
   <div id="modal-completar-movil" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4 overflow-y-auto">
     <div class="bg-slate-800 border-t sm:border border-slate-700 rounded-t-3xl sm:rounded-2xl w-full max-w-lg mx-auto overflow-hidden shadow-2xl animate-in slide-in-from-bottom duration-300">
@@ -492,16 +609,42 @@
           </div>
         </div>
 
-        <!-- Desglose de espera por repuestos -->
-        <div id="mob-det-box-espera" class="hidden bg-amber-950/40 border border-amber-500/30 rounded-xl p-3 space-y-1 text-[11px]">
-          <div class="flex items-center justify-between text-amber-300 font-bold">
-            <span><i class="fa-solid fa-hourglass-half"></i> Espera por Repuestos:</span>
-            <span id="mob-det-tiempo-espera" class="font-mono">--</span>
+        <!-- Desglose de espera por repuestos y fuera de planta -->
+        <div id="mob-det-box-espera" class="hidden space-y-2 text-[11px]">
+          <div id="mob-det-sub-espera" class="bg-rose-950/40 border border-rose-500/30 rounded-xl p-2.5 space-y-1">
+            <div class="flex items-center justify-between text-rose-300 font-bold">
+              <span><i class="fa-solid fa-box-open"></i> Espera por Repuestos:</span>
+              <span id="mob-det-tiempo-espera" class="font-mono">--</span>
+            </div>
+            <p id="mob-det-motivo-espera" class="text-[10px] text-rose-200/80 italic">--</p>
           </div>
-          <p id="mob-det-motivo-espera" class="text-[10px] text-amber-200/80 italic">--</p>
-          <div class="flex items-center justify-between text-emerald-300 pt-1 border-t border-amber-500/20 font-bold">
+
+          <div id="mob-det-sub-fuera" class="bg-purple-950/40 border border-purple-500/30 rounded-xl p-2.5 space-y-1">
+            <div class="flex items-center justify-between text-purple-300 font-bold">
+              <span><i class="fa-solid fa-truck-ramp-box"></i> Fuera de Planta / Torno:</span>
+              <span id="mob-det-tiempo-fuera" class="font-mono">--</span>
+            </div>
+            <p id="mob-det-motivo-fuera" class="text-[10px] text-purple-200/80 italic">--</p>
+          </div>
+
+          <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-2.5 flex items-center justify-between text-emerald-300 font-bold">
             <span><i class="fa-solid fa-wrench"></i> Trabajo Activo Efectivo:</span>
             <span id="mob-det-tiempo-activo" class="font-mono">--</span>
+          </div>
+        </div>
+
+        <!-- BITÁCORA DE AVANCES EN MÓVIL -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-blue-500/30 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-blue-400 font-bold uppercase text-[10px] flex items-center gap-1.5">
+              <i class="fa-solid fa-list-check"></i> Bitácora de Avances
+            </span>
+            <button type="button" onclick="irARegistrarAvanceDesdeDetalle()" class="text-[10px] bg-blue-600 hover:bg-blue-500 text-white font-bold px-2 py-1 rounded-lg shadow transition flex items-center gap-1">
+              <i class="fa-solid fa-plus text-[9px]"></i> Registrar Avance
+            </button>
+          </div>
+          <div id="mob-det-avances-lista" class="space-y-2">
+            <!-- Avances poblados dinámicamente -->
           </div>
         </div>
 

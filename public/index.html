@@ -241,6 +241,91 @@
 
     </div>
 
+    <!-- PANEL DE HORAS TÉCNICAS Y TIEMPOS MUERTOS (MANO DE OBRA VS INACTIVIDAD) -->
+    <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-700/60 pb-3">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-base shadow-inner">
+            <i class="fa-solid fa-business-time"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm sm:text-base">Mano de Obra por Especialidad & Tiempos Muertos</h3>
+            <p class="text-[11px] text-slate-400">Control de horas hombre (Mecánica, Eléctrica, Maquinaria) vs inactividad (repuestos y talleres fuera de planta)</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs bg-slate-900/90 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 font-mono shadow">
+            Trabajo Activo en Planta: <strong id="kpi-trabajo-activo" class="text-emerald-400 font-bold">0 min</strong>
+          </span>
+        </div>
+      </div>
+
+      <!-- Grid de 5 Indicadores -->
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        
+        <!-- 1. Horas Mecánica -->
+        <div class="bg-slate-900/80 border border-emerald-500/30 rounded-xl p-3 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-emerald-400 text-xs font-bold">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-wrench"></i> Mecánica</span>
+            <span class="text-[9px] bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/30">Labor</span>
+          </div>
+          <div class="mt-2.5">
+            <span id="kpi-horas-mecanica" class="text-xl sm:text-2xl font-black text-white font-mono">0 min</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Técnicos mecánicos</span>
+          </div>
+        </div>
+
+        <!-- 2. Horas Eléctrica -->
+        <div class="bg-slate-900/80 border border-amber-500/30 rounded-xl p-3 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-amber-400 text-xs font-bold">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-bolt"></i> Eléctrica</span>
+            <span class="text-[9px] bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/30">Labor</span>
+          </div>
+          <div class="mt-2.5">
+            <span id="kpi-horas-electrica" class="text-xl sm:text-2xl font-black text-white font-mono">0 min</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Técnicos electricistas</span>
+          </div>
+        </div>
+
+        <!-- 3. Horas Maquinaria -->
+        <div class="bg-slate-900/80 border border-orange-500/30 rounded-xl p-3 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-orange-400 text-xs font-bold">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-tractor"></i> Maquinaria</span>
+            <span class="text-[9px] bg-orange-950/80 px-1.5 py-0.5 rounded border border-orange-500/30">Equipos</span>
+          </div>
+          <div class="mt-2.5">
+            <span id="kpi-horas-maquinaria" class="text-xl sm:text-2xl font-black text-white font-mono">0 min</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Operación auxiliar</span>
+          </div>
+        </div>
+
+        <!-- 4. Tiempos Muertos: Repuestos -->
+        <div class="bg-slate-900/80 border border-rose-500/30 rounded-xl p-3 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-rose-400 text-xs font-bold">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-box-open"></i> Espera Repuestos</span>
+            <span class="text-[9px] bg-rose-950/80 px-1.5 py-0.5 rounded border border-rose-500/30">T. Muerto</span>
+          </div>
+          <div class="mt-2.5">
+            <span id="kpi-tiempo-repuestos" class="text-xl sm:text-2xl font-black text-rose-300 font-mono">0 min</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Almacén / Compras</span>
+          </div>
+        </div>
+
+        <!-- 5. Tiempos Muertos: Fuera de Planta -->
+        <div class="col-span-2 md:col-span-1 bg-slate-900/80 border border-purple-500/30 rounded-xl p-3 flex flex-col justify-between shadow-sm">
+          <div class="flex items-center justify-between text-purple-400 text-xs font-bold">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-truck-ramp-box"></i> Fuera de Planta</span>
+            <span class="text-[9px] bg-purple-950/80 px-1.5 py-0.5 rounded border border-purple-500/30">T. Muerto</span>
+          </div>
+          <div class="mt-2.5">
+            <span id="kpi-tiempo-fuera-planta" class="text-xl sm:text-2xl font-black text-purple-300 font-mono">0 min</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Torno / Talleres ext.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- SECCIÓN DE GRÁFICAS Y DESGLOSE POR TIPO -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       
@@ -316,6 +401,26 @@
 
         <div class="relative h-28 w-full mt-2">
           <canvas id="chart-tiempos"></canvas>
+        </div>
+      </div>
+
+      <!-- Gráfica de Distribución de Horas y Tiempos de Parada -->
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-5 flex flex-col justify-between lg:col-span-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 border-b border-slate-700/60 pb-3">
+          <div>
+            <h3 class="font-bold text-base text-white flex items-center gap-2">
+              <i class="fa-solid fa-chart-column text-indigo-400"></i> Distribución de Horas de Mano de Obra vs Tiempos Muertos de Inactividad
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">Comparativa directa de horas de trabajo técnico mecánico, eléctrico y maquinaria frente al impacto de esperas y tornería externa</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="bg-slate-900 border border-slate-700 px-3 py-1 rounded-lg text-slate-300 font-mono shadow-sm" id="stat-total-avances-txt">
+              📝 0 avances registrados
+            </span>
+          </div>
+        </div>
+        <div class="relative h-44 w-full">
+          <canvas id="chart-roles-tiempos"></canvas>
         </div>
       </div>
 
@@ -734,51 +839,75 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             
-            <!-- TIEMPO DE ESPERA POR REPUESTOS / LOGÍSTICA -->
-            <div class="bg-slate-950/60 border border-amber-500/30 rounded-xl p-3 space-y-2">
+            <!-- 1. TIEMPO DE ESPERA POR REPUESTOS / COMPRAS -->
+            <div class="bg-slate-950/60 border border-rose-500/30 rounded-xl p-3 space-y-2">
               <div class="flex items-center justify-between">
-                <label class="block text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                  <i class="fa-solid fa-hourglass-half"></i> Retraso / Espera de Repuestos
+                <label class="block text-xs font-bold text-rose-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-box-open"></i> Espera Repuestos / Almacén
                 </label>
-                <span class="text-[10px] text-slate-400">Por repuesto faltante o proveedor</span>
+                <span class="text-[10px] text-slate-400">Falta de repuesto / compras</span>
               </div>
               <div class="grid grid-cols-2 gap-2">
                 <div>
-                  <label class="text-[10px] text-slate-400 block mb-0.5">Horas de espera:</label>
-                  <input type="number" id="edit-det-espera-horas" min="0" max="999" step="1" value="0" oninput="calcularTiemposDetalle()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:ring-1 focus:ring-amber-500 font-mono">
+                  <label class="text-[10px] text-slate-400 block mb-0.5">Horas espera:</label>
+                  <input type="number" id="edit-det-espera-horas" min="0" max="999" step="1" value="0" oninput="calcularTiemposDetalle()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:ring-1 focus:ring-rose-500 font-mono">
                 </div>
                 <div>
-                  <label class="text-[10px] text-slate-400 block mb-0.5">Minutos de espera:</label>
-                  <input type="number" id="edit-det-espera-minutos" min="0" max="59" step="1" value="0" oninput="calcularTiemposDetalle()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:ring-1 focus:ring-amber-500 font-mono">
+                  <label class="text-[10px] text-slate-400 block mb-0.5">Minutos espera:</label>
+                  <input type="number" id="edit-det-espera-minutos" min="0" max="59" step="1" value="0" oninput="calcularTiemposDetalle()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:ring-1 focus:ring-rose-500 font-mono">
                 </div>
               </div>
               <div>
-                <label class="text-[10px] text-slate-400 block mb-0.5">Motivo de espera / retraso:</label>
-                <input type="text" id="edit-det-motivo-espera" placeholder="Ej: Falta de rodamiento 6308 / esperando almacén..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:ring-1 focus:ring-amber-500 placeholder-slate-500">
+                <label class="text-[10px] text-slate-400 block mb-0.5">Repuesto faltante / Proveedor:</label>
+                <input type="text" id="edit-det-motivo-espera" placeholder="Ej: Falta de rodamiento 6308 / esperando almacén..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:ring-1 focus:ring-rose-500 placeholder-slate-500">
               </div>
             </div>
 
-            <!-- TIEMPO DE TRABAJO ACTIVO EFECTIVO -->
-            <div class="bg-slate-950/60 border border-emerald-500/30 rounded-xl p-3 flex flex-col justify-between">
+            <!-- 2. TRABAJOS FUERA DE PLANTA (TORNOS / TALLERES EXTERNOS) -->
+            <div class="bg-slate-950/60 border border-purple-500/30 rounded-xl p-3 space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="block text-xs font-bold text-purple-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-truck-ramp-box"></i> Trabajos Fuera de Planta
+                </label>
+                <span class="text-[10px] text-slate-400">Tornería / Talleres externos</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-0.5">Horas taller externo:</label>
+                  <input type="number" id="edit-det-fuera-horas" min="0" max="999" step="1" value="0" oninput="calcularTiemposDetalle()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:ring-1 focus:ring-purple-500 font-mono">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-0.5">Minutos taller externo:</label>
+                  <input type="number" id="edit-det-fuera-minutos" min="0" max="59" step="1" value="0" oninput="calcularTiemposDetalle()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white focus:ring-1 focus:ring-purple-500 font-mono">
+                </div>
+              </div>
               <div>
-                <div class="flex items-center justify-between mb-1.5">
-                  <label class="block text-xs font-bold text-emerald-300 flex items-center gap-1.5">
-                    <i class="fa-solid fa-wrench"></i> Trabajo Activo Efectivo
-                  </label>
-                  <span class="text-[10px] text-slate-400">Total Parada - Espera</span>
-                </div>
-                <div class="bg-slate-900/90 border border-slate-800 rounded-lg p-2.5 text-center">
-                  <span class="text-[10px] uppercase font-bold text-slate-400 block">Tiempo Real de Trabajo</span>
-                  <span id="det-tiempo-activo-calc" class="text-xl font-extrabold text-emerald-400 font-mono">--</span>
-                  <p class="text-[10px] text-slate-400 mt-0.5">Horas de labor técnica aplicada al equipo</p>
-                </div>
-              </div>
-              <div class="text-[10px] text-slate-400 border-t border-slate-800/80 pt-2 flex items-center justify-between">
-                <span>Parada: <strong id="det-resumen-parada-total" class="text-purple-300">--</strong></span>
-                <span>Espera: <strong id="det-resumen-espera" class="text-amber-300">0h</strong></span>
+                <label class="text-[10px] text-slate-400 block mb-0.5">Detalle trabajo externo / Torno:</label>
+                <input type="text" id="edit-det-fuera-motivo" placeholder="Ej: Llevar polea al torno para ajuste de buje de eje..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:ring-1 focus:ring-purple-500 placeholder-slate-500">
               </div>
             </div>
 
+          </div>
+
+          <!-- RESUMEN COMPARATIVO DE TIEMPO ACTIVO VS TIEMPOS MUERTOS -->
+          <div class="bg-slate-950/60 border border-emerald-500/30 rounded-xl p-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div>
+              <span class="text-[10px] uppercase font-bold text-slate-400 block">Tiempo Real de Trabajo Técnico en Máquina</span>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span id="det-tiempo-activo-calc" class="text-xl font-extrabold text-emerald-400 font-mono">--</span>
+                <span class="text-[10px] text-slate-400">(Parada Total - Tiempos Muertos)</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-4 text-xs font-mono">
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 block">Parada Total:</span>
+                <strong id="det-resumen-parada-total" class="text-purple-300">--</strong>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 block">Tiempos Muertos:</span>
+                <strong id="det-resumen-espera" class="text-rose-300">0h</strong>
+              </div>
+            </div>
           </div>
 
           <!-- HORAS ESPECÍFICAS POR ESPECIALIDAD / ROL -->
@@ -787,7 +916,7 @@
               <label class="block text-xs font-bold text-indigo-300 flex items-center gap-1.5">
                 <i class="fa-solid fa-users-gear"></i> Horas Invertidas por Especialidad / Rol
               </label>
-              <span class="text-[10px] text-slate-400">Ej: 3h Mecánica y 2h Eléctrica en el mismo equipo</span>
+              <span class="text-[10px] text-slate-400">Ej: 6h Mecánica, 5h Eléctrica y 2h Maquinaria</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
               <div class="bg-slate-900/90 border border-emerald-800/50 rounded-lg p-2.5 space-y-1">
@@ -818,6 +947,54 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- BITÁCORA DE AVANCES DE TRABAJO EN CURSO -->
+        <div class="bg-slate-900/80 border border-blue-500/30 rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <div class="flex items-center gap-2">
+              <div class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs">
+                <i class="fa-solid fa-list-check"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white uppercase tracking-wider">Bitácora de Avances de Trabajo</h4>
+                <p class="text-[10px] text-slate-400">Registro cronológico de intervenciones parciales antes de finalizar</p>
+              </div>
+            </div>
+            <button type="button" onclick="mostrarFormularioNuevoAvancePC()" class="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 shadow">
+              <i class="fa-solid fa-plus text-[10px]"></i> Registrar Avance
+            </button>
+          </div>
+
+          <!-- Mini Formulario Agregar Avance PC (oculto por defecto) -->
+          <div id="form-nuevo-avance-pc" class="hidden bg-slate-950/90 border border-blue-500/40 rounded-xl p-3 space-y-2.5">
+            <span class="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-pen"></i> Nuevo Registro de Avance en la Tarea
+            </span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-0.5">Técnico que realizó el avance:</label>
+                <input type="text" id="pc-avance-tecnico" placeholder="Nombre del técnico" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 block mb-0.5">Horas dedicadas a este avance:</label>
+                <input type="number" id="pc-avance-horas" min="0" step="0.5" placeholder="0" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono focus:ring-1 focus:ring-blue-500">
+              </div>
+            </div>
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-0.5">Descripción de lo realizado:</label>
+              <textarea id="pc-avance-desc" rows="2" placeholder="Ej: Se desmontó polea y motor para llevar a torno..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-white focus:ring-1 focus:ring-blue-500 placeholder-slate-500"></textarea>
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+              <button type="button" onclick="cancelarNuevoAvancePC()" class="px-3 py-1 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700">Cancelar</button>
+              <button type="button" onclick="guardarNuevoAvancePC()" class="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-lg shadow">Guardar Avance</button>
+            </div>
+          </div>
+
+          <!-- Timeline de Avances -->
+          <div id="det-avances-lista" class="space-y-2 max-h-56 overflow-y-auto">
+            <!-- Rellenado dinámicamente -->
           </div>
         </div>
 

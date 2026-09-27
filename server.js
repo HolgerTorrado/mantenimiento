@@ -803,12 +803,39 @@ app.put('/api/tasks/:id', (req, res) => {
                               (tareas[idx].tecnicos_asignados && tareas[idx].tecnicos_asignados.length > 1);
   }
 
-  // Tiempos de espera (por repuestos / logística) vs tiempo de trabajo activo del personal
+  // Tiempos muertos (Espera por repuestos y Trabajos fuera de planta como tornos/talleres)
+  const {
+    tiempo_espera_repuestos_minutos,
+    motivo_espera_repuestos,
+    tiempo_fuera_planta_minutos,
+    motivo_fuera_planta
+  } = req.body;
+
+  if (tiempo_espera_repuestos_minutos !== undefined) {
+    tareas[idx].tiempo_espera_repuestos_minutos = Math.max(0, parseInt(tiempo_espera_repuestos_minutos) || 0);
+  }
+  if (motivo_espera_repuestos !== undefined) {
+    tareas[idx].motivo_espera_repuestos = String(motivo_espera_repuestos || '').trim();
+  }
+  if (tiempo_fuera_planta_minutos !== undefined) {
+    tareas[idx].tiempo_fuera_planta_minutos = Math.max(0, parseInt(tiempo_fuera_planta_minutos) || 0);
+  }
+  if (motivo_fuera_planta !== undefined) {
+    tareas[idx].motivo_fuera_planta = String(motivo_fuera_planta || '').trim();
+  }
+
+  // Retrocompatibilidad con tiempo_espera_minutos y motivo_espera
   if (tiempo_espera_minutos !== undefined) {
     tareas[idx].tiempo_espera_minutos = Math.max(0, parseInt(tiempo_espera_minutos) || 0);
+  } else if (tareas[idx].tiempo_espera_repuestos_minutos !== undefined || tareas[idx].tiempo_fuera_planta_minutos !== undefined) {
+    tareas[idx].tiempo_espera_minutos = (tareas[idx].tiempo_espera_repuestos_minutos || 0) + (tareas[idx].tiempo_fuera_planta_minutos || 0);
   }
+
   if (motivo_espera !== undefined) {
     tareas[idx].motivo_espera = String(motivo_espera || '').trim();
+  } else {
+    const motivos = [tareas[idx].motivo_espera_repuestos, tareas[idx].motivo_fuera_planta].filter(Boolean);
+    if (motivos.length > 0) tareas[idx].motivo_espera = motivos.join(' | ');
   }
 
   if (equipo !== undefined) tareas[idx].equipo = equipo.trim();
@@ -898,7 +925,7 @@ app.delete('/api/tasks/:id', (req, res) => {
   if (!tarea) return res.status(404).json({ error: 'Tarea no encontrada' });
 
   // Si tiene foto y no es demo, eliminar archivo
-  if (tarea.foto_comprobante && !tarea.foto_comprobante.includes('demo-')) {
+  if (tarea.foto_comprobante && !tarea.foto_comprobante.includes('demo-') && !tarea.foto_comprobante.startsWith('data:')) {
     const filePath = path.join(__dirname, tarea.foto_comprobante);
     if (fs.existsSync(filePath)) {
       try { fs.unlinkSync(filePath); } catch(e) {}
@@ -907,10 +934,117 @@ app.delete('/api/tasks/:id', (req, res) => {
 
   tareas = tareas.filter(t => t.id !== req.params.id);
   guardarTareas(tareas);
+  generarRespaldoAutomatico('eliminar_tarea');
   res.json({ mensaje: 'Tarea eliminada exitosamente' });
 });
 
-// 9. Métricas y KPIs para el dashboard (con filtro de período)
+// 8.1. Bitácora de Avances de Tarea en Curso (Para mecánicos, eléctricos y maquinistas)
+app.post('/api/tasks/:id/avances', (req, res) => {
+  const userRol = req.headers['x-user-role'];
+  if (userRol === 'visualizador') {
+    return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para registrar avances.' });
+  }
+
+  let tareas = leerTareas();
+  const idx = tareas.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  const {
+    descripcion,
+    horas_dedicadas,
+    foto_base64,
+    fecha_hora,
+    tecnico_nombre
+  } = req.body;
+
+  if (!descripcion || !descripcion.trim()) {
+    return res.status(400).json({ error: 'La descripción del avance es obligatoria.' });
+  }
+
+  const usernameFinal = req.headers['x-user-username'] || 'tecnico';
+  const nombreFinal = req.headers['x-user-name'] || tecnico_nombre || 'Técnico';
+  const rolFinal = req.headers['x-user-role'] || 'mecanico';
+
+  const horasNum = parseFloat(horas_dedicadas) || 0;
+  const minutosDedicados = Math.round(horasNum * 60);
+
+  const nuevoAvance = {
+    id: `AV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    fecha_hora: fecha_hora || new Date().toISOString().slice(0, 16),
+    tecnico_nombre: nombreFinal,
+    tecnico_usuario: usernameFinal,
+    tecnico_rol: rolFinal,
+    descripcion: descripcion.trim(),
+    horas_dedicadas: horasNum,
+    minutos_dedicados: minutosDedicados,
+    foto: (foto_base64 && foto_base64.startsWith('data:image/')) ? foto_base64 : null,
+    creado_en: new Date().toISOString()
+  };
+
+  if (!Array.isArray(tareas[idx].avances)) {
+    tareas[idx].avances = [];
+  }
+  tareas[idx].avances.unshift(nuevoAvance);
+
+  // Si la tarea estaba en pendiente, poner automáticamente en progreso
+  if (tareas[idx].estado === 'pendiente') {
+    tareas[idx].estado = 'en_progreso';
+  }
+
+  // Asegurar que el técnico figure en los asignados
+  if (!Array.isArray(tareas[idx].tecnicos_asignados)) {
+    tareas[idx].tecnicos_asignados = [];
+  }
+  if (!tareas[idx].tecnicos_asignados.includes(nombreFinal)) {
+    tareas[idx].tecnicos_asignados.push(nombreFinal);
+    tareas[idx].mecanico_asignado = tareas[idx].tecnicos_asignados.join(', ');
+  }
+
+  // Si registró horas dedicadas en este avance, sumar al rol correspondiente
+  if (minutosDedicados > 0) {
+    if (!tareas[idx].tiempos_por_rol) tareas[idx].tiempos_por_rol = {};
+    const rolKey = (rolFinal === 'electrico' || rolFinal === 'maquinista') ? rolFinal : 'mecanico';
+    tareas[idx].tiempos_por_rol[rolKey] = (tareas[idx].tiempos_por_rol[rolKey] || 0) + minutosDedicados;
+  }
+
+  tareas[idx].actualizado_en = new Date().toISOString();
+  guardarTareas(tareas);
+  generarRespaldoAutomatico('registro_avance');
+
+  res.status(201).json({
+    mensaje: 'Avance registrado exitosamente en la bitácora',
+    avance: nuevoAvance,
+    tarea: tareas[idx]
+  });
+});
+
+app.get('/api/tasks/:id/avances', (req, res) => {
+  const tareas = leerTareas();
+  const tarea = tareas.find(t => t.id === req.params.id);
+  if (!tarea) return res.status(404).json({ error: 'Tarea no encontrada' });
+  res.json(tarea.avances || []);
+});
+
+app.delete('/api/tasks/:id/avances/:avanceId', (req, res) => {
+  const userRol = req.headers['x-user-role'];
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Solo el Administrador puede eliminar registros de avances.' });
+  }
+
+  let tareas = leerTareas();
+  const idx = tareas.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  if (Array.isArray(tareas[idx].avances)) {
+    tareas[idx].avances = tareas[idx].avances.filter(a => a.id !== req.params.avanceId);
+    guardarTareas(tareas);
+    generarRespaldoAutomatico('eliminar_avance');
+  }
+
+  res.json({ mensaje: 'Avance eliminado correctamente', avances: tareas[idx].avances || [] });
+});
+
+// 9. Métricas y KPIs para el dashboard (con filtro de período, horas de roles y tiempos muertos)
 app.get('/api/metrics', (req, res) => {
   let tareas = leerTareas();
 
@@ -985,6 +1119,48 @@ app.get('/api/metrics', (req, res) => {
     predictivo: getMttrTipo('predictivo')
   };
 
+  // ================= CÁLCULO DE HORAS DE MANO DE OBRA Y TIEMPOS MUERTOS =================
+  let horas_mecanica_min = 0;
+  let horas_electrica_min = 0;
+  let horas_maquinaria_min = 0;
+  let tiempo_repuestos_min = 0;
+  let tiempo_fuera_planta_min = 0;
+  let tiempo_activo_total_min = 0;
+  let total_avances = 0;
+
+  tareas.forEach(t => {
+    // Horas por rol
+    if (t.tiempos_por_rol) {
+      horas_mecanica_min += (parseInt(t.tiempos_por_rol.mecanico) || 0);
+      horas_electrica_min += (parseInt(t.tiempos_por_rol.electrico) || 0);
+      horas_maquinaria_min += (parseInt(t.tiempos_por_rol.maquinista) || 0);
+    }
+    
+    // Tiempos muertos
+    const tEsp = parseInt(t.tiempo_espera_repuestos_minutos) || parseInt(t.tiempo_espera_minutos) || 0;
+    const tExt = parseInt(t.tiempo_fuera_planta_minutos) || 0;
+    
+    // Detección automática por texto si no fue explícito
+    const motivoTexto = ((t.motivo_espera || '') + ' ' + (t.motivo_fuera_planta || '')).toLowerCase();
+    if (tExt === 0 && tEsp > 0 && (motivoTexto.includes('torno') || motivoTexto.includes('taller') || motivoTexto.includes('extern') || motivoTexto.includes('fuera'))) {
+      tiempo_fuera_planta_min += tEsp;
+    } else {
+      tiempo_repuestos_min += tEsp;
+      tiempo_fuera_planta_min += tExt;
+    }
+
+    if (t.tiempo_trabajo_activo_minutos !== undefined && t.tiempo_trabajo_activo_minutos !== null) {
+      tiempo_activo_total_min += (parseInt(t.tiempo_trabajo_activo_minutos) || 0);
+    }
+
+    if (Array.isArray(t.avances)) {
+      total_avances += t.avances.length;
+    }
+  });
+
+  const tiempo_muerto_total_min = tiempo_repuestos_min + tiempo_fuera_planta_min;
+  const horas_roles_total_min = horas_mecanica_min + horas_electrica_min + horas_maquinaria_min;
+
   res.json({
     total,
     pendientes,
@@ -995,7 +1171,26 @@ app.get('/api/metrics', (req, res) => {
     mttr_global_formato: formatMinutes(mttr_global_minutos),
     mttr_por_tipo,
     tasa_completitud: total > 0 ? Math.round((completadas / total) * 100) : 0,
-    periodo
+    periodo,
+    // Horas por especialidad
+    horas_mecanica_minutos: horas_mecanica_min,
+    horas_mecanica_formato: formatMinutes(horas_mecanica_min),
+    horas_electrica_minutos: horas_electrica_min,
+    horas_electrica_formato: formatMinutes(horas_electrica_min),
+    horas_maquinaria_minutos: horas_maquinaria_min,
+    horas_maquinaria_formato: formatMinutes(horas_maquinaria_min),
+    horas_roles_total_minutos: horas_roles_total_min,
+    horas_roles_total_formato: formatMinutes(horas_roles_total_min),
+    // Tiempos muertos
+    tiempo_espera_repuestos_minutos: tiempo_repuestos_min,
+    tiempo_espera_repuestos_formato: formatMinutes(tiempo_repuestos_min),
+    tiempo_fuera_planta_minutos: tiempo_fuera_planta_min,
+    tiempo_fuera_planta_formato: formatMinutes(tiempo_fuera_planta_min),
+    tiempo_muerto_total_minutos: tiempo_muerto_total_min,
+    tiempo_muerto_total_formato: formatMinutes(tiempo_muerto_total_min),
+    tiempo_trabajo_activo_total_minutos: tiempo_activo_total_min,
+    tiempo_trabajo_activo_total_formato: formatMinutes(tiempo_activo_total_min),
+    total_avances
   });
 });
 

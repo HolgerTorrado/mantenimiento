@@ -439,9 +439,14 @@ function renderTareasMovil() {
             <i class="fa-solid fa-camera text-[11px]"></i> Terminar y Foto
           </button>
         </div>
-        <button onclick="abrirDetalleTareaMovil('${t.id}')" class="w-full mt-2 py-1.5 px-2 bg-slate-800/80 hover:bg-slate-700 active:scale-[0.98] text-slate-300 border border-slate-700 rounded-xl text-[11px] font-semibold transition flex items-center justify-center gap-1.5 shadow">
-          <i class="fa-solid fa-circle-info text-slate-400"></i> Ver Detalles Completos
-        </button>
+        <div class="grid grid-cols-2 gap-2 mt-2">
+          <button onclick="abrirModalAvanceMovil('${t.id}')" class="py-2 px-2.5 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-blue-300 border border-blue-500/40 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-pen text-blue-400"></i> 📝 Registrar Avance
+          </button>
+          <button onclick="abrirDetalleTareaMovil('${t.id}')" class="py-2 px-2.5 bg-slate-800/80 hover:bg-slate-700 active:scale-[0.98] text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-circle-info text-slate-400"></i> Ver Detalles
+          </button>
+        </div>
       `;
     } else if (t.estado === 'en_progreso') {
       botonesAccion = `
@@ -450,9 +455,14 @@ function renderTareasMovil() {
             <i class="fa-solid fa-camera text-base"></i>
             <span>Finalizar y Tomar Foto</span>
           </button>
-          <button onclick="abrirDetalleTareaMovil('${t.id}')" class="w-full py-1.5 px-2 bg-slate-800/80 hover:bg-slate-700 active:scale-[0.98] text-slate-300 border border-slate-700 rounded-xl text-[11px] font-semibold transition flex items-center justify-center gap-1.5 shadow">
-            <i class="fa-solid fa-circle-info text-slate-400"></i> Ver Detalles Completos
-          </button>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="abrirModalAvanceMovil('${t.id}')" class="py-2 px-2.5 bg-blue-900/60 hover:bg-blue-800/80 active:scale-[0.98] text-blue-200 border border-blue-500/50 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+              <i class="fa-solid fa-pen text-blue-400"></i> 📝 Registrar Avance
+            </button>
+            <button onclick="abrirDetalleTareaMovil('${t.id}')" class="py-2 px-2.5 bg-slate-800/80 hover:bg-slate-700 active:scale-[0.98] text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow">
+              <i class="fa-solid fa-circle-info text-slate-400"></i> Ver Detalles
+            </button>
+          </div>
         </div>
       `;
     } else {
@@ -471,17 +481,37 @@ function renderTareasMovil() {
 
       // Desglose de tiempo de espera vs trabajo activo en móvil
       let tiempoDetalladoHtml = '';
-      if (t.tiempo_espera_minutos && t.tiempo_espera_minutos > 0) {
+      const tRep = parseInt(t.tiempo_espera_repuestos_minutos) || 0;
+      const tExt = parseInt(t.tiempo_fuera_planta_minutos) || 0;
+      const tEspLegacy = parseInt(t.tiempo_espera_minutos) || 0;
+
+      let repMin = tRep;
+      let extMin = tExt;
+      if (repMin === 0 && extMin === 0 && tEspLegacy > 0) {
+        const mot = ((t.motivo_espera || '') + ' ' + (t.motivo_fuera_planta || '')).toLowerCase();
+        if (mot.includes('torno') || mot.includes('taller') || mot.includes('extern') || mot.includes('fuera')) {
+          extMin = tEspLegacy;
+        } else {
+          repMin = tEspLegacy;
+        }
+      }
+      const tMuertoTotal = repMin + extMin;
+
+      if (tMuertoTotal > 0) {
         const activo = (t.tiempo_trabajo_activo_minutos !== undefined && t.tiempo_trabajo_activo_minutos !== null)
           ? t.tiempo_trabajo_activo_minutos
-          : Math.max(0, t.tiempo_arreglo_minutos - t.tiempo_espera_minutos);
+          : Math.max(0, (t.tiempo_arreglo_minutos || 0) - tMuertoTotal);
+        
+        const partesMuerto = [];
+        if (repMin > 0) partesMuerto.push(`${formatMinutosMovil(repMin)} repuestos`);
+        if (extMin > 0) partesMuerto.push(`${formatMinutosMovil(extMin)} torno/ext`);
+
         tiempoDetalladoHtml = `
           <div class="mt-1 bg-amber-950/40 border border-amber-500/20 rounded-lg p-2 space-y-0.5 text-[11px]">
-            <div class="flex items-center justify-between text-amber-300">
-              <span class="flex items-center gap-1"><i class="fa-solid fa-hourglass-half text-[10px]"></i> Espera repuesto:</span>
-              <span class="font-mono font-bold">${formatMinutosMovil(t.tiempo_espera_minutos)}</span>
+            <div class="flex items-center justify-between text-rose-300">
+              <span class="flex items-center gap-1"><i class="fa-solid fa-hourglass-half text-[10px]"></i> Tiempos muertos:</span>
+              <span class="font-mono font-bold">${partesMuerto.join(' + ')}</span>
             </div>
-            ${t.motivo_espera ? `<p class="text-[10px] text-amber-200/70 italic truncate">"${escaparHTMLMovil(t.motivo_espera)}"</p>` : ''}
             <div class="flex items-center justify-between text-emerald-300 pt-0.5 border-t border-amber-500/20">
               <span class="flex items-center gap-1"><i class="fa-solid fa-wrench text-[10px]"></i> Trabajo activo:</span>
               <span class="font-mono font-bold">${formatMinutosMovil(activo)}</span>
@@ -548,6 +578,13 @@ function renderTareasMovil() {
       ? `<span class="bg-purple-900/80 text-purple-200 border border-purple-500 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm"><i class="fa-solid fa-people-group text-[9px]"></i> EN CONJUNTO</span>`
       : '';
 
+    const numAvancesMob = Array.isArray(t.avances) ? t.avances.length : 0;
+    const badgeAvancesMob = numAvancesMob > 0 
+      ? `<button type="button" onclick="abrirDetalleTareaMovil('${t.id}'); event.stopPropagation();" class="bg-blue-900/80 text-blue-200 border border-blue-500/60 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+          <i class="fa-solid fa-list-check text-[9px]"></i> ${numAvancesMob} avance${numAvancesMob > 1 ? 's' : ''}
+         </button>`
+      : '';
+
     return `
       <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-lg">
         
@@ -558,6 +595,7 @@ function renderTareasMovil() {
               ${badgeTipo}
               ${rolesBadges}
               ${badgeConjunta}
+              ${badgeAvancesMob}
               ${badgePrioridad}
               <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">${t.id}</span>
             </div>
@@ -1025,22 +1063,64 @@ function abrirDetalleTareaMovil(id) {
   if (elArr) elArr.innerText = t.fecha_arreglo ? formatearFechaCorta(t.fecha_arreglo) : 'En proceso / Pendiente';
   if (elDur) elDur.innerText = formatMinutosMovil(t.tiempo_arreglo_minutos);
 
-  // Espera por repuestos
+  // Desglose de espera por repuestos y fuera de planta / torno
   const boxEsp = document.getElementById('mob-det-box-espera');
-  if (t.tiempo_espera_minutos && t.tiempo_espera_minutos > 0) {
+  const subEsp = document.getElementById('mob-det-sub-espera');
+  const subFuera = document.getElementById('mob-det-sub-fuera');
+  const elTE = document.getElementById('mob-det-tiempo-espera');
+  const elME = document.getElementById('mob-det-motivo-espera');
+  const elTF = document.getElementById('mob-det-tiempo-fuera');
+  const elMF = document.getElementById('mob-det-motivo-fuera');
+  const elTA = document.getElementById('mob-det-tiempo-activo');
+
+  let tRep = parseInt(t.tiempo_espera_repuestos_minutos) || 0;
+  let tExt = parseInt(t.tiempo_fuera_planta_minutos) || 0;
+  let motRep = t.motivo_espera_repuestos || t.motivo_espera || '';
+  let motExt = t.motivo_fuera_planta || '';
+
+  if (tRep === 0 && tExt === 0 && t.tiempo_espera_minutos > 0) {
+    const txtGeneral = (t.motivo_espera || '').toLowerCase();
+    if (txtGeneral.includes('torno') || txtGeneral.includes('taller') || txtGeneral.includes('extern') || txtGeneral.includes('fuera')) {
+      tExt = t.tiempo_espera_minutos;
+      motExt = t.motivo_espera || '';
+      motRep = '';
+    } else {
+      tRep = t.tiempo_espera_minutos;
+    }
+  }
+
+  const tMuertoTotal = tRep + tExt;
+  if (tMuertoTotal > 0) {
     if (boxEsp) boxEsp.classList.remove('hidden');
-    const elTE = document.getElementById('mob-det-tiempo-espera');
-    const elME = document.getElementById('mob-det-motivo-espera');
-    const elTA = document.getElementById('mob-det-tiempo-activo');
-    if (elTE) elTE.innerText = formatMinutosMovil(t.tiempo_espera_minutos);
-    if (elME) elME.innerText = t.motivo_espera ? `"${t.motivo_espera}"` : '';
+    if (subEsp) {
+      if (tRep > 0) {
+        subEsp.classList.remove('hidden');
+        if (elTE) elTE.innerText = formatMinutosMovil(tRep);
+        if (elME) elME.innerText = motRep ? `"${motRep}"` : '';
+      } else {
+        subEsp.classList.add('hidden');
+      }
+    }
+    if (subFuera) {
+      if (tExt > 0) {
+        subFuera.classList.remove('hidden');
+        if (elTF) elTF.innerText = formatMinutosMovil(tExt);
+        if (elMF) elMF.innerText = motExt ? `"${motExt}"` : '';
+      } else {
+        subFuera.classList.add('hidden');
+      }
+    }
+
     const act = (t.tiempo_trabajo_activo_minutos !== undefined && t.tiempo_trabajo_activo_minutos !== null)
       ? t.tiempo_trabajo_activo_minutos
-      : Math.max(0, (t.tiempo_arreglo_minutos || 0) - t.tiempo_espera_minutos);
+      : Math.max(0, (t.tiempo_arreglo_minutos || 0) - tMuertoTotal);
     if (elTA) elTA.innerText = formatMinutosMovil(act);
   } else {
     if (boxEsp) boxEsp.classList.add('hidden');
   }
+
+  // Renderizar bitácora de avances en móvil
+  renderAvancesDetalleMovil(t);
 
   // Roles y Personal
   const contRoles = document.getElementById('mob-det-roles');
@@ -1095,4 +1175,188 @@ function abrirFotoDetalleMovilActual() {
     abrirVisorFoto(tareaDetalleMovilActual.foto_comprobante, `${tareaDetalleMovilActual.id} - ${tareaDetalleMovilActual.equipo}`);
   }
 }
+
+// ================= GESTIÓN DE BITÁCORA DE AVANCES EN MÓVIL =================
+let fotoAvanceBase64 = null;
+let tareaIdParaAvance = null;
+
+function abrirModalAvanceMovil(id) {
+  const t = tareasMovil.find(item => item.id === id);
+  if (!t) return;
+  tareaIdParaAvance = id;
+
+  const inId = document.getElementById('input-avance-tarea-id');
+  const sub = document.getElementById('modal-avance-subtitulo');
+  const inHoras = document.getElementById('input-avance-horas-movil');
+  const inDesc = document.getElementById('input-avance-desc-movil');
+  
+  if (inId) inId.value = t.id;
+  if (sub) sub.innerText = `${t.id} - ${t.equipo}`;
+  if (inHoras) inHoras.value = '';
+  if (inDesc) inDesc.value = '';
+
+  quitarFotoAvanceMovil();
+
+  const modal = document.getElementById('modal-avance-movil');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function cerrarModalAvanceMovil() {
+  const modal = document.getElementById('modal-avance-movil');
+  if (modal) modal.classList.add('hidden');
+  tareaIdParaAvance = null;
+  fotoAvanceBase64 = null;
+}
+
+function irARegistrarAvanceDesdeDetalle() {
+  if (!tareaDetalleMovilActual) return;
+  const id = tareaDetalleMovilActual.id;
+  cerrarDetalleTareaMovil();
+  abrirModalAvanceMovil(id);
+}
+
+async function previsualizarFotoAvanceMovil(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  try {
+    mostrarToastMovil('Comprimiendo imagen...');
+    fotoAvanceBase64 = await comprimirImagenCanvas(file, 1024, 0.75);
+
+    const img = document.getElementById('img-previa-avance');
+    const boxCon = document.getElementById('box-con-foto-avance');
+    const boxSin = document.getElementById('box-sin-foto-avance');
+
+    if (img) img.src = fotoAvanceBase64;
+    if (boxCon) boxCon.classList.remove('hidden');
+    if (boxSin) boxSin.classList.add('hidden');
+  } catch(err) {
+    alert('Error al procesar foto: ' + err.message);
+  }
+}
+
+function quitarFotoAvanceMovil() {
+  fotoAvanceBase64 = null;
+  const camInput = document.getElementById('input-avance-camara-file');
+  const galInput = document.getElementById('input-avance-galeria-file');
+  if (camInput) camInput.value = '';
+  if (galInput) galInput.value = '';
+
+  const boxCon = document.getElementById('box-con-foto-avance');
+  const boxSin = document.getElementById('box-sin-foto-avance');
+  const img = document.getElementById('img-previa-avance');
+
+  if (img) img.src = '';
+  if (boxCon) boxCon.classList.add('hidden');
+  if (boxSin) boxSin.classList.remove('hidden');
+}
+
+async function guardarAvanceMovil(e) {
+  e.preventDefault();
+  if (!tareaIdParaAvance) return;
+
+  const desc = document.getElementById('input-avance-desc-movil')?.value.trim();
+  const horas = parseFloat(document.getElementById('input-avance-horas-movil')?.value) || 0;
+  const user = getUsuarioActivo();
+
+  if (!desc) {
+    alert('Por favor describe lo que realizaste en este avance.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-confirmar-avance');
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+  }
+
+  try {
+    const res = await fetch(`/api/tasks/${tareaIdParaAvance}/avances`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'mecanico',
+        'x-user-username': user.username || 'tecnico',
+        'x-user-name': user.nombre || 'Técnico'
+      },
+      body: JSON.stringify({
+        descripcion: desc,
+        horas_dedicadas: horas,
+        foto_base64: fotoAvanceBase64,
+        tecnico_nombre: user.nombre || 'Técnico'
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al guardar avance');
+
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    mostrarToastMovil('✅ ¡Avance registrado en la bitácora!');
+    cerrarModalAvanceMovil();
+
+    // Mover a la pestaña En Curso si estaba en pendientes
+    const tabs = document.querySelectorAll('#mobile-tabs .tab-movil');
+    if (tabs && tabs[1]) {
+      cambiarTabMovil('en_progreso', tabs[1]);
+    }
+
+    cargarTareasMovil(false);
+  } catch(err) {
+    alert('Error al guardar avance: ' + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
+}
+
+function renderAvancesDetalleMovil(t) {
+  const cont = document.getElementById('mob-det-avances-lista');
+  if (!cont) return;
+
+  const avances = Array.isArray(t.avances) ? t.avances : [];
+  if (avances.length === 0) {
+    cont.innerHTML = `
+      <div class="p-3 text-center text-slate-500 bg-slate-950/40 rounded-xl border border-dashed border-slate-800 text-[11px]">
+        <i class="fa-regular fa-clipboard text-slate-600 text-sm block mb-1"></i>
+        <span>No se han registrado avances intermedios aún.</span>
+      </div>
+    `;
+    return;
+  }
+
+  cont.innerHTML = avances.map(a => {
+    let badgeRol = 'bg-emerald-950/80 text-emerald-300 border-emerald-800';
+    let iconRol = 'fa-wrench';
+    if (a.tecnico_rol === 'electrico') { badgeRol = 'bg-amber-950/80 text-amber-300 border-amber-800'; iconRol = 'fa-bolt'; }
+    else if (a.tecnico_rol === 'maquinista') { badgeRol = 'bg-orange-950/80 text-orange-300 border-orange-800'; iconRol = 'fa-tractor'; }
+    else if (a.tecnico_rol === 'admin') { badgeRol = 'bg-purple-950/80 text-purple-300 border-purple-800'; iconRol = 'fa-crown'; }
+
+    const horasBadge = a.horas_dedicadas > 0 ? `<span class="bg-blue-950 border border-blue-500/40 text-blue-300 px-1.5 py-0.5 rounded text-[9px] font-mono font-bold">⏱️ ${a.horas_dedicadas}h</span>` : '';
+    const fotoThumb = a.foto ? `
+      <div class="mt-1.5 cursor-pointer inline-block" onclick="abrirVisorFoto('${a.foto}', 'Avance: ${escaparHTMLMovil(a.tecnico_nombre)}'); event.stopPropagation();">
+        <img src="${a.foto}" alt="Avance" class="w-20 h-14 object-cover rounded-lg border border-slate-700 active:scale-95 transition shadow">
+      </div>
+    ` : '';
+
+    return `
+      <div class="bg-slate-950/70 border border-slate-800 rounded-xl p-2.5 text-xs space-y-1">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[9px] px-1.5 py-0.5 rounded border ${badgeRol} font-bold flex items-center gap-1">
+              <i class="fa-solid ${iconRol}"></i> ${escaparHTMLMovil(a.tecnico_nombre)}
+            </span>
+            ${horasBadge}
+          </div>
+          <span class="text-[10px] text-slate-500 font-mono">${formatearFechaCorta(a.fecha_hora)}</span>
+        </div>
+        <p class="text-slate-300 text-[11px] leading-relaxed">${escaparHTMLMovil(a.descripcion)}</p>
+        ${fotoThumb}
+      </div>
+    `;
+  }).join('');
+}
+
 
