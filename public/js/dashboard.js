@@ -9,6 +9,90 @@ let chartRolesTiempos = null;
 let nuevaFotoDetalleBase64 = null;
 let fotoDetalleOriginal = null;
 
+// Configuración completa de tipos de actividades de planta y mantenimiento
+const CONFIG_TIPOS = {
+  preventivo: {
+    label: 'Preventivo',
+    icon: 'fa-calendar-check',
+    color: '#10b981',
+    bgBadge: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30',
+    bgModal: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+  },
+  correctivo: {
+    label: 'Correctivo',
+    icon: 'fa-triangle-exclamation',
+    color: '#ef4444',
+    bgBadge: 'bg-rose-500/10 text-rose-400 border border-rose-500/30',
+    bgModal: 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+  },
+  predictivo: {
+    label: 'Predictivo',
+    icon: 'fa-wave-square',
+    color: '#a855f7',
+    bgBadge: 'bg-purple-500/10 text-purple-400 border border-purple-500/30',
+    bgModal: 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+  },
+  mejora: {
+    label: 'Mejora Continua',
+    icon: 'fa-arrow-trend-up',
+    color: '#0284c7',
+    bgBadge: 'bg-sky-500/10 text-sky-400 border border-sky-500/30',
+    bgModal: 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
+  },
+  locativo: {
+    label: 'Pintura & Locativo',
+    icon: 'fa-paint-roller',
+    color: '#f59e0b',
+    bgBadge: 'bg-amber-500/10 text-amber-400 border border-amber-500/30',
+    bgModal: 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+  },
+  '5s': {
+    label: 'Orden, Aseo & 5S',
+    icon: 'fa-broom',
+    color: '#06b6d4',
+    bgBadge: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30',
+    bgModal: 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
+  },
+  instalacion: {
+    label: 'Montaje & Instalación',
+    icon: 'fa-screwdriver-wrench',
+    color: '#6366f1',
+    bgBadge: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30',
+    bgModal: 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
+  },
+  lubricacion: {
+    label: 'Lubricación & Engrase',
+    icon: 'fa-oil-can',
+    color: '#f97316',
+    bgBadge: 'bg-orange-500/10 text-orange-400 border border-orange-500/30',
+    bgModal: 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+  },
+  otro: {
+    label: 'General / Apoyo',
+    icon: 'fa-clipboard-list',
+    color: '#64748b',
+    bgBadge: 'bg-slate-500/10 text-slate-400 border border-slate-500/30',
+    bgModal: 'bg-slate-500/20 text-slate-400 border border-slate-500/30'
+  }
+};
+
+function getBadgeTipo(tipo) {
+  const tKey = (tipo || 'otro').toLowerCase().trim();
+  const cfg = CONFIG_TIPOS[tKey] || CONFIG_TIPOS['otro'];
+  return `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${cfg.bgBadge}">
+    <i class="fa-solid ${cfg.icon} text-[10px]"></i> ${cfg.label}
+  </span>`;
+}
+
+function cambiarTipoDetalleModal(nuevoTipo) {
+  const badge = document.getElementById('det-tipo-badge');
+  if (!badge) return;
+  const tKey = (nuevoTipo || 'otro').toLowerCase().trim();
+  const cfg = CONFIG_TIPOS[tKey] || CONFIG_TIPOS['otro'];
+  badge.innerText = (cfg.label || nuevoTipo).toUpperCase();
+  badge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${cfg.bgModal}`;
+}
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   const user = verificarSesionDashboard();
@@ -252,6 +336,28 @@ function actualizarKPIs(m) {
   if (sCorr) sCorr.innerText = pt.correctivo ?? 0;
   if (sPred) sPred.innerText = pt.predictivo ?? 0;
 
+  // Leyenda dinámica de todas las categorías activas
+  const contLeyenda = document.getElementById('stat-tipos-leyenda');
+  if (contLeyenda && pt) {
+    const tiposActivos = Object.keys(CONFIG_TIPOS).filter(k => (pt[k] || 0) > 0 || ['preventivo', 'correctivo', 'predictivo'].includes(k));
+    contLeyenda.className = tiposActivos.length > 3 
+      ? 'grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-700/60 text-center max-h-48 overflow-y-auto p-1'
+      : 'grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-700/60 text-center';
+
+    contLeyenda.innerHTML = tiposActivos.map(k => {
+      const cfg = CONFIG_TIPOS[k] || CONFIG_TIPOS['otro'];
+      const cnt = pt[k] || 0;
+      return `
+        <div class="p-2 rounded-lg border text-center transition" style="background-color: ${cfg.color}15; border-color: ${cfg.color}40;">
+          <span class="text-[10px] font-semibold block uppercase truncate" style="color: ${cfg.color}">
+            <i class="fa-solid ${cfg.icon} mr-1"></i>${cfg.label}
+          </span>
+          <span class="text-base font-bold text-white">${cnt}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
   // Tiempos por tipo
   const mPrev = document.getElementById('mttr-preventivo-txt');
   const mCorr = document.getElementById('mttr-correctivo-txt');
@@ -288,22 +394,28 @@ function actualizarGraficas(m) {
     predictivo: { minutos: 0 }
   };
 
-  // 1. Gráfica de Donut: Tipos
+  // 1. Gráfica de Donut: Todas las Actividades y Tipos Dinámicos
   const ctxTipos = document.getElementById('chart-tipos')?.getContext('2d');
   if (ctxTipos) {
-    const totalTipos = (pt.preventivo || 0) + (pt.correctivo || 0) + (pt.predictivo || 0);
-    const dataTipos = totalTipos > 0 ? [pt.preventivo, pt.correctivo, pt.predictivo] : [0, 0, 0];
+    const tiposConDatos = Object.keys(CONFIG_TIPOS).filter(k => (pt[k] || 0) > 0);
+    const clavesFinales = tiposConDatos.length > 0 ? tiposConDatos : ['preventivo', 'correctivo', 'predictivo'];
+    const labelsFinales = clavesFinales.map(k => CONFIG_TIPOS[k]?.label || k);
+    const dataTipos = clavesFinales.map(k => pt[k] || 0);
+    const bgColors = clavesFinales.map(k => CONFIG_TIPOS[k]?.color || '#64748b');
+
     if (chartTipos) {
+      chartTipos.data.labels = labelsFinales;
       chartTipos.data.datasets[0].data = dataTipos;
+      chartTipos.data.datasets[0].backgroundColor = bgColors;
       chartTipos.update();
     } else {
       chartTipos = new Chart(ctxTipos, {
         type: 'doughnut',
         data: {
-          labels: ['Preventivo', 'Correctivo', 'Predictivo'],
+          labels: labelsFinales,
           datasets: [{
             data: dataTipos,
-            backgroundColor: ['#10b981', '#ef4444', '#8b5cf6'],
+            backgroundColor: bgColors,
             borderColor: '#1e293b',
             borderWidth: 3,
             hoverOffset: 6
@@ -315,7 +427,7 @@ function actualizarGraficas(m) {
           plugins: {
             legend: { display: false }
           },
-          cutout: '70%'
+          cutout: '68%'
         }
       });
     }
@@ -502,21 +614,8 @@ function renderTablaTareas(tareas) {
   }
 
   tbody.innerHTML = tareas.map(t => {
-    // Badge Tipo
-    let badgeTipo = '';
-    if (t.tipo === 'preventivo') {
-      badgeTipo = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-        <i class="fa-solid fa-calendar-check text-[10px]"></i> Preventivo
-      </span>`;
-    } else if (t.tipo === 'correctivo') {
-      badgeTipo = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-500/10 text-rose-400 border border-rose-500/30">
-        <i class="fa-solid fa-triangle-exclamation text-[10px]"></i> Correctivo
-      </span>`;
-    } else {
-      badgeTipo = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/30">
-        <i class="fa-solid fa-wave-square text-[10px]"></i> Predictivo
-      </span>`;
-    }
+    // Badge Tipo dinámico con icono y colores específicos de la actividad
+    const badgeTipo = getBadgeTipo(t.tipo);
 
     // Badge Estado
     let badgeEstado = '';
@@ -818,12 +917,13 @@ function abrirModalDetalle(id) {
   // Título e ID
   document.getElementById('det-id-titulo').innerText = `${t.id} - ${t.equipo}`;
   
-  // Badge de tipo
-  const badge = document.getElementById('det-tipo-badge');
-  badge.innerText = t.tipo.toUpperCase();
-  if (t.tipo === 'preventivo') badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-  else if (t.tipo === 'correctivo') badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30';
-  else badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30';
+  // Badge y Selector de tipo de actividad / re-clasificación
+  const selTipo = document.getElementById('edit-det-tipo');
+  if (selTipo) {
+    selTipo.value = t.tipo || 'correctivo';
+    selTipo.disabled = !esAdmin;
+  }
+  cambiarTipoDetalleModal(t.tipo || 'correctivo');
 
   // Fechas y Tiempos Editables por el Administrador
   const inOcurrio = document.getElementById('edit-det-fecha-ocurrio');
@@ -1252,7 +1352,10 @@ async function guardarEdicionDetalleAdmin() {
     maquinista: Math.round(hMaq * 60)
   };
 
+  const tipoSeleccionado = document.getElementById('edit-det-tipo')?.value;
+
   const payload = {
+    tipo: tipoSeleccionado,
     fecha_ocurrencia: fOcurrio,
     fecha_arreglo: fArreglo || null,
     notas_mecanico: notas,

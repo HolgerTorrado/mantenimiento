@@ -47,6 +47,19 @@ cloudStorage.sincronizarArchivoAlIniciar('users.json', USERS_FILE);
 cloudStorage.sincronizarArchivoAlIniciar('tasks.json', TASKS_FILE);
 cloudStorage.sincronizarArchivoAlIniciar('mecanicos.json', MECANICOS_FILE);
 
+// Tipos de actividades y mantenimiento admitidos en SIMAN (Abarca todo el trabajo de planta)
+const TIPOS_VALIDOS = [
+  'correctivo',   // Falla o Avería
+  'preventivo',   // Programado / Rutina
+  'predictivo',   // Vibración / Termografía
+  'mejora',       // Proyectos de Mejora / Modificación de Equipo
+  'locativo',     // Pintura, Fachadas, Pisos, Cerrajería
+  '5s',           // Orden, Aseo, Recoger puestos, Limpieza de taller
+  'instalacion',  // Montaje de nuevos equipos, tuberías, tableros
+  'lubricacion',  // Rutinas de engrase y niveles de aceite
+  'otro'          // Apoyo auxiliar / General
+];
+
 // Middlewares
 app.use(cors());
 app.use(express.json({ limit: '25mb' }));
@@ -532,9 +545,9 @@ app.post('/api/tasks', (req, res) => {
     return res.status(400).json({ error: 'Equipo, tipo de mantenimiento y fecha de ocurrencia son obligatorios' });
   }
 
-  const tipoNormalizado = ['preventivo', 'correctivo', 'predictivo'].includes(tipo.toLowerCase())
-    ? tipo.toLowerCase()
-    : 'correctivo';
+  const tipoNormalizado = (tipo && TIPOS_VALIDOS.includes(tipo.toLowerCase().trim()))
+    ? tipo.toLowerCase().trim()
+    : (tipo ? tipo.toLowerCase().trim() : 'correctivo');
 
   // Normalizar roles requeridos para la tarea (Permite tareas conjuntas)
   let rolesFinal = ['mecanico'];
@@ -1088,12 +1101,16 @@ app.get('/api/metrics', (req, res) => {
   const en_progreso = tareas.filter(t => t.estado === 'en_progreso').length;
   const completadas = tareas.filter(t => t.estado === 'completado').length;
 
-  // Conteo por tipo
-  const por_tipo = {
-    preventivo: tareas.filter(t => t.tipo === 'preventivo').length,
-    correctivo: tareas.filter(t => t.tipo === 'correctivo').length,
-    predictivo: tareas.filter(t => t.tipo === 'predictivo').length
-  };
+  // Conteo por tipo dinámico
+  const por_tipo = {};
+  TIPOS_VALIDOS.forEach(tp => {
+    por_tipo[tp] = tareas.filter(t => t.tipo === tp).length;
+  });
+  tareas.forEach(t => {
+    if (t.tipo && !TIPOS_VALIDOS.includes(t.tipo)) {
+      por_tipo[t.tipo] = (por_tipo[t.tipo] || 0) + 1;
+    }
+  });
 
   // Cálculo de MTTR (Mean Time to Repair / Tiempo Medio de Arreglo)
   const completadasConTiempo = tareas.filter(t => t.estado === 'completado' && typeof t.tiempo_arreglo_minutos === 'number' && t.tiempo_arreglo_minutos >= 0);
@@ -1113,11 +1130,10 @@ app.get('/api/metrics', (req, res) => {
     return { minutos: avg, formato: formatMinutes(avg), total: filtradas.length };
   };
 
-  const mttr_por_tipo = {
-    preventivo: getMttrTipo('preventivo'),
-    correctivo: getMttrTipo('correctivo'),
-    predictivo: getMttrTipo('predictivo')
-  };
+  const mttr_por_tipo = {};
+  TIPOS_VALIDOS.forEach(tp => {
+    mttr_por_tipo[tp] = getMttrTipo(tp);
+  });
 
   // ================= CÁLCULO DE HORAS DE MANO DE OBRA Y TIEMPOS MUERTOS =================
   let horas_mecanica_min = 0;

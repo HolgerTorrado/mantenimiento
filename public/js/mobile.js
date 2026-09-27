@@ -6,6 +6,27 @@ let fotoCapturadaFile = null;
 
 let deferredInstallPrompt = null;
 
+// Configuración completa de tipos y actividades de planta en móvil
+const CONFIG_TIPOS_MOVIL = {
+  preventivo: { label: 'PREVENTIVO', icon: 'fa-calendar-check', color: '#10b981', bg: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' },
+  correctivo: { label: 'CORRECTIVO', icon: 'fa-triangle-exclamation', color: '#ef4444', bg: 'bg-rose-500/10 text-rose-400 border border-rose-500/30' },
+  predictivo: { label: 'PREDICTIVO', icon: 'fa-wave-square', color: '#a855f7', bg: 'bg-purple-500/10 text-purple-400 border border-purple-500/30' },
+  mejora: { label: 'MEJORA', icon: 'fa-arrow-trend-up', color: '#0284c7', bg: 'bg-sky-500/10 text-sky-400 border border-sky-500/30' },
+  locativo: { label: 'LOCATIVO', icon: 'fa-paint-roller', color: '#f59e0b', bg: 'bg-amber-500/10 text-amber-400 border border-amber-500/30' },
+  '5s': { label: '5S & ASEO', icon: 'fa-broom', color: '#06b6d4', bg: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30' },
+  instalacion: { label: 'INSTALACIÓN', icon: 'fa-screwdriver-wrench', color: '#6366f1', bg: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/30' },
+  lubricacion: { label: 'LUBRICACIÓN', icon: 'fa-oil-can', color: '#f97316', bg: 'bg-orange-500/10 text-orange-400 border border-orange-500/30' },
+  otro: { label: 'GENERAL', icon: 'fa-clipboard-list', color: '#64748b', bg: 'bg-slate-500/10 text-slate-400 border border-slate-500/30' }
+};
+
+function getBadgeTipoMovil(tipo) {
+  const tKey = (tipo || 'otro').toLowerCase().trim();
+  const cfg = CONFIG_TIPOS_MOVIL[tKey] || CONFIG_TIPOS_MOVIL['otro'];
+  return `<span class="${cfg.bg} text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+    <i class="fa-solid ${cfg.icon} text-[9px]"></i> ${cfg.label}
+  </span>`;
+}
+
 // Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   const user = verificarSesionMovil();
@@ -390,21 +411,8 @@ function renderTareasMovil() {
   }
 
   contenedor.innerHTML = lista.map(t => {
-    // Badges de tipo
-    let badgeTipo = '';
-    if (t.tipo === 'preventivo') {
-      badgeTipo = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-        <i class="fa-solid fa-calendar-check text-[9px]"></i> PREVENTIVO
-      </span>`;
-    } else if (t.tipo === 'correctivo') {
-      badgeTipo = `<span class="bg-rose-500/10 text-rose-400 border border-rose-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-        <i class="fa-solid fa-triangle-exclamation text-[9px]"></i> CORRECTIVO
-      </span>`;
-    } else {
-      badgeTipo = `<span class="bg-purple-500/10 text-purple-400 border border-purple-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-        <i class="fa-solid fa-wave-square text-[9px]"></i> PREDICTIVO
-      </span>`;
-    }
+    // Badge de tipo dinámico
+    const badgeTipo = getBadgeTipoMovil(t.tipo);
 
     // Badge Prioridad
     let badgePrioridad = '';
@@ -666,7 +674,13 @@ function abrirModalCompletar(id) {
   document.getElementById('input-tarea-id').value = id;
   document.getElementById('modal-subtitulo-tarea').innerText = `${t.id} - ${t.equipo}`;
   document.getElementById('modal-equipo-txt').innerText = t.equipo;
-  document.getElementById('modal-tipo-badge').innerText = t.tipo.toUpperCase();
+  const elModalTipoBadge = document.getElementById('modal-tipo-badge');
+  if (elModalTipoBadge) {
+    const tKey = (t.tipo || 'otro').toLowerCase().trim();
+    const cfg = CONFIG_TIPOS_MOVIL[tKey] || CONFIG_TIPOS_MOVIL['otro'];
+    elModalTipoBadge.innerHTML = `<i class="fa-solid ${cfg.icon} mr-1"></i>${cfg.label}`;
+    elModalTipoBadge.style.color = cfg.color;
+  }
   document.getElementById('modal-ocurrio-txt').innerText = formatearFechaCorta(t.fecha_ocurrencia);
 
   // Limpiar campos previos
@@ -1010,17 +1024,13 @@ function abrirDetalleTareaMovil(id) {
   const elTitulo = document.getElementById('mob-det-id-titulo');
   if (elTitulo) elTitulo.innerText = `${t.id} - ${t.equipo}`;
 
-  // Badge de tipo
+  // Badge de tipo dinámico
   const badgeTipo = document.getElementById('mob-det-badge-tipo');
   if (badgeTipo) {
-    badgeTipo.innerText = (t.tipo || 'preventivo').toUpperCase();
-    if (t.tipo === 'correctivo') {
-      badgeTipo.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30';
-    } else if (t.tipo === 'predictivo') {
-      badgeTipo.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30';
-    } else {
-      badgeTipo.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-    }
+    const tKey = (t.tipo || 'otro').toLowerCase().trim();
+    const cfg = CONFIG_TIPOS_MOVIL[tKey] || CONFIG_TIPOS_MOVIL['otro'];
+    badgeTipo.innerHTML = `<i class="fa-solid ${cfg.icon} text-[9px] mr-1"></i>${cfg.label}`;
+    badgeTipo.className = `px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${cfg.bg}`;
   }
 
   // Foto

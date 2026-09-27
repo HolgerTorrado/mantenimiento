@@ -336,15 +336,15 @@
             <h3 class="font-bold text-base text-white flex items-center gap-2">
               <i class="fa-solid fa-chart-pie text-emerald-400"></i> Distribución por Tipo
             </h3>
-            <span class="text-xs text-slate-400">Preventivo / Correctivo / Predictivo</span>
+            <span class="text-xs text-slate-400">Distribución de Actividades de Planta</span>
           </div>
           <div class="relative h-48 flex items-center justify-center">
             <canvas id="chart-tipos"></canvas>
           </div>
         </div>
 
-        <!-- Leyenda con métricas -->
-        <div class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-700/60 text-center">
+        <!-- Leyenda con métricas de tipos y actividades -->
+        <div id="stat-tipos-leyenda" class="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-slate-700/60 text-center">
           <div class="bg-emerald-950/40 border border-emerald-500/20 rounded-lg p-2">
             <span class="text-[11px] text-emerald-400 font-semibold block uppercase">Preventivo</span>
             <span id="stat-preventivo" class="text-lg font-bold text-emerald-200">0</span>
@@ -453,10 +453,16 @@
           
           <!-- Filtro Tipo -->
           <select id="select-filtro-tipo" onchange="aplicarFiltros()" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-            <option value="todos">Todos los Tipos</option>
-            <option value="preventivo">🟢 Preventivo</option>
-            <option value="correctivo">🔴 Correctivo</option>
-            <option value="predictivo">🟣 Predictivo</option>
+            <option value="todos">Todos los Tipos (Todas las Actividades)</option>
+            <option value="preventivo">🟢 Preventivo (Programado)</option>
+            <option value="correctivo">🔴 Correctivo (Avería / Falla)</option>
+            <option value="predictivo">🟣 Predictivo (Monitoreo)</option>
+            <option value="mejora">🚀 Mejora (Modificación / Proyecto)</option>
+            <option value="locativo">🎨 Pintura & Locativo (Pisos, Cerrajería)</option>
+            <option value="5s">🧹 Orden, Aseo & 5S (Taller y Puestos)</option>
+            <option value="instalacion">⚡ Montaje & Nuevas Instalaciones</option>
+            <option value="lubricacion">🛢️ Lubricación & Engrase</option>
+            <option value="otro">📋 General / Apoyo Auxiliar</option>
           </select>
 
           <!-- Input Búsqueda -->
@@ -529,41 +535,119 @@
       <!-- Formulario -->
       <form id="form-crear-tarea" onsubmit="guardarNuevaTarea(event)" class="p-6 space-y-4">
         
-        <!-- Selección de Tipo de Mantenimiento (3 Opciones Destacadas) -->
+        <!-- Selección de Tipo de Actividad / Mantenimiento (9 Categorías de Planta) -->
         <div>
           <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-            Tipo de Mantenimiento <span class="text-rose-400">*</span>
+            Tipo de Actividad / Clasificación <span class="text-rose-400">*</span>
           </label>
-          <div class="grid grid-cols-3 gap-3">
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-64 overflow-y-auto p-1 bg-slate-950/40 rounded-xl border border-slate-700/80">
             
             <!-- Preventivo -->
-            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-3 flex flex-col items-center text-center transition hover:border-emerald-500/60 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-950/40">
+            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 transition hover:border-emerald-500/60 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-950/40">
               <input type="radio" name="tipo" value="preventivo" class="sr-only" checked>
-              <span class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1 text-sm">
+              <span class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm flex-shrink-0">
                 <i class="fa-solid fa-calendar-check"></i>
               </span>
-              <span class="font-bold text-sm text-emerald-300">Preventivo</span>
-              <span class="text-[10px] text-slate-400 mt-0.5">Programado / Rutina</span>
+              <div class="truncate text-left">
+                <span class="font-bold text-xs text-emerald-300 block truncate">Preventivo</span>
+                <span class="text-[10px] text-slate-400 block truncate">Programado / Rutina</span>
+              </div>
             </label>
 
             <!-- Correctivo -->
-            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-3 flex flex-col items-center text-center transition hover:border-rose-500/60 has-[:checked]:border-rose-500 has-[:checked]:bg-rose-950/40">
+            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 transition hover:border-rose-500/60 has-[:checked]:border-rose-500 has-[:checked]:bg-rose-950/40">
               <input type="radio" name="tipo" value="correctivo" class="sr-only">
-              <span class="w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1 text-sm">
+              <span class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm flex-shrink-0">
                 <i class="fa-solid fa-triangle-exclamation"></i>
               </span>
-              <span class="font-bold text-sm text-rose-300">Correctivo</span>
-              <span class="text-[10px] text-slate-400 mt-0.5">Falla o Avería</span>
+              <div class="truncate text-left">
+                <span class="font-bold text-xs text-rose-300 block truncate">Correctivo</span>
+                <span class="text-[10px] text-slate-400 block truncate">Falla o Avería</span>
+              </div>
             </label>
 
             <!-- Predictivo -->
-            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-3 flex flex-col items-center text-center transition hover:border-purple-500/60 has-[:checked]:border-purple-500 has-[:checked]:bg-purple-950/40">
+            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 transition hover:border-purple-500/60 has-[:checked]:border-purple-500 has-[:checked]:bg-purple-950/40">
               <input type="radio" name="tipo" value="predictivo" class="sr-only">
-              <span class="w-8 h-8 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1 text-sm">
+              <span class="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-sm flex-shrink-0">
                 <i class="fa-solid fa-wave-square"></i>
               </span>
-              <span class="font-bold text-sm text-purple-300">Predictivo</span>
-              <span class="text-[10px] text-slate-400 mt-0.5">Vibración / Termo</span>
+              <div class="truncate text-left">
+                <span class="font-bold text-xs text-purple-300 block truncate">Predictivo</span>
+                <span class="text-[10px] text-slate-400 block truncate">Vibración / Termo</span>
+              </div>
+            </label>
+
+            <!-- Mejora -->
+            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 transition hover:border-sky-500/60 has-[:checked]:border-sky-500 has-[:checked]:bg-sky-950/40">
+              <input type="radio" name="tipo" value="mejora" class="sr-only">
+              <span class="w-8 h-8 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fa-solid fa-arrow-trend-up"></i>
+              </span>
+              <div class="truncate text-left">
+                <span class="font-bold text-xs text-sky-300 block truncate">Mejora Continua</span>
+                <span class="text-[10px] text-slate-400 block truncate">Modificación / Proyecto</span>
+              </div>
+            </label>
+
+            <!-- Locativo / Pintura -->
+            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 transition hover:border-amber-500/60 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-950/40">
+              <input type="radio" name="tipo" value="locativo" class="sr-only">
+              <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fa-solid fa-paint-roller"></i>
+              </span>
+              <div class="truncate text-left">
+                <span class="font-bold text-xs text-amber-300 block truncate">Pintura & Locativo</span>
+                <span class="text-[10px] text-slate-400 block truncate">Paredes, Pisos, Cerrajería</span>
+              </div>
+            </label>
+
+            <!-- 5S / Orden y Aseo -->
+            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 transition hover:border-cyan-500/60 has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-950/40">
+              <input type="radio" name="tipo" value="5s" class="sr-only">
+              <span class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fa-solid fa-broom"></i>
+              </span>
+              <div class="truncate text-left">
+                <span class="font-bold text-xs text-cyan-300 block truncate">Orden, Aseo & 5S</span>
+                <span class="text-[10px] text-slate-400 block truncate">Limpieza & Organización</span>
+              </div>
+            </label>
+
+            <!-- Montaje / Instalación -->
+            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 transition hover:border-indigo-500/60 has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/40">
+              <input type="radio" name="tipo" value="instalacion" class="sr-only">
+              <span class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fa-solid fa-screwdriver-wrench"></i>
+              </span>
+              <div class="truncate text-left">
+                <span class="font-bold text-xs text-indigo-300 block truncate">Montaje & Nuevos</span>
+                <span class="text-[10px] text-slate-400 block truncate">Tuberías, Tableros, Equipos</span>
+              </div>
+            </label>
+
+            <!-- Lubricación & Rutinas -->
+            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 transition hover:border-orange-500/60 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-950/40">
+              <input type="radio" name="tipo" value="lubricacion" class="sr-only">
+              <span class="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fa-solid fa-oil-can"></i>
+              </span>
+              <div class="truncate text-left">
+                <span class="font-bold text-xs text-orange-300 block truncate">Lubricación</span>
+                <span class="text-[10px] text-slate-400 block truncate">Engrase & Niveles Aceite</span>
+              </div>
+            </label>
+
+            <!-- Otro / General -->
+            <label class="cursor-pointer border-2 border-slate-700 rounded-xl p-2.5 flex items-center gap-2.5 transition hover:border-slate-500/60 has-[:checked]:border-slate-400 has-[:checked]:bg-slate-800/80">
+              <input type="radio" name="tipo" value="otro" class="sr-only">
+              <span class="w-8 h-8 rounded-lg bg-slate-700 text-slate-300 flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fa-solid fa-clipboard-list"></i>
+              </span>
+              <div class="truncate text-left">
+                <span class="font-bold text-xs text-slate-300 block truncate">Otro / General</span>
+                <span class="text-[10px] text-slate-400 block truncate">Labores Auxiliares Planta</span>
+              </div>
             </label>
 
           </div>
@@ -736,10 +820,27 @@
   <div id="modal-detalle" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden p-2 sm:p-4 overflow-y-auto flex flex-col justify-start items-center">
     <div class="relative bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-3xl shadow-2xl flex flex-col my-auto max-h-[92vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
-      <div class="flex-shrink-0 bg-slate-900 px-5 sm:px-6 py-3.5 border-b border-slate-700 flex items-center justify-between">
-        <div class="flex items-center space-x-2">
+      <div class="flex-shrink-0 bg-slate-900 px-4 sm:px-6 py-3.5 border-b border-slate-700 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2">
           <span id="det-tipo-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase">PREVENTIVO</span>
-          <h3 id="det-id-titulo" class="font-bold text-white text-base">TSK-1001 - Bomba</h3>
+          
+          <!-- Reclasificación por el Administrador -->
+          <div class="flex items-center gap-1.5 bg-slate-950/80 px-2 py-1 rounded-lg border border-slate-700">
+            <label for="edit-det-tipo" class="text-[10px] text-slate-400 font-semibold uppercase">Tipo / Actividad:</label>
+            <select id="edit-det-tipo" onchange="cambiarTipoDetalleModal(this.value)" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded px-2 py-0.5 font-medium focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+              <option value="correctivo">🔴 Correctivo</option>
+              <option value="preventivo">🟢 Preventivo</option>
+              <option value="predictivo">🟣 Predictivo</option>
+              <option value="mejora">🚀 Mejora Continua</option>
+              <option value="locativo">🎨 Pintura & Locativo</option>
+              <option value="5s">🧹 Orden, Aseo & 5S</option>
+              <option value="instalacion">⚡ Montaje / Instalación</option>
+              <option value="lubricacion">🛢️ Lubricación</option>
+              <option value="otro">📋 General / Apoyo</option>
+            </select>
+          </div>
+
+          <h3 id="det-id-titulo" class="font-bold text-white text-base ml-1">TSK-1001 - Bomba</h3>
         </div>
         <button onclick="cerrarModalDetalle()" class="text-slate-400 hover:text-white transition p-1 text-lg">
           <i class="fa-solid fa-xmark"></i>
