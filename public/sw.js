@@ -1,25 +1,18 @@
-// Service Worker para SIMAN PWA
-const CACHE_NAME = 'siman-cache-v2';
+// Service Worker para SIMAN PWA / APK
+const CACHE_NAME = 'siman-cache-v3';
 const STATIC_ASSETS = [
-  '/',
-  '/login',
-  '/mecanico',
-  '/dashboard',
-  '/login.html',
   '/manifest.json',
   '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/icon-192.svg',
-  '/icons/icon-512.svg'
+  '/icons/icon-512.png'
 ];
 
 self.addEventListener('install', (e) => {
+  self.skipWaiting();
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_ASSETS);
     })
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
@@ -41,13 +34,19 @@ self.addEventListener('fetch', (e) => {
   if (e.request.url.includes('/api/')) {
     return;
   }
+
+  // Navegación (HTML): Siempre buscar versión más reciente de la red
+  if (e.request.mode === 'navigate') {
+    e.respondWith(
+      fetch(e.request)
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
   e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        return res;
-      })
-      .catch(() => {
-        return caches.match(e.request);
-      })
+    caches.match(e.request).then((cached) => {
+      return cached || fetch(e.request);
+    })
   );
 });

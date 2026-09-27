@@ -147,6 +147,11 @@ function formatMinutes(min) {
 
 // ================= API ENDPOINTS =================
 
+// Health check para despertar servidor de Render al instante
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', server: 'SIMAN Cloud', timestamp: new Date().toISOString() });
+});
+
 // ================= AUTENTICACIÓN Y USUARIOS =================
 
 app.post('/api/auth/login', (req, res) => {

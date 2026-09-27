@@ -12,6 +12,12 @@
   <script>
     (function() {
       try {
+        if (window.location.search.indexOf('logout') !== -1) {
+          localStorage.removeItem('siman_user');
+          localStorage.removeItem('siman_token');
+          localStorage.removeItem('siman_mecanico_activo');
+          return;
+        }
         var userStr = localStorage.getItem('siman_user');
         if (userStr) {
           var user = JSON.parse(userStr);
@@ -81,7 +87,13 @@
         <span>Ingresar al Sistema</span>
       </button>
 
-      <p class="text-[11px] text-slate-500 text-center pt-2">
+      <!-- Indicador de conexión con Render Cloud -->
+      <div class="flex items-center justify-center gap-2 pt-1 text-[11px] text-slate-400">
+        <span id="indicador-servidor-dot" class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+        <span id="indicador-servidor-txt">Conectando al servidor...</span>
+      </div>
+
+      <p class="text-[11px] text-slate-500 text-center pt-1">
         Acceso restringido. La creación de usuarios es gestionada exclusivamente por el Administrador.
       </p>
 
@@ -96,6 +108,24 @@
   </div>
 
   <script>
+    // Despertar servidor en segundo plano tan pronto abre la app
+    async function verificarEstadoServidor() {
+      const dot = document.getElementById('indicador-servidor-dot');
+      const txt = document.getElementById('indicador-servidor-txt');
+      try {
+        const res = await fetch('/api/health');
+        if (res.ok) {
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
+          if (txt) txt.innerText = 'Servidor en línea (Render Cloud)';
+        }
+      } catch(e) {
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+        if (txt) txt.innerText = 'Iniciando servidor en la nube...';
+        setTimeout(verificarEstadoServidor, 4000);
+      }
+    }
+    verificarEstadoServidor();
+
     async function ejecutarLogin(e) {
       e.preventDefault();
       ocultarError();
@@ -108,12 +138,19 @@
       btn.disabled = true;
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verificando credenciales...`;
 
+      // Aviso si el servidor en Render tarda en despertar
+      const slowTimer = setTimeout(() => {
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Despertando servidor en la nube (primer inicio)...`;
+      }, 2500);
+
       try {
         const res = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
+
+        clearTimeout(slowTimer);
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Credenciales inválidas');
@@ -130,7 +167,11 @@
           window.location.replace('/mecanico');
         }
       } catch (err) {
-        mostrarError(err.message);
+        clearTimeout(slowTimer);
+        const msg = err.message && err.message.includes('Failed to fetch')
+          ? 'No se pudo conectar al servidor. Espera unos segundos mientras inicia e intenta de nuevo.'
+          : err.message;
+        mostrarError(msg);
         btn.disabled = false;
         btn.innerHTML = originalHtml;
       }
