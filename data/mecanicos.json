@@ -1,1 +1,30 @@
-[]
+[
+  {
+    "id": "TEC-01",
+    "nombre": "Diego Chamorro",
+    "username": "dchamorro",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta"
+  },
+  {
+    "id": "TEC-02",
+    "nombre": "Anderson Jaimes",
+    "username": "ajaimes",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta"
+  },
+  {
+    "id": "TEC-03",
+    "nombre": "Marwin Castillejo",
+    "username": "mcastillejo",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta"
+  },
+  {
+    "id": "TEC-04",
+    "nombre": "Ender Silva",
+    "username": "esilva",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta"
+  }
+]
