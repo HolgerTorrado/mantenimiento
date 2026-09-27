@@ -7,5 +7,14 @@
     "rol": "admin",
     "email": "holger@mantenimiento.com",
     "creado_en": "2026-09-26T18:00:00.000Z"
+  },
+  {
+    "id": "USR-02",
+    "username": "dchamorro",
+    "password_hash": "645f14baf242ea19082f2ba60b74f4e4086dca529274fab854290b5c793ce487",
+    "nombre": "Diego Chamorro",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta",
+    "creado_en": "2026-09-27T03:46:29.230Z"
   }
 ]
