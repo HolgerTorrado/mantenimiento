@@ -439,21 +439,33 @@ function renderTareasMovil() {
             <i class="fa-solid fa-camera text-[11px]"></i> Terminar y Foto
           </button>
         </div>
+        <button onclick="abrirDetalleTareaMovil('${t.id}')" class="w-full mt-2 py-1.5 px-2 bg-slate-800/80 hover:bg-slate-700 active:scale-[0.98] text-slate-300 border border-slate-700 rounded-xl text-[11px] font-semibold transition flex items-center justify-center gap-1.5 shadow">
+          <i class="fa-solid fa-circle-info text-slate-400"></i> Ver Detalles Completos
+        </button>
       `;
     } else if (t.estado === 'en_progreso') {
       botonesAccion = `
-        <div class="mt-3 pt-3 border-t border-slate-700/60">
+        <div class="mt-3 pt-3 border-t border-slate-700/60 space-y-2">
           <button onclick="abrirModalCompletar('${t.id}')" class="w-full py-3 px-4 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-sm rounded-xl transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 active:scale-[0.98]">
             <i class="fa-solid fa-camera text-base"></i>
             <span>Finalizar y Tomar Foto</span>
+          </button>
+          <button onclick="abrirDetalleTareaMovil('${t.id}')" class="w-full py-1.5 px-2 bg-slate-800/80 hover:bg-slate-700 active:scale-[0.98] text-slate-300 border border-slate-700 rounded-xl text-[11px] font-semibold transition flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-circle-info text-slate-400"></i> Ver Detalles Completos
           </button>
         </div>
       `;
     } else {
       // Completada
       const fotoHtml = t.foto_comprobante 
-        ? `<div class="mt-2.5 rounded-xl overflow-hidden border border-slate-700 max-h-36 bg-black flex items-center justify-center">
-             <img src="${t.foto_comprobante}" alt="Comprobante" class="w-full h-36 object-cover">
+        ? `<div class="mt-2.5 rounded-xl overflow-hidden border border-slate-700 bg-slate-950 flex flex-col items-center justify-center relative group cursor-pointer" onclick="abrirVisorFoto('${t.foto_comprobante}', '${t.id} - ${escaparHTMLMovil(t.equipo)}'); event.stopPropagation();" title="Toca para ver en pantalla completa">
+             <img src="${t.foto_comprobante}" alt="Comprobante" class="w-full max-h-48 object-contain rounded-lg p-1 transition hover:scale-[1.02]">
+             <div class="w-full bg-slate-900/90 border-t border-slate-800 py-1.5 px-3 flex items-center justify-between text-[11px] text-slate-300">
+               <span class="flex items-center gap-1 text-emerald-400 font-semibold"><i class="fa-solid fa-camera"></i> Foto del Trabajo</span>
+               <span class="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
+                 <i class="fa-solid fa-expand"></i> Ver Completa
+               </span>
+             </div>
            </div>`
         : '';
 
@@ -517,6 +529,9 @@ function renderTareasMovil() {
           ${fotoHtml}
           ${t.notas_mecanico ? `<p class="mt-1 text-[11px] text-slate-300 italic bg-slate-900/60 p-2 rounded-lg border border-slate-800">"${escaparHTMLMovil(t.notas_mecanico)}"</p>` : ''}
           ${botonCambiarFoto}
+          <button onclick="abrirDetalleTareaMovil('${t.id}')" class="w-full mt-2 py-2 px-3 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-circle-info text-emerald-400"></i> Ver Todos los Detalles
+          </button>
         </div>
       `;
     }
@@ -914,3 +929,170 @@ async function subirNuevaFotoMovil(e) {
     alert('Error al cambiar foto: ' + err.message);
   }
 }
+
+// ================= VISOR DE FOTO PANTALLA COMPLETA & DETALLES (MÓVIL) =================
+
+function abrirVisorFoto(url, titulo = 'Fotografía Comprobante') {
+  if (!url) return;
+  const visor = document.getElementById('modal-visor-foto-fullscreen');
+  const img = document.getElementById('visor-foto-img');
+  const txt = document.getElementById('visor-foto-titulo');
+  const btnDescargar = document.getElementById('visor-foto-descargar');
+
+  if (img) img.src = url;
+  if (txt) txt.innerText = titulo;
+  if (btnDescargar) {
+    btnDescargar.href = url;
+    btnDescargar.download = `${titulo.replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+  }
+  if (visor) visor.classList.remove('hidden');
+}
+
+function cerrarVisorFoto() {
+  const visor = document.getElementById('modal-visor-foto-fullscreen');
+  if (visor) visor.classList.add('hidden');
+}
+
+function ampliarFotoPreviaMovil() {
+  const imgPrevia = document.getElementById('img-previa-elemento');
+  const subtitulo = document.getElementById('modal-subtitulo-tarea')?.innerText || 'Fotografía de Comprobante';
+  if (imgPrevia && imgPrevia.src) {
+    abrirVisorFoto(imgPrevia.src, subtitulo);
+  }
+}
+
+let tareaDetalleMovilActual = null;
+
+function abrirDetalleTareaMovil(id) {
+  const t = tareasMovil.find(item => item.id === id);
+  if (!t) return;
+  tareaDetalleMovilActual = t;
+
+  // Título e ID
+  const elTitulo = document.getElementById('mob-det-id-titulo');
+  if (elTitulo) elTitulo.innerText = `${t.id} - ${t.equipo}`;
+
+  // Badge de tipo
+  const badgeTipo = document.getElementById('mob-det-badge-tipo');
+  if (badgeTipo) {
+    badgeTipo.innerText = (t.tipo || 'preventivo').toUpperCase();
+    if (t.tipo === 'correctivo') {
+      badgeTipo.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30';
+    } else if (t.tipo === 'predictivo') {
+      badgeTipo.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30';
+    } else {
+      badgeTipo.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+    }
+  }
+
+  // Foto
+  const boxFoto = document.getElementById('mob-det-box-foto');
+  const sinFoto = document.getElementById('mob-det-sin-foto');
+  const img = document.getElementById('mob-det-img');
+  if (t.foto_comprobante) {
+    if (img) img.src = t.foto_comprobante;
+    if (boxFoto) boxFoto.classList.remove('hidden');
+    if (sinFoto) sinFoto.classList.add('hidden');
+  } else {
+    if (boxFoto) boxFoto.classList.add('hidden');
+    if (sinFoto) sinFoto.classList.remove('hidden');
+  }
+
+  // Equipo y Ubicación
+  const elEq = document.getElementById('mob-det-equipo');
+  const elUb = document.getElementById('mob-det-ubicacion');
+  if (elEq) elEq.innerText = t.equipo;
+  if (elUb) elUb.innerText = t.ubicacion || 'Planta Principal';
+
+  // Estado y Prioridad
+  const elEst = document.getElementById('mob-det-estado');
+  const elPrio = document.getElementById('mob-det-prioridad');
+  if (elEst) {
+    let estTxt = 'Pendiente';
+    let estColor = 'text-amber-400';
+    if (t.estado === 'en_progreso') { estTxt = 'En Progreso'; estColor = 'text-blue-400'; }
+    else if (t.estado === 'completado') { estTxt = 'Completado'; estColor = 'text-emerald-400'; }
+    elEst.innerText = estTxt;
+    elEst.className = `font-bold ${estColor} text-xs block`;
+  }
+  if (elPrio) elPrio.innerText = `Prioridad: ${t.prioridad || 'Media'}`;
+
+  // Fechas y Tiempos
+  const elOc = document.getElementById('mob-det-ocurrio');
+  const elArr = document.getElementById('mob-det-arreglo');
+  const elDur = document.getElementById('mob-det-duracion');
+  if (elOc) elOc.innerText = formatearFechaCorta(t.fecha_ocurrencia);
+  if (elArr) elArr.innerText = t.fecha_arreglo ? formatearFechaCorta(t.fecha_arreglo) : 'En proceso / Pendiente';
+  if (elDur) elDur.innerText = formatMinutosMovil(t.tiempo_arreglo_minutos);
+
+  // Espera por repuestos
+  const boxEsp = document.getElementById('mob-det-box-espera');
+  if (t.tiempo_espera_minutos && t.tiempo_espera_minutos > 0) {
+    if (boxEsp) boxEsp.classList.remove('hidden');
+    const elTE = document.getElementById('mob-det-tiempo-espera');
+    const elME = document.getElementById('mob-det-motivo-espera');
+    const elTA = document.getElementById('mob-det-tiempo-activo');
+    if (elTE) elTE.innerText = formatMinutosMovil(t.tiempo_espera_minutos);
+    if (elME) elME.innerText = t.motivo_espera ? `"${t.motivo_espera}"` : '';
+    const act = (t.tiempo_trabajo_activo_minutos !== undefined && t.tiempo_trabajo_activo_minutos !== null)
+      ? t.tiempo_trabajo_activo_minutos
+      : Math.max(0, (t.tiempo_arreglo_minutos || 0) - t.tiempo_espera_minutos);
+    if (elTA) elTA.innerText = formatMinutosMovil(act);
+  } else {
+    if (boxEsp) boxEsp.classList.add('hidden');
+  }
+
+  // Roles y Personal
+  const contRoles = document.getElementById('mob-det-roles');
+  if (contRoles) {
+    const roles = Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0 ? t.roles_asignados : ['mecanico'];
+    contRoles.innerHTML = roles.map(r => {
+      if (r === 'electrico') return '<span class="bg-amber-950 text-amber-300 border border-amber-600 px-2 py-0.5 rounded text-[10px] font-bold">⚡ Eléctrica</span>';
+      if (r === 'maquinista') return '<span class="bg-orange-950 text-orange-300 border border-orange-600 px-2 py-0.5 rounded text-[10px] font-bold">🚜 Maquinaria</span>';
+      return '<span class="bg-emerald-950 text-emerald-300 border border-emerald-600 px-2 py-0.5 rounded text-[10px] font-bold">🔧 Mecánica</span>';
+    }).join(' ');
+  }
+
+  const elTecs = document.getElementById('mob-det-tecnicos');
+  if (elTecs) {
+    const tecs = Array.isArray(t.tecnicos_asignados) && t.tecnicos_asignados.length > 0
+      ? t.tecnicos_asignados.join(', ')
+      : (t.mecanico_asignado || 'Sin Asignar');
+    elTecs.innerText = `Asignado a: ${tecs}`;
+  }
+
+  const elComp = document.getElementById('mob-det-completado-badge');
+  if (elComp) {
+    if (t.estado === 'completado') {
+      const nom = t.completado_por_nombre || t.mecanico_asignado || 'Técnico';
+      elComp.innerText = `✅ Finalizado por: ${nom}`;
+      elComp.classList.remove('hidden');
+    } else {
+      elComp.classList.add('hidden');
+    }
+  }
+
+  // Descripción
+  const elDesc = document.getElementById('mob-det-descripcion');
+  if (elDesc) elDesc.innerText = t.descripcion || 'Sin descripción detallada';
+
+  // Observaciones
+  const elNotas = document.getElementById('mob-det-notas');
+  if (elNotas) elNotas.innerText = t.notas_mecanico ? `"${t.notas_mecanico}"` : 'Sin observaciones adicionales registradas';
+
+  const modal = document.getElementById('modal-detalle-movil');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function cerrarDetalleTareaMovil() {
+  const modal = document.getElementById('modal-detalle-movil');
+  if (modal) modal.classList.add('hidden');
+  tareaDetalleMovilActual = null;
+}
+
+function abrirFotoDetalleMovilActual() {
+  if (tareaDetalleMovilActual && tareaDetalleMovilActual.foto_comprobante) {
+    abrirVisorFoto(tareaDetalleMovilActual.foto_comprobante, `${tareaDetalleMovilActual.id} - ${tareaDetalleMovilActual.equipo}`);
+  }
+}
+

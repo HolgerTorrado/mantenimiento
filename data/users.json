@@ -1,0 +1,47 @@
+[
+  {
+    "id": "USR-01",
+    "username": "Holger",
+    "password_hash": "a94a885b2cd4f2d0a9b48065f5c86491cff6f75db0054dc2a1ee2f967763d3e2",
+    "nombre": "Holger Torrado",
+    "rol": "admin",
+    "email": "holger@mantenimiento.com",
+    "creado_en": "2026-09-26T18:00:00.000Z"
+  },
+  {
+    "id": "USR-02",
+    "username": "dchamorro",
+    "password_hash": "645f14baf242ea19082f2ba60b74f4e4086dca529274fab854290b5c793ce487",
+    "nombre": "Diego Chamorro",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta",
+    "creado_en": "2026-09-27T03:46:29.230Z"
+  },
+  {
+    "id": "USR-03",
+    "username": "ajaimes",
+    "password_hash": "53130d6a22447e727c479b6aa702add935db54282cc40838d2df35409a808469",
+    "nombre": "Anderson Jaimes",
+    "rol": "electrico",
+    "especialidad": "Técnico Electricista",
+    "creado_en": "2026-09-27T04:09:15.774Z"
+  },
+  {
+    "id": "USR-04",
+    "username": "mcastillejo",
+    "password_hash": "03e9d83f895dbf7b0ace9dcc6e6fb6804c8b7c79629d98ed05c8ea7f629a32ae",
+    "nombre": "Marwin Castillejo",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta",
+    "creado_en": "2026-09-27T04:09:55.769Z"
+  },
+  {
+    "id": "USR-05",
+    "username": "esilva",
+    "password_hash": "5641a31dc91e8ae0f85ee618cc1b109a3a87913700555c5d771bd364cd9fa87a",
+    "nombre": "Ender Silva",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta",
+    "creado_en": "2026-09-27T04:10:47.273Z"
+  }
+]

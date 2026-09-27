@@ -450,10 +450,10 @@ function renderTablaTareas(tareas) {
     let fotoTd = '';
     if (t.foto_comprobante) {
       fotoTd = `
-        <div class="relative group cursor-pointer inline-block" onclick="abrirModalDetalle('${t.id}')">
-          <img src="${t.foto_comprobante}" alt="Comprobante" class="w-12 h-10 object-cover rounded-lg border border-slate-600 group-hover:border-emerald-400 transition shadow">
+        <div class="relative group cursor-pointer inline-block" onclick="abrirVisorFoto('${t.foto_comprobante}', '${t.id} - ${escaparHTML(t.equipo)}'); event.stopPropagation();" title="Clic para ampliar fotografía">
+          <img src="${t.foto_comprobante}" alt="Comprobante" class="w-12 h-10 object-cover rounded-lg border border-slate-600 group-hover:border-emerald-400 group-hover:scale-105 transition shadow">
           <span class="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-            <i class="fa-solid fa-magnifying-glass text-white text-xs"></i>
+            <i class="fa-solid fa-magnifying-glass-plus text-white text-xs"></i>
           </span>
         </div>
       `;
@@ -792,17 +792,21 @@ function abrirModalDetalle(id) {
   // Fotografía Comprobante con persistencia base64
   const imgFoto = document.getElementById('det-img-foto');
   const sinFoto = document.getElementById('det-sin-foto');
+  const badgeAmpliar = document.getElementById('det-badge-ampliar');
   if (t.foto_comprobante) {
     imgFoto.src = t.foto_comprobante;
     imgFoto.onerror = function() {
       this.classList.add('hidden');
+      if (badgeAmpliar) badgeAmpliar.classList.add('hidden');
       if (sinFoto) sinFoto.classList.remove('hidden');
     };
     imgFoto.classList.remove('hidden');
+    if (badgeAmpliar) badgeAmpliar.classList.remove('hidden');
     sinFoto.classList.add('hidden');
   } else {
     imgFoto.src = '';
     imgFoto.classList.add('hidden');
+    if (badgeAmpliar) badgeAmpliar.classList.add('hidden');
     sinFoto.classList.remove('hidden');
   }
 
@@ -818,7 +822,41 @@ function abrirModalDetalle(id) {
     else btnGuardar.classList.add('hidden');
   }
 
+  // Reset scroll al inicio para ver la foto de inmediato
+  const modalBody = document.getElementById('modal-detalle-body');
+  if (modalBody) modalBody.scrollTop = 0;
+
   document.getElementById('modal-detalle').classList.remove('hidden');
+}
+
+// Funciones del Visor de Foto Pantalla Completa
+function abrirVisorFoto(url, titulo = 'Fotografía Comprobante') {
+  if (!url) return;
+  const visor = document.getElementById('modal-visor-foto-fullscreen');
+  const img = document.getElementById('visor-foto-img');
+  const txt = document.getElementById('visor-foto-titulo');
+  const btnDescargar = document.getElementById('visor-foto-descargar');
+
+  if (img) img.src = url;
+  if (txt) txt.innerText = titulo;
+  if (btnDescargar) {
+    btnDescargar.href = url;
+    btnDescargar.download = `${titulo.replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+  }
+  if (visor) visor.classList.remove('hidden');
+}
+
+function cerrarVisorFoto() {
+  const visor = document.getElementById('modal-visor-foto-fullscreen');
+  if (visor) visor.classList.add('hidden');
+}
+
+function abrirFotoDetalleActual() {
+  const imgFoto = document.getElementById('det-img-foto');
+  const titulo = document.getElementById('det-id-titulo')?.innerText || 'Fotografía de Mantenimiento';
+  if (imgFoto && imgFoto.src && !imgFoto.classList.contains('hidden')) {
+    abrirVisorFoto(imgFoto.src, titulo);
+  }
 }
 
 function poblarCheckboxesTecnicosDetalle(tarea, esAdmin) {

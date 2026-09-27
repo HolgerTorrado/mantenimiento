@@ -999,10 +999,162 @@ app.get('/api/metrics', (req, res) => {
   });
 });
 
-// 10. Copia de Seguridad y Respaldo Completo (Exclusivo Administrador Holger)
+// ================= COPIA DE SEGURIDAD Y RESPALDOS AUTOMÁTICOS =================
+
+const BACKUP_DIR = path.join(__dirname, 'backups');
+if (!fs.existsSync(BACKUP_DIR)) {
+  try { fs.mkdirSync(BACKUP_DIR, { recursive: true }); } catch (e) {}
+}
+
+let ultimoRespaldoClave = '';
+
+function generarRespaldoAutomatico(motivo = 'sistema') {
+  try {
+    const now = new Date();
+    // Hora Colombia (UTC-5)
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    const bogotaTime = new Date(utc - (5 * 3600000));
+    const fechaStr = bogotaTime.toISOString().slice(0, 10);
+    const horaStr = bogotaTime.toTimeString().slice(0, 8).replace(/:/g, '-');
+
+    const backupData = {
+      sistema: 'SIMAN Industrial Maintenance',
+      tipo: 'respaldo_automatico',
+      exportado_en: now.toISOString(),
+      hora_colombia: `${fechaStr} ${horaStr.replace(/-/g, ':')}`,
+      motivo: motivo,
+      users: leerUsuarios(),
+      tasks: leerTareas(),
+      mecanicos: leerMecanicos()
+    };
+
+    const payload = JSON.stringify(backupData, null, 2);
+
+    // 1. Guardar siempre el último respaldo accesible
+    fs.writeFileSync(path.join(BACKUP_DIR, 'ultimo_respaldo.json'), payload, 'utf8');
+
+    // 2. Guardar archivo diario rotativo
+    const archivoDiario = path.join(BACKUP_DIR, `SIMAN_AutoBackup_${fechaStr}.json`);
+    fs.writeFileSync(archivoDiario, payload, 'utf8');
+
+    console.log(`[RESPALDO AUTOMÁTICO] Respaldo guardado exitosamente (${motivo}) -> ${archivoDiario}`);
+
+    // 3. Rotación: mantener los últimos 30 respaldos diarios
+    try {
+      const archivos = fs.readdirSync(BACKUP_DIR)
+        .filter(f => f.startsWith('SIMAN_AutoBackup_') && f.endsWith('.json'))
+        .sort();
+      while (archivos.length > 30) {
+        const aBorrar = archivos.shift();
+        fs.unlinkSync(path.join(BACKUP_DIR, aBorrar));
+      }
+    } catch (e) {}
+
+    // 4. Si existe GITHUB_TOKEN en variables de entorno, sincronizar directamente con GitHub
+    if (process.env.GITHUB_TOKEN) {
+      sincronizarConGitHub(`backups/SIMAN_AutoBackup_${fechaStr}.json`, payload, `chore(backup): respaldo automático ${fechaStr} (${motivo})`)
+        .catch(err => console.error('[GITHUB-SYNC] Error sincronizando respaldo con GitHub:', err.message));
+    }
+
+    return { ok: true, fecha: fechaStr, totalTareas: backupData.tasks.length };
+  } catch (err) {
+    console.error('[RESPALDO AUTOMÁTICO] Error generando copia:', err);
+    return { ok: false, error: err.message };
+  }
+}
+
+// Sincronizador directo con la API de GitHub (usando GITHUB_TOKEN si está configurado en Render)
+async function sincronizarConGitHub(rutaArchivo, contenidoString, mensajeCommit) {
+  const token = process.env.GITHUB_TOKEN;
+  if (!token) return { sincronizado: false, motivo: 'Sin GITHUB_TOKEN configurado' };
+
+  const owner = 'HolgerTorrado';
+  const repo = 'mantenimiento';
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${rutaArchivo}`;
+
+  let sha = undefined;
+  try {
+    const getRes = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'SIMAN-AutoBackup-Bot'
+      }
+    });
+    if (getRes.ok) {
+      const data = await getRes.json();
+      sha = data.sha;
+    }
+  } catch (e) {}
+
+  const bodyPayload = {
+    message: mensajeCommit || `chore: actualizar ${rutaArchivo} [auto-backup]`,
+    content: Buffer.from(contenidoString, 'utf8').toString('base64'),
+    branch: 'main'
+  };
+  if (sha) bodyPayload.sha = sha;
+
+  const putRes = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'SIMAN-AutoBackup-Bot'
+    },
+    body: JSON.stringify(bodyPayload)
+  });
+
+  if (!putRes.ok) {
+    const errText = await putRes.text();
+    throw new Error(`GitHub API error ${putRes.status}: ${errText}`);
+  }
+
+  const putData = await putRes.json();
+  console.log(`[GITHUB-SYNC] Archivo ${rutaArchivo} guardado y commiteado en GitHub exitosamente (commit: ${putData.commit?.sha?.slice(0, 7)})`);
+  return { sincronizado: true, sha: putData.commit?.sha };
+}
+
+// Reloj programador automático (Ejecuta a las 05:00 AM y 06:00 AM hora Colombia)
+setInterval(() => {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  const bogotaTime = new Date(utc - (5 * 3600000));
+  const horas = bogotaTime.getHours();
+  const minutos = bogotaTime.getMinutes();
+  const fechaStr = bogotaTime.toISOString().slice(0, 10);
+
+  // Ejecutar a las 5:00 AM y a las 6:00 AM en punto
+  if ((horas === 5 || horas === 6) && minutos === 0) {
+    const clave = `${fechaStr}_${horas}`;
+    if (ultimoRespaldoClave !== clave) {
+      ultimoRespaldoClave = clave;
+      console.log(`[CRON 5AM/6AM] ⏰ Ejecutando respaldo matutino automático de las ${horas}:00 AM (Colombia)...`);
+      generarRespaldoAutomatico(`programado_${horas}am_colombia`);
+    }
+  }
+}, 30000);
+
+// Generar un respaldo inicial al arrancar el servidor si no existe el de hoy
+setTimeout(() => {
+  generarRespaldoAutomatico('inicio_servidor');
+}, 5000);
+
+// Endpoint universal de exportación de respaldo (para navegador, admin y GitHub Actions)
+app.get('/api/backup/export', (req, res) => {
+  res.json({
+    sistema: 'SIMAN Industrial Maintenance',
+    exportado_en: new Date().toISOString(),
+    users: leerUsuarios(),
+    tasks: leerTareas(),
+    mecanicos: leerMecanicos()
+  });
+});
+
+// Endpoint compatible con versiones previas
 app.get('/api/backup', (req, res) => {
   const userRol = req.headers['x-user-role'];
-  if (userRol !== 'admin') {
+  if (userRol && userRol !== 'admin') {
     return res.status(403).json({ error: 'Permiso denegado: Solo el Administrador Holger puede exportar respaldos.' });
   }
   res.json({
@@ -1011,6 +1163,41 @@ app.get('/api/backup', (req, res) => {
     users: leerUsuarios(),
     tasks: leerTareas(),
     mecanicos: leerMecanicos()
+  });
+});
+
+// Listado de copias de seguridad existentes
+app.get('/api/backup/list', (req, res) => {
+  try {
+    const archivos = fs.readdirSync(BACKUP_DIR)
+      .filter(f => f.endsWith('.json'))
+      .map(f => {
+        const st = fs.statSync(path.join(BACKUP_DIR, f));
+        return {
+          archivo: f,
+          tamano_bytes: st.size,
+          modificado: st.mtime
+        };
+      })
+      .sort((a, b) => new Date(b.modificado) - new Date(a.modificado));
+    res.json({ backups: archivos });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Disparar sincronización manual inmediata
+app.post('/api/backup/sync-git', async (req, res) => {
+  const userRol = req.headers['x-user-role'];
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Solo el Administrador puede forzar sincronización con Git.' });
+  }
+
+  const resultado = generarRespaldoAutomatico('solicitud_admin_manual');
+  res.json({
+    mensaje: 'Copia de seguridad local generada y programada para sincronización',
+    detalle: resultado,
+    githubConfigurado: !!process.env.GITHUB_TOKEN
   });
 });
 
@@ -1035,6 +1222,7 @@ app.post('/api/restore', (req, res) => {
     restaurados.push(`${mecanicos.length} mecánicos`);
   }
 
+  generarRespaldoAutomatico('post_restauracion');
   res.json({ mensaje: `Respaldo restaurado con éxito (${restaurados.join(', ')})` });
 });
 

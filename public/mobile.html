@@ -213,8 +213,11 @@
 
             <!-- Si YA tomó foto: vista previa -->
             <div id="box-con-foto-previa" class="hidden w-full space-y-2.5 border border-slate-700 bg-slate-900/90 rounded-2xl p-3">
-              <div class="relative rounded-xl overflow-hidden max-h-56 bg-black flex items-center justify-center border border-slate-700">
-                <img id="img-previa-elemento" src="" alt="Vista previa" class="w-full h-auto max-h-52 object-contain">
+              <div class="relative rounded-xl overflow-hidden max-h-56 bg-black flex items-center justify-center border border-slate-700 group cursor-pointer" onclick="ampliarFotoPreviaMovil()">
+                <img id="img-previa-elemento" src="" alt="Vista previa" class="w-full h-auto max-h-52 object-contain transition hover:scale-105">
+                <span class="absolute bottom-2 right-2 bg-black/75 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg border border-slate-600 flex items-center gap-1 shadow pointer-events-none">
+                  <i class="fa-solid fa-expand text-emerald-400"></i> Ampliar
+                </span>
               </div>
               <div class="flex items-center justify-between pt-1">
                 <span class="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
@@ -424,6 +427,146 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL DETALLE COMPLETO DE TAREA (MÓVIL) -->
+  <div id="modal-detalle-movil" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex flex-col justify-end sm:justify-center p-0 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border-t sm:border border-slate-700 rounded-t-3xl sm:rounded-2xl w-full max-w-lg mx-auto overflow-hidden shadow-2xl flex flex-col max-h-[90vh] animate-in slide-in-from-bottom duration-300">
+      
+      <!-- Encabezado fijo -->
+      <div class="flex-shrink-0 bg-slate-900 px-5 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2 truncate mr-2">
+          <span id="mob-det-badge-tipo" class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">PREVENTIVO</span>
+          <h3 id="mob-det-id-titulo" class="font-bold text-white text-sm truncate">TSK-1001 - Bomba</h3>
+        </div>
+        <button onclick="cerrarDetalleTareaMovil()" class="text-slate-400 hover:text-white p-1 text-lg flex-shrink-0">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Cuerpo scrolleable -->
+      <div class="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs pb-safe">
+        
+        <!-- FOTO COMPROBANTE GRANDE -->
+        <div id="mob-det-box-foto" class="hidden bg-slate-950 rounded-2xl border border-slate-700 overflow-hidden relative group">
+          <img id="mob-det-img" src="" alt="Comprobante" onclick="abrirFotoDetalleMovilActual()" class="w-full max-h-60 object-contain bg-black cursor-pointer">
+          <div class="absolute bottom-2 right-2 bg-slate-900/90 text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-slate-700 flex items-center gap-1 shadow pointer-events-none">
+            <i class="fa-solid fa-expand text-emerald-400"></i> Pantalla Completa
+          </div>
+        </div>
+
+        <!-- Sin foto aviso si aplica -->
+        <div id="mob-det-sin-foto" class="hidden bg-slate-900/60 border border-dashed border-slate-700 rounded-2xl p-4 text-center text-slate-400">
+          <i class="fa-regular fa-image text-2xl text-slate-500 block mb-1"></i>
+          <span>Sin fotografía de comprobante aún</span>
+        </div>
+
+        <!-- Estados y Tiempos -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700">
+            <span class="text-[10px] text-slate-400 block">Equipo / Ubicación:</span>
+            <span id="mob-det-equipo" class="font-bold text-white text-xs block truncate">--</span>
+            <span id="mob-det-ubicacion" class="text-[10px] text-slate-400 block truncate">--</span>
+          </div>
+          <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700">
+            <span class="text-[10px] text-slate-400 block">Estado / Prioridad:</span>
+            <span id="mob-det-estado" class="font-bold text-emerald-400 text-xs block">--</span>
+            <span id="mob-det-prioridad" class="text-[10px] text-amber-300 block uppercase">--</span>
+          </div>
+        </div>
+
+        <!-- Tiempos de parada y fechas -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 space-y-1.5 text-[11px]">
+          <div class="flex items-center justify-between text-slate-300">
+            <span class="text-slate-400">Ocurrió:</span>
+            <span id="mob-det-ocurrio" class="font-mono text-amber-300">--</span>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span class="text-slate-400">Arreglado:</span>
+            <span id="mob-det-arreglo" class="font-mono text-emerald-300">--</span>
+          </div>
+          <div class="flex items-center justify-between text-slate-200 pt-1 border-t border-slate-800 font-bold">
+            <span>Duración Parada:</span>
+            <span id="mob-det-duracion" class="font-mono text-purple-300">--</span>
+          </div>
+        </div>
+
+        <!-- Desglose de espera por repuestos -->
+        <div id="mob-det-box-espera" class="hidden bg-amber-950/40 border border-amber-500/30 rounded-xl p-3 space-y-1 text-[11px]">
+          <div class="flex items-center justify-between text-amber-300 font-bold">
+            <span><i class="fa-solid fa-hourglass-half"></i> Espera por Repuestos:</span>
+            <span id="mob-det-tiempo-espera" class="font-mono">--</span>
+          </div>
+          <p id="mob-det-motivo-espera" class="text-[10px] text-amber-200/80 italic">--</p>
+          <div class="flex items-center justify-between text-emerald-300 pt-1 border-t border-amber-500/20 font-bold">
+            <span><i class="fa-solid fa-wrench"></i> Trabajo Activo Efectivo:</span>
+            <span id="mob-det-tiempo-activo" class="font-mono">--</span>
+          </div>
+        </div>
+
+        <!-- Personal técnico y roles asignados -->
+        <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700 space-y-1.5 text-[11px]">
+          <div class="text-slate-400 font-semibold uppercase text-[10px] flex items-center gap-1">
+            <i class="fa-solid fa-users text-emerald-400"></i> Especialidades & Personal
+          </div>
+          <div id="mob-det-roles" class="flex flex-wrap gap-1"></div>
+          <div id="mob-det-tecnicos" class="text-slate-200 font-medium pt-1"></div>
+          <div id="mob-det-completado-badge" class="text-[10px] text-emerald-400 pt-1"></div>
+        </div>
+
+        <!-- Descripción original -->
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 font-bold uppercase block mb-0.5">Descripción de la Falla</span>
+          <p id="mob-det-descripcion" class="text-slate-200 text-xs">--</p>
+        </div>
+
+        <!-- Observaciones del técnico -->
+        <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <span class="text-[10px] text-emerald-400 font-bold uppercase block mb-0.5">Observaciones & Repuestos Usados</span>
+          <p id="mob-det-notas" class="text-slate-200 text-xs italic">--</p>
+        </div>
+
+      </div>
+
+      <!-- Pie fijo -->
+      <div class="flex-shrink-0 bg-slate-900 px-5 py-3 border-t border-slate-700 flex justify-between items-center">
+        <button onclick="cerrarDetalleTareaMovil()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 active:scale-98 text-slate-200 text-xs font-bold rounded-xl transition">
+          Cerrar Detalle
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- VISOR DE FOTO PANTALLA COMPLETA (LIGHTBOX MÓVIL) -->
+  <div id="modal-visor-foto-fullscreen" class="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md hidden flex flex-col justify-between p-3 sm:p-5 transition-all duration-200" onclick="cerrarVisorFoto()">
+    <!-- Barra superior -->
+    <div class="flex items-center justify-between z-10 bg-slate-900/90 backdrop-blur px-3.5 py-2.5 rounded-xl border border-slate-700/80 text-white w-full max-w-lg mx-auto shadow-2xl" onclick="event.stopPropagation()">
+      <div class="flex items-center space-x-2 truncate mr-2">
+        <i class="fa-solid fa-camera text-emerald-400"></i>
+        <span id="visor-foto-titulo" class="font-bold text-xs truncate">Fotografía Comprobante</span>
+      </div>
+      <div class="flex items-center space-x-2 flex-shrink-0">
+        <a id="visor-foto-descargar" href="#" download="comprobante.jpg" target="_blank" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-600 transition flex items-center gap-1 text-slate-200">
+          <i class="fa-solid fa-download"></i>
+        </a>
+        <button onclick="cerrarVisorFoto()" class="w-7 h-7 rounded-lg bg-rose-600/80 hover:bg-rose-600 text-white flex items-center justify-center transition shadow">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Foto Ampliada: 100% visible, sin cortes, auto-escalada -->
+    <div class="flex-1 flex items-center justify-center my-2 overflow-hidden relative" onclick="event.stopPropagation()">
+      <img id="visor-foto-img" src="" alt="Fotografía" class="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded-xl shadow-2xl transition-transform duration-200 select-none">
+    </div>
+
+    <!-- Barra inferior con instrucción / cerrar -->
+    <div class="text-center z-10" onclick="event.stopPropagation()">
+      <button onclick="cerrarVisorFoto()" class="px-5 py-2 bg-slate-800/90 hover:bg-slate-700 active:scale-95 text-white text-xs font-bold rounded-full border border-slate-600 shadow-lg inline-flex items-center gap-2">
+        <i class="fa-solid fa-xmark"></i> Cerrar Visor (o toca la pantalla)
+      </button>
     </div>
   </div>
 
