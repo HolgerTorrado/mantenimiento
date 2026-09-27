@@ -75,7 +75,7 @@
     "prioridad": "media",
     "ubicacion": "Palmisteria",
     "descripcion": "Se quema línea del motor y se quema embobinado del motor",
-    "mecanico_asignado": "Anderson Jaimes",
+    "mecanico_asignado": "Anderson Jaimes, Marwin Castillejo",
     "fecha_ocurrencia": "2026-09-25T21:40",
     "fecha_arreglo": "2026-09-26T15:10",
     "estado": "completado",
@@ -87,14 +87,24 @@
     "completado_por_nombre": "Anderson Jaimes",
     "completado_en": "2026-09-27T05:26:14.922Z",
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-27T05:27:19.764Z",
+    "modificado_en": "2026-09-27T19:25:24.093Z",
     "roles_asignados": [
-      "mecanico"
+      "mecanico",
+      "electrico"
     ],
     "tecnicos_asignados": [
-      "Anderson Jaimes"
+      "Anderson Jaimes",
+      "Marwin Castillejo"
     ],
-    "es_conjunta": false
+    "es_conjunta": true,
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 1050,
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1004",
