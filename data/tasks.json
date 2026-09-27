@@ -1,1 +1,19 @@
-[]
+[
+  {
+    "id": "TSK-1001",
+    "equipo": "Bomba de aceite recuperado",
+    "titulo": "Daño del caracol",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Australiano",
+    "descripcion": "Daño en tornillos de ajuste del caracol de la bomba por presión elevada en vapor.",
+    "mecanico_asignado": "Sin Asignar",
+    "fecha_ocurrencia": "2026-09-26T17:40",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_en": "2026-09-27T03:43:05.714Z"
+  }
+]
