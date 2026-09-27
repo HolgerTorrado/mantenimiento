@@ -1,5 +1,22 @@
 [
   {
+    "id": "TSK-1002",
+    "equipo": "Tubería hacia efluente",
+    "titulo": "Tubería con fuga",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Australiano",
+    "descripcion": "Tubería con posible fuga en brida o en la soldadura de unión entre tubo y la brida",
+    "mecanico_asignado": "Sin Asignar",
+    "fecha_ocurrencia": "2026-09-26T10:00",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_en": "2026-09-27T03:55:12.609Z"
+  },
+  {
     "id": "TSK-1001",
     "equipo": "Bomba de aceite recuperado",
     "titulo": "Daño en caracol",
