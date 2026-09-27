@@ -1,5 +1,22 @@
 [
   {
+    "id": "TSK-1004",
+    "equipo": "Desgranadora",
+    "titulo": "Falla en reductores",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Desgranadora",
+    "descripcion": "Se dañan reductores internos, se baja toda para permitir seguir trabajando en la línea.",
+    "mecanico_asignado": "Sin Asignar",
+    "fecha_ocurrencia": "2026-08-20T10:00",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_en": "2026-09-27T04:07:06.428Z"
+  },
+  {
     "id": "TSK-1003",
     "equipo": "Taquilla de efluente",
     "titulo": "Fuga en tuberia de taquilla efluente",
