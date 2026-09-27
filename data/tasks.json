@@ -10,7 +10,7 @@
     "mecanico_asignado": "Sin Asignar",
     "fecha_ocurrencia": "2026-09-27T11:00",
     "fecha_arreglo": "2026-09-27T12:00",
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": "Se encuentran en buen estado ",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": 60,
@@ -21,7 +21,8 @@
     "tecnicos_asignados": [],
     "es_conjunta": false,
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-27T18:36:39.281Z"
+    "modificado_en": "2026-09-27T18:36:39.281Z",
+    "actualizado_en": "2026-09-27T21:13:12.634Z"
   },
   {
     "id": "TSK-1007",
