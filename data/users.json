@@ -34,5 +34,14 @@
     "rol": "mecanico",
     "especialidad": "Mecánico de Planta",
     "creado_en": "2026-09-27T04:09:55.769Z"
+  },
+  {
+    "id": "USR-05",
+    "username": "esilva",
+    "password_hash": "5641a31dc91e8ae0f85ee618cc1b109a3a87913700555c5d771bd364cd9fa87a",
+    "nombre": "Ender Silva",
+    "rol": "mecanico",
+    "especialidad": "Mecánico de Planta",
+    "creado_en": "2026-09-27T04:10:47.273Z"
   }
 ]
