@@ -1,5 +1,22 @@
 [
   {
+    "id": "TSK-1005",
+    "equipo": "Ciclón cascarilla",
+    "titulo": "Daño de motor",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Palmisteria",
+    "descripcion": "Se quema línea del motor y se quema embobinado del motor",
+    "mecanico_asignado": "Sin Asignar",
+    "fecha_ocurrencia": "2026-09-25T21:40",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_en": "2026-09-27T04:08:29.814Z"
+  },
+  {
     "id": "TSK-1004",
     "equipo": "Desgranadora",
     "titulo": "Falla en reductores",
