@@ -69,11 +69,10 @@ function verificarSesionDashboard() {
 }
 
 function cerrarSesionDashboard() {
-  if (confirm('¿Desea cerrar la sesión del panel?')) {
-    localStorage.removeItem('siman_token');
-    localStorage.removeItem('siman_user');
-    window.location.href = '/login';
-  }
+  localStorage.removeItem('siman_token');
+  localStorage.removeItem('siman_user');
+  localStorage.removeItem('siman_mecanico_activo');
+  window.location.replace('/login?logout=true');
 }
 
 // Reloj en tiempo real
@@ -590,6 +589,8 @@ function abrirModalDetalle(id) {
   if (!t) return;
 
   tareaSeleccionadaId = id;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  const esAdmin = user.rol === 'admin';
 
   // Título e ID
   document.getElementById('det-id-titulo').innerText = `${t.id} - ${t.equipo}`;
@@ -601,10 +602,24 @@ function abrirModalDetalle(id) {
   else if (t.tipo === 'correctivo') badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30';
   else badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30';
 
-  // Fechas y Tiempos
-  document.getElementById('det-fecha-ocurrio').innerText = formatearFechaHora(t.fecha_ocurrencia);
-  document.getElementById('det-fecha-arreglo').innerText = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : 'Pendiente de arreglo';
-  document.getElementById('det-tiempo-total').innerText = t.tiempo_arreglo_minutos !== null ? formatMinutos(t.tiempo_arreglo_minutos) : 'En ejecución';
+  // Fechas y Tiempos Editables por el Administrador
+  const inOcurrio = document.getElementById('edit-det-fecha-ocurrio');
+  const inArreglo = document.getElementById('edit-det-fecha-arreglo');
+  const txtOcurrio = document.getElementById('det-fecha-ocurrio-txt');
+  const txtArreglo = document.getElementById('det-fecha-arreglo-txt');
+  const txtDuracion = document.getElementById('det-tiempo-total');
+
+  if (inOcurrio) {
+    inOcurrio.value = t.fecha_ocurrencia ? t.fecha_ocurrencia.slice(0, 16) : '';
+    inOcurrio.disabled = !esAdmin;
+  }
+  if (inArreglo) {
+    inArreglo.value = t.fecha_arreglo ? t.fecha_arreglo.slice(0, 16) : '';
+    inArreglo.disabled = !esAdmin;
+  }
+  if (txtOcurrio) txtOcurrio.innerText = formatearFechaHora(t.fecha_ocurrencia);
+  if (txtArreglo) txtArreglo.innerText = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : 'Pendiente de registrar';
+  if (txtDuracion) txtDuracion.innerText = t.tiempo_arreglo_minutos !== null ? formatMinutos(t.tiempo_arreglo_minutos) : 'En ejecución';
 
   // Datos
   document.getElementById('det-equipo').innerText = t.equipo;
@@ -612,7 +627,13 @@ function abrirModalDetalle(id) {
   document.getElementById('det-mecanico').innerText = t.mecanico_asignado || 'Sin Asignar';
   document.getElementById('det-prioridad').innerText = t.prioridad || 'Media';
   document.getElementById('det-descripcion').innerText = t.descripcion || 'Sin descripción';
-  document.getElementById('det-notas-mecanico').innerText = t.notas_mecanico || 'El mecánico aún no ha registrado notas de trabajo.';
+  
+  // Notas editables
+  const inNotas = document.getElementById('edit-det-notas-mecanico');
+  if (inNotas) {
+    inNotas.value = t.notas_mecanico || '';
+    inNotas.disabled = !esAdmin;
+  }
 
   // Badge de quién completó la tarea
   const detCompBadge = document.getElementById('det-completado-por-badge');
@@ -641,12 +662,16 @@ function abrirModalDetalle(id) {
     sinFoto.classList.remove('hidden');
   }
 
-  // Ocultar botón de eliminar si no es admin
-  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  // Botón eliminar y botón guardar fechas
   const btnElim = document.getElementById('btn-eliminar-tarea');
+  const btnGuardar = document.getElementById('btn-guardar-edicion-tarea');
   if (btnElim) {
-    if (user.rol === 'admin') btnElim.classList.remove('hidden');
+    if (esAdmin) btnElim.classList.remove('hidden');
     else btnElim.classList.add('hidden');
+  }
+  if (btnGuardar) {
+    if (esAdmin) btnGuardar.classList.remove('hidden');
+    else btnGuardar.classList.add('hidden');
   }
 
   document.getElementById('modal-detalle').classList.remove('hidden');
@@ -655,6 +680,57 @@ function abrirModalDetalle(id) {
 function cerrarModalDetalle() {
   document.getElementById('modal-detalle').classList.add('hidden');
   tareaSeleccionadaId = null;
+}
+
+// Guardar Modificación de Fechas y Horas (Exclusivo Administrador Holger)
+async function guardarEdicionFechasAdmin() {
+  if (!tareaSeleccionadaId) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if (user.rol !== 'admin') {
+    alert('Solo el Administrador Holger tiene autorización para modificar las fechas.');
+    return;
+  }
+
+  const fOcurrio = document.getElementById('edit-det-fecha-ocurrio').value;
+  const fArreglo = document.getElementById('edit-det-fecha-arreglo').value;
+  const notas = document.getElementById('edit-det-notas-mecanico').value;
+  const btn = document.getElementById('btn-guardar-edicion-tarea');
+
+  if (!fOcurrio) {
+    alert('La fecha de ocurrencia no puede estar vacía.');
+    return;
+  }
+
+  const origHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+
+  try {
+    const res = await fetch(`/api/tasks/${tareaSeleccionadaId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol
+      },
+      body: JSON.stringify({
+        fecha_ocurrencia: fOcurrio,
+        fecha_arreglo: fArreglo || null,
+        notas_mecanico: notas
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al actualizar fechas');
+
+    mostrarToast('✅ Fechas y observaciones actualizadas correctamente');
+    cerrarModalDetalle();
+    cargarTareas(false);
+  } catch(err) {
+    alert(err.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHtml;
+  }
 }
 
 async function eliminarTarea(id) {

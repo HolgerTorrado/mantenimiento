@@ -597,31 +597,37 @@
           <img id="det-img-foto" src="" alt="Comprobante de mantenimiento" class="w-full max-h-[380px] object-contain hidden bg-slate-950">
         </div>
 
-        <!-- TIEMPOS REGISTRADOS (OCURRIÓ VS ARREGLO) -->
+        <!-- TIEMPOS REGISTRADOS (OCURRIÓ VS ARREGLO - EDITABLES POR ADMIN) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           
-          <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-3">
-            <span class="text-[11px] text-amber-400 font-semibold uppercase block flex items-center gap-1">
-              <i class="fa-solid fa-clock-rotate-left"></i> Momento Ocurrencia
-            </span>
-            <div id="det-fecha-ocurrio" class="text-sm font-bold text-white mt-1">--</div>
-            <span class="text-[10px] text-slate-400">Reporte inicial</span>
+          <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-3 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-amber-400 font-semibold uppercase flex items-center gap-1">
+                <i class="fa-solid fa-clock-rotate-left"></i> Ocurrió
+              </span>
+              <span class="text-[9px] text-amber-300/80 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/20 font-medium">Editable Admin</span>
+            </div>
+            <input type="datetime-local" id="edit-det-fecha-ocurrio" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-300 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none">
+            <div id="det-fecha-ocurrio-txt" class="text-[10px] text-slate-400 truncate">--</div>
           </div>
 
-          <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-3">
-            <span class="text-[11px] text-emerald-400 font-semibold uppercase block flex items-center gap-1">
-              <i class="fa-solid fa-check-double"></i> Momento de Arreglo
-            </span>
-            <div id="det-fecha-arreglo" class="text-sm font-bold text-white mt-1">--</div>
-            <span class="text-[10px] text-slate-400">Registrado por mecánico</span>
+          <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-3 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] text-emerald-400 font-semibold uppercase flex items-center gap-1">
+                <i class="fa-solid fa-check-double"></i> Arreglado
+              </span>
+              <span class="text-[9px] text-emerald-300/80 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/20 font-medium">Editable Admin</span>
+            </div>
+            <input type="datetime-local" id="edit-det-fecha-arreglo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-emerald-300 font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+            <div id="det-fecha-arreglo-txt" class="text-[10px] text-slate-400 truncate">--</div>
           </div>
 
-          <div class="bg-slate-900/80 border border-purple-500/40 rounded-xl p-3">
+          <div class="bg-slate-900/80 border border-purple-500/40 rounded-xl p-3 flex flex-col justify-between">
             <span class="text-[11px] text-purple-300 font-semibold uppercase block flex items-center gap-1">
               <i class="fa-solid fa-stopwatch"></i> Tiempo Total
             </span>
-            <div id="det-tiempo-total" class="text-sm font-bold text-purple-200 mt-1">--</div>
-            <span class="text-[10px] text-slate-400">Inactividad / Duración</span>
+            <div id="det-tiempo-total" class="text-base font-black text-purple-200 mt-1">--</div>
+            <span class="text-[10px] text-slate-400">Duración / MTTR calculado</span>
           </div>
 
         </div>
@@ -652,17 +658,17 @@
           <p id="det-descripcion" class="text-xs text-slate-200 leading-relaxed">--</p>
         </div>
 
-        <!-- NOTAS TÉCNICAS DEL MECÁNICO -->
+        <!-- NOTAS TÉCNICAS DEL MECÁNICO (EDITABLES POR ADMIN) -->
         <div class="bg-slate-900/50 p-3.5 rounded-xl border border-emerald-900/40 space-y-2">
           <div class="flex items-center justify-between">
             <span class="text-[11px] text-emerald-400 font-bold uppercase tracking-wider block flex items-center gap-1.5">
-              <i class="fa-solid fa-pen-to-square"></i> Observaciones & Repuestos Usados por el Mecánico
+              <i class="fa-solid fa-pen-to-square"></i> Observaciones & Repuestos Usados
             </span>
             <span id="det-completado-por-badge" class="text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700">
               Registrado por: --
             </span>
           </div>
-          <p id="det-notas-mecanico" class="text-xs text-slate-200 leading-relaxed italic">Sin observaciones técnicas aún.</p>
+          <textarea id="edit-det-notas-mecanico" rows="2" placeholder="Observaciones técnicas o repuestos utilizados..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-200 focus:ring-1 focus:ring-emerald-500 focus:outline-none placeholder-slate-500"></textarea>
         </div>
 
       </div>
@@ -671,9 +677,14 @@
         <button id="btn-eliminar-tarea" onclick="eliminarTareaActual()" class="text-rose-400 hover:text-rose-300 text-xs font-semibold flex items-center gap-1 transition">
           <i class="fa-solid fa-trash-can"></i> Eliminar Registro
         </button>
-        <button onclick="cerrarModalDetalle()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">
-          Cerrar
-        </button>
+        <div class="flex items-center space-x-2">
+          <button id="btn-guardar-edicion-tarea" onclick="guardarEdicionFechasAdmin()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3.5 py-2 rounded-lg transition flex items-center gap-1.5 shadow shadow-emerald-600/30">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios de Fechas
+          </button>
+          <button onclick="cerrarModalDetalle()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">
+            Cerrar
+          </button>
+        </div>
       </div>
 
     </div>

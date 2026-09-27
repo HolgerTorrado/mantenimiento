@@ -66,11 +66,10 @@ function verificarSesionMovil() {
 }
 
 function cerrarSesion() {
-  if (confirm('¿Desea cerrar la sesión actual?')) {
-    localStorage.removeItem('siman_token');
-    localStorage.removeItem('siman_user');
-    window.location.href = '/login';
-  }
+  localStorage.removeItem('siman_token');
+  localStorage.removeItem('siman_user');
+  localStorage.removeItem('siman_mecanico_activo');
+  window.location.replace('/login?logout=true');
 }
 
 // Cargar mecánicos y restaurar seleccionado
@@ -100,6 +99,7 @@ async function cargarMecanicosMovil() {
 
 function cambiarMecanicoActivo() {
   const sel = document.getElementById('select-mecanico-activo');
+  if (!sel) return;
   mecanicoActivo = sel.value;
   localStorage.setItem('siman_mecanico_activo', mecanicoActivo);
   actualizarTextoMecanicoPie();
@@ -109,7 +109,7 @@ function cambiarMecanicoActivo() {
 function actualizarTextoMecanicoPie() {
   const el = document.getElementById('txt-mecanico-actual-pie');
   if (el) {
-    el.innerText = mecanicoActivo === 'todos' ? 'Viendo: Todos' : `Viendo: ${mecanicoActivo}`;
+    el.innerText = mecanicoActivo === 'todos' ? 'Mantenimiento en línea' : `Técnico: ${mecanicoActivo}`;
   }
 }
 
@@ -120,11 +120,30 @@ async function cargarTareasMovil(mostrarSpin = true) {
 
   try {
     const res = await fetch('/api/tasks');
-    tareasMovil = await res.json();
+    if (!res.ok) throw new Error('Error de conexión');
+    const data = await res.json();
+    tareasMovil = Array.isArray(data) ? data : [];
     actualizarContadoresMovil();
     renderTareasMovil();
   } catch (err) {
     console.error('Error cargando tareas móvil:', err);
+    const contenedor = document.getElementById('contenedor-tareas-movil');
+    if (contenedor && (!tareasMovil || tareasMovil.length === 0)) {
+      contenedor.innerHTML = `
+        <div class="py-16 text-center text-slate-400 space-y-3 px-4">
+          <div class="w-14 h-14 rounded-2xl bg-slate-800 text-amber-400 border border-slate-700 mx-auto flex items-center justify-center text-2xl">
+            <i class="fa-solid fa-cloud-arrow-down animate-bounce"></i>
+          </div>
+          <p class="font-bold text-white text-base">Conectando con el servidor...</p>
+          <p class="text-xs text-slate-400 max-w-xs mx-auto">
+            El servidor en la nube se está activando. Reintentando automáticamente en unos momentos.
+          </p>
+          <button onclick="cargarTareasMovil(true)" class="mt-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition inline-flex items-center gap-2">
+            <i class="fa-solid fa-arrows-rotate"></i> Reintentar ahora
+          </button>
+        </div>
+      `;
+    }
   } finally {
     if (icon) icon.classList.remove('fa-spin');
   }
@@ -203,13 +222,26 @@ function renderTareasMovil() {
   actualizarContadoresMovil();
 
   if (lista.length === 0) {
+    let tituloVacio = 'No tienes órdenes de trabajo pendientes';
+    let subtituloVacio = 'Todas tus tareas asignadas están al día. Cuando el Administrador programe una nueva tarea, aparecerá aquí de inmediato.';
+    if (tabActual === 'en_progreso') {
+      tituloVacio = 'No tienes tareas en curso';
+      subtituloVacio = 'Ve a la pestaña "Pendientes" y presiona "Iniciar Trabajo" para comenzar.';
+    } else if (tabActual === 'completadas') {
+      tituloVacio = 'Aún no hay tareas finalizadas';
+      subtituloVacio = 'Tus órdenes terminadas con fotografía de comprobante y hora de arreglo se guardarán aquí.';
+    }
+
     contenedor.innerHTML = `
-      <div class="py-16 text-center text-slate-400 space-y-2">
-        <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-500 mx-auto flex items-center justify-center text-xl">
-          <i class="fa-solid fa-check-double"></i>
+      <div class="py-14 text-center text-slate-400 space-y-3 px-4">
+        <div class="w-14 h-14 rounded-2xl bg-slate-800 border border-slate-700 text-emerald-400 mx-auto flex items-center justify-center text-2xl shadow-inner">
+          <i class="fa-solid fa-clipboard-check"></i>
         </div>
-        <p class="font-semibold text-white text-sm">No hay tareas en esta sección</p>
-        <p class="text-xs text-slate-500">Todo el mantenimiento está al día o cambia de pestaña.</p>
+        <p class="font-bold text-white text-base">${tituloVacio}</p>
+        <p class="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">${subtituloVacio}</p>
+        <button onclick="cargarTareasMovil(true)" class="mt-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold rounded-xl transition inline-flex items-center gap-1.5 shadow">
+          <i class="fa-solid fa-arrows-rotate"></i> Actualizar Listado
+        </button>
       </div>
     `;
     return;
@@ -381,7 +413,10 @@ function abrirModalCompletar(id) {
   document.getElementById('modal-ocurrio-txt').innerText = formatearFechaCorta(t.fecha_ocurrencia);
 
   // Limpiar campos previos
-  document.getElementById('input-camara-file').value = '';
+  const inCam = document.getElementById('input-camara-file');
+  const inGal = document.getElementById('input-galeria-file');
+  if (inCam) inCam.value = '';
+  if (inGal) inGal.value = '';
   document.getElementById('input-notas-mecanico').value = '';
   document.getElementById('box-sin-foto-previa').classList.remove('hidden');
   document.getElementById('box-con-foto-previa').classList.add('hidden');

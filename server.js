@@ -522,6 +522,65 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
   });
 });
 
+// 7.1. Actualizar y Modificar Tarea (Exclusivo Administrador Holger)
+app.put('/api/tasks/:id', (req, res) => {
+  const userRol = req.headers['x-user-role'];
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador Holger tiene permiso para editar tareas y tiempos.' });
+  }
+
+  let tareas = leerTareas();
+  const idx = tareas.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  const {
+    fecha_ocurrencia,
+    fecha_arreglo,
+    notas_mecanico,
+    mecanico_asignado,
+    equipo,
+    titulo,
+    tipo,
+    prioridad,
+    estado
+  } = req.body;
+
+  if (fecha_ocurrencia !== undefined) tareas[idx].fecha_ocurrencia = fecha_ocurrencia;
+  if (fecha_arreglo !== undefined) tareas[idx].fecha_arreglo = fecha_arreglo || null;
+  if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
+  if (mecanico_asignado !== undefined) tareas[idx].mecanico_asignado = mecanico_asignado;
+  if (equipo !== undefined) tareas[idx].equipo = equipo.trim();
+  if (titulo !== undefined) tareas[idx].titulo = titulo.trim();
+  if (tipo !== undefined) tareas[idx].tipo = tipo.toLowerCase();
+  if (prioridad !== undefined) tareas[idx].prioridad = prioridad;
+  if (estado !== undefined) tareas[idx].estado = estado;
+
+  // Recalcular tiempo de arreglo (MTTR) con las fechas modificadas
+  if (tareas[idx].fecha_ocurrencia && tareas[idx].fecha_arreglo) {
+    try {
+      const fO = new Date(tareas[idx].fecha_ocurrencia).getTime();
+      const fA = new Date(tareas[idx].fecha_arreglo).getTime();
+      const diffMs = fA - fO;
+      if (!isNaN(diffMs) && diffMs >= 0) {
+        tareas[idx].tiempo_arreglo_minutos = Math.round(diffMs / (1000 * 60));
+      } else if (!isNaN(diffMs) && diffMs < 0) {
+        tareas[idx].tiempo_arreglo_minutos = 0;
+      }
+    } catch(e) {}
+  } else if (!tareas[idx].fecha_arreglo) {
+    tareas[idx].tiempo_arreglo_minutos = null;
+  }
+
+  tareas[idx].modificado_por_admin = true;
+  tareas[idx].modificado_en = new Date().toISOString();
+
+  guardarTareas(tareas);
+  res.json({
+    mensaje: 'Tarea y fechas actualizadas correctamente por el Administrador',
+    tarea: tareas[idx]
+  });
+});
+
 // 8. Eliminar tarea (Exclusivo Administrador Holger)
 app.delete('/api/tasks/:id', (req, res) => {
   const userRol = req.headers['x-user-role'];
