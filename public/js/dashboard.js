@@ -50,15 +50,18 @@ function verificarSesionDashboard() {
     if (nombreEl) nombreEl.innerText = user.nombre || user.username;
     if (rolEl) rolEl.innerText = user.rol.toUpperCase();
 
-    // Solo el administrador Holger puede ver el botón de crear tareas y el de gestionar usuarios
+    // Solo el administrador Holger puede ver botones de admin (crear tarea, usuarios, respaldo)
     const btnCrear = document.getElementById('btn-crear-tarea-dashboard');
     const btnUsers = document.getElementById('btn-admin-usuarios');
+    const btnBackup = document.getElementById('btn-admin-backup');
     if (user.rol === 'admin') {
       if (btnCrear) btnCrear.classList.remove('hidden');
       if (btnUsers) btnUsers.classList.remove('hidden');
+      if (btnBackup) btnBackup.classList.remove('hidden');
     } else {
       if (btnCrear) btnCrear.classList.add('hidden');
       if (btnUsers) btnUsers.classList.add('hidden');
+      if (btnBackup) btnBackup.classList.add('hidden');
     }
 
     return user;
@@ -895,4 +898,74 @@ function mostrarToast(mensaje) {
   setTimeout(() => {
     toast.classList.add('translate-y-20', 'opacity-0');
   }, 3500);
+}
+
+// Modal Copia de Seguridad y Respaldo
+function abrirModalBackup() {
+  const modal = document.getElementById('modal-backup');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function cerrarModalBackup() {
+  const modal = document.getElementById('modal-backup');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function descargarRespaldoJSON() {
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch('/api/backup', {
+      headers: { 'x-user-role': user.rol }
+    });
+    if (!res.ok) throw new Error('Error al descargar copia de seguridad');
+    const data = await res.json();
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const fechaStr = new Date().toISOString().slice(0, 10);
+    a.download = `SIMAN_Respaldo_${fechaStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    mostrarToast('✅ Copia de seguridad descargada exitosamente');
+  } catch(err) {
+    alert(err.message);
+  }
+}
+
+async function restaurarRespaldoJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async function(evt) {
+    try {
+      const backupData = JSON.parse(evt.target.result);
+      if (!backupData.users || !backupData.tasks) {
+        throw new Error('El archivo no parece ser un respaldo válido de SIMAN.');
+      }
+
+      const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+      const res = await fetch('/api/restore', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': user.rol
+        },
+        body: JSON.stringify(backupData)
+      });
+
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || 'Error al restaurar respaldo');
+
+      mostrarToast(resData.mensaje || '✅ Respaldo restaurado con éxito');
+      cerrarModalBackup();
+      cargarTareas(true);
+    } catch(err) {
+      alert('Error al procesar el archivo de respaldo: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
 }

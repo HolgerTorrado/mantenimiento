@@ -93,6 +93,12 @@
           <span class="hidden sm:inline">Usuarios</span>
         </button>
 
+        <!-- Botón Respaldo de Datos (Exclusivo Admin Holger) -->
+        <button id="btn-admin-backup" onclick="abrirModalBackup()" class="hidden flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-700 transition shadow">
+          <i class="fa-solid fa-cloud-arrow-down text-emerald-400"></i>
+          <span class="hidden sm:inline">Respaldo</span>
+        </button>
+
         <!-- Botón Crear Tarea (Exclusivo Admin Holger) -->
         <button id="btn-crear-tarea-dashboard" onclick="abrirModalCrear()" class="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-4 py-2 rounded-lg shadow-md shadow-emerald-600/25 transition-all">
           <i class="fa-solid fa-plus"></i>
@@ -777,6 +783,54 @@
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- 5. MODAL COPIA DE SEGURIDAD Y RESPALDO (ADMIN) -->
+  <div id="modal-backup" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-emerald-500/40 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+      <div class="bg-slate-900 px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm sm:text-base">Copia de Seguridad y Persistencia</h3>
+            <p class="text-[11px] text-slate-400">Respaldo permanente en la nube y descarga local</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalBackup()" class="text-slate-400 hover:text-white transition p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 text-xs">
+        <div class="bg-emerald-950/40 border border-emerald-500/30 rounded-xl p-3 flex items-start gap-3">
+          <i class="fa-solid fa-cloud-check text-emerald-400 text-lg mt-0.5"></i>
+          <div>
+            <span class="font-bold text-emerald-300 block">Sincronización en la Nube Activa</span>
+            <span class="text-slate-300 text-[11px] leading-relaxed block mt-0.5">Tus usuarios y tareas se respaldan automáticamente en la nube (rama db-storage) cada vez que creas o modificas un registro. Las actualizaciones de Render no borrarán tus datos.</span>
+          </div>
+        </div>
+
+        <div class="border border-slate-700 rounded-xl p-4 space-y-3 bg-slate-900/50">
+          <span class="font-bold text-white uppercase tracking-wider block text-[11px]">Copia de Seguridad Manual</span>
+          <p class="text-slate-400 leading-relaxed">Descarga un archivo con todos tus usuarios y tareas para guardarlo en tu computador o restaurarlo cuando desees.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+            <button onclick="descargarRespaldoJSON()" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-download"></i> Descargar Respaldo
+            </button>
+            <label class="py-2.5 px-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer text-center">
+              <i class="fa-solid fa-upload"></i> Restaurar Respaldo
+              <input type="file" id="input-archivo-respaldo" accept=".json" onchange="restaurarRespaldoJSON(event)" class="hidden">
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="bg-slate-900 px-6 py-3 border-t border-slate-700 text-right">
+        <button onclick="cerrarModalBackup()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">
+          Cerrar
+        </button>
+      </div>
     </div>
   </div>
 

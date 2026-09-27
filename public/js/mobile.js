@@ -510,12 +510,7 @@ async function enviarFinalizacion(e) {
     cambiarTabMovil('completadas', document.querySelectorAll('#mobile-tabs .tab-movil')[2]);
     cargarTareasMovil();
   } catch (err) {
-    alert(err.message);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = txtOriginal;
-  }
-    alert('Error al registrar: ' + err.message);
+    alert(err.message || 'Error al registrar tarea');
   } finally {
     btn.disabled = false;
     btn.innerHTML = txtOriginal;

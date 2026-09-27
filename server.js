@@ -6,6 +6,7 @@ const fs = require('fs');
 const os = require('os');
 const QRCode = require('qrcode');
 const crypto = require('crypto');
+const cloudStorage = require('./cloudStorage');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,7 +22,7 @@ const USERS_FILE = path.join(DATA_DIR, 'users.json');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
-// Inicializar archivos solo si no existen (nunca sobrescribe lo que ya existe)
+// Inicializar archivos locales por defecto si no existen
 if (!fs.existsSync(TASKS_FILE)) {
   fs.writeFileSync(TASKS_FILE, JSON.stringify([], null, 2), 'utf-8');
 }
@@ -40,6 +41,11 @@ if (!fs.existsSync(USERS_FILE)) {
   }];
   fs.writeFileSync(USERS_FILE, JSON.stringify(adminHolger, null, 2), 'utf-8');
 }
+
+// Sincronizar de inmediato con la nube (db-storage) para restaurar datos tras reinicio o despliegue
+cloudStorage.sincronizarArchivoAlIniciar('users.json', USERS_FILE);
+cloudStorage.sincronizarArchivoAlIniciar('tasks.json', TASKS_FILE);
+cloudStorage.sincronizarArchivoAlIniciar('mecanicos.json', MECANICOS_FILE);
 
 // Middlewares
 app.use(cors());
@@ -79,7 +85,9 @@ function leerTareas() {
 
 function guardarTareas(tareas) {
   try {
-    fs.writeFileSync(TASKS_FILE, JSON.stringify(tareas, null, 2), 'utf-8');
+    const str = JSON.stringify(tareas, null, 2);
+    fs.writeFileSync(TASKS_FILE, str, 'utf-8');
+    cloudStorage.subirALaNube('data/tasks.json', str).catch(() => {});
     return true;
   } catch (err) {
     console.error('Error al guardar tasks.json:', err);
@@ -97,6 +105,18 @@ function leerMecanicos() {
   }
 }
 
+function guardarMecanicos(mecanicos) {
+  try {
+    const str = JSON.stringify(mecanicos, null, 2);
+    fs.writeFileSync(MECANICOS_FILE, str, 'utf-8');
+    cloudStorage.subirALaNube('data/mecanicos.json', str).catch(() => {});
+    return true;
+  } catch (err) {
+    console.error('Error al guardar mecanicos.json:', err);
+    return false;
+  }
+}
+
 function leerUsuarios() {
   try {
     if (!fs.existsSync(USERS_FILE)) return [];
@@ -109,7 +129,9 @@ function leerUsuarios() {
 
 function guardarUsuarios(usuarios) {
   try {
-    fs.writeFileSync(USERS_FILE, JSON.stringify(usuarios, null, 2), 'utf-8');
+    const str = JSON.stringify(usuarios, null, 2);
+    fs.writeFileSync(USERS_FILE, str, 'utf-8');
+    cloudStorage.subirALaNube('data/users.json', str).catch(() => {});
     return true;
   } catch (err) {
     console.error('Error al guardar users.json:', err);
@@ -692,6 +714,45 @@ app.get('/api/metrics', (req, res) => {
     tasa_completitud: total > 0 ? Math.round((completadas / total) * 100) : 0,
     periodo
   });
+});
+
+// 10. Copia de Seguridad y Respaldo Completo (Exclusivo Administrador Holger)
+app.get('/api/backup', (req, res) => {
+  const userRol = req.headers['x-user-role'];
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Permiso denegado: Solo el Administrador Holger puede exportar respaldos.' });
+  }
+  res.json({
+    sistema: 'SIMAN Industrial Maintenance',
+    exportado_en: new Date().toISOString(),
+    users: leerUsuarios(),
+    tasks: leerTareas(),
+    mecanicos: leerMecanicos()
+  });
+});
+
+app.post('/api/restore', (req, res) => {
+  const userRol = req.headers['x-user-role'];
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Permiso denegado: Solo el Administrador Holger puede restaurar respaldos.' });
+  }
+
+  const { users, tasks, mecanicos } = req.body;
+  let restaurados = [];
+  if (Array.isArray(users) && users.length > 0) {
+    guardarUsuarios(users);
+    restaurados.push(`${users.length} usuarios`);
+  }
+  if (Array.isArray(tasks)) {
+    guardarTareas(tasks);
+    restaurados.push(`${tasks.length} tareas`);
+  }
+  if (Array.isArray(mecanicos)) {
+    guardarMecanicos(mecanicos);
+    restaurados.push(`${mecanicos.length} mecánicos`);
+  }
+
+  res.json({ mensaje: `Respaldo restaurado con éxito (${restaurados.join(', ')})` });
 });
 
 // Rutas directas para el navegador y vistas PWA
