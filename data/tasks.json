@@ -90,10 +90,11 @@
     "completado_por_nombre": "Anderson Jaimes",
     "completado_en": "2026-09-27T05:26:14.922Z",
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-27T22:58:02.818Z",
+    "modificado_en": "2026-09-27T22:58:33.456Z",
     "roles_asignados": [
       "mecanico",
-      "electrico"
+      "electrico",
+      "maquinista"
     ],
     "tecnicos_asignados": [
       "Anderson Jaimes",
