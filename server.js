@@ -207,6 +207,22 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
+// Roles válidos del sistema
+const ROLES_TECNICOS = ['mecanico', 'electrico', 'maquinista'];
+const ROLES_TODOS = ['admin', 'mecanico', 'electrico', 'maquinista', 'visualizador'];
+
+function getEspecialidadPorRol(rol) {
+  switch (rol) {
+    case 'admin': return 'Supervisor de Planta';
+    case 'electrico': return 'Técnico Electricista';
+    case 'maquinista': return 'Operador de Maquinaria';
+    case 'visualizador': return 'Solo Lectura';
+    case 'mecanico':
+    default:
+      return 'Mecánico de Planta';
+  }
+}
+
 app.post('/api/auth/register', (req, res) => {
   const { nombre, username, password, rol, especialidad } = req.body;
   if (!nombre || !username || !password) {
@@ -219,7 +235,8 @@ app.post('/api/auth/register', (req, res) => {
     return res.status(400).json({ error: 'El nombre de usuario ya está registrado' });
   }
 
-  const rolValido = ['admin', 'mecanico', 'visualizador'].includes(rol) ? rol : 'mecanico';
+  const rolValido = ROLES_TODOS.includes(rol) ? rol : 'mecanico';
+  const espDefecto = getEspecialidadPorRol(rolValido);
 
   const nuevoUsuario = {
     id: `USR-${String(usuarios.length + 1).padStart(2, '0')}`,
@@ -227,25 +244,25 @@ app.post('/api/auth/register', (req, res) => {
     password_hash: hashPassword(password),
     nombre: nombre.trim(),
     rol: rolValido,
-    especialidad: (especialidad || (rolValido === 'admin' ? 'Supervisor' : rolValido === 'visualizador' ? 'Solo Lectura' : 'Mecánico de Planta')).trim(),
+    especialidad: (especialidad || espDefecto).trim(),
     creado_en: new Date().toISOString()
   };
 
   usuarios.push(nuevoUsuario);
   guardarUsuarios(usuarios);
 
-  // Si es mecánico, sincronizar también en mecanicos.json para asignación de tareas
-  if (nuevoUsuario.rol === 'mecanico') {
+  // Si es un técnico (mecánico, eléctrico o maquinista), registrar en mecanicos.json
+  if (ROLES_TECNICOS.includes(nuevoUsuario.rol)) {
     const mecanicos = leerMecanicos();
     if (!mecanicos.some(m => m.nombre.toLowerCase() === nuevoUsuario.nombre.toLowerCase())) {
       mecanicos.push({
-        id: `MEC-${String(mecanicos.length + 1).padStart(2, '0')}`,
+        id: `TEC-${String(mecanicos.length + 1).padStart(2, '0')}`,
         nombre: nuevoUsuario.nombre,
+        username: nuevoUsuario.username,
+        rol: nuevoUsuario.rol,
         especialidad: nuevoUsuario.especialidad
       });
-      try {
-        fs.writeFileSync(MECANICOS_FILE, JSON.stringify(mecanicos, null, 2), 'utf-8');
-      } catch (e) {}
+      guardarMecanicos(mecanicos);
     }
   }
 
@@ -255,7 +272,8 @@ app.post('/api/auth/register', (req, res) => {
       id: nuevoUsuario.id,
       username: nuevoUsuario.username,
       nombre: nuevoUsuario.nombre,
-      rol: nuevoUsuario.rol
+      rol: nuevoUsuario.rol,
+      especialidad: nuevoUsuario.especialidad
     }
   });
 });
@@ -269,6 +287,61 @@ app.get('/api/users', (req, res) => {
     especialidad: u.especialidad
   }));
   res.json(usuarios);
+});
+
+// Modificar usuario (Exclusivo Administrador Holger)
+app.put('/api/users/:id', (req, res) => {
+  const userRol = req.headers['x-user-role'];
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Permiso denegado: Solo el Administrador Holger puede modificar usuarios.' });
+  }
+
+  let usuarios = leerUsuarios();
+  const idx = usuarios.findIndex(x => x.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+  const { nombre, rol, especialidad, password } = req.body;
+  if (nombre) usuarios[idx].nombre = nombre.trim();
+  if (rol && ROLES_TODOS.includes(rol)) {
+    usuarios[idx].rol = rol;
+    if (!especialidad) usuarios[idx].especialidad = getEspecialidadPorRol(rol);
+  }
+  if (especialidad) usuarios[idx].especialidad = especialidad.trim();
+  if (password && password.trim().length > 0) {
+    usuarios[idx].password_hash = hashPassword(password.trim());
+  }
+
+  guardarUsuarios(usuarios);
+
+  // Sincronizar en mecanicos.json si el rol es técnico
+  if (ROLES_TECNICOS.includes(usuarios[idx].rol)) {
+    const mecanicos = leerMecanicos();
+    const mIdx = mecanicos.findIndex(m => m.nombre.toLowerCase() === usuarios[idx].nombre.toLowerCase());
+    if (mIdx !== -1) {
+      mecanicos[mIdx].rol = usuarios[idx].rol;
+      mecanicos[mIdx].especialidad = usuarios[idx].especialidad;
+    } else {
+      mecanicos.push({
+        id: `TEC-${String(mecanicos.length + 1).padStart(2, '0')}`,
+        nombre: usuarios[idx].nombre,
+        username: usuarios[idx].username,
+        rol: usuarios[idx].rol,
+        especialidad: usuarios[idx].especialidad
+      });
+    }
+    guardarMecanicos(mecanicos);
+  }
+
+  res.json({
+    mensaje: `Usuario @${usuarios[idx].username} actualizado exitosamente`,
+    user: {
+      id: usuarios[idx].id,
+      username: usuarios[idx].username,
+      nombre: usuarios[idx].nombre,
+      rol: usuarios[idx].rol,
+      especialidad: usuarios[idx].especialidad
+    }
+  });
 });
 
 // Eliminar usuario (Exclusivo Administrador Holger)
@@ -289,13 +362,11 @@ app.delete('/api/users/:id', (req, res) => {
   usuarios = usuarios.filter(x => x.id !== req.params.id);
   guardarUsuarios(usuarios);
 
-  // Si era mecánico, remover de mecanicos.json también
-  if (u.rol === 'mecanico') {
+  // Si era técnico, remover de mecanicos.json también
+  if (ROLES_TECNICOS.includes(u.rol)) {
     let mecanicos = leerMecanicos();
     mecanicos = mecanicos.filter(m => m.nombre.toLowerCase() !== u.nombre.toLowerCase());
-    try {
-      fs.writeFileSync(MECANICOS_FILE, JSON.stringify(mecanicos, null, 2), 'utf-8');
-    } catch (e) {}
+    guardarMecanicos(mecanicos);
   }
 
   res.json({ mensaje: `Usuario ${u.nombre} eliminado exitosamente` });
@@ -325,9 +396,42 @@ app.get('/api/network-info', async (req, res) => {
   }
 });
 
-// 2. Listado de mecánicos
+// Helper para obtener todos los técnicos (mecánicos, eléctricos, maquinistas)
+function obtenerListaTecnicos() {
+  const usuarios = leerUsuarios();
+  const tecnicos = usuarios
+    .filter(u => ROLES_TECNICOS.includes(u.rol))
+    .map(u => ({
+      id: u.id,
+      nombre: u.nombre,
+      username: u.username,
+      rol: u.rol,
+      especialidad: u.especialidad || getEspecialidadPorRol(u.rol)
+    }));
+
+  const mecanicosExtra = leerMecanicos();
+  mecanicosExtra.forEach(m => {
+    if (!tecnicos.some(t => t.nombre.toLowerCase() === m.nombre.toLowerCase())) {
+      tecnicos.push({
+        id: m.id || `TEC-${Date.now()}`,
+        nombre: m.nombre,
+        username: m.username || m.nombre.toLowerCase().replace(/\s+/g, ''),
+        rol: m.rol || 'mecanico',
+        especialidad: m.especialidad || 'Mecánico de Planta'
+      });
+    }
+  });
+
+  return tecnicos;
+}
+
+// 2. Listado de técnicos (soporta tanto /api/mecanicos como /api/tecnicos)
+app.get('/api/tecnicos', (req, res) => {
+  res.json(obtenerListaTecnicos());
+});
+
 app.get('/api/mecanicos', (req, res) => {
-  res.json(leerMecanicos());
+  res.json(obtenerListaTecnicos());
 });
 
 // 3. Obtener tareas con filtros opcionales
@@ -419,6 +523,8 @@ app.post('/api/tasks', (req, res) => {
     ubicacion,
     descripcion,
     mecanico_asignado,
+    roles_asignados,
+    tecnicos_asignados,
     fecha_ocurrencia
   } = req.body;
 
@@ -429,6 +535,46 @@ app.post('/api/tasks', (req, res) => {
   const tipoNormalizado = ['preventivo', 'correctivo', 'predictivo'].includes(tipo.toLowerCase())
     ? tipo.toLowerCase()
     : 'correctivo';
+
+  // Normalizar roles requeridos para la tarea (Permite tareas conjuntas)
+  let rolesFinal = ['mecanico'];
+  if (Array.isArray(roles_asignados) && roles_asignados.length > 0) {
+    rolesFinal = roles_asignados.filter(r => ROLES_TECNICOS.includes(r));
+    if (rolesFinal.length === 0) rolesFinal = ['mecanico'];
+  } else if (typeof roles_asignados === 'string' && roles_asignados.trim()) {
+    try {
+      const p = JSON.parse(roles_asignados);
+      if (Array.isArray(p)) rolesFinal = p.filter(r => ROLES_TECNICOS.includes(r));
+    } catch(e) {
+      rolesFinal = roles_asignados.split(',').map(s => s.trim()).filter(r => ROLES_TECNICOS.includes(r));
+    }
+    if (rolesFinal.length === 0) rolesFinal = ['mecanico'];
+  }
+
+  // Normalizar técnicos asignados (Permite asignar a varias personas en conjunto)
+  let tecnicosFinal = [];
+  if (Array.isArray(tecnicos_asignados)) {
+    tecnicosFinal = tecnicos_asignados.map(s => String(s).trim()).filter(Boolean);
+  } else if (typeof tecnicos_asignados === 'string' && tecnicos_asignados.trim()) {
+    try {
+      const p = JSON.parse(tecnicos_asignados);
+      if (Array.isArray(p)) tecnicosFinal = p.map(s => String(s).trim()).filter(Boolean);
+    } catch(e) {
+      tecnicosFinal = tecnicos_asignados.split(',').map(s => s.trim()).filter(Boolean);
+    }
+  }
+
+  // Retrocompatibilidad con mecanico_asignado
+  if (tecnicosFinal.length === 0 && mecanico_asignado && mecanico_asignado !== 'Sin Asignar') {
+    tecnicosFinal = [mecanico_asignado.trim()];
+  }
+
+  let resumenAsignado = 'Sin Asignar';
+  if (tecnicosFinal.length > 0) {
+    resumenAsignado = tecnicosFinal.join(', ');
+  } else if (mecanico_asignado) {
+    resumenAsignado = mecanico_asignado.trim();
+  }
 
   const tareas = leerTareas();
   const nextNumber = 1000 + tareas.length + 1;
@@ -442,7 +588,10 @@ app.post('/api/tasks', (req, res) => {
     prioridad: prioridad || 'media',
     ubicacion: (ubicacion || 'Planta Principal').trim(),
     descripcion: (descripcion || '').trim(),
-    mecanico_asignado: (mecanico_asignado || 'Sin Asignar').trim(),
+    roles_asignados: rolesFinal,
+    tecnicos_asignados: tecnicosFinal,
+    mecanico_asignado: resumenAsignado,
+    es_conjunta: rolesFinal.length > 1 || tecnicosFinal.length > 1,
     fecha_ocurrencia: fecha_ocurrencia, // ISO o YYYY-MM-DDTHH:mm
     fecha_arreglo: null,
     estado: 'pendiente',
@@ -458,7 +607,7 @@ app.post('/api/tasks', (req, res) => {
   res.status(201).json(nuevaTarea);
 });
 
-// 6. Iniciar tarea (Poner en progreso por el mecánico)
+// 6. Iniciar tarea (Poner en progreso por el técnico)
 app.post('/api/tasks/:id/iniciar', (req, res) => {
   const tareas = leerTareas();
   const idx = tareas.findIndex(t => t.id === req.params.id);
@@ -466,7 +615,12 @@ app.post('/api/tasks/:id/iniciar', (req, res) => {
 
   tareas[idx].estado = 'en_progreso';
   if (req.body.mecanico_nombre) {
-    tareas[idx].mecanico_asignado = req.body.mecanico_nombre;
+    const nombre = req.body.mecanico_nombre.trim();
+    if (!tareas[idx].tecnicos_asignados) tareas[idx].tecnicos_asignados = [];
+    if (!tareas[idx].tecnicos_asignados.includes(nombre)) {
+      tareas[idx].tecnicos_asignados.push(nombre);
+      tareas[idx].mecanico_asignado = tareas[idx].tecnicos_asignados.join(', ');
+    }
   }
   tareas[idx].actualizado_en = new Date().toISOString();
 
@@ -474,24 +628,25 @@ app.post('/api/tasks/:id/iniciar', (req, res) => {
   res.json(tareas[idx]);
 });
 
-// 7. Completar tarea con subida de foto y registro de fecha y hora de arreglo
+// 7. Completar tarea con guardado permanente de foto en base64 (Vector / Nube)
 app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
   const userRol = req.headers['x-user-role'];
   if (userRol === 'visualizador') {
-    if (req.file) fs.unlinkSync(req.file.path);
+    if (req.file) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
     return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para finalizar tareas ni subir fotos.' });
   }
 
   const tareas = leerTareas();
   const idx = tareas.findIndex(t => t.id === req.params.id);
   if (idx === -1) {
-    if (req.file) fs.unlinkSync(req.file.path);
+    if (req.file) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
     return res.status(404).json({ error: 'Tarea no encontrada' });
   }
 
   const { fecha_arreglo, notas_mecanico, mecanico_nombre, usuario_username } = req.body;
-  const usernameFinal = req.headers['x-user-username'] || usuario_username || 'mecanico';
-  const nombreFinal = req.headers['x-user-name'] || mecanico_nombre || 'Mecánico';
+  const usernameFinal = req.headers['x-user-username'] || usuario_username || 'tecnico';
+  const nombreFinal = req.headers['x-user-name'] || mecanico_nombre || 'Técnico';
+  const rolFinal = req.headers['x-user-role'] || 'mecanico';
 
   // Fecha y hora del arreglo: si no la envía o es vacía, usar el momento exacto actual
   const fechaArregloFinal = fecha_arreglo || new Date().toISOString().slice(0, 16);
@@ -511,28 +666,37 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
     console.error('Error calculando tiempo:', e);
   }
 
-  // Foto subida o mantener anterior o recibir base64
+  // Foto comprobante: Guardar directamente como Data URL Base64 para persistencia total en Git / JSON
   let rutaFoto = tareas[idx].foto_comprobante;
-  if (req.file) {
-    rutaFoto = `/uploads/${req.file.filename}`;
-  } else if (req.body.foto_base64) {
+  if (req.body && req.body.foto_base64 && req.body.foto_base64.startsWith('data:image/')) {
+    rutaFoto = req.body.foto_base64;
+  } else if (req.file) {
     try {
-      const base64Data = req.body.foto_base64.replace(/^data:image\/\w+;base64,/, '');
-      const buffer = Buffer.from(base64Data, 'base64');
-      const filename = `${tareas[idx].id}-${Date.now()}.jpg`;
-      fs.writeFileSync(path.join(UPLOADS_DIR, filename), buffer);
-      rutaFoto = `/uploads/${filename}`;
-    } catch (e) {
-      console.error('Error guardando imagen base64:', e);
+      const ext = path.extname(req.file.originalname).toLowerCase();
+      const mime = ext === '.png' ? 'image/png' : 'image/jpeg';
+      const b64 = fs.readFileSync(req.file.path).toString('base64');
+      rutaFoto = `data:${mime};base64,${b64}`;
+      try { fs.unlinkSync(req.file.path); } catch(e) {}
+    } catch(e) {
+      console.error('Error convirtiendo foto a base64:', e);
+      rutaFoto = `/uploads/${req.file.filename}`;
     }
   }
 
   tareas[idx].estado = 'completado';
   tareas[idx].fecha_arreglo = fechaArregloFinal;
   tareas[idx].tiempo_arreglo_minutos = tiempoMinutos;
-  tareas[idx].mecanico_asignado = nombreFinal;
   tareas[idx].completado_por_usuario = usernameFinal;
   tareas[idx].completado_por_nombre = nombreFinal;
+  tareas[idx].completado_por_rol = rolFinal;
+
+  // Si no estaba en técnicos asignados, agregarlo
+  if (!tareas[idx].tecnicos_asignados) tareas[idx].tecnicos_asignados = [];
+  if (!tareas[idx].tecnicos_asignados.includes(nombreFinal)) {
+    tareas[idx].tecnicos_asignados.push(nombreFinal);
+    tareas[idx].mecanico_asignado = tareas[idx].tecnicos_asignados.join(', ');
+  }
+
   if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
   if (rutaFoto) tareas[idx].foto_comprobante = rutaFoto;
   tareas[idx].completado_en = new Date().toISOString();
@@ -560,6 +724,8 @@ app.put('/api/tasks/:id', (req, res) => {
     fecha_arreglo,
     notas_mecanico,
     mecanico_asignado,
+    roles_asignados,
+    tecnicos_asignados,
     equipo,
     titulo,
     tipo,
@@ -570,7 +736,24 @@ app.put('/api/tasks/:id', (req, res) => {
   if (fecha_ocurrencia !== undefined) tareas[idx].fecha_ocurrencia = fecha_ocurrencia;
   if (fecha_arreglo !== undefined) tareas[idx].fecha_arreglo = fecha_arreglo || null;
   if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
-  if (mecanico_asignado !== undefined) tareas[idx].mecanico_asignado = mecanico_asignado;
+  
+  if (roles_asignados !== undefined) {
+    tareas[idx].roles_asignados = Array.isArray(roles_asignados) ? roles_asignados : [roles_asignados];
+  }
+
+  if (tecnicos_asignados !== undefined) {
+    const arr = Array.isArray(tecnicos_asignados) ? tecnicos_asignados : [tecnicos_asignados];
+    tareas[idx].tecnicos_asignados = arr;
+    tareas[idx].mecanico_asignado = arr.length > 0 ? arr.join(', ') : 'Sin Asignar';
+  } else if (mecanico_asignado !== undefined) {
+    tareas[idx].mecanico_asignado = mecanico_asignado;
+  }
+
+  if (tareas[idx].roles_asignados || tareas[idx].tecnicos_asignados) {
+    tareas[idx].es_conjunta = (tareas[idx].roles_asignados && tareas[idx].roles_asignados.length > 1) || 
+                              (tareas[idx].tecnicos_asignados && tareas[idx].tecnicos_asignados.length > 1);
+  }
+
   if (equipo !== undefined) tareas[idx].equipo = equipo.trim();
   if (titulo !== undefined) tareas[idx].titulo = titulo.trim();
   if (tipo !== undefined) tareas[idx].tipo = tipo.toLowerCase();

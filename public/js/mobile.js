@@ -57,7 +57,16 @@ function verificarSesionMovil() {
   try {
     const user = JSON.parse(userJson);
     const label = document.getElementById('label-usuario-activo');
-    if (label) label.innerText = `👤 ${user.nombre || user.username}`;
+    if (label) {
+      let icon = '🔧';
+      let rolTexto = 'Mecánico';
+      if (user.rol === 'electrico') { icon = '⚡'; rolTexto = 'Eléctrico'; }
+      else if (user.rol === 'maquinista') { icon = '🚜'; rolTexto = 'Maquinista'; }
+      else if (user.rol === 'admin') { icon = '💻'; rolTexto = 'Admin'; }
+      else if (user.rol === 'visualizador') { icon = '👁️'; rolTexto = 'Visualizador'; }
+
+      label.innerHTML = `${icon} <span class="font-bold text-white">${escaparHTMLMovil(user.nombre || user.username)}</span> <span class="text-[9px] text-emerald-300 opacity-80">(${rolTexto})</span>`;
+    }
     return user;
   } catch (e) {
     window.location.href = '/login';
@@ -170,17 +179,45 @@ function getUsuarioActivo() {
   }
 }
 
-// Filtrar tareas según el rol del usuario conectado
+// Filtrar tareas según el rol del usuario conectado y tareas en conjunto
 function filtrarTareasPorUsuario(tareas) {
   const user = getUsuarioActivo();
   if (!user || user.rol === 'admin' || user.rol === 'visualizador') {
     return tareas;
   }
-  // Si es mecánico, ver las tareas asignadas a su nombre o disponibles
-  const miNombre = (user.nombre || user.username || '').toLowerCase().trim();
+
+  const miRol = (user.rol || 'mecanico').toLowerCase().trim();
+  const miNombre = (user.nombre || '').toLowerCase().trim();
+  const miUsername = (user.username || '').toLowerCase().trim();
+
   return tareas.filter(t => {
-    const asig = (t.mecanico_asignado || '').toLowerCase().trim();
-    return asig === miNombre || asig.includes(miNombre) || asig === 'sin asignar' || asig === 'todos';
+    // 1. ¿Está asignado específicamente a mi nombre o usuario?
+    const tecs = Array.isArray(t.tecnicos_asignados) ? t.tecnicos_asignados.map(x => String(x).toLowerCase().trim()) : [];
+    const asignadoTexto = (t.mecanico_asignado || '').toLowerCase().trim();
+
+    const asignadoAMiPersona = (miNombre && (tecs.includes(miNombre) || asignadoTexto.includes(miNombre))) ||
+                               (miUsername && (tecs.includes(miUsername) || asignadoTexto.includes(miUsername)));
+
+    if (asignadoAMiPersona) {
+      return true;
+    }
+
+    // 2. ¿La tarea incluye el rol del usuario conectado?
+    const roles = Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0
+      ? t.roles_asignados.map(r => String(r).toLowerCase().trim())
+      : ['mecanico']; // Por defecto tareas anteriores son mecánicas
+
+    const incluyeMiRol = roles.includes(miRol) || roles.includes('todos');
+
+    // 3. Si la tarea incluye mi rol y está sin asignar o disponible para el rol
+    const esDisponibleParaMiRol = incluyeMiRol && (
+      tecs.length === 0 || 
+      asignadoTexto === 'sin asignar' || 
+      asignadoTexto === 'todos' || 
+      asignadoTexto === ''
+    );
+
+    return esDisponibleParaMiRol;
   });
 }
 
@@ -331,6 +368,18 @@ function renderTareasMovil() {
       `;
     }
 
+    // Badges de roles y trabajo conjunto
+    const rolesBadges = (t.roles_asignados || ['mecanico']).map(r => {
+      if (r === 'electrico') return '<span class="bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-bolt text-[9px]"></i> ELÉCTRICA</span>';
+      if (r === 'maquinista') return '<span class="bg-orange-500/10 text-orange-300 border border-orange-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-tractor text-[9px]"></i> MAQUINARIA</span>';
+      return '<span class="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-wrench text-[9px]"></i> MECÁNICA</span>';
+    }).join(' ');
+
+    const esConjunta = t.es_conjunta || (t.roles_asignados && t.roles_asignados.length > 1) || (t.tecnicos_asignados && t.tecnicos_asignados.length > 1);
+    const badgeConjunta = esConjunta 
+      ? `<span class="bg-purple-900/80 text-purple-200 border border-purple-500 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm"><i class="fa-solid fa-people-group text-[9px]"></i> EN CONJUNTO</span>`
+      : '';
+
     return `
       <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-4 shadow-lg">
         
@@ -339,6 +388,8 @@ function renderTareasMovil() {
           <div class="flex-1">
             <div class="flex items-center space-x-1.5 flex-wrap gap-y-1 mb-1">
               ${badgeTipo}
+              ${rolesBadges}
+              ${badgeConjunta}
               ${badgePrioridad}
               <span class="text-[10px] font-mono text-slate-400 bg-slate-900 px-1.5 py-0.5 rounded">${t.id}</span>
             </div>
@@ -422,6 +473,7 @@ function abrirModalCompletar(id) {
   document.getElementById('box-con-foto-previa').classList.add('hidden');
   document.getElementById('img-previa-elemento').src = '';
   fotoCapturadaFile = null;
+  fotoCapturadaBase64 = null;
 
   // Pre-llenar fecha y hora al momento de arreglar con la hora exacta actual
   fijarArregloAhora();
@@ -431,6 +483,7 @@ function abrirModalCompletar(id) {
 
 function cerrarModalCompletar() {
   document.getElementById('modal-completar-movil').classList.add('hidden');
+  fotoCapturadaBase64 = null;
 }
 
 function fijarArregloAhora() {
@@ -442,22 +495,69 @@ function fijarArregloAhora() {
   el.value = localISOTime;
 }
 
-// Previsualizar la foto tomada con la cámara del celular
-function previsualizarFoto(e) {
+let fotoCapturadaBase64 = null;
+
+// Comprimir imagen usando Canvas para generar un Base64 liviano (~60-90KB) que se guarda directamente en la BD de Git
+function comprimirImagenCanvas(file, maxDimension = 1024, calidad = 0.72) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > maxDimension) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          }
+        } else {
+          if (height > maxDimension) {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', calidad);
+        resolve(dataUrl);
+      };
+      img.onerror = () => resolve(e.target.result);
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Previsualizar la foto tomada con la cámara del celular con compresión automática
+async function previsualizarFoto(e) {
   const file = e.target.files[0];
   if (!file) return;
 
   fotoCapturadaFile = file;
 
-  const reader = new FileReader();
-  reader.onload = function(evt) {
+  try {
+    fotoCapturadaBase64 = await comprimirImagenCanvas(file, 1024, 0.72);
     const img = document.getElementById('img-previa-elemento');
-    img.src = evt.target.result;
+    img.src = fotoCapturadaBase64;
     document.getElementById('box-sin-foto-previa').classList.add('hidden');
     document.getElementById('box-con-foto-previa').classList.remove('hidden');
     if (navigator.vibrate) navigator.vibrate(50);
-  };
-  reader.readAsDataURL(file);
+  } catch (err) {
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      fotoCapturadaBase64 = evt.target.result;
+      const img = document.getElementById('img-previa-elemento');
+      img.src = evt.target.result;
+      document.getElementById('box-sin-foto-previa').classList.add('hidden');
+      document.getElementById('box-con-foto-previa').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  }
 }
 
 // Enviar Finalización al Servidor
@@ -469,11 +569,11 @@ async function enviarFinalizacion(e) {
   
   // Usuario autenticado que realiza la acción
   const usuarioActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  const usuarioNombre = usuarioActual.nombre || 'Mecánico de Turno';
-  const usuarioLogin = usuarioActual.username || 'mecanico';
+  const usuarioNombre = usuarioActual.nombre || 'Técnico de Turno';
+  const usuarioLogin = usuarioActual.username || 'tecnico';
   const usuarioRol = usuarioActual.rol || 'mecanico';
 
-  if (!fotoCapturadaFile) {
+  if (!fotoCapturadaFile && !fotoCapturadaBase64) {
     alert('Por favor tome una foto del arreglo antes de finalizar la tarea.');
     return;
   }
@@ -481,25 +581,47 @@ async function enviarFinalizacion(e) {
   const btn = document.getElementById('btn-confirmar-finalizar');
   const txtOriginal = btn.innerHTML;
   btn.disabled = true;
-  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Subiendo fotografía y registrando...`;
+  btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando comprobante permanente...`;
 
   try {
-    const formData = new FormData();
-    formData.append('foto', fotoCapturadaFile);
-    formData.append('fecha_arreglo', fechaArreglo);
-    formData.append('notas_mecanico', notasMecanico);
-    formData.append('mecanico_nombre', usuarioNombre);
-    formData.append('usuario_username', usuarioLogin);
+    let res;
+    // Si tenemos foto en base64 comprimida, enviar directamente por JSON (Persistencia total e indestructible en Git)
+    if (fotoCapturadaBase64 && fotoCapturadaBase64.startsWith('data:image/')) {
+      res = await fetch(`/api/tasks/${tareaId}/completar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': usuarioRol,
+          'x-user-username': usuarioLogin,
+          'x-user-name': usuarioNombre
+        },
+        body: JSON.stringify({
+          foto_base64: fotoCapturadaBase64,
+          fecha_arreglo: fechaArreglo,
+          notas_mecanico: notasMecanico,
+          mecanico_nombre: usuarioNombre,
+          usuario_username: usuarioLogin
+        })
+      });
+    } else {
+      // Fallback a FormData
+      const formData = new FormData();
+      formData.append('foto', fotoCapturadaFile);
+      formData.append('fecha_arreglo', fechaArreglo);
+      formData.append('notas_mecanico', notasMecanico);
+      formData.append('mecanico_nombre', usuarioNombre);
+      formData.append('usuario_username', usuarioLogin);
 
-    const res = await fetch(`/api/tasks/${tareaId}/completar`, {
-      method: 'POST',
-      headers: {
-        'x-user-role': usuarioRol,
-        'x-user-username': usuarioLogin,
-        'x-user-name': usuarioNombre
-      },
-      body: formData
-    });
+      res = await fetch(`/api/tasks/${tareaId}/completar`, {
+        method: 'POST',
+        headers: {
+          'x-user-role': usuarioRol,
+          'x-user-username': usuarioLogin,
+          'x-user-name': usuarioNombre
+        },
+        body: formData
+      });
+    }
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error al enviar registro');

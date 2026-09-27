@@ -21,7 +21,7 @@
         var userStr = localStorage.getItem('siman_user');
         if (userStr) {
           var user = JSON.parse(userStr);
-          if (user && user.rol === 'admin') {
+          if (user && (user.rol === 'admin' || user.rol === 'visualizador')) {
             window.location.replace('/dashboard');
           } else if (user) {
             window.location.replace('/mecanico');
@@ -161,7 +161,7 @@
         localStorage.setItem('siman_mecanico_activo', data.user.nombre);
 
         // Redirigir según rol
-        if (data.user.rol === 'admin') {
+        if (data.user.rol === 'admin' || data.user.rol === 'visualizador') {
           window.location.replace('/dashboard');
         } else {
           window.location.replace('/mecanico');

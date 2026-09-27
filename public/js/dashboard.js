@@ -114,23 +114,67 @@ async function cargarInfoRed() {
   }
 }
 
-// Cargar mecánicos en el select
+// Cargar técnicos y poblar checkboxes de asignación múltiple
+let listaTecnicosDisponibles = [];
+
 async function cargarMecanicosSelect() {
   try {
-    const res = await fetch('/api/mecanicos');
-    const mecanicos = await res.json();
-    const sel = document.getElementById('select-mecanicos-crear');
-    if (!sel) return;
-
-    sel.innerHTML = '<option value="Sin Asignar">Sin Asignar (Disponible)</option>';
-    mecanicos.forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m.nombre;
-      opt.textContent = `${m.nombre} (${m.especialidad})`;
-      sel.appendChild(opt);
-    });
+    const res = await fetch('/api/tecnicos');
+    listaTecnicosDisponibles = await res.json();
+    poblarCheckboxesTecnicos();
   } catch (err) {
-    console.error('Error al cargar mecánicos:', err);
+    console.error('Error al cargar técnicos:', err);
+  }
+}
+
+function poblarCheckboxesTecnicos() {
+  const cont = document.getElementById('contenedor-checkboxes-tecnicos');
+  if (!cont) return;
+
+  if (listaTecnicosDisponibles.length === 0) {
+    cont.innerHTML = '<p class="text-[11px] text-slate-500 p-2 col-span-2">No hay técnicos registrados aún. Crea usuarios con rol Mecánico, Eléctrico o Maquinista.</p>';
+    return;
+  }
+
+  cont.innerHTML = listaTecnicosDisponibles.map(t => {
+    let iconRol = 'fa-wrench text-emerald-400';
+    let badgeRol = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+    let rolTxt = 'Mecánico';
+    if (t.rol === 'electrico') {
+      iconRol = 'fa-bolt text-amber-400';
+      badgeRol = 'bg-amber-950 text-amber-300 border-amber-800';
+      rolTxt = 'Eléctrico';
+    } else if (t.rol === 'maquinista') {
+      iconRol = 'fa-tractor text-orange-400';
+      badgeRol = 'bg-orange-950 text-orange-300 border-orange-800';
+      rolTxt = 'Maquinista';
+    }
+
+    return `
+      <label class="cursor-pointer border border-slate-700/80 rounded-lg p-2 flex items-center justify-between text-xs hover:bg-slate-800/80 transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/30">
+        <div class="flex items-center gap-2 truncate">
+          <input type="checkbox" name="tecnicos_asignados" value="${escaparHTML(t.nombre)}" onchange="actualizarEstadoTrabajoConjunto()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
+          <span class="font-medium text-white truncate">${escaparHTML(t.nombre)}</span>
+        </div>
+        <span class="text-[10px] px-1.5 py-0.5 rounded border ${badgeRol} flex items-center gap-1 flex-shrink-0">
+          <i class="fa-solid ${iconRol}"></i> ${rolTxt}
+        </span>
+      </label>
+    `;
+  }).join('');
+}
+
+function actualizarEstadoTrabajoConjunto() {
+  const roles = Array.from(document.querySelectorAll('#form-crear-tarea input[name="roles_asignados"]:checked'));
+  const tecnicos = Array.from(document.querySelectorAll('#form-crear-tarea input[name="tecnicos_asignados"]:checked'));
+  const badge = document.getElementById('badge-tarea-conjunta-crear');
+  if (badge) {
+    if (roles.length > 1 || tecnicos.length > 1) {
+      badge.classList.remove('hidden');
+      badge.innerText = `👥 Trabajo en Conjunto (${roles.length} roles, ${tecnicos.length} personas)`;
+    } else {
+      badge.classList.add('hidden');
+    }
   }
 }
 
@@ -443,13 +487,20 @@ function renderTablaTareas(tareas) {
           ${badgeTipo}
         </td>
 
-        <!-- Mecánico Asignado -->
-        <td class="py-3 px-4 whitespace-nowrap">
-          <div class="flex items-center space-x-2">
-            <div class="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-300">
-              ${(t.mecanico_asignado || 'M').charAt(0).toUpperCase()}
+        <!-- Técnicos Asignados / Especialidad -->
+        <td class="py-3 px-4">
+          <div class="space-y-1">
+            <div class="flex items-center gap-1 flex-wrap">
+              ${(t.roles_asignados || ['mecanico']).map(r => {
+                if (r === 'electrico') return '<span class="text-[9px] bg-amber-950 text-amber-300 border border-amber-800/80 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-bolt"></i> Eléctrica</span>';
+                if (r === 'maquinista') return '<span class="text-[9px] bg-orange-950 text-orange-300 border border-orange-800/80 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-tractor"></i> Maquinaria</span>';
+                return '<span class="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-800/80 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-wrench"></i> Mecánica</span>';
+              }).join(' ')}
+              ${(t.es_conjunta || (t.roles_asignados && t.roles_asignados.length > 1) || (t.tecnicos_asignados && t.tecnicos_asignados.length > 1)) ? '<span class="text-[9px] bg-purple-900/80 text-purple-200 border border-purple-600 px-1.5 py-0.5 rounded font-bold">👥 Conjunta</span>' : ''}
             </div>
-            <span class="text-xs text-slate-200">${escaparHTML(t.mecanico_asignado || 'Sin Asignar')}</span>
+            <div class="text-xs text-slate-200 font-medium truncate max-w-[200px]" title="${escaparHTML(t.mecanico_asignado || 'Sin Asignar')}">
+              ${escaparHTML(t.mecanico_asignado || 'Sin Asignar')}
+            </div>
           </div>
         </td>
 
@@ -552,6 +603,9 @@ async function guardarNuevaTarea(e) {
   const formData = new FormData(form);
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
 
+  const roles = Array.from(form.querySelectorAll('input[name="roles_asignados"]:checked')).map(cb => cb.value);
+  const tecnicos = Array.from(form.querySelectorAll('input[name="tecnicos_asignados"]:checked')).map(cb => cb.value);
+
   const payload = {
     tipo: formData.get('tipo'),
     equipo: formData.get('equipo'),
@@ -559,7 +613,9 @@ async function guardarNuevaTarea(e) {
     titulo: formData.get('titulo'),
     fecha_ocurrencia: formData.get('fecha_ocurrencia'),
     prioridad: formData.get('prioridad'),
-    mecanico_asignado: formData.get('mecanico_asignado'),
+    roles_asignados: roles.length > 0 ? roles : ['mecanico'],
+    tecnicos_asignados: tecnicos,
+    mecanico_asignado: tecnicos.length > 0 ? tecnicos.join(', ') : 'Sin Asignar',
     descripcion: formData.get('descripcion')
   };
 
@@ -624,12 +680,48 @@ function abrirModalDetalle(id) {
   if (txtArreglo) txtArreglo.innerText = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : 'Pendiente de registrar';
   if (txtDuracion) txtDuracion.innerText = t.tiempo_arreglo_minutos !== null ? formatMinutos(t.tiempo_arreglo_minutos) : 'En ejecución';
 
-  // Datos
+  // Datos generales
   document.getElementById('det-equipo').innerText = t.equipo;
   document.getElementById('det-ubicacion').innerText = t.ubicacion || 'Planta Principal';
-  document.getElementById('det-mecanico').innerText = t.mecanico_asignado || 'Sin Asignar';
   document.getElementById('det-prioridad').innerText = t.prioridad || 'Media';
   document.getElementById('det-descripcion').innerText = t.descripcion || 'Sin descripción';
+
+  // Roles requeridos
+  const contRoles = document.getElementById('det-roles-container');
+  if (contRoles) {
+    const roles = t.roles_asignados || ['mecanico'];
+    contRoles.innerHTML = roles.map(r => {
+      if (r === 'electrico') return '<span class="text-[11px] bg-amber-950 text-amber-300 border border-amber-800 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-bolt"></i> Eléctrica</span>';
+      if (r === 'maquinista') return '<span class="text-[11px] bg-orange-950 text-orange-300 border border-orange-800 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-tractor"></i> Maquinaria</span>';
+      return '<span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full font-bold flex items-center gap-1"><i class="fa-solid fa-wrench"></i> Mecánica</span>';
+    }).join('');
+  }
+
+  // Tarea en conjunto badge
+  const badgeConjunta = document.getElementById('det-badge-conjunta');
+  if (badgeConjunta) {
+    const esConjunta = t.es_conjunta || (t.roles_asignados && t.roles_asignados.length > 1) || (t.tecnicos_asignados && t.tecnicos_asignados.length > 1);
+    if (esConjunta) badgeConjunta.classList.remove('hidden');
+    else badgeConjunta.classList.add('hidden');
+  }
+
+  // Técnicos asignados
+  const contTec = document.getElementById('det-tecnicos-container');
+  if (contTec) {
+    const tecs = (t.tecnicos_asignados && t.tecnicos_asignados.length > 0)
+      ? t.tecnicos_asignados
+      : (t.mecanico_asignado && t.mecanico_asignado !== 'Sin Asignar' ? t.mecanico_asignado.split(',').map(s => s.trim()) : []);
+
+    if (tecs.length > 0) {
+      contTec.innerHTML = tecs.map(nombre => `
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-200">
+          <i class="fa-solid fa-user-gear text-indigo-400"></i> ${escaparHTML(nombre)}
+        </span>
+      `).join('');
+    } else {
+      contTec.innerHTML = '<span class="text-xs text-slate-500 italic">Sin técnico asignado específicamente (disponible para el rol)</span>';
+    }
+  }
   
   // Notas editables
   const inNotas = document.getElementById('edit-det-notas-mecanico');
@@ -642,21 +734,35 @@ function abrirModalDetalle(id) {
   const detCompBadge = document.getElementById('det-completado-por-badge');
   if (detCompBadge) {
     if (t.estado === 'completado') {
-      const respNom = t.completado_por_nombre || t.mecanico_asignado || 'Mecánico';
+      const respNom = t.completado_por_nombre || t.mecanico_asignado || 'Técnico';
       const respUser = t.completado_por_usuario ? `(@${t.completado_por_usuario})` : '';
-      detCompBadge.innerText = `Finalizado por: ${respNom} ${respUser}`;
+      const respRol = t.completado_por_rol ? `[${t.completado_por_rol.toUpperCase()}]` : '';
+      detCompBadge.innerText = `Finalizado por: ${respNom} ${respUser} ${respRol}`;
       detCompBadge.className = 'text-[10px] text-emerald-300 bg-emerald-950/70 border border-emerald-500/30 px-2.5 py-0.5 rounded font-medium';
     } else {
-      detCompBadge.innerText = 'En espera de reporte del mecánico';
+      detCompBadge.innerText = 'En espera de reporte del técnico';
       detCompBadge.className = 'text-[10px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-700';
     }
   }
 
-  // Fotografía
+  // Fotografía Comprobante con persistencia base64
   const imgFoto = document.getElementById('det-img-foto');
   const sinFoto = document.getElementById('det-sin-foto');
   if (t.foto_comprobante) {
     imgFoto.src = t.foto_comprobante;
+    imgFoto.onerror = function() {
+      this.classList.add('hidden');
+      if (sinFoto) {
+        sinFoto.classList.remove('hidden');
+        sinFoto.innerHTML = `
+          <div class="py-10 text-center text-slate-400 space-y-1">
+            <i class="fa-solid fa-image text-3xl text-amber-400"></i>
+            <p class="text-xs font-semibold text-white">Comprobante anterior en migración</p>
+            <p class="text-[11px] text-slate-400">A partir de ahora todas las fotos nuevas se guardan de forma permanente e indestructible en la base de datos.</p>
+          </div>
+        `;
+      }
+    };
     imgFoto.classList.remove('hidden');
     sinFoto.classList.add('hidden');
   } else {
@@ -792,11 +898,27 @@ async function cargarListaUsuariosAdmin() {
 
     tbody.innerHTML = users.map(u => {
       let badgeRol = '';
-      if (u.rol === 'admin') badgeRol = '<span class="bg-blue-900/60 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded text-[10px] font-bold">ADMINISTRADOR</span>';
-      else if (u.rol === 'visualizador') badgeRol = '<span class="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded text-[10px] font-bold">SOLO VER</span>';
-      else badgeRol = '<span class="bg-emerald-900/60 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded text-[10px] font-bold">MECÁNICO</span>';
+      if (u.rol === 'admin') badgeRol = '<span class="bg-blue-900/60 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-crown mr-1"></i>ADMIN</span>';
+      else if (u.rol === 'electrico') badgeRol = '<span class="bg-amber-950 text-amber-300 border border-amber-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-bolt mr-1"></i>ELÉCTRICO</span>';
+      else if (u.rol === 'maquinista') badgeRol = '<span class="bg-orange-950 text-orange-300 border border-orange-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-tractor mr-1"></i>MAQUINISTA</span>';
+      else if (u.rol === 'visualizador') badgeRol = '<span class="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-eye mr-1"></i>SOLO VER</span>';
+      else badgeRol = '<span class="bg-emerald-950 text-emerald-300 border border-emerald-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-wrench mr-1"></i>MECÁNICO</span>';
 
       const esHolger = u.username.toLowerCase() === 'holger';
+      const colRol = esHolger
+        ? badgeRol
+        : `
+          <div class="flex items-center gap-1.5">
+            ${badgeRol}
+            <select onchange="cambiarRolUsuarioAdmin('${u.id}', this.value)" title="Cambiar rol" class="bg-slate-950 border border-slate-700 text-slate-300 text-[10px] rounded px-1.5 py-0.5 focus:outline-none focus:ring-1 focus:ring-indigo-500">
+              <option value="mecanico" ${u.rol === 'mecanico' ? 'selected' : ''}>🔧 Mecánico</option>
+              <option value="electrico" ${u.rol === 'electrico' ? 'selected' : ''}>⚡ Eléctrico</option>
+              <option value="maquinista" ${u.rol === 'maquinista' ? 'selected' : ''}>🚜 Maquinista</option>
+              <option value="visualizador" ${u.rol === 'visualizador' ? 'selected' : ''}>👁️ Solo Ver</option>
+            </select>
+          </div>
+        `;
+
       const botonEliminar = esHolger
         ? '<span class="text-[10px] text-slate-500 font-semibold italic">Principal</span>'
         : `<button onclick="eliminarUsuarioAdmin('${u.id}', '${escaparHTML(u.nombre)}', '${u.username}')" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-800/40 rounded hover:bg-rose-900 transition">Eliminar</button>`;
@@ -805,13 +927,35 @@ async function cargarListaUsuariosAdmin() {
         <tr>
           <td class="py-2.5 px-3 font-mono font-bold text-white">@${escaparHTML(u.username)}</td>
           <td class="py-2.5 px-3 font-medium">${escaparHTML(u.nombre)}</td>
-          <td class="py-2.5 px-3">${badgeRol}</td>
+          <td class="py-2.5 px-3">${colRol}</td>
           <td class="py-2.5 px-3 text-right">${botonEliminar}</td>
         </tr>
       `;
     }).join('');
   } catch (err) {
     tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-400">Error cargando usuarios</td></tr>';
+  }
+}
+
+async function cambiarRolUsuarioAdmin(id, nuevoRol) {
+  const userActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch(`/api/users/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': userActual.rol || 'admin',
+        'x-user-username': userActual.username || 'Holger'
+      },
+      body: JSON.stringify({ rol: nuevoRol })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error cambiando rol');
+    mostrarToast(data.mensaje || 'Rol actualizado exitosamente');
+    await cargarListaUsuariosAdmin();
+    cargarMecanicosSelect();
+  } catch(err) {
+    alert(err.message);
   }
 }
 
