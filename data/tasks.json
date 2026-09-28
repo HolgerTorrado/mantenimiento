@@ -170,7 +170,7 @@
     "prioridad": "media",
     "ubicacion": "Clarificacion",
     "descripcion": "Se debe realizar isométrico para cambiar desde la salida de efluente a la bomba.",
-    "mecanico_asignado": "Diego Chamorro",
+    "mecanico_asignado": "Diego Chamorro, Ender Silva",
     "fecha_ocurrencia": "2026-09-26T21:00",
     "fecha_arreglo": "2026-09-28T08:30",
     "estado": "completado",
@@ -182,9 +182,10 @@
       "mecanico"
     ],
     "tecnicos_asignados": [
-      "Diego Chamorro"
+      "Diego Chamorro",
+      "Ender Silva"
     ],
-    "es_conjunta": false,
+    "es_conjunta": true,
     "actualizado_en": "2026-09-27T21:13:07.522Z",
     "completado_por_usuario": "dchamorro",
     "completado_por_nombre": "Diego Chamorro",
@@ -205,7 +206,7 @@
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-28T18:03:00.206Z"
+    "modificado_en": "2026-09-28T18:04:57.947Z"
   },
   {
     "id": "TSK-1002",
