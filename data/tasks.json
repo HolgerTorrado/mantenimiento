@@ -266,8 +266,6 @@
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 1680,
     "completado_en": "2026-09-28T17:40:51.766Z",
-    "foto_actualizada_en": "2026-09-28T15:26:43.201Z",
-    "foto_actualizada_por": "Holger Torrado",
     "tiempo_espera_repuestos_minutos": 0,
     "motivo_espera_repuestos": "",
     "tiempo_fuera_planta_minutos": 1440,
@@ -278,7 +276,9 @@
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-28T18:04:29.260Z"
+    "modificado_en": "2026-09-28T18:04:29.260Z",
+    "foto_actualizada_en": "2026-09-28T15:26:43.201Z",
+    "foto_actualizada_por": "Holger Torrado"
   },
   {
     "id": "TSK-1005",
