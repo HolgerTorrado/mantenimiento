@@ -55,7 +55,7 @@
     "prioridad": "alta",
     "ubicacion": "Desfibracion",
     "descripcion": "Desgaste en los patines, se deben rellenar.",
-    "mecanico_asignado": "Diego Chamorro",
+    "mecanico_asignado": "Diego Chamorro, Ender Silva",
     "fecha_ocurrencia": "2026-09-27T06:30",
     "fecha_arreglo": "2026-09-28T10:30",
     "estado": "completado",
@@ -67,9 +67,10 @@
       "mecanico"
     ],
     "tecnicos_asignados": [
-      "Diego Chamorro"
+      "Diego Chamorro",
+      "Ender Silva"
     ],
-    "es_conjunta": false,
+    "es_conjunta": true,
     "actualizado_en": "2026-09-27T21:13:04.505Z",
     "completado_por_usuario": "dchamorro",
     "completado_por_nombre": "Diego Chamorro",
@@ -77,7 +78,18 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 1680,
-    "completado_en": "2026-09-28T17:40:51.766Z"
+    "completado_en": "2026-09-28T17:40:51.766Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 1440,
+    "motivo_fuera_planta": "Llevado a torno para rellenar y maquilar",
+    "tiempos_por_rol": {
+      "mecanico": 240,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-09-28T18:04:29.260Z"
   },
   {
     "id": "TSK-1005",
