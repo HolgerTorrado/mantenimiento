@@ -27,26 +27,26 @@ async function descargarDeLaNube(rutaRelativa) {
     }
 
     // Si el archivo supera 1MB (fotos base64), GitHub Contents API devuelve content vacío / encoding: 'none'.
-    // Usamos raw.githubusercontent.com o Git Blobs API como fallback transparente y robusto.
+    // Usamos Git Blobs API (inmune a caché de CDN) o raw.githubusercontent.com como fallback transparente y robusto.
     if (!contenidoStr && data.sha) {
-      console.log(`[CloudStorage] Archivo ${rutaRelativa} supera 1MB (${data.size} bytes). Descargando via Raw/Blob API...`);
+      console.log(`[CloudStorage] Archivo ${rutaRelativa} supera 1MB (${data.size} bytes). Descargando via Git Blobs API...`);
       try {
-        const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/${STORAGE_BRANCH}/${rutaRelativa}?t=${Date.now()}`;
-        const rawRes = await fetch(rawUrl, {
+        const blobUrl = `https://api.github.com/repos/${GITHUB_REPO}/git/blobs/${data.sha}`;
+        const blobRes = await fetch(blobUrl, {
           headers: {
             'Authorization': `token ${GITHUB_TOKEN}`,
             'User-Agent': 'SIMAN-CloudStorage',
-            'Cache-Control': 'no-cache'
+            'Accept': 'application/vnd.github.raw'
           }
         });
-        if (rawRes.ok) {
-          contenidoStr = await rawRes.text();
+        if (blobRes.ok) {
+          contenidoStr = await blobRes.text();
         }
       } catch(e) {
-        console.warn(`[CloudStorage] Fallo al leer Raw URL para ${rutaRelativa}:`, e.message);
+        console.warn(`[CloudStorage] Fallo al leer Git Blob raw para ${rutaRelativa}:`, e.message);
       }
 
-      // Si falla Raw, intentamos directamente el endpoint de Blobs de GitHub
+      // Si falla Git Blob raw, intentamos Git Blobs API JSON
       if (!contenidoStr) {
         try {
           const blobUrl = `https://api.github.com/repos/${GITHUB_REPO}/git/blobs/${data.sha}`;
@@ -64,7 +64,26 @@ async function descargarDeLaNube(rutaRelativa) {
             }
           }
         } catch(e) {
-          console.warn(`[CloudStorage] Fallo al leer Git Blob para ${rutaRelativa}:`, e.message);
+          console.warn(`[CloudStorage] Fallo al leer Git Blob JSON para ${rutaRelativa}:`, e.message);
+        }
+      }
+
+      // Fallback final: Raw GitHub URL
+      if (!contenidoStr) {
+        try {
+          const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/${STORAGE_BRANCH}/${rutaRelativa}?t=${Date.now()}`;
+          const rawRes = await fetch(rawUrl, {
+            headers: {
+              'Authorization': `token ${GITHUB_TOKEN}`,
+              'User-Agent': 'SIMAN-CloudStorage',
+              'Cache-Control': 'no-cache'
+            }
+          });
+          if (rawRes.ok) {
+            contenidoStr = await rawRes.text();
+          }
+        } catch(e) {
+          console.warn(`[CloudStorage] Fallo al leer Raw URL para ${rutaRelativa}:`, e.message);
         }
       }
     }
