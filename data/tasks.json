@@ -247,7 +247,7 @@
     "completado_por_nombre": "Diego Chamorro",
     "completado_en": "2026-09-27T03:48:18.347Z",
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-28T03:42:16.096Z",
+    "modificado_en": "2026-09-28T03:42:28.349Z",
     "roles_asignados": [
       "mecanico"
     ],
@@ -267,7 +267,7 @@
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 120,
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 120,
       "electrico": 0,
       "maquinista": 0
     }
