@@ -137,14 +137,20 @@ function verificarSesionDashboard() {
     if (nombreEl) nombreEl.innerText = user.nombre || user.username;
     if (rolEl) rolEl.innerText = user.rol.toUpperCase();
 
-    // Solo el administrador Holger puede ver botones de admin (crear tarea, usuarios, respaldo)
+    // Roles de gestión con permisos para crear tareas y gestionar colaboradores
+    const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
+    const esGestion = ROLES_GESTION.includes(user.rol);
+
     const btnCrear = document.getElementById('btn-crear-tarea-dashboard');
     const btnUsers = document.getElementById('btn-admin-usuarios');
     const btnBackup = document.getElementById('btn-admin-backup');
-    if (user.rol === 'admin') {
+    if (esGestion) {
       if (btnCrear) btnCrear.classList.remove('hidden');
       if (btnUsers) btnUsers.classList.remove('hidden');
-      if (btnBackup) btnBackup.classList.remove('hidden');
+      if (btnBackup) {
+        if (user.rol === 'admin') btnBackup.classList.remove('hidden');
+        else btnBackup.classList.add('hidden');
+      }
     } else {
       if (btnCrear) btnCrear.classList.add('hidden');
       if (btnUsers) btnUsers.classList.add('hidden');
@@ -220,28 +226,46 @@ async function cargarMecanicosSelect() {
   }
 }
 
+function getInfoRolColaborador(t) {
+  let iconRol = 'fa-wrench text-emerald-400';
+  let badgeRol = 'bg-emerald-950 text-emerald-300 border-emerald-800';
+  let rolTxt = 'Mecánico';
+  if (t.rol === 'electrico') {
+    iconRol = 'fa-bolt text-amber-400';
+    badgeRol = 'bg-amber-950 text-amber-300 border-amber-800';
+    rolTxt = 'Eléctrico';
+  } else if (t.rol === 'maquinista') {
+    iconRol = 'fa-tractor text-orange-400';
+    badgeRol = 'bg-orange-950 text-orange-300 border-orange-800';
+    rolTxt = 'Maquinista';
+  } else if (t.rol === 'auxiliar') {
+    iconRol = 'fa-screwdriver-wrench text-teal-400';
+    badgeRol = 'bg-teal-950 text-teal-300 border-teal-800';
+    rolTxt = 'Aux. Mecánico';
+  } else if (t.rol === 'operario') {
+    iconRol = 'fa-helmet-safety text-cyan-400';
+    badgeRol = 'bg-cyan-950 text-cyan-300 border-cyan-800';
+    rolTxt = 'Operario';
+  } else if (t.rol === 'supernumerario') {
+    iconRol = 'fa-user-clock text-sky-400';
+    badgeRol = 'bg-sky-950 text-sky-300 border-sky-800';
+    rolTxt = 'Supernumerario';
+  }
+  const tagApoyo = (t.es_apoyo || t.sin_cuenta) ? '<span class="text-[9px] text-teal-300/80 font-normal ml-0.5">(Apoyo)</span>' : '';
+  return { iconRol, badgeRol, rolTxt, tagApoyo };
+}
+
 function poblarCheckboxesTecnicos() {
   const cont = document.getElementById('contenedor-checkboxes-tecnicos');
   if (!cont) return;
 
   if (listaTecnicosDisponibles.length === 0) {
-    cont.innerHTML = '<p class="text-[11px] text-slate-500 p-2 col-span-2">No hay técnicos registrados aún. Crea usuarios con rol Mecánico, Eléctrico o Maquinista.</p>';
+    cont.innerHTML = '<p class="text-[11px] text-slate-500 p-2 col-span-2">No hay colaboradores registrados. Registra técnicos o personal de apoyo en el panel.</p>';
     return;
   }
 
   cont.innerHTML = listaTecnicosDisponibles.map(t => {
-    let iconRol = 'fa-wrench text-emerald-400';
-    let badgeRol = 'bg-emerald-950 text-emerald-300 border-emerald-800';
-    let rolTxt = 'Mecánico';
-    if (t.rol === 'electrico') {
-      iconRol = 'fa-bolt text-amber-400';
-      badgeRol = 'bg-amber-950 text-amber-300 border-amber-800';
-      rolTxt = 'Eléctrico';
-    } else if (t.rol === 'maquinista') {
-      iconRol = 'fa-tractor text-orange-400';
-      badgeRol = 'bg-orange-950 text-orange-300 border-orange-800';
-      rolTxt = 'Maquinista';
-    }
+    const info = getInfoRolColaborador(t);
 
     return `
       <label class="cursor-pointer border border-slate-700/80 rounded-lg p-2 flex items-center justify-between text-xs hover:bg-slate-800/80 transition has-[:checked]:border-indigo-500 has-[:checked]:bg-indigo-950/30">
@@ -249,8 +273,8 @@ function poblarCheckboxesTecnicos() {
           <input type="checkbox" name="tecnicos_asignados" value="${escaparHTML(t.nombre)}" onchange="actualizarEstadoTrabajoConjunto()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
           <span class="font-medium text-white truncate">${escaparHTML(t.nombre)}</span>
         </div>
-        <span class="text-[10px] px-1.5 py-0.5 rounded border ${badgeRol} flex items-center gap-1 flex-shrink-0">
-          <i class="fa-solid ${iconRol}"></i> ${rolTxt}
+        <span class="text-[10px] px-1.5 py-0.5 rounded border ${info.badgeRol} flex items-center gap-1 flex-shrink-0">
+          <i class="fa-solid ${info.iconRol}"></i> ${info.rolTxt} ${info.tagApoyo}
         </span>
       </label>
     `;
@@ -833,13 +857,71 @@ function escaparHTML(texto) {
 }
 
 // Modal Crear Tarea
+let fotoInicialCrearBase64 = null;
+
+function procesarFotoInicialCrear(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_SIZE = 1024;
+      let width = img.width;
+      let height = img.height;
+      if (width > height) {
+        if (width > MAX_SIZE) {
+          height = Math.round((height * MAX_SIZE) / width);
+          width = MAX_SIZE;
+        }
+      } else {
+        if (height > MAX_SIZE) {
+          width = Math.round((width * MAX_SIZE) / height);
+          height = MAX_SIZE;
+        }
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      fotoInicialCrearBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+      const previewBox = document.getElementById('crear-preview-foto-inicial-box');
+      const previewImg = document.getElementById('crear-preview-foto-inicial-img');
+      const lblNombre = document.getElementById('crear-foto-inicial-nombre');
+
+      if (previewImg) previewImg.src = fotoInicialCrearBase64;
+      if (previewBox) previewBox.classList.remove('hidden');
+      if (lblNombre) lblNombre.innerText = file.name;
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function eliminarFotoInicialCrear() {
+  fotoInicialCrearBase64 = null;
+  const input = document.getElementById('crear-foto-inicial-file');
+  if (input) input.value = '';
+  const previewBox = document.getElementById('crear-preview-foto-inicial-box');
+  const previewImg = document.getElementById('crear-preview-foto-inicial-img');
+  const lblNombre = document.getElementById('crear-foto-inicial-nombre');
+  if (previewImg) previewImg.src = '';
+  if (previewBox) previewBox.classList.add('hidden');
+  if (lblNombre) lblNombre.innerText = 'Sin fotografía adjunta (opcional)';
+}
+
 function abrirModalCrear() {
   fijarOcurrenciaAhora();
+  eliminarFotoInicialCrear();
   document.getElementById('modal-crear').classList.remove('hidden');
 }
 
 function cerrarModalCrear() {
   document.getElementById('modal-crear').classList.add('hidden');
+  eliminarFotoInicialCrear();
 }
 
 function fijarOcurrenciaAhora() {
@@ -857,6 +939,12 @@ async function guardarNuevaTarea(e) {
   const form = e.target;
   const formData = new FormData(form);
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
+
+  if (!ROLES_GESTION.includes(user.rol)) {
+    alert('Acceso Restringido: Solo el Administrador, Supervisor, SST o Director de Planta tienen autorización para crear tareas.');
+    return;
+  }
 
   const roles = Array.from(form.querySelectorAll('input[name="roles_asignados"]:checked')).map(cb => cb.value);
   const tecnicos = Array.from(form.querySelectorAll('input[name="tecnicos_asignados"]:checked')).map(cb => cb.value);
@@ -871,7 +959,8 @@ async function guardarNuevaTarea(e) {
     roles_asignados: roles.length > 0 ? roles : ['mecanico'],
     tecnicos_asignados: tecnicos,
     mecanico_asignado: tecnicos.length > 0 ? tecnicos.join(', ') : 'Sin Asignar',
-    descripcion: formData.get('descripcion')
+    descripcion: formData.get('descripcion'),
+    foto_inicial: fotoInicialCrearBase64
   };
 
   try {
@@ -880,7 +969,8 @@ async function guardarNuevaTarea(e) {
       headers: {
         'Content-Type': 'application/json',
         'x-user-role': user.rol || 'admin',
-        'x-user-username': user.username || 'Holger'
+        'x-user-username': user.username || 'Holger',
+        'x-user-name': user.nombre || 'Administrador'
       },
       body: JSON.stringify(payload)
     });
@@ -888,9 +978,10 @@ async function guardarNuevaTarea(e) {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error al crear tarea');
 
-    mostrarToast('Tarea creada exitosamente por Administrador Holger');
+    mostrarToast('✅ Tarea creada exitosamente');
     cerrarModalCrear();
     form.reset();
+    eliminarFotoInicialCrear();
     cargarTareas();
   } catch (err) {
     alert(err.message);
@@ -906,13 +997,21 @@ function abrirModalDetalle(id) {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
   const esAdmin = user.rol === 'admin';
 
-  // Guardar estado original de foto
+  // Guardar estado original de foto comprobante
   fotoDetalleOriginal = t.foto_comprobante || null;
   nuevaFotoDetalleBase64 = null;
   const inputFoto = document.getElementById('input-cambiar-foto-detalle');
   if (inputFoto) inputFoto.value = '';
   const avisoFoto = document.getElementById('aviso-nueva-foto-detalle');
   if (avisoFoto) avisoFoto.classList.add('hidden');
+
+  // Guardar estado original de foto inicial
+  fotoInicialDetalleOriginal = t.foto_inicial || null;
+  nuevaFotoInicialDetalleBase64 = null;
+  const inputFotoIni = document.getElementById('input-cambiar-foto-inicial-detalle');
+  if (inputFotoIni) inputFotoIni.value = '';
+  const avisoFotoIni = document.getElementById('aviso-nueva-foto-inicial-detalle');
+  if (avisoFotoIni) avisoFotoIni.classList.add('hidden');
 
   // Título e ID
   document.getElementById('det-id-titulo').innerText = `${t.id} - ${t.equipo}`;
@@ -1035,7 +1134,32 @@ function abrirModalDetalle(id) {
     }
   }
 
-  // Fotografía Comprobante con persistencia base64
+  // 1. Fotografía Inicial del Problema con persistencia base64
+  const imgFotoInicial = document.getElementById('det-img-foto-inicial');
+  const sinFotoInicial = document.getElementById('det-sin-foto-inicial');
+  const badgeAmpliarInicial = document.getElementById('det-badge-ampliar-inicial');
+  if (t.foto_inicial) {
+    if (imgFotoInicial) {
+      imgFotoInicial.src = t.foto_inicial;
+      imgFotoInicial.onerror = function() {
+        this.classList.add('hidden');
+        if (badgeAmpliarInicial) badgeAmpliarInicial.classList.add('hidden');
+        if (sinFotoInicial) sinFotoInicial.classList.remove('hidden');
+      };
+      imgFotoInicial.classList.remove('hidden');
+    }
+    if (badgeAmpliarInicial) badgeAmpliarInicial.classList.remove('hidden');
+    if (sinFotoInicial) sinFotoInicial.classList.add('hidden');
+  } else {
+    if (imgFotoInicial) {
+      imgFotoInicial.src = '';
+      imgFotoInicial.classList.add('hidden');
+    }
+    if (badgeAmpliarInicial) badgeAmpliarInicial.classList.add('hidden');
+    if (sinFotoInicial) sinFotoInicial.classList.remove('hidden');
+  }
+
+  // 2. Fotografía Comprobante con persistencia base64
   const imgFoto = document.getElementById('det-img-foto');
   const sinFoto = document.getElementById('det-sin-foto');
   const badgeAmpliar = document.getElementById('det-badge-ampliar');
@@ -1124,19 +1248,7 @@ function poblarCheckboxesTecnicosDetalle(tarea, esAdmin) {
   }
 
   cont.innerHTML = listaTecnicosDisponibles.map(t => {
-    let iconRol = 'fa-wrench text-emerald-400';
-    let badgeRol = 'bg-emerald-950 text-emerald-300 border-emerald-800';
-    let rolTxt = 'Mecánico';
-    if (t.rol === 'electrico') {
-      iconRol = 'fa-bolt text-amber-400';
-      badgeRol = 'bg-amber-950 text-amber-300 border-amber-800';
-      rolTxt = 'Eléctrico';
-    } else if (t.rol === 'maquinista') {
-      iconRol = 'fa-tractor text-orange-400';
-      badgeRol = 'bg-orange-950 text-orange-300 border-orange-800';
-      rolTxt = 'Maquinista';
-    }
-
+    const info = getInfoRolColaborador(t);
     const checked = tecsAsignados.some(nombre => nombre.toLowerCase() === t.nombre.toLowerCase());
     const disabledAttr = esAdmin ? '' : 'disabled';
 
@@ -1146,8 +1258,8 @@ function poblarCheckboxesTecnicosDetalle(tarea, esAdmin) {
           <input type="checkbox" name="det_tecnicos_asignados" value="${escaparHTML(t.nombre)}" ${checked ? 'checked' : ''} ${disabledAttr} onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-indigo-600 focus:ring-0">
           <span class="font-medium text-white truncate">${escaparHTML(t.nombre)}</span>
         </div>
-        <span class="text-[10px] px-1.5 py-0.5 rounded border ${badgeRol} flex items-center gap-1 flex-shrink-0">
-          <i class="fa-solid ${iconRol}"></i> ${rolTxt}
+        <span class="text-[10px] px-1.5 py-0.5 rounded border ${info.badgeRol} flex items-center gap-1 flex-shrink-0">
+          <i class="fa-solid ${info.iconRol}"></i> ${info.rolTxt} ${info.tagApoyo}
         </span>
       </label>
     `;
@@ -1300,12 +1412,101 @@ function cancelarNuevaFotoDetalle() {
   }
 }
 
-// Guardar Modificación Completa de Tarea (Fechas, Roles, Participantes, Tiempos y Foto)
+// Procesar y comprimir nueva foto inicial en el modal de detalle
+function procesarNuevaFotoInicialDetalle(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const MAX_SIZE = 1024;
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > MAX_SIZE) {
+          height = Math.round((height * MAX_SIZE) / width);
+          width = MAX_SIZE;
+        }
+      } else {
+        if (height > MAX_SIZE) {
+          width = Math.round((width * MAX_SIZE) / height);
+          height = MAX_SIZE;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      nuevaFotoInicialDetalleBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+      const imgElement = document.getElementById('det-img-foto-inicial');
+      const sinFoto = document.getElementById('det-sin-foto-inicial');
+      const badgeAmpliar = document.getElementById('det-badge-ampliar-inicial');
+      const aviso = document.getElementById('aviso-nueva-foto-inicial-detalle');
+
+      if (imgElement) {
+        imgElement.src = nuevaFotoInicialDetalleBase64;
+        imgElement.classList.remove('hidden');
+      }
+      if (badgeAmpliar) badgeAmpliar.classList.remove('hidden');
+      if (sinFoto) sinFoto.classList.add('hidden');
+      if (aviso) aviso.classList.remove('hidden');
+    };
+    img.src = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function cancelarNuevaFotoInicialDetalle() {
+  nuevaFotoInicialDetalleBase64 = null;
+  const input = document.getElementById('input-cambiar-foto-inicial-detalle');
+  if (input) input.value = '';
+
+  const aviso = document.getElementById('aviso-nueva-foto-inicial-detalle');
+  if (aviso) aviso.classList.add('hidden');
+
+  const imgElement = document.getElementById('det-img-foto-inicial');
+  const sinFoto = document.getElementById('det-sin-foto-inicial');
+  const badgeAmpliar = document.getElementById('det-badge-ampliar-inicial');
+
+  if (fotoInicialDetalleOriginal) {
+    if (imgElement) {
+      imgElement.src = fotoInicialDetalleOriginal;
+      imgElement.classList.remove('hidden');
+    }
+    if (badgeAmpliar) badgeAmpliar.classList.remove('hidden');
+    if (sinFoto) sinFoto.classList.add('hidden');
+  } else {
+    if (imgElement) {
+      imgElement.src = '';
+      imgElement.classList.add('hidden');
+    }
+    if (badgeAmpliar) badgeAmpliar.classList.add('hidden');
+    if (sinFoto) sinFoto.classList.remove('hidden');
+  }
+}
+
+function abrirFotoInicialDetalleActual() {
+  const imgFoto = document.getElementById('det-img-foto-inicial');
+  const titulo = document.getElementById('det-id-titulo')?.innerText || 'Foto Inicial del Problema';
+  if (imgFoto && imgFoto.src && !imgFoto.classList.contains('hidden')) {
+    abrirVisorFoto(imgFoto.src, `Foto Inicial - ${titulo}`);
+  }
+}
+
+// Guardar Modificación Completa de Tarea (Fechas, Roles, Participantes, Tiempos y Fotos)
 async function guardarEdicionDetalleAdmin() {
   if (!tareaSeleccionadaId) return;
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  if (user.rol !== 'admin') {
-    alert('Solo el Administrador Holger tiene autorización para modificar tareas.');
+  const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
+  if (!ROLES_GESTION.includes(user.rol)) {
+    alert('Acceso Restringido: Solo personal de gestión (Administrador, Supervisor, SST o Director) tiene autorización para modificar tareas.');
     return;
   }
 
@@ -1373,6 +1574,9 @@ async function guardarEdicionDetalleAdmin() {
   if (nuevaFotoDetalleBase64) {
     payload.foto_base64 = nuevaFotoDetalleBase64;
   }
+  if (nuevaFotoInicialDetalleBase64) {
+    payload.foto_inicial_base64 = nuevaFotoInicialDetalleBase64;
+  }
 
   const origHtml = btn ? btn.innerHTML : '';
   if (btn) {
@@ -1393,7 +1597,9 @@ async function guardarEdicionDetalleAdmin() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error al actualizar tarea');
 
-    mostrarToast('✅ Tarea, roles, personal, tiempos y fotografía actualizados');
+    nuevaFotoDetalleBase64 = null;
+    nuevaFotoInicialDetalleBase64 = null;
+    mostrarToast('✅ Tarea, roles, personal, tiempos y fotografías actualizados');
     cerrarModalDetalle();
     cargarTareas(false);
   } catch(err) {
@@ -1449,7 +1655,7 @@ function eliminarTareaActual() {
 
 async function abrirModalUsuarios() {
   document.getElementById('modal-usuarios').classList.remove('hidden');
-  await cargarListaUsuariosAdmin();
+  await Promise.all([cargarListaUsuariosAdmin(), cargarListaPersonalApoyo()]);
 }
 
 function cerrarModalUsuarios() {
@@ -1468,6 +1674,9 @@ async function cargarListaUsuariosAdmin() {
     tbody.innerHTML = users.map(u => {
       let badgeRol = '';
       if (u.rol === 'admin') badgeRol = '<span class="bg-blue-900/60 text-blue-300 border border-blue-500/40 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-crown mr-1"></i>ADMIN</span>';
+      else if (u.rol === 'supervisor') badgeRol = '<span class="bg-sky-950 text-sky-300 border border-sky-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-helmet-safety mr-1"></i>SUPERVISOR</span>';
+      else if (u.rol === 'sst') badgeRol = '<span class="bg-emerald-950 text-emerald-300 border border-emerald-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-shield-halved mr-1"></i>SST</span>';
+      else if (u.rol === 'director') badgeRol = '<span class="bg-indigo-950 text-indigo-300 border border-indigo-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-building mr-1"></i>DIRECTOR</span>';
       else if (u.rol === 'electrico') badgeRol = '<span class="bg-amber-950 text-amber-300 border border-amber-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-bolt mr-1"></i>ELÉCTRICO</span>';
       else if (u.rol === 'maquinista') badgeRol = '<span class="bg-orange-950 text-orange-300 border border-orange-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-tractor mr-1"></i>MAQUINISTA</span>';
       else if (u.rol === 'visualizador') badgeRol = '<span class="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-eye mr-1"></i>SOLO VER</span>';
@@ -1483,6 +1692,9 @@ async function cargarListaUsuariosAdmin() {
               <option value="mecanico" ${u.rol === 'mecanico' ? 'selected' : ''}>🔧 Mecánico</option>
               <option value="electrico" ${u.rol === 'electrico' ? 'selected' : ''}>⚡ Eléctrico</option>
               <option value="maquinista" ${u.rol === 'maquinista' ? 'selected' : ''}>🚜 Maquinista</option>
+              <option value="supervisor" ${u.rol === 'supervisor' ? 'selected' : ''}>👷 Supervisor</option>
+              <option value="sst" ${u.rol === 'sst' ? 'selected' : ''}>🦺 SST</option>
+              <option value="director" ${u.rol === 'director' ? 'selected' : ''}>🏢 Director</option>
               <option value="visualizador" ${u.rol === 'visualizador' ? 'selected' : ''}>👁️ Solo Ver</option>
             </select>
           </div>
@@ -1581,6 +1793,113 @@ async function eliminarUsuarioAdmin(id, nombre, username) {
     await cargarListaUsuariosAdmin();
     cargarMecanicosSelect();
   } catch (err) {
+    alert(err.message);
+  }
+}
+
+// ================= GESTIÓN DE PERSONAL DE APOYO (SIN CUENTA) =================
+async function cargarListaPersonalApoyo() {
+  const tbody = document.getElementById('tabla-apoyo-body');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Cargando personal de apoyo...</td></tr>';
+
+  try {
+    const res = await fetch('/api/personal-apoyo');
+    const colaboradores = await res.json();
+
+    if (!Array.isArray(colaboradores) || colaboradores.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">No hay colaboradores de apoyo registrados aún. Puedes registrar auxiliares u operarios arriba.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = colaboradores.map(c => {
+      let icon = '🛠️';
+      let badge = 'bg-teal-950 text-teal-300 border border-teal-800';
+      let nombreRol = 'Auxiliar Mecánico';
+      if (c.rol === 'operario') {
+        icon = '👷';
+        badge = 'bg-cyan-950 text-cyan-300 border border-cyan-800';
+        nombreRol = 'Operario de Planta';
+      } else if (c.rol === 'supernumerario') {
+        icon = '⏱️';
+        badge = 'bg-sky-950 text-sky-300 border border-sky-800';
+        nombreRol = 'Supernumerario';
+      }
+
+      return `
+        <tr>
+          <td class="py-2.5 px-3 font-bold text-white">${escaparHTML(c.nombre)}</td>
+          <td class="py-2.5 px-3">
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded ${badge}">
+              ${icon} ${nombreRol}
+            </span>
+          </td>
+          <td class="py-2.5 px-3 text-slate-300 text-[11px]">${escaparHTML(c.especialidad || '-')}</td>
+          <td class="py-2.5 px-3 text-right">
+            <button onclick="eliminarPersonalApoyo('${c.id}', '${escaparHTML(c.nombre)}')" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-800/40 rounded hover:bg-rose-900 transition">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  } catch(err) {
+    tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-400">Error al cargar colaboradores de apoyo</td></tr>';
+  }
+}
+
+async function guardarNuevoPersonalApoyo(e) {
+  e.preventDefault();
+  const nombre = document.getElementById('apoyo-nombre')?.value.trim();
+  const rol = document.getElementById('apoyo-rol')?.value;
+  const especialidad = document.getElementById('apoyo-especialidad')?.value.trim();
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+
+  if (!nombre) return;
+
+  try {
+    const res = await fetch('/api/personal-apoyo', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger'
+      },
+      body: JSON.stringify({ nombre, rol, especialidad })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al registrar colaborador');
+
+    mostrarToast(`✅ ${data.mensaje || 'Colaborador registrado'}`);
+    document.getElementById('form-crear-apoyo')?.reset();
+    await cargarListaPersonalApoyo();
+    await cargarMecanicosSelect();
+  } catch(err) {
+    alert(err.message);
+  }
+}
+
+async function eliminarPersonalApoyo(id, nombre) {
+  if (!confirm(`¿Está seguro de eliminar al colaborador de apoyo ${nombre}?`)) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+
+  try {
+    const res = await fetch(`/api/personal-apoyo/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      headers: {
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger'
+      }
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al eliminar');
+
+    mostrarToast(data.mensaje || 'Colaborador eliminado');
+    await cargarListaPersonalApoyo();
+    await cargarMecanicosSelect();
+  } catch(err) {
     alert(err.message);
   }
 }

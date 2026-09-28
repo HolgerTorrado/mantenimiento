@@ -83,26 +83,31 @@ function verificarSesionMovil() {
       let rolBadge = '<span class="text-[9px] text-emerald-300 opacity-80">(Mecánico)</span>';
       if (user.rol === 'electrico') { icon = '⚡'; rolBadge = '<span class="text-[9px] text-amber-300 opacity-80">(Eléctrico)</span>'; }
       else if (user.rol === 'maquinista') { icon = '🚜'; rolBadge = '<span class="text-[9px] text-orange-300 opacity-80">(Maquinista)</span>'; }
+      else if (user.rol === 'supervisor') { icon = '👷'; rolBadge = '<span class="text-[9px] font-bold text-sky-300 bg-sky-950/80 px-1.5 py-0.5 rounded border border-sky-500/40">SUPERVISOR</span>'; }
+      else if (user.rol === 'sst') { icon = '🦺'; rolBadge = '<span class="text-[9px] font-bold text-emerald-300 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/40">SST</span>'; }
+      else if (user.rol === 'director') { icon = '🏢'; rolBadge = '<span class="text-[9px] font-bold text-indigo-300 bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-500/40">DIRECTOR</span>'; }
       else if (user.rol === 'admin') { icon = '👑'; rolBadge = '<span class="text-[9px] font-bold text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/40">ADMIN</span>'; }
       else if (user.rol === 'visualizador') { icon = '👁️'; rolBadge = '<span class="text-[9px] text-purple-300 opacity-80">(Visualizador)</span>'; }
 
       label.innerHTML = `${icon} <span class="font-bold text-white">${escaparHTMLMovil(user.nombre || user.username)}</span> ${rolBadge}`;
     }
 
-    // Si es Administrador o Visualizador, habilitar botón de cambiar a Vista PC
+    const esGestion = ['admin', 'supervisor', 'sst', 'director'].includes(user.rol);
+
+    // Si tiene rol de gestión o es Visualizador, habilitar botón de cambiar a Vista PC
     const btnPC = document.getElementById('btn-ir-pc-dashboard');
     if (btnPC) {
-      if (user.rol === 'admin' || user.rol === 'visualizador') {
+      if (esGestion || user.rol === 'visualizador') {
         btnPC.classList.remove('hidden');
       } else {
         btnPC.classList.add('hidden');
       }
     }
 
-    // Si es Administrador, habilitar botón de crear tarea en barra móvil
+    // Si tiene rol de gestión, habilitar botón de crear tarea en barra móvil
     const btnCrear = document.getElementById('btn-crear-tarea-movil');
     if (btnCrear) {
-      if (user.rol === 'admin') {
+      if (esGestion) {
         btnCrear.classList.remove('hidden');
       } else {
         btnCrear.classList.add('hidden');
@@ -140,11 +145,43 @@ function cerrarModalCrearMovil() {
   if (modal) modal.classList.add('hidden');
 }
 
+let fotoInicialCrearMovilBase64 = null;
+
+async function previsualizarFotoInicialCrearMovil(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+
+  try {
+    mostrarToastMovil('Comprimiendo foto inicial...');
+    fotoInicialCrearMovilBase64 = await comprimirImagenCanvas(file, 1024, 0.72);
+    const img = document.getElementById('img-previa-inicial-crear-movil');
+    if (img) img.src = fotoInicialCrearMovilBase64;
+    document.getElementById('box-sin-foto-inicial-crear-movil')?.classList.add('hidden');
+    document.getElementById('box-con-foto-inicial-crear-movil')?.classList.remove('hidden');
+    if (navigator.vibrate) navigator.vibrate(50);
+  } catch(err) {
+    alert('Error al procesar foto: ' + err.message);
+  }
+}
+
+function quitarFotoInicialCrearMovil() {
+  fotoInicialCrearMovilBase64 = null;
+  const cam = document.getElementById('mob-crear-foto-camara');
+  const gal = document.getElementById('mob-crear-foto-galeria');
+  if (cam) cam.value = '';
+  if (gal) gal.value = '';
+  const img = document.getElementById('img-previa-inicial-crear-movil');
+  if (img) img.src = '';
+  document.getElementById('box-con-foto-inicial-crear-movil')?.classList.add('hidden');
+  document.getElementById('box-sin-foto-inicial-crear-movil')?.classList.remove('hidden');
+}
+
 async function guardarNuevaTareaMovil(e) {
   e.preventDefault();
   const user = getUsuarioActivo();
-  if (user.rol !== 'admin') {
-    alert('Solo el Administrador tiene permiso para crear tareas.');
+  const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
+  if (!ROLES_GESTION.includes(user.rol)) {
+    alert('Acceso Restringido: Solo el Administrador, Supervisor, SST o Director de Planta pueden crear tareas.');
     return;
   }
 
@@ -175,7 +212,8 @@ async function guardarNuevaTareaMovil(e) {
       headers: {
         'Content-Type': 'application/json',
         'x-user-role': user.rol || 'admin',
-        'x-user-username': user.username || 'Holger'
+        'x-user-username': user.username || 'Holger',
+        'x-user-name': user.nombre || 'Administrador'
       },
       body: JSON.stringify({
         equipo,
@@ -186,6 +224,7 @@ async function guardarNuevaTareaMovil(e) {
         descripcion,
         roles_asignados: rolesFinales,
         fecha_ocurrencia: localISOTime,
+        foto_inicial: fotoInicialCrearMovilBase64,
         tecnicos_asignados: []
       })
     });
@@ -196,6 +235,7 @@ async function guardarNuevaTareaMovil(e) {
     mostrarToastMovil('✅ Tarea creada exitosamente');
     cerrarModalCrearMovil();
     document.getElementById('form-crear-tarea-movil')?.reset();
+    quitarFotoInicialCrearMovil();
     cargarTareasMovil(false);
   } catch(err) {
     alert(err.message);
@@ -308,7 +348,7 @@ function getUsuarioActivo() {
 // Filtrar tareas según el rol del usuario conectado y tareas en conjunto
 function filtrarTareasPorUsuario(tareas) {
   const user = getUsuarioActivo();
-  if (!user || user.rol === 'admin' || user.rol === 'visualizador') {
+  if (!user || ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(user.rol)) {
     return tareas;
   }
 
@@ -635,6 +675,19 @@ function renderTareasMovil() {
 
         <!-- Descripción si existe -->
         ${t.descripcion ? `<p class="mt-2 text-xs text-slate-300 line-clamp-2 bg-slate-900/30 p-2 rounded-lg">${escaparHTMLMovil(t.descripcion)}</p>` : ''}
+
+        <!-- Foto Inicial del Daño / Guía para el técnico si existe -->
+        ${t.foto_inicial ? `
+          <div class="mt-2.5 rounded-xl overflow-hidden border border-sky-500/40 bg-slate-950 flex flex-col items-center justify-center relative group cursor-pointer" onclick="abrirVisorFoto('${t.foto_inicial}', 'Foto Inicial - ${t.id} - ${escaparHTMLMovil(t.equipo)}'); event.stopPropagation();" title="Toca para ver el problema en grande">
+            <img src="${t.foto_inicial}" alt="Problema Reportado" class="w-full max-h-40 object-contain rounded-lg p-1 transition hover:scale-[1.02]">
+            <div class="w-full bg-slate-900/90 border-t border-slate-800 py-1 px-2.5 flex items-center justify-between text-[11px] text-slate-300">
+              <span class="flex items-center gap-1 text-sky-400 font-semibold text-[10px]"><i class="fa-solid fa-camera"></i> Foto Inicial (Problema Reportado)</span>
+              <span class="text-[9px] text-sky-400 font-bold bg-sky-950/80 px-1.5 py-0.5 rounded border border-sky-500/30 flex items-center gap-1">
+                <i class="fa-solid fa-expand"></i> Ver Grande
+              </span>
+            </div>
+          </div>
+        ` : ''}
 
         <!-- Botones de Acción -->
         ${botonesAccion}
@@ -1033,7 +1086,18 @@ function abrirDetalleTareaMovil(id) {
     badgeTipo.className = `px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${cfg.bg}`;
   }
 
-  // Foto
+  // Foto Inicial (Problema Reportado "Antes")
+  const boxFotoInicial = document.getElementById('mob-det-box-foto-inicial');
+  const imgInicial = document.getElementById('mob-det-img-inicial');
+  if (t.foto_inicial) {
+    if (imgInicial) imgInicial.src = t.foto_inicial;
+    if (boxFotoInicial) boxFotoInicial.classList.remove('hidden');
+  } else {
+    if (imgInicial) imgInicial.src = '';
+    if (boxFotoInicial) boxFotoInicial.classList.add('hidden');
+  }
+
+  // Foto Comprobante (Reparación Final "Después")
   const boxFoto = document.getElementById('mob-det-box-foto');
   const sinFoto = document.getElementById('mob-det-sin-foto');
   const img = document.getElementById('mob-det-img');
@@ -1042,6 +1106,7 @@ function abrirDetalleTareaMovil(id) {
     if (boxFoto) boxFoto.classList.remove('hidden');
     if (sinFoto) sinFoto.classList.add('hidden');
   } else {
+    if (img) img.src = '';
     if (boxFoto) boxFoto.classList.add('hidden');
     if (sinFoto) sinFoto.classList.remove('hidden');
   }
@@ -1182,7 +1247,13 @@ function cerrarDetalleTareaMovil() {
 
 function abrirFotoDetalleMovilActual() {
   if (tareaDetalleMovilActual && tareaDetalleMovilActual.foto_comprobante) {
-    abrirVisorFoto(tareaDetalleMovilActual.foto_comprobante, `${tareaDetalleMovilActual.id} - ${tareaDetalleMovilActual.equipo}`);
+    abrirVisorFoto(tareaDetalleMovilActual.foto_comprobante, `Foto Final - ${tareaDetalleMovilActual.id} - ${tareaDetalleMovilActual.equipo}`);
+  }
+}
+
+function abrirFotoInicialDetalleMovilActual() {
+  if (tareaDetalleMovilActual && tareaDetalleMovilActual.foto_inicial) {
+    abrirVisorFoto(tareaDetalleMovilActual.foto_inicial, `Foto Inicial - ${tareaDetalleMovilActual.id} - ${tareaDetalleMovilActual.equipo}`);
   }
 }
 

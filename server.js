@@ -220,15 +220,32 @@ app.post('/api/auth/login', (req, res) => {
   });
 });
 
-// Roles válidos del sistema
-const ROLES_TECNICOS = ['mecanico', 'electrico', 'maquinista'];
-const ROLES_TODOS = ['admin', 'mecanico', 'electrico', 'maquinista', 'visualizador'];
+// Roles administrativos y de gestión con facultad para crear, programar y asignar tareas
+const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
+
+// Roles de técnicos especializados de campo (acceden a la app móvil con cuenta)
+const ROLES_TECNICOS_MOVIL = ['mecanico', 'electrico', 'maquinista'];
+
+// Roles de colaboradores de apoyo de planta (NO requieren cuenta de usuario, solo nombre)
+const ROLES_APOYO = ['auxiliar', 'operario', 'supernumerario'];
+
+// Todos los roles de técnicos y colaboradores de planta
+const ROLES_TECNICOS = [...ROLES_TECNICOS_MOVIL, ...ROLES_APOYO];
+
+// Todos los roles admisibles con cuenta de usuario
+const ROLES_TODOS = ['admin', 'supervisor', 'sst', 'director', 'mecanico', 'electrico', 'maquinista', 'visualizador'];
 
 function getEspecialidadPorRol(rol) {
   switch (rol) {
-    case 'admin': return 'Supervisor de Planta';
+    case 'admin': return 'Administrador General';
+    case 'supervisor': return 'Supervisor de Mantenimiento / Planta';
+    case 'sst': return 'Seguridad y Salud en el Trabajo (SST)';
+    case 'director': return 'Director de Planta';
     case 'electrico': return 'Técnico Electricista';
     case 'maquinista': return 'Operador de Maquinaria';
+    case 'auxiliar': return 'Auxiliar Mecánico';
+    case 'operario': return 'Operario de Planta';
+    case 'supernumerario': return 'Supernumerario';
     case 'visualizador': return 'Solo Lectura';
     case 'mecanico':
     default:
@@ -409,17 +426,19 @@ app.get('/api/network-info', async (req, res) => {
   }
 });
 
-// Helper para obtener todos los técnicos (mecánicos, eléctricos, maquinistas)
+// Helper para obtener todos los técnicos y personal de apoyo de planta
 function obtenerListaTecnicos() {
   const usuarios = leerUsuarios();
   const tecnicos = usuarios
-    .filter(u => ROLES_TECNICOS.includes(u.rol))
+    .filter(u => ROLES_TECNICOS_MOVIL.includes(u.rol))
     .map(u => ({
       id: u.id,
       nombre: u.nombre,
       username: u.username,
       rol: u.rol,
-      especialidad: u.especialidad || getEspecialidadPorRol(u.rol)
+      especialidad: u.especialidad || getEspecialidadPorRol(u.rol),
+      es_apoyo: false,
+      sin_cuenta: false
     }));
 
   const mecanicosExtra = leerMecanicos();
@@ -428,9 +447,11 @@ function obtenerListaTecnicos() {
       tecnicos.push({
         id: m.id || `TEC-${Date.now()}`,
         nombre: m.nombre,
-        username: m.username || m.nombre.toLowerCase().replace(/\s+/g, ''),
+        username: m.username || null,
         rol: m.rol || 'mecanico',
-        especialidad: m.especialidad || 'Mecánico de Planta'
+        especialidad: m.especialidad || getEspecialidadPorRol(m.rol || 'mecanico'),
+        es_apoyo: ROLES_APOYO.includes(m.rol) || m.es_apoyo === true,
+        sin_cuenta: m.sin_cuenta === true || !m.username
       });
     }
   });
@@ -438,13 +459,76 @@ function obtenerListaTecnicos() {
   return tecnicos;
 }
 
-// 2. Listado de técnicos (soporta tanto /api/mecanicos como /api/tecnicos)
+// 2. Listado de técnicos y colaboradores de planta
 app.get('/api/tecnicos', (req, res) => {
   res.json(obtenerListaTecnicos());
 });
 
 app.get('/api/mecanicos', (req, res) => {
   res.json(obtenerListaTecnicos());
+});
+
+// 2.1. Gestión de Personal de Apoyo (Auxiliares, Operarios y Supernumerarios sin cuenta)
+app.get('/api/personal-apoyo', (req, res) => {
+  const mecanicos = leerMecanicos();
+  const apoyo = mecanicos.filter(m => ROLES_APOYO.includes(m.rol) || m.es_apoyo === true || m.sin_cuenta === true);
+  res.json(apoyo);
+});
+
+app.post('/api/personal-apoyo', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (!ROLES_GESTION.includes(userRol)) {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador, Supervisor, SST o Director pueden registrar personal de apoyo.' });
+  }
+
+  const { nombre, rol, especialidad } = req.body;
+  if (!nombre || !nombre.trim()) {
+    return res.status(400).json({ error: 'El nombre del colaborador es obligatorio' });
+  }
+
+  const rolValido = ROLES_APOYO.includes(rol) ? rol : 'auxiliar';
+  const espDefecto = especialidad ? especialidad.trim() : getEspecialidadPorRol(rolValido);
+
+  const mecanicos = leerMecanicos();
+  if (mecanicos.some(m => m.nombre.toLowerCase() === nombre.trim().toLowerCase())) {
+    return res.status(400).json({ error: 'Ya existe un colaborador registrado con este nombre' });
+  }
+
+  const nuevoApoyo = {
+    id: `APOYO-${String(mecanicos.length + 1).padStart(2, '0')}`,
+    nombre: nombre.trim(),
+    username: null,
+    rol: rolValido,
+    especialidad: espDefecto,
+    es_apoyo: true,
+    sin_cuenta: true,
+    creado_en: new Date().toISOString()
+  };
+
+  mecanicos.push(nuevoApoyo);
+  guardarMecanicos(mecanicos);
+
+  res.status(201).json({
+    mensaje: `Colaborador de apoyo ${nuevoApoyo.nombre} (${nuevoApoyo.especialidad}) registrado exitosamente`,
+    colaborador: nuevoApoyo
+  });
+});
+
+app.delete('/api/personal-apoyo/:id', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (!ROLES_GESTION.includes(userRol)) {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo personal de gestión puede eliminar personal de apoyo.' });
+  }
+
+  let mecanicos = leerMecanicos();
+  const target = req.params.id;
+  const idx = mecanicos.findIndex(m => m.id === target || m.nombre.toLowerCase() === decodeURIComponent(target).toLowerCase());
+  if (idx === -1) return res.status(404).json({ error: 'Colaborador no encontrado' });
+
+  const eliminado = mecanicos.splice(idx, 1)[0];
+  guardarMecanicos(mecanicos);
+
+  res.json({ mensaje: `Colaborador ${eliminado.nombre} eliminado correctamente` });
 });
 
 // 3. Obtener tareas con filtros opcionales
@@ -521,24 +605,26 @@ app.get('/api/tasks/:id', (req, res) => {
   res.json(tarea);
 });
 
-// 5. Crear nueva tarea de mantenimiento (Exclusivo Administrador Holger)
+// 5. Crear nueva tarea de mantenimiento (Admin, Supervisor, SST, Director de Planta)
 app.post('/api/tasks', (req, res) => {
-  const userRol = req.headers['x-user-role'];
-  if (userRol !== 'admin') {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador Holger tiene autorización para crear y programar tareas.' });
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (!ROLES_GESTION.includes(userRol)) {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador, Supervisor, SST o Director de Planta tienen autorización para crear y programar tareas.' });
   }
 
   const {
     equipo,
     titulo,
-    tipo, // preventivo, correctivo, predictivo
+    tipo, // preventivo, correctivo, predictivo, mejora, locativo, 5s, instalacion, lubricacion, otro
     prioridad, // baja, media, alta, critica
     ubicacion,
     descripcion,
     mecanico_asignado,
     roles_asignados,
     tecnicos_asignados,
-    fecha_ocurrencia
+    fecha_ocurrencia,
+    foto_inicial,
+    creado_por
   } = req.body;
 
   if (!equipo || !tipo || !fecha_ocurrencia) {
@@ -609,8 +695,11 @@ app.post('/api/tasks', (req, res) => {
     fecha_arreglo: null,
     estado: 'pendiente',
     notas_mecanico: null,
+    foto_inicial: (foto_inicial && String(foto_inicial).length > 20) ? foto_inicial : null,
     foto_comprobante: null,
     tiempo_arreglo_minutos: null,
+    creado_por_usuario: (req.headers['x-user-name'] || req.headers['x-user-username'] || creado_por || 'Usuario').trim(),
+    creado_por_rol: userRol || 'admin',
     creado_en: new Date().toISOString()
   };
 
@@ -750,11 +839,11 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
   });
 });
 
-// 7.1. Actualizar y Modificar Tarea Completa (Exclusivo Administrador Holger)
+// 7.1. Actualizar y Modificar Tarea Completa (Admin, Supervisor, SST, Director de Planta)
 app.put('/api/tasks/:id', (req, res) => {
-  const userRol = req.headers['x-user-role'];
-  if (userRol !== 'admin') {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador Holger tiene permiso para editar tareas y tiempos.' });
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (!ROLES_GESTION.includes(userRol)) {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo el personal de gestión (Administrador, Supervisor, SST o Director) tiene permiso para editar tareas y tiempos.' });
   }
 
   let tareas = leerTareas();
@@ -770,6 +859,8 @@ app.put('/api/tasks/:id', (req, res) => {
     tecnicos_asignados,
     foto_base64,
     foto_comprobante,
+    foto_inicial,
+    foto_inicial_base64,
     tiempo_espera_minutos,
     motivo_espera,
     tiempo_trabajo_activo_minutos,
@@ -786,12 +877,20 @@ app.put('/api/tasks/:id', (req, res) => {
   if (fecha_arreglo !== undefined) tareas[idx].fecha_arreglo = fecha_arreglo || null;
   if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
 
-  // Actualizar fotografía si se envía nueva
+  // Actualizar fotografía comprobante si se envía nueva
   if (foto_base64 && foto_base64.startsWith('data:image/')) {
     tareas[idx].foto_comprobante = foto_base64;
     tareas[idx].foto_actualizada_en = new Date().toISOString();
   } else if (foto_comprobante !== undefined) {
     tareas[idx].foto_comprobante = foto_comprobante;
+  }
+
+  // Actualizar fotografía inicial del daño o reporte si se envía
+  if (foto_inicial_base64 && foto_inicial_base64.startsWith('data:image/')) {
+    tareas[idx].foto_inicial = foto_inicial_base64;
+    tareas[idx].foto_inicial_actualizada_en = new Date().toISOString();
+  } else if (foto_inicial !== undefined) {
+    tareas[idx].foto_inicial = foto_inicial;
   }
   
   // Modificar roles asignados (permite añadir eléctrico o maquinista si se agravó el daño)
@@ -922,6 +1021,33 @@ app.post('/api/tasks/:id/foto', (req, res) => {
   guardarTareas(tareas);
   res.json({
     mensaje: 'Fotografía actualizada y respaldada en la nube con éxito',
+    tarea: tareas[idx]
+  });
+});
+
+// 7.3. Actualizar o Cambiar Fotografía Inicial del Daño / Reporte
+app.post('/api/tasks/:id/foto-inicial', (req, res) => {
+  const userRol = req.headers['x-user-role'];
+  if (userRol === 'visualizador') {
+    return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para modificar fotografías.' });
+  }
+
+  let tareas = leerTareas();
+  const idx = tareas.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  const { foto_base64 } = req.body;
+  if (!foto_base64 || !foto_base64.startsWith('data:image/')) {
+    return res.status(400).json({ error: 'Se requiere una imagen válida en formato Data URL Base64.' });
+  }
+
+  tareas[idx].foto_inicial = foto_base64;
+  tareas[idx].foto_inicial_actualizada_en = new Date().toISOString();
+  tareas[idx].foto_inicial_actualizada_por = req.headers['x-user-name'] || req.headers['x-user-username'] || 'Usuario';
+
+  guardarTareas(tareas);
+  res.json({
+    mensaje: 'Fotografía inicial de la falla actualizada con éxito',
     tarea: tareas[idx]
   });
 });

@@ -35,7 +35,7 @@
             // Detección automática: Si es celular/tablet, enviar a la interfaz móvil
             if (esDispositivoMovil()) {
               window.location.replace('/mecanico');
-            } else if (user.rol === 'admin' || user.rol === 'visualizador') {
+            } else if (['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(user.rol)) {
               window.location.replace('/dashboard');
             } else {
               window.location.replace('/mecanico');
@@ -185,7 +185,7 @@
         if (esMovil) {
           // Si el usuario ingresa desde teléfono celular o tablet -> Versión Móvil adaptada
           window.location.replace('/mecanico');
-        } else if (data.user.rol === 'admin' || data.user.rol === 'visualizador') {
+        } else if (['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(data.user.rol)) {
           // Si el usuario ingresa desde PC de escritorio o laptop -> Dashboard Completo
           window.location.replace('/dashboard');
         } else {

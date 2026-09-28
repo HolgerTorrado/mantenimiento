@@ -543,6 +543,54 @@
           <textarea id="mob-crear-descripcion" rows="2" placeholder="Detalles de la avería..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:ring-1 focus:ring-emerald-500 placeholder-slate-500"></textarea>
         </div>
 
+        <!-- FOTO INICIAL DEL PROBLEMA / FALLA (OPCIONAL) -->
+        <div>
+          <label class="block text-slate-300 font-bold mb-1 flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-camera text-sky-400"></i> Foto Inicial del Problema</span>
+            <span class="text-[10px] text-slate-400">Para guiar al técnico</span>
+          </label>
+
+          <input 
+            type="file" 
+            id="mob-crear-foto-camara" 
+            accept="image/*" 
+            capture="environment" 
+            onchange="previsualizarFotoInicialCrearMovil(event)"
+            class="hidden"
+          >
+          <input 
+            type="file" 
+            id="mob-crear-foto-galeria" 
+            accept="image/*" 
+            onchange="previsualizarFotoInicialCrearMovil(event)"
+            class="hidden"
+          >
+
+          <!-- Botones Foto Inicial -->
+          <div id="box-sin-foto-inicial-crear-movil" class="border border-dashed border-sky-500/40 bg-slate-950/60 rounded-xl p-3 text-center space-y-2">
+            <div class="flex items-center justify-center gap-2">
+              <button type="button" onclick="document.getElementById('mob-crear-foto-camara').click()" class="py-2 px-3 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-lg transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-camera"></i> Tomar Foto
+              </button>
+              <button type="button" onclick="document.getElementById('mob-crear-foto-galeria').click()" class="py-2 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold rounded-lg transition flex items-center gap-1.5">
+                <i class="fa-solid fa-images text-indigo-400"></i> Galería
+              </button>
+            </div>
+            <span class="text-[10px] text-slate-400 block">Toma foto de la avería o reporte antes de empezar</span>
+          </div>
+
+          <!-- Preview Foto Inicial -->
+          <div id="box-con-foto-inicial-crear-movil" class="hidden relative border border-sky-500/50 bg-slate-950 rounded-xl p-2 space-y-2">
+            <img id="img-previa-inicial-crear-movil" src="" alt="Previa Foto Inicial" class="w-full max-h-40 object-contain rounded-lg bg-black">
+            <div class="flex justify-between items-center text-[10px]">
+              <span class="text-sky-400 font-bold flex items-center gap-1"><i class="fa-solid fa-check"></i> Foto del problema lista</span>
+              <button type="button" onclick="quitarFotoInicialCrearMovil()" class="text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-trash-can"></i> Quitar foto
+              </button>
+            </div>
+          </div>
+        </div>
+
         <div class="pt-2">
           <button type="submit" id="btn-submit-crear-movil" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-sm font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2">
             <i class="fa-solid fa-check"></i>
@@ -571,18 +619,37 @@
       <!-- Cuerpo scrolleable -->
       <div class="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs pb-safe">
         
-        <!-- FOTO COMPROBANTE GRANDE -->
-        <div id="mob-det-box-foto" class="hidden bg-slate-950 rounded-2xl border border-slate-700 overflow-hidden relative group">
-          <img id="mob-det-img" src="" alt="Comprobante" onclick="abrirFotoDetalleMovilActual()" class="w-full max-h-60 object-contain bg-black cursor-pointer">
-          <div class="absolute bottom-2 right-2 bg-slate-900/90 text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-slate-700 flex items-center gap-1 shadow pointer-events-none">
-            <i class="fa-solid fa-expand text-emerald-400"></i> Pantalla Completa
+        <!-- FOTOGRAFÍAS: INICIAL (PROBLEMA ANTES) Y FINAL (COMPROBANTE DESPUÉS) -->
+        <div class="space-y-2.5">
+          <!-- 1. FOTO INICIAL DEL PROBLEMA (SI EXISTE) -->
+          <div id="mob-det-box-foto-inicial" class="hidden bg-slate-950 rounded-2xl border border-sky-500/40 overflow-hidden relative group">
+            <div class="px-3 py-1.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-[11px]">
+              <span class="text-sky-400 font-bold flex items-center gap-1"><i class="fa-solid fa-camera"></i> Foto Inicial (Problema Reportado)</span>
+              <span class="text-[9px] text-sky-300 bg-sky-950 px-1.5 py-0.5 rounded border border-sky-600/30">Antes</span>
+            </div>
+            <img id="mob-det-img-inicial" src="" alt="Problema Inicial" onclick="abrirFotoInicialDetalleMovilActual()" class="w-full max-h-52 object-contain bg-black cursor-pointer">
+            <div class="absolute bottom-2 right-2 bg-slate-900/90 text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-slate-700 flex items-center gap-1 shadow pointer-events-none">
+              <i class="fa-solid fa-expand text-sky-400"></i> Ver Grande
+            </div>
           </div>
-        </div>
 
-        <!-- Sin foto aviso si aplica -->
-        <div id="mob-det-sin-foto" class="hidden bg-slate-900/60 border border-dashed border-slate-700 rounded-2xl p-4 text-center text-slate-400">
-          <i class="fa-regular fa-image text-2xl text-slate-500 block mb-1"></i>
-          <span>Sin fotografía de comprobante aún</span>
+          <!-- 2. FOTO COMPROBANTE FINAL (REPARACIÓN) -->
+          <div id="mob-det-box-foto" class="hidden bg-slate-950 rounded-2xl border border-emerald-500/40 overflow-hidden relative group">
+            <div class="px-3 py-1.5 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between text-[11px]">
+              <span class="text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-camera-retro"></i> Foto Comprobante (Reparación Final)</span>
+              <span class="text-[9px] text-emerald-300 bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-600/30">Después</span>
+            </div>
+            <img id="mob-det-img" src="" alt="Comprobante" onclick="abrirFotoDetalleMovilActual()" class="w-full max-h-52 object-contain bg-black cursor-pointer">
+            <div class="absolute bottom-2 right-2 bg-slate-900/90 text-white text-[10px] font-bold px-2 py-1 rounded-lg border border-slate-700 flex items-center gap-1 shadow pointer-events-none">
+              <i class="fa-solid fa-expand text-emerald-400"></i> Ver Grande
+            </div>
+          </div>
+
+          <!-- Sin foto comprobante aviso si aplica -->
+          <div id="mob-det-sin-foto" class="hidden bg-slate-900/60 border border-dashed border-slate-700 rounded-2xl p-3 text-center text-slate-400">
+            <i class="fa-regular fa-image text-xl text-slate-500 block mb-1"></i>
+            <span>Sin fotografía de comprobante final aún</span>
+          </div>
         </div>
 
         <!-- Estados y Tiempos -->
