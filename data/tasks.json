@@ -98,7 +98,7 @@
     "prioridad": "media",
     "ubicacion": "Esterilización",
     "descripcion": "Verificación de los acople de goma de la unidades.",
-    "mecanico_asignado": "Sin Asignar",
+    "mecanico_asignado": "Anderson Jaimes",
     "fecha_ocurrencia": "2026-09-27T11:00",
     "fecha_arreglo": "2026-09-27T12:00",
     "estado": "en_progreso",
@@ -107,13 +107,28 @@
     "tiempo_arreglo_minutos": 60,
     "creado_en": "2026-09-27T14:10:05.341Z",
     "roles_asignados": [
-      "mecanico"
+      "mecanico",
+      "electrico"
     ],
-    "tecnicos_asignados": [],
-    "es_conjunta": false,
+    "tecnicos_asignados": [
+      "Anderson Jaimes"
+    ],
+    "es_conjunta": true,
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-27T18:36:39.281Z",
-    "actualizado_en": "2026-09-27T21:13:12.634Z"
+    "modificado_en": "2026-09-28T14:24:36.784Z",
+    "actualizado_en": "2026-09-27T21:13:12.634Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 60,
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1007",
