@@ -43,5 +43,23 @@
     "rol": "mecanico",
     "especialidad": "Mecánico de Planta",
     "creado_en": "2026-09-27T04:10:47.273Z"
+  },
+  {
+    "id": "USR-06",
+    "username": "jrangel",
+    "password_hash": "694ad8671ad58dc73c86e6a4f626434561804c67f8a92c165d54ce64704ce57f",
+    "nombre": "Juliana Rangel",
+    "rol": "supervisor",
+    "especialidad": "Supervisor de Mantenimiento / Planta",
+    "creado_en": "2026-09-28T14:43:56.610Z"
+  },
+  {
+    "id": "USR-07",
+    "username": "lamado",
+    "password_hash": "4e99a6a4bd1973b6bbb5317fb2010cdac4cf625b8352155cf2497615a48cfd0c",
+    "nombre": "Leidy Amado",
+    "rol": "director",
+    "especialidad": "Director de Planta",
+    "creado_en": "2026-09-28T14:56:58.547Z"
   }
 ]

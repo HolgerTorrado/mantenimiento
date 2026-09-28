@@ -41,11 +41,7 @@ if (!fs.existsSync(USERS_FILE)) {
   }];
   fs.writeFileSync(USERS_FILE, JSON.stringify(adminHolger, null, 2), 'utf-8');
 }
-
-// Sincronizar de inmediato con la nube (db-storage) para restaurar datos tras reinicio o despliegue
-cloudStorage.sincronizarArchivoAlIniciar('users.json', USERS_FILE);
-cloudStorage.sincronizarArchivoAlIniciar('tasks.json', TASKS_FILE);
-cloudStorage.sincronizarArchivoAlIniciar('mecanicos.json', MECANICOS_FILE);
+// La persistencia y sincronización blindada con la nube se ejecuta en iniciarServidor() antes de escuchar peticiones HTTP
 
 // Tipos de actividades y mantenimiento admitidos en SIMAN (Abarca todo el trabajo de planta)
 const TIPOS_VALIDOS = [
@@ -96,11 +92,11 @@ function leerTareas() {
   }
 }
 
-function guardarTareas(tareas) {
+function guardarTareas(tareas, permiteEliminar = false) {
   try {
     const str = JSON.stringify(tareas, null, 2);
     fs.writeFileSync(TASKS_FILE, str, 'utf-8');
-    cloudStorage.subirALaNube('data/tasks.json', str).catch(() => {});
+    cloudStorage.subirALaNube('data/tasks.json', str, permiteEliminar).catch(() => {});
     return true;
   } catch (err) {
     console.error('Error al guardar tasks.json:', err);
@@ -676,8 +672,11 @@ app.post('/api/tasks', (req, res) => {
   }
 
   const tareas = leerTareas();
-  const nextNumber = 1000 + tareas.length + 1;
-  const nuevoId = `TSK-${nextNumber}`;
+  const maxIdNum = tareas.reduce((max, t) => {
+    const n = parseInt(String(t.id || '').replace(/\D/g, ''), 10);
+    return !isNaN(n) && n > max ? n : max;
+  }, 1000);
+  const nuevoId = `TSK-${maxIdNum + 1}`;
 
   const nuevaTarea = {
     id: nuevoId,
@@ -1072,7 +1071,7 @@ app.delete('/api/tasks/:id', (req, res) => {
   }
 
   tareas = tareas.filter(t => t.id !== req.params.id);
-  guardarTareas(tareas);
+  guardarTareas(tareas, true);
   generarRespaldoAutomatico('eliminar_tarea');
   res.json({ mensaje: 'Tarea eliminada exitosamente' });
 });
@@ -1584,14 +1583,30 @@ app.use((req, res) => {
   res.sendFile('login.html', { root: path.join(__dirname, 'public') });
 });
 
-// Iniciar servidor en todas las interfaces de red (0.0.0.0)
-app.listen(PORT, '0.0.0.0', () => {
-  const localIps = getLocalIps();
-  console.log(`=======================================================`);
-  console.log(`🛠️  SIMAN - SISTEMA DE MANTENIMIENTO EN LÍNEA`);
-  console.log(`💻 Dashboard Supervisor (PC): http://localhost:${PORT}`);
-  localIps.forEach(net => {
-    console.log(`📱 Vista Móvil para Mecánicos (${net.name}): http://${net.ip}:${PORT}/mecanico`);
+// Iniciar servidor tras completar la sincronización blindada con la nube
+async function iniciarServidor() {
+  console.log('[SIMAN] Iniciando verificación y sincronización blindada con la nube...');
+  try {
+    await Promise.all([
+      cloudStorage.sincronizarArchivoAlIniciar('users.json', USERS_FILE),
+      cloudStorage.sincronizarArchivoAlIniciar('tasks.json', TASKS_FILE),
+      cloudStorage.sincronizarArchivoAlIniciar('mecanicos.json', MECANICOS_FILE)
+    ]);
+    console.log('[SIMAN] Sincronización blindada inicial completada con éxito.');
+  } catch(e) {
+    console.warn('[SIMAN] Advertencia en sincronización inicial:', e.message);
+  }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    const localIps = getLocalIps();
+    console.log(`=======================================================`);
+    console.log(`🛠️  SIMAN - SISTEMA DE MANTENIMIENTO EN LÍNEA`);
+    console.log(`💻 Dashboard Supervisor (PC): http://localhost:${PORT}`);
+    localIps.forEach(net => {
+      console.log(`📱 Vista Móvil para Mecánicos (${net.name}): http://${net.ip}:${PORT}/mecanico`);
+    });
+    console.log(`=======================================================`);
   });
-  console.log(`=======================================================`);
-});
+}
+
+iniciarServidor();
