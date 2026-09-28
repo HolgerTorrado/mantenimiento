@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1011",
+    "equipo": "Luminaria",
+    "titulo": "Poca iluminación en la zona",
+    "tipo": "mejora",
+    "prioridad": "media",
+    "ubicacion": "Laguna nueva",
+    "descripcion": "",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Sin Asignar",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-09-28T09:50",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Juliana Rangel",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-09-28T14:50:17.323Z"
+  },
+  {
     "id": "TSK-1010",
     "equipo": "Bombillo redler 2",
     "titulo": "Corto circuito en cable",
