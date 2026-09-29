@@ -79,5 +79,14 @@
     "rol": "sst",
     "especialidad": "Seguridad y Salud en el Trabajo (SST)",
     "creado_en": "2026-09-29T15:39:14.045Z"
+  },
+  {
+    "id": "USR-10",
+    "username": "hmandon",
+    "password_hash": "1672528c68c958e3f58bc7a1c5ebd9a7f9d1c890c459aa442056d9e67c256834",
+    "nombre": "Herminzon Mandon",
+    "rol": "maquinista",
+    "especialidad": "Operador de Maquinaria",
+    "creado_en": "2026-09-29T15:48:13.448Z"
   }
 ]
