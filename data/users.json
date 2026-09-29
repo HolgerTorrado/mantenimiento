@@ -70,5 +70,14 @@
     "rol": "supervisor",
     "especialidad": "Supervisor de Mantenimiento / Planta",
     "creado_en": "2026-09-29T12:46:38.366Z"
+  },
+  {
+    "id": "USR-09",
+    "username": "emogollon",
+    "password_hash": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+    "nombre": "Edgar mogollon",
+    "rol": "sst",
+    "especialidad": "Seguridad y Salud en el Trabajo (SST)",
+    "creado_en": "2026-09-29T15:39:14.045Z"
   }
 ]
