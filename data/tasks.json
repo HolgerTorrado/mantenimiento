@@ -1347,7 +1347,18 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 4784,
-    "completado_en": "2026-09-29T22:45:23.215Z"
+    "completado_en": "2026-09-29T22:45:23.215Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempos_por_rol": {
+      "mecanico": 120,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-09-29T23:20:33.223Z"
   },
   {
     "id": "TSK-1001",
