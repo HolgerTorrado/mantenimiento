@@ -61,5 +61,14 @@
     "rol": "director",
     "especialidad": "Director de Planta",
     "creado_en": "2026-09-28T14:56:58.547Z"
+  },
+  {
+    "id": "USR-08",
+    "username": "jospino",
+    "password_hash": "c2f78c20ea6f566cdb2dbefc3d2fcfce732b02eb3b8c4c7f7f1c222bacf88ab1",
+    "nombre": "Jhonier Ospino",
+    "rol": "supervisor",
+    "especialidad": "Supervisor de Mantenimiento / Planta",
+    "creado_en": "2026-09-29T12:46:38.366Z"
   }
 ]
