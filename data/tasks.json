@@ -74,7 +74,7 @@
       }
     ],
     "tiempos_por_rol": {
-      "mecanico": 60,
+      "mecanico": 12,
       "electrico": 0,
       "maquinista": 0
     },
@@ -86,7 +86,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-29T03:26:02.630Z",
+    "modificado_en": "2026-09-29T03:42:19.730Z",
     "completado_por_usuario": "esilva",
     "completado_por_nombre": "Ender Silva",
     "completado_por_rol": "mecanico",
