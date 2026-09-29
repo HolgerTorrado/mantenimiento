@@ -45,10 +45,11 @@
       "electrico"
     ],
     "tecnicos_asignados": [
+      "Anderson Jaimes",
       "Ender Silva"
     ],
-    "mecanico_asignado": "Ender Silva",
-    "es_conjunta": false,
+    "mecanico_asignado": "Anderson Jaimes, Ender Silva",
+    "es_conjunta": true,
     "fecha_ocurrencia": "2026-09-28T22:10",
     "fecha_arreglo": "2026-09-28T22:30",
     "estado": "completado",
@@ -86,7 +87,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-29T03:42:19.730Z",
+    "modificado_en": "2026-09-29T12:09:48.375Z",
     "completado_por_usuario": "esilva",
     "completado_por_nombre": "Ender Silva",
     "completado_por_rol": "mecanico",
