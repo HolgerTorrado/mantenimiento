@@ -88,5 +88,14 @@
     "rol": "maquinista",
     "especialidad": "Operador de Maquinaria",
     "creado_en": "2026-09-29T15:48:13.448Z"
+  },
+  {
+    "id": "USR-11",
+    "username": "llopez",
+    "password_hash": "43e11c8a434734d39c865987ef10639c397bf267541fdb1befbb0033fcf70da9",
+    "nombre": "Luis Lopez",
+    "rol": "director",
+    "especialidad": "Director de Planta",
+    "creado_en": "2026-09-29T21:24:48.613Z"
   }
 ]
