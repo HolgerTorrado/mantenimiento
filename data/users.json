@@ -97,5 +97,14 @@
     "rol": "director",
     "especialidad": "Director de Planta",
     "creado_en": "2026-09-29T21:24:48.613Z"
+  },
+  {
+    "id": "USR-12",
+    "username": "rpatiño",
+    "password_hash": "95cbbbe227524c96a4490b07db7dd505ea42dfe33a989e5bdb1f80a65ece53eb",
+    "nombre": "Richard Patiño",
+    "rol": "sst",
+    "especialidad": "Seguridad y Salud en el Trabajo (SST)",
+    "creado_en": "2026-09-29T21:25:53.501Z"
   }
 ]
