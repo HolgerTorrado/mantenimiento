@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1018",
+    "equipo": "Tanque elevado",
+    "titulo": "Desbordamiento de agua",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "PTAI",
+    "descripcion": "Posible daño en boya eléctrico",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Sin Asignar",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-09-29T07:38",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-09-29T12:38:16.971Z"
+  },
+  {
     "id": "TSK-1017",
     "equipo": "Oxicorte",
     "titulo": "No sé llevo almacén",
