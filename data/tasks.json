@@ -15,7 +15,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-29T07:38",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": "",
     "foto_inicial": null,
     "foto_comprobante": null,
@@ -35,7 +35,8 @@
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-09-29T12:39:15.170Z"
+    "modificado_en": "2026-09-29T12:39:15.170Z",
+    "actualizado_en": "2026-09-29T12:46:05.924Z"
   },
   {
     "id": "TSK-1017",
