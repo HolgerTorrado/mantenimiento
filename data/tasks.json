@@ -3,7 +3,7 @@
     "id": "TSK-1018",
     "equipo": "Tanque elevado",
     "titulo": "Desbordamiento de agua",
-    "tipo": "correctivo",
+    "tipo": "preventivo",
     "prioridad": "media",
     "ubicacion": "PTAI",
     "descripcion": "Posible daño en boya eléctrico",
@@ -16,13 +16,26 @@
     "fecha_ocurrencia": "2026-09-29T07:38",
     "fecha_arreglo": null,
     "estado": "pendiente",
-    "notas_mecanico": null,
+    "notas_mecanico": "",
     "foto_inicial": null,
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Holger Torrado",
     "creado_por_rol": "admin",
-    "creado_en": "2026-09-29T12:38:16.971Z"
+    "creado_en": "2026-09-29T12:38:16.971Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-09-29T12:39:15.170Z"
   },
   {
     "id": "TSK-1017",
