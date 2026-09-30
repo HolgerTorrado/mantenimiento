@@ -106,5 +106,14 @@
     "rol": "sst",
     "especialidad": "Seguridad y Salud en el Trabajo (SST)",
     "creado_en": "2026-09-29T21:25:53.501Z"
+  },
+  {
+    "id": "USR-13",
+    "username": "jbarajas",
+    "password_hash": "1442ae9224e9b390c10ccb306eded97298190bae4379625fd331095f8c6c0ff1",
+    "nombre": "Jesus Barajas",
+    "rol": "supervisor",
+    "especialidad": "Supervisor de Mantenimiento / Planta",
+    "creado_en": "2026-09-30T00:31:58.821Z"
   }
 ]
