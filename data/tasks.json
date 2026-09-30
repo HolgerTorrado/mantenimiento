@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1055",
+    "equipo": "Gato hidráulico de la prensa",
+    "titulo": "Cambio de retenedor del gato hidráulico de la prensa",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Extracción",
+    "descripcion": "Se presenta una fuga de hidráulico",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Sin Asignar",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-09-30T10:02",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-09-30T15:02:07.864Z"
+  },
+  {
     "id": "TSK-1054",
     "equipo": "Preclarificador",
     "titulo": "Reparación de fuga en tubería de lodos del preclarificador",
