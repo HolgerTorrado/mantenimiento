@@ -115,5 +115,14 @@
     "rol": "supervisor",
     "especialidad": "Supervisor de Mantenimiento / Planta",
     "creado_en": "2026-09-30T00:31:58.821Z"
+  },
+  {
+    "id": "USR-14",
+    "username": "storrado",
+    "password_hash": "983d7556dde89a34cd48b7601b0fa6515623492ce9a0aaaf072d4004decc551e",
+    "nombre": "Stefany Torrado",
+    "rol": "supervisor",
+    "especialidad": "Supervisor de Mantenimiento / Planta",
+    "creado_en": "2026-10-01T17:13:59.823Z"
   }
 ]
