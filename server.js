@@ -17,6 +17,8 @@ const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const TASKS_FILE = path.join(DATA_DIR, 'tasks.json');
 const MECANICOS_FILE = path.join(DATA_DIR, 'mecanicos.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const COMPRAS_FILE = path.join(DATA_DIR, 'compras.json');
+const COMPRAS_PERMISOS_FILE = path.join(DATA_DIR, 'compras_permisos.json');
 
 // Asegurar directorios y persistencia permanente
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -28,6 +30,16 @@ if (!fs.existsSync(TASKS_FILE)) {
 }
 if (!fs.existsSync(MECANICOS_FILE)) {
   fs.writeFileSync(MECANICOS_FILE, JSON.stringify([], null, 2), 'utf-8');
+}
+if (!fs.existsSync(COMPRAS_FILE)) {
+  fs.writeFileSync(COMPRAS_FILE, JSON.stringify([], null, 2), 'utf-8');
+}
+if (!fs.existsSync(COMPRAS_PERMISOS_FILE)) {
+  fs.writeFileSync(COMPRAS_PERMISOS_FILE, JSON.stringify({
+    roles_permitidos: ['admin', 'compras', 'director'],
+    roles_creacion: ['admin', 'compras', 'supervisor', 'sst', 'director'],
+    roles_gestion: ['admin', 'compras']
+  }, null, 2), 'utf-8');
 }
 if (!fs.existsSync(USERS_FILE)) {
   const adminHolger = [{
@@ -148,6 +160,59 @@ function guardarUsuarios(usuarios) {
   }
 }
 
+function leerCompras() {
+  try {
+    if (!fs.existsSync(COMPRAS_FILE)) return [];
+    return JSON.parse(fs.readFileSync(COMPRAS_FILE, 'utf-8'));
+  } catch (err) {
+    console.error('Error al leer compras.json:', err);
+    return [];
+  }
+}
+
+function guardarCompras(compras) {
+  try {
+    const str = JSON.stringify(compras, null, 2);
+    fs.writeFileSync(COMPRAS_FILE, str, 'utf-8');
+    cloudStorage.subirALaNube('data/compras.json', str).catch(() => {});
+    return true;
+  } catch (err) {
+    console.error('Error al guardar compras.json:', err);
+    return false;
+  }
+}
+
+function leerPermisosCompras() {
+  try {
+    if (!fs.existsSync(COMPRAS_PERMISOS_FILE)) {
+      return {
+        roles_permitidos: ['admin', 'compras', 'director'],
+        roles_creacion: ['admin', 'compras', 'supervisor', 'sst', 'director'],
+        roles_gestion: ['admin', 'compras']
+      };
+    }
+    return JSON.parse(fs.readFileSync(COMPRAS_PERMISOS_FILE, 'utf-8'));
+  } catch (err) {
+    return {
+      roles_permitidos: ['admin', 'compras', 'director'],
+      roles_creacion: ['admin', 'compras', 'supervisor', 'sst', 'director'],
+      roles_gestion: ['admin', 'compras']
+    };
+  }
+}
+
+function guardarPermisosCompras(permisos) {
+  try {
+    const str = JSON.stringify(permisos, null, 2);
+    fs.writeFileSync(COMPRAS_PERMISOS_FILE, str, 'utf-8');
+    cloudStorage.subirALaNube('data/compras_permisos.json', str).catch(() => {});
+    return true;
+  } catch (err) {
+    console.error('Error al guardar compras_permisos.json:', err);
+    return false;
+  }
+}
+
 function hashPassword(pass) {
   return crypto.createHash('sha256').update(String(pass)).digest('hex');
 }
@@ -217,7 +282,7 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 // Roles administrativos y de gestión con facultad para crear, programar y asignar tareas
-const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
+const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director', 'compras'];
 
 // Roles de técnicos especializados de campo (acceden a la app móvil con cuenta)
 const ROLES_TECNICOS_MOVIL = ['mecanico', 'electrico', 'maquinista'];
@@ -229,11 +294,12 @@ const ROLES_APOYO = ['auxiliar', 'operario', 'supernumerario'];
 const ROLES_TECNICOS = [...ROLES_TECNICOS_MOVIL, ...ROLES_APOYO];
 
 // Todos los roles admisibles con cuenta de usuario
-const ROLES_TODOS = ['admin', 'supervisor', 'sst', 'director', 'mecanico', 'electrico', 'maquinista', 'visualizador'];
+const ROLES_TODOS = ['admin', 'supervisor', 'sst', 'director', 'compras', 'mecanico', 'electrico', 'maquinista', 'visualizador'];
 
 function getEspecialidadPorRol(rol) {
   switch (rol) {
     case 'admin': return 'Administrador General';
+    case 'compras': return 'Encargado de Compras y Suministros';
     case 'supervisor': return 'Supervisor de Mantenimiento / Planta';
     case 'sst': return 'Seguridad y Salud en el Trabajo (SST)';
     case 'director': return 'Director de Planta';
@@ -1335,6 +1401,364 @@ app.get('/api/metrics', (req, res) => {
   });
 });
 
+// =========================================================================
+// MÓDULO DE COMPRAS, ADQUISICIONES, PROVEEDORES Y GESTIÓN DE STOCK
+// =========================================================================
+
+// 1. Obtener todas las solicitudes de compra (Con control estricto de acceso por perfil)
+app.get('/api/compras', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const permisos = leerPermisosCompras();
+  const permitidos = permisos.roles_permitidos || ['admin', 'compras', 'director'];
+
+  if (userRol !== 'admin' && !permitidos.includes(userRol)) {
+    return res.status(403).json({
+      error: `Acceso Denegado: Su perfil (${userRol || 'anónimo'}) no tiene autorización para acceder al módulo de compras.`
+    });
+  }
+
+  const compras = leerCompras();
+  res.json(compras);
+});
+
+// 2. Crear nueva solicitud de compra
+app.post('/api/compras', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const permisos = leerPermisosCompras();
+  const autorizadosCrear = permisos.roles_creacion || ['admin', 'compras', 'supervisor', 'sst', 'director'];
+
+  if (userRol !== 'admin' && !autorizadosCrear.includes(userRol)) {
+    return res.status(403).json({
+      error: 'Acceso Restringido: Su rol no tiene permisos para radicar solicitudes de compra.'
+    });
+  }
+
+  const {
+    item,
+    equipo,
+    tarea_id,
+    cantidad_solicitada,
+    unidad,
+    prioridad,
+    justificacion,
+    foto_muestra,
+    solicitado_por
+  } = req.body;
+
+  if (!item || !item.trim()) {
+    return res.status(400).json({ error: 'El nombre o descripción del ítem/repuesto es requerido.' });
+  }
+
+  const cantidadNum = parseFloat(cantidad_solicitada) || 1;
+  const compras = leerCompras();
+  const maxNum = compras.reduce((max, c) => {
+    const n = parseInt(String(c.id || '').replace(/\D/g, ''), 10);
+    return !isNaN(n) && n > max ? n : max;
+  }, 1000);
+
+  const nuevoId = `SOL-${maxNum + 1}`;
+  const userName = (req.headers['x-user-name'] || solicitado_por || 'Usuario').trim();
+
+  const nuevaSolicitud = {
+    id: nuevoId,
+    item: item.trim(),
+    equipo: (equipo || 'Planta General').trim(),
+    tarea_id: tarea_id || null,
+    cantidad_solicitada: cantidadNum,
+    unidad: (unidad || 'unidades').trim().toLowerCase(),
+    prioridad: prioridad || 'media',
+    justificacion: (justificacion || '').trim(),
+    foto_muestra: (foto_muestra && String(foto_muestra).startsWith('data:')) ? foto_muestra : null,
+    solicitado_por: userName,
+    solicitado_por_rol: userRol || 'admin',
+    fecha_solicitud: new Date().toISOString(),
+    estado: 'solicitado', // solicitado -> cotizando -> comprado -> en_transito -> en_planta -> en_stock -> consumido
+    cotizaciones: [],
+    proveedor_comprado: null,
+    numero_factura_oc: null,
+    valor_compra_total: null,
+    fecha_compra: null,
+    estado_pago: 'pendiente',
+    fecha_pago: null,
+    comprobante_pago_ref: null,
+    soporte_pago: null,
+    llego_a_planta: false,
+    fecha_llegada_planta: null,
+    recibido_por: null,
+    foto_remision_llegada: null,
+    cantidad_recibida: 0,
+    cantidad_consumida: 0,
+    cantidad_en_stock: 0,
+    consumos: [],
+    historial_cambios: [
+      {
+        fecha: new Date().toISOString(),
+        usuario: userName,
+        accion: 'Solicitud de compra radicada'
+      }
+    ]
+  };
+
+  compras.unshift(nuevaSolicitud);
+  guardarCompras(compras);
+  res.status(201).json(nuevaSolicitud);
+});
+
+// 3. Actualizar y Gestionar Solicitud de Compra (Cotizaciones, Proveedor, Factura, Pago, Recepción en Planta)
+app.put('/api/compras/:id', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const permisos = leerPermisosCompras();
+  const autorizadosGestion = permisos.roles_gestion || ['admin', 'compras'];
+
+  if (userRol !== 'admin' && !autorizadosGestion.includes(userRol)) {
+    return res.status(403).json({
+      error: 'Acceso Restringido: Solo el Administrador o el Encargado de Compras pueden gestionar cotizaciones y compras.'
+    });
+  }
+
+  const compras = leerCompras();
+  const idx = compras.findIndex(c => c.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Solicitud de compra no encontrada' });
+
+  const c = compras[idx];
+  const body = req.body;
+  const userName = req.headers['x-user-name'] || 'Usuario';
+  const cambiosLog = [];
+
+  // Actualizar cotizaciones
+  if (body.cotizaciones !== undefined) {
+    c.cotizaciones = Array.isArray(body.cotizaciones) ? body.cotizaciones : [];
+    if (c.estado === 'solicitado' && c.cotizaciones.length > 0) {
+      c.estado = 'cotizando';
+    }
+  }
+
+  // Datos de compra
+  if (body.proveedor_comprado !== undefined) {
+    if (c.proveedor_comprado !== body.proveedor_comprado) cambiosLog.push(`Proveedor: ${body.proveedor_comprado}`);
+    c.proveedor_comprado = body.proveedor_comprado;
+    if (body.proveedor_comprado && !c.fecha_compra) c.fecha_compra = new Date().toISOString();
+  }
+  if (body.numero_factura_oc !== undefined) c.numero_factura_oc = body.numero_factura_oc;
+  if (body.valor_compra_total !== undefined) c.valor_compra_total = parseFloat(body.valor_compra_total) || null;
+
+  // Estado de pago
+  if (body.estado_pago !== undefined) {
+    if (c.estado_pago !== body.estado_pago) cambiosLog.push(`Pago: ${body.estado_pago}`);
+    c.estado_pago = body.estado_pago;
+    if (body.estado_pago === 'pagado' && !c.fecha_pago) c.fecha_pago = new Date().toISOString();
+  }
+  if (body.comprobante_pago_ref !== undefined) c.comprobante_pago_ref = body.comprobante_pago_ref;
+  if (body.soporte_pago !== undefined && String(body.soporte_pago).startsWith('data:')) {
+    c.soporte_pago = body.soporte_pago;
+  }
+
+  // Llegada a planta
+  if (body.llego_a_planta !== undefined) {
+    const llegoBool = body.llego_a_planta === true || body.llego_a_planta === 'true';
+    if (c.llego_a_planta !== llegoBool) {
+      c.llego_a_planta = llegoBool;
+      if (llegoBool) {
+        if (!c.fecha_llegada_planta) c.fecha_llegada_planta = new Date().toISOString();
+        if (body.recibido_por) c.recibido_por = body.recibido_por;
+        cambiosLog.push(`Recibido en planta por: ${c.recibido_por || userName}`);
+      }
+    }
+  }
+  if (body.recibido_por !== undefined) c.recibido_por = body.recibido_por;
+  if (body.foto_remision_llegada !== undefined && String(body.foto_remision_llegada).startsWith('data:')) {
+    c.foto_remision_llegada = body.foto_remision_llegada;
+  }
+
+  // Cantidad recibida y cálculo de stock
+  if (body.cantidad_recibida !== undefined) {
+    const cantRec = parseFloat(body.cantidad_recibida) || 0;
+    c.cantidad_recibida = cantRec;
+    const totalConsumido = (c.consumos || []).reduce((sum, item) => sum + (Number(item.cantidad) || 0), 0);
+    c.cantidad_consumida = totalConsumido;
+    c.cantidad_en_stock = Math.max(0, cantRec - totalConsumido);
+  }
+
+  // Estado general
+  if (body.estado !== undefined && body.estado) {
+    if (c.estado !== body.estado) cambiosLog.push(`Estado: ${body.estado}`);
+    c.estado = body.estado;
+  } else {
+    // Cálculo automático coherente
+    if (c.cantidad_en_stock === 0 && (c.consumos || []).length > 0 && c.cantidad_recibida > 0) {
+      c.estado = 'consumido';
+    } else if (c.llego_a_planta && c.cantidad_en_stock > 0) {
+      c.estado = 'en_stock';
+    } else if (c.llego_a_planta) {
+      c.estado = 'en_planta';
+    } else if (c.proveedor_comprado) {
+      c.estado = 'comprado';
+    } else if (c.cotizaciones && c.cotizaciones.length > 0) {
+      c.estado = 'cotizando';
+    }
+  }
+
+  c.fecha_actualizacion = new Date().toISOString();
+  if (cambiosLog.length > 0 || body.nota_cambio) {
+    if (!c.historial_cambios) c.historial_cambios = [];
+    c.historial_cambios.push({
+      fecha: new Date().toISOString(),
+      usuario: userName,
+      accion: body.nota_cambio || cambiosLog.join(' | ') || 'Actualización de compra'
+    });
+  }
+
+  compras[idx] = c;
+  guardarCompras(compras);
+  res.json({ mensaje: 'Solicitud actualizada con éxito', compra: c });
+});
+
+// 4. Agregar Cotización de Proveedor
+app.post('/api/compras/:id/cotizaciones', (req, res) => {
+  const compras = leerCompras();
+  const idx = compras.findIndex(c => c.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Solicitud no encontrada' });
+
+  const { proveedor, precio_unitario, precio_total, tiempo_entrega, contacto, notas, seleccionada, archivo_adjunto } = req.body;
+  if (!proveedor || !proveedor.trim()) {
+    return res.status(400).json({ error: 'El nombre del proveedor es obligatorio.' });
+  }
+
+  const c = compras[idx];
+  if (!c.cotizaciones) c.cotizaciones = [];
+  const nuevaCot = {
+    id: `COT-${c.cotizaciones.length + 1}`,
+    proveedor: proveedor.trim(),
+    precio_unitario: parseFloat(precio_unitario) || 0,
+    precio_total: parseFloat(precio_total) || ((parseFloat(precio_unitario) || 0) * (c.cantidad_solicitada || 1)),
+    tiempo_entrega: tiempo_entrega || 'A convenir',
+    contacto: contacto || '',
+    notas: notas || '',
+    seleccionada: seleccionada === true || seleccionada === 'true',
+    archivo_adjunto: (archivo_adjunto && String(archivo_adjunto).startsWith('data:')) ? archivo_adjunto : null,
+    fecha: new Date().toISOString()
+  };
+
+  if (nuevaCot.seleccionada) {
+    c.cotizaciones.forEach(cot => cot.seleccionada = false);
+    c.proveedor_comprado = nuevaCot.proveedor;
+    c.valor_compra_total = nuevaCot.precio_total;
+  }
+
+  c.cotizaciones.push(nuevaCot);
+  if (c.estado === 'solicitado') c.estado = 'cotizando';
+
+  if (!c.historial_cambios) c.historial_cambios = [];
+  c.historial_cambios.push({
+    fecha: new Date().toISOString(),
+    usuario: req.headers['x-user-name'] || 'Compras',
+    accion: `Cotización agregada: ${nuevaCot.proveedor}`
+  });
+
+  compras[idx] = c;
+  guardarCompras(compras);
+  res.status(201).json({ mensaje: 'Cotización agregada con éxito', cotizacion: nuevaCot, compra: c });
+});
+
+// 5. Registrar Consumo de Stock
+app.post('/api/compras/:id/consumir', (req, res) => {
+  const compras = leerCompras();
+  const idx = compras.findIndex(c => c.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Ítem no encontrado en inventario' });
+
+  const c = compras[idx];
+  const { cantidad, equipo, tarea_id, consumido_por, observaciones } = req.body;
+  const cantConsumo = parseFloat(cantidad);
+
+  if (!cantConsumo || cantConsumo <= 0) {
+    return res.status(400).json({ error: 'La cantidad a consumir debe ser mayor a 0.' });
+  }
+
+  if (cantConsumo > (c.cantidad_en_stock || 0)) {
+    return res.status(400).json({
+      error: `Stock insuficiente. Disponible: ${c.cantidad_en_stock} ${c.unidad}. Intentó consumir: ${cantConsumo}.`
+    });
+  }
+
+  if (!c.consumos) c.consumos = [];
+  const nuevoConsumo = {
+    id: `CONS-${c.consumos.length + 1}`,
+    cantidad: cantConsumo,
+    fecha: new Date().toISOString(),
+    consumido_por: (consumido_por || req.headers['x-user-name'] || 'Técnico').trim(),
+    equipo: (equipo || c.equipo || 'Planta').trim(),
+    tarea_id: tarea_id || c.tarea_id || null,
+    observaciones: (observaciones || '').trim()
+  };
+
+  c.consumos.push(nuevoConsumo);
+  c.cantidad_consumida = (c.cantidad_consumida || 0) + cantConsumo;
+  c.cantidad_en_stock = Math.max(0, (c.cantidad_recibida || 0) - c.cantidad_consumida);
+
+  if (c.cantidad_en_stock === 0) {
+    c.estado = 'consumido';
+  } else {
+    c.estado = 'en_stock';
+  }
+
+  if (!c.historial_cambios) c.historial_cambios = [];
+  c.historial_cambios.push({
+    fecha: new Date().toISOString(),
+    usuario: req.headers['x-user-name'] || 'Usuario',
+    accion: `Consumo de stock: ${cantConsumo} ${c.unidad} para ${nuevoConsumo.equipo}. Stock disponible: ${c.cantidad_en_stock}`
+  });
+
+  compras[idx] = c;
+  guardarCompras(compras);
+  res.json({
+    mensaje: `Se consumieron ${cantConsumo} ${c.unidad}. Stock restante: ${c.cantidad_en_stock}`,
+    consumo: nuevoConsumo,
+    compra: c
+  });
+});
+
+// 6. Eliminar Solicitud de Compra (Solo Administrador Holger)
+app.delete('/api/compras/:id', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Solo el Administrador Holger tiene permiso para eliminar solicitudes de compra.' });
+  }
+
+  let compras = leerCompras();
+  const existe = compras.some(c => c.id === req.params.id);
+  if (!existe) return res.status(404).json({ error: 'Solicitud no encontrada' });
+
+  compras = compras.filter(c => c.id !== req.params.id);
+  guardarCompras(compras);
+  res.json({ mensaje: 'Solicitud de compra eliminada exitosamente' });
+});
+
+// 7. Permisos de Acceso al Módulo de Compras
+app.get('/api/compras-permisos', (req, res) => {
+  res.json(leerPermisosCompras());
+});
+
+app.put('/api/compras-permisos', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Solo el Administrador Holger puede configurar los permisos de compras.' });
+  }
+
+  const { roles_permitidos, roles_creacion, roles_gestion } = req.body;
+  const config = {
+    roles_permitidos: Array.isArray(roles_permitidos) ? roles_permitidos : ['admin', 'compras', 'director'],
+    roles_creacion: Array.isArray(roles_creacion) ? roles_creacion : ['admin', 'compras', 'supervisor', 'sst', 'director'],
+    roles_gestion: Array.isArray(roles_gestion) ? roles_gestion : ['admin', 'compras']
+  };
+
+  if (!config.roles_permitidos.includes('admin')) config.roles_permitidos.push('admin');
+  if (!config.roles_creacion.includes('admin')) config.roles_creacion.push('admin');
+  if (!config.roles_gestion.includes('admin')) config.roles_gestion.push('admin');
+
+  guardarPermisosCompras(config);
+  res.json({ mensaje: 'Permisos del módulo de compras actualizados con éxito', permisos: config });
+});
+
 // ================= COPIA DE SEGURIDAD Y RESPALDOS AUTOMÁTICOS =================
 
 const BACKUP_DIR = path.join(__dirname, 'backups');
@@ -1361,7 +1785,9 @@ function generarRespaldoAutomatico(motivo = 'sistema') {
       motivo: motivo,
       users: leerUsuarios(),
       tasks: leerTareas(),
-      mecanicos: leerMecanicos()
+      mecanicos: leerMecanicos(),
+      compras: leerCompras(),
+      compras_permisos: leerPermisosCompras()
     };
 
     const payload = JSON.stringify(backupData, null, 2);
@@ -1483,7 +1909,9 @@ app.get('/api/backup/export', (req, res) => {
     exportado_en: new Date().toISOString(),
     users: leerUsuarios(),
     tasks: leerTareas(),
-    mecanicos: leerMecanicos()
+    mecanicos: leerMecanicos(),
+    compras: leerCompras(),
+    compras_permisos: leerPermisosCompras()
   });
 });
 
@@ -1498,7 +1926,9 @@ app.get('/api/backup', (req, res) => {
     exportado_en: new Date().toISOString(),
     users: leerUsuarios(),
     tasks: leerTareas(),
-    mecanicos: leerMecanicos()
+    mecanicos: leerMecanicos(),
+    compras: leerCompras(),
+    compras_permisos: leerPermisosCompras()
   });
 });
 
@@ -1543,7 +1973,7 @@ app.post('/api/restore', (req, res) => {
     return res.status(403).json({ error: 'Permiso denegado: Solo el Administrador Holger puede restaurar respaldos.' });
   }
 
-  const { users, tasks, mecanicos } = req.body;
+  const { users, tasks, mecanicos, compras, compras_permisos } = req.body;
   let restaurados = [];
   if (Array.isArray(users) && users.length > 0) {
     guardarUsuarios(users);
@@ -1556,6 +1986,14 @@ app.post('/api/restore', (req, res) => {
   if (Array.isArray(mecanicos)) {
     guardarMecanicos(mecanicos);
     restaurados.push(`${mecanicos.length} mecánicos`);
+  }
+  if (Array.isArray(compras)) {
+    guardarCompras(compras);
+    restaurados.push(`${compras.length} compras`);
+  }
+  if (compras_permisos) {
+    guardarPermisosCompras(compras_permisos);
+    restaurados.push('permisos de compras');
   }
 
   generarRespaldoAutomatico('post_restauracion');
@@ -1590,7 +2028,9 @@ async function iniciarServidor() {
     await Promise.all([
       cloudStorage.sincronizarArchivoAlIniciar('users.json', USERS_FILE),
       cloudStorage.sincronizarArchivoAlIniciar('tasks.json', TASKS_FILE),
-      cloudStorage.sincronizarArchivoAlIniciar('mecanicos.json', MECANICOS_FILE)
+      cloudStorage.sincronizarArchivoAlIniciar('mecanicos.json', MECANICOS_FILE),
+      cloudStorage.sincronizarArchivoAlIniciar('compras.json', COMPRAS_FILE),
+      cloudStorage.sincronizarArchivoAlIniciar('compras_permisos.json', COMPRAS_PERMISOS_FILE)
     ]);
     console.log('[SIMAN] Sincronización blindada inicial completada con éxito.');
   } catch(e) {

@@ -6,9 +6,11 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN || String.fromCharCode(103,104,112
 const GITHUB_REPO = process.env.GITHUB_REPO || 'HolgerTorrado/mantenimiento';
 const STORAGE_BRANCH = process.env.STORAGE_BRANCH || 'db-storage';
 
+const isNubeDesactivada = () => (process.env.DESACTIVAR_NUBE || '').trim().toLowerCase() === 'true';
+
 // Descargar archivo desde la nube (db-storage), blindado contra el límite de 1MB de GitHub Contents API
 async function descargarDeLaNube(rutaRelativa) {
-  if (process.env.DESACTIVAR_NUBE === 'true' || !GITHUB_TOKEN) return null;
+  if (isNubeDesactivada() || !GITHUB_TOKEN) return null;
   try {
     const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${rutaRelativa}?ref=${STORAGE_BRANCH}&t=${Date.now()}`;
     const res = await fetch(url, {
@@ -102,7 +104,7 @@ async function descargarDeLaNube(rutaRelativa) {
 
 // Guardar archivo en la nube (db-storage) con blindaje contra sobreescritura accidental
 async function subirALaNube(rutaRelativa, contenidoStr, permiteEliminar = false) {
-  if (process.env.DESACTIVAR_NUBE === 'true' || !GITHUB_TOKEN) return false;
+  if (isNubeDesactivada() || !GITHUB_TOKEN) return false;
   try {
     let shaActual = null;
     let cloudItems = null;
@@ -272,12 +274,68 @@ function mergeMecanicos(listaA = [], listaB = []) {
       }
     }
   });
+
   return Array.from(map.values());
+}
+
+// Función de fusión para solicitudes de compras
+function mergeCompras(listaA = [], listaB = []) {
+  const map = new Map();
+
+  function mergeSingleCompra(base, incoming) {
+    if (!incoming) return base;
+    if (!base) return incoming;
+
+    const timeBase = new Date(base.fecha_actualizacion || base.fecha_compra || base.fecha_solicitud || 0).getTime();
+    const timeInc = new Date(incoming.fecha_actualizacion || incoming.fecha_compra || incoming.fecha_solicitud || 0).getTime();
+
+    const primary = timeInc >= timeBase ? incoming : base;
+    const secondary = timeInc >= timeBase ? base : incoming;
+
+    const merged = { ...secondary, ...primary };
+
+    const cotsMap = new Map();
+    (secondary.cotizaciones || []).forEach(c => { if (c.id || c.proveedor) cotsMap.set(c.id || c.proveedor, c); });
+    (primary.cotizaciones || []).forEach(c => { if (c.id || c.proveedor) cotsMap.set(c.id || c.proveedor, c); });
+    merged.cotizaciones = Array.from(cotsMap.values());
+
+    const consumosMap = new Map();
+    (secondary.consumos || []).forEach(c => { if (c.id || c.fecha) consumosMap.set(c.id || `${c.fecha}-${c.cantidad}`, c); });
+    (primary.consumos || []).forEach(c => { if (c.id || c.fecha) consumosMap.set(c.id || `${c.fecha}-${c.cantidad}`, c); });
+    merged.consumos = Array.from(consumosMap.values());
+
+    if (merged.cantidad_recibida !== undefined) {
+      const totalConsumido = merged.consumos.reduce((sum, c) => sum + (Number(c.cantidad) || 0), 0);
+      merged.cantidad_consumida = totalConsumido;
+      merged.cantidad_en_stock = Math.max(0, (merged.cantidad_recibida || 0) - totalConsumido);
+    }
+
+    return merged;
+  }
+
+  (listaA || []).forEach(c => {
+    if (c && c.id) map.set(c.id, c);
+  });
+  (listaB || []).forEach(c => {
+    if (c && c.id) {
+      if (map.has(c.id)) {
+        map.set(c.id, mergeSingleCompra(map.get(c.id), c));
+      } else {
+        map.set(c.id, c);
+      }
+    }
+  });
+
+  return Array.from(map.values()).sort((a, b) => {
+    const numA = parseInt(String(a.id || '').replace(/\D/g, ''), 10) || 0;
+    const numB = parseInt(String(b.id || '').replace(/\D/g, ''), 10) || 0;
+    return numB - numA;
+  });
 }
 
 // Sincronizar un archivo al iniciar el servidor (Blindado contra borrados accidentales)
 async function sincronizarArchivoAlIniciar(nombreArchivo, archivoLocal) {
-  if (process.env.DESACTIVAR_NUBE === 'true') {
+  if (isNubeDesactivada()) {
     console.log(`[CloudStorage] Modo aislado local activo: omitiendo sincronización de nube para ${nombreArchivo}.`);
     return;
   }
@@ -310,16 +368,21 @@ async function sincronizarArchivoAlIniciar(nombreArchivo, archivoLocal) {
       resultadoFinal = mergeUsuarios(localData, nubeData);
     } else if (nombreArchivo === 'mecanicos.json') {
       resultadoFinal = mergeMecanicos(localData, nubeData);
+    } else if (nombreArchivo === 'compras.json') {
+      resultadoFinal = mergeCompras(localData, nubeData);
+    } else if (nombreArchivo === 'compras_permisos.json') {
+      resultadoFinal = (nubeData && nubeData.roles_permitidos) ? nubeData : localData;
     } else {
       resultadoFinal = nubeData.length > 0 ? nubeData : localData;
     }
 
-    if (resultadoFinal.length > 0) {
+    if (resultadoFinal && (Array.isArray(resultadoFinal) ? resultadoFinal.length > 0 : Object.keys(resultadoFinal).length > 0)) {
       fs.writeFileSync(archivoLocal, JSON.stringify(resultadoFinal, null, 2), 'utf-8');
-      console.log(`[CloudStorage] Sincronización blindada de ${nombreArchivo}: ${resultadoFinal.length} registros protegidos.`);
+      const count = Array.isArray(resultadoFinal) ? resultadoFinal.length : 'config';
+      console.log(`[CloudStorage] Sincronización blindada de ${nombreArchivo}: ${count} registros protegidos.`);
 
       // Si el resultado local fusionado tiene más datos o difiere de la nube, actualizar la nube
-      if (!nubeData || resultadoFinal.length > nubeData.length) {
+      if (!nubeData || (Array.isArray(resultadoFinal) && resultadoFinal.length > nubeData.length)) {
         subirALaNube(`data/${nombreArchivo}`, JSON.stringify(resultadoFinal, null, 2), false).catch(() => {});
       }
     } else {
@@ -336,5 +399,6 @@ module.exports = {
   mergeTareas,
   mergeUsuarios,
   mergeMecanicos,
+  mergeCompras,
   sincronizarArchivoAlIniciar
 };

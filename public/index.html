@@ -141,8 +141,34 @@
     </div>
   </header>
 
+  <!-- BARRA DE NAVEGACIÓN ENTRE MÓDULOS (MANTENIMIENTO INDUSTRIAL VS COMPRAS Y STOCK) -->
+  <div class="bg-slate-900/90 border-b border-slate-700/80 sticky top-16 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-2 overflow-x-auto">
+      <div class="flex items-center space-x-2">
+        <button id="btn-nav-mantenimiento" onclick="cambiarVistaPrincipal('mantenimiento')" class="flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-emerald-600 text-white shadow-md shadow-emerald-900/30">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+          <span>Mantenimiento Industrial</span>
+        </button>
+        <button id="btn-nav-compras" onclick="cambiarVistaPrincipal('compras')" class="hidden flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700/80">
+          <i class="fa-solid fa-cart-shopping text-cyan-400"></i>
+          <span>Compras y Repuestos</span>
+          <span id="badge-compras-conteo" class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] font-bold px-2 py-0.5 rounded-full ml-1">0</span>
+        </button>
+      </div>
+
+      <!-- Acceso Rápido a Permisos de Compras (Solo visible para Admin Holger) -->
+      <button id="btn-admin-permisos-compras" onclick="abrirModalPermisosCompras()" title="Configurar qué perfiles acceden a Compras" class="hidden flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 hover:text-white text-xs font-semibold rounded-lg border border-cyan-500/30 transition shadow">
+        <i class="fa-solid fa-shield-halved text-cyan-400"></i>
+        <span class="hidden sm:inline">Permisos Compras</span>
+      </button>
+    </div>
+  </div>
+
   <!-- MAIN CONTAINER -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- SECCIÓN DE MANTENIMIENTO INDUSTRIAL -->
+    <div id="vista-mantenimiento" class="space-y-6">
 
 
     <!-- BARRA DE FILTRO POR PERÍODO -->
@@ -506,7 +532,132 @@
         </table>
       </div>
 
-    </div>
+    </div> <!-- FIN VISTA MANTENIMIENTO -->
+
+    <!-- SECCIÓN DE COMPRAS, ADQUISICIONES Y CONTROL DE STOCK -->
+    <div id="vista-compras" class="hidden space-y-6">
+
+      <!-- ENCABEZADO Y ACCIONES RÁPIDAS DE COMPRAS -->
+      <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-600/20 flex-shrink-0">
+            <i class="fa-solid fa-cart-flatbed"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg sm:text-xl font-extrabold text-white tracking-tight">Gestión de Compras y Repuestos</h2>
+              <span class="bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Suministros</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-0.5">Control de solicitudes, cotizaciones de proveedores, pagos, recepción en planta y stock en almacén</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+          <!-- Botón Registrar Consumo -->
+          <button onclick="abrirModalConsumoStock()" class="flex-1 md:flex-initial flex items-center justify-center gap-1.5 bg-slate-700 hover:bg-slate-600 border border-slate-600 text-cyan-300 hover:text-white text-xs font-bold px-3.5 py-2.5 rounded-xl transition shadow">
+            <i class="fa-solid fa-box-open text-cyan-400"></i>
+            <span>Consumir Stock</span>
+          </button>
+
+          <!-- Botón Nueva Solicitud -->
+          <button onclick="abrirModalNuevaCompra()" class="flex-1 md:flex-initial flex items-center justify-center gap-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-cyan-600/30">
+            <i class="fa-solid fa-plus text-xs"></i>
+            <span>Nueva Solicitud</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI METRICAS DE COMPRAS -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        
+        <!-- Total Solicitudes -->
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-file-invoice"></i>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400 font-medium">Total Solicitudes</p>
+            <p id="compras-kpi-total" class="text-xl sm:text-2xl font-black text-white">0</p>
+          </div>
+        </div>
+
+        <!-- En Cotización -->
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-comments-dollar"></i>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400 font-medium">En Cotización</p>
+            <p id="compras-kpi-cotizando" class="text-xl sm:text-2xl font-black text-amber-400">0</p>
+          </div>
+        </div>
+
+        <!-- Por Pagar -->
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-credit-card"></i>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400 font-medium">Por Pagar</p>
+            <p id="compras-kpi-por-pagar" class="text-xl sm:text-2xl font-black text-purple-300">0</p>
+          </div>
+        </div>
+
+        <!-- En Planta / En Stock -->
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-warehouse"></i>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400 font-medium">En Stock Planta</p>
+            <p id="compras-kpi-stock" class="text-xl sm:text-2xl font-black text-emerald-400">0</p>
+          </div>
+        </div>
+
+        <!-- Consumidos Total -->
+        <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 shadow-sm flex items-center gap-3 col-span-2 sm:col-span-1">
+          <div class="w-10 h-10 rounded-xl bg-slate-500/10 border border-slate-500/20 text-slate-400 flex items-center justify-center text-lg flex-shrink-0">
+            <i class="fa-solid fa-circle-check"></i>
+          </div>
+          <div>
+            <p class="text-[11px] text-slate-400 font-medium">Consumidos Total</p>
+            <p id="compras-kpi-consumidos" class="text-xl sm:text-2xl font-black text-slate-300">0</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- BARRA DE FILTROS Y BÚSQUEDA DE COMPRAS -->
+      <div class="bg-slate-800/90 border border-slate-700/70 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 shadow">
+        
+        <!-- Pestañas de Estado -->
+        <div class="flex items-center gap-1 sm:gap-1.5 overflow-x-auto pb-1 md:pb-0">
+          <button onclick="filtrarEstadoCompra('todas', this)" class="compras-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-cyan-600 text-white shadow-md">Todas</button>
+          <button onclick="filtrarEstadoCompra('solicitado', this)" class="compras-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700/60">Solicitadas</button>
+          <button onclick="filtrarEstadoCompra('cotizando', this)" class="compras-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700/60">Cotizando</button>
+          <button onclick="filtrarEstadoCompra('comprado', this)" class="compras-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700/60">Compradas</button>
+          <button onclick="filtrarEstadoCompra('en_stock', this)" class="compras-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700/60">En Stock Planta</button>
+          <button onclick="filtrarEstadoCompra('consumido', this)" class="compras-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700/60">Consumidas</button>
+        </div>
+
+        <!-- Buscador -->
+        <div class="relative w-full md:w-72">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+          <input type="text" oninput="filtrarBusquedaCompras(this.value)" placeholder="Buscar repuesto, equipo, proveedor..." class="w-full bg-slate-900/80 border border-slate-700 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+        </div>
+
+      </div>
+
+      <!-- GRID DE SOLICITUDES Y REPUESTOS -->
+      <div id="lista-solicitudes-compras" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Rellenado dinámicamente por compras.js -->
+        <div class="col-span-full py-12 text-center text-slate-400">
+          <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-cyan-400"></i>
+          <p class="text-xs">Cargando solicitudes de compra y repuestos...</p>
+        </div>
+      </div>
+
+    </div> <!-- FIN VISTA COMPRAS -->
 
   </main>
 
@@ -1482,13 +1633,581 @@
     </div>
   </div>
 
+  <!-- ==================== MODALES DE COMPRAS Y REPUESTOS ==================== -->
+
+  <!-- 1. MODAL NUEVA SOLICITUD DE COMPRA -->
+  <div id="modal-nueva-compra" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl my-auto">
+      
+      <!-- Header -->
+      <div class="bg-slate-900/90 px-5 sm:px-6 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+            <i class="fa-solid fa-cart-plus"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm sm:text-base text-white">Radicar Solicitud de Compra</h3>
+            <p class="text-[11px] text-slate-400">Repuestos, suministros o servicios para planta</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalNuevaCompra()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700/50 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Form Body -->
+      <form id="form-nueva-compra" onsubmit="guardarNuevaCompra(event)" class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Ítem, Repuesto o Suministro Solicitado *</label>
+          <input type="text" id="compra-item" required placeholder="Ej: Rodamiento oscilante 22216 EK, Válvula bola 2 pulgadas..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo o Área Destino</label>
+            <input type="text" id="compra-equipo" placeholder="Ej: Tambor saca moños, Décanter, Planta general..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Tarea de Mantenimiento Relacionada (Opcional)</label>
+            <select id="compra-tarea-id" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition">
+              <option value="">-- Ninguna (Compra general / Stock) --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Cantidad *</label>
+            <input type="number" id="compra-cantidad" min="1" step="any" value="1" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Unidad de Medida</label>
+            <select id="compra-unidad" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition">
+              <option value="unidades">Unidades</option>
+              <option value="tambores (55 gal)">Tambor 55 Gal</option>
+              <option value="galones">Galones</option>
+              <option value="litros">Litros</option>
+              <option value="metros">Metros</option>
+              <option value="kilos">Kilogramos</option>
+              <option value="pares">Pares</option>
+              <option value="kit">Kit / Juego</option>
+              <option value="servicio">Servicio / Taller</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Prioridad</label>
+            <select id="compra-prioridad" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 transition">
+              <option value="media">Media (Normal)</option>
+              <option value="alta">Alta (Prioritaria)</option>
+              <option value="urgente">Urgente (Parada de línea)</option>
+              <option value="baja">Baja (Programada)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Justificación / Motivo de la Compra</label>
+          <textarea id="compra-justificacion" rows="2" placeholder="Especificaciones técnicas, motivo de falla o necesidad del repuesto..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition"></textarea>
+        </div>
+
+        <!-- Foto de Muestra o Ficha Técnica -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Foto de Muestra / Placa de Motor / Ficha Técnica (Opcional)</label>
+          <input type="file" accept="image/*" onchange="procesarFotoMuestraCompra(this)" class="block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-700 file:text-cyan-300 hover:file:bg-slate-600 cursor-pointer">
+          <input type="hidden" id="compra-foto-base64">
+          <div id="compra-foto-preview" class="hidden mt-2">
+            <img id="compra-foto-preview-img" src="" alt="Muestra" class="h-28 rounded-xl object-cover border border-slate-700 shadow">
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-4 border-t border-slate-700 flex items-center justify-end gap-2">
+          <button type="button" onclick="cerrarModalNuevaCompra()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-xs font-semibold transition">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-guardar-nueva-compra" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-cyan-600/30">
+            <i class="fa-solid fa-check mr-1"></i> Radicar Solicitud
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. MODAL GESTIONAR COMPRA Y COTIZACIONES -->
+  <div id="modal-gestionar-compra" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl my-auto">
+      
+      <!-- Header -->
+      <div class="bg-slate-900/90 px-5 sm:px-6 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="gestion-id-badge" class="font-mono text-xs font-extrabold text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">SOL-0000</span>
+              <h3 id="gestion-item-titulo" class="font-extrabold text-sm sm:text-base text-white">Gestionar Compra</h3>
+            </div>
+            <p id="gestion-solicitado-info" class="text-[11px] text-slate-400">Detalles de adquisición</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalGestionarCompra()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700/50 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Body con pestañas/secciones -->
+      <form id="form-gestionar-compra" onsubmit="guardarGestionCompra(event)" class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
+
+        <!-- SECCIÓN A: COTIZACIONES DE PROVEEDORES -->
+        <div class="bg-slate-900/50 border border-slate-700/80 rounded-2xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-extrabold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-comments-dollar"></i> 1. Cotizaciones de Proveedores
+            </h4>
+            <button type="button" onclick="toggleFormAgregarCotizacion()" class="px-2.5 py-1 bg-cyan-950 hover:bg-cyan-900 text-cyan-300 text-xs font-bold rounded-lg border border-cyan-500/40 transition">
+              <i class="fa-solid fa-plus mr-1"></i> Agregar Cotización
+            </button>
+          </div>
+
+          <!-- Subformulario para agregar nueva cotización -->
+          <div id="box-agregar-cotizacion" class="hidden bg-slate-800/90 border border-cyan-500/40 rounded-xl p-3.5 space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Proveedor / Razón Social *</label>
+                <input type="text" id="nueva-cot-proveedor" placeholder="Nombre del proveedor o empresa" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Contacto / Teléfono</label>
+                <input type="text" id="nueva-cot-contacto" placeholder="Nombre de asesor, cel o correo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Precio Unitario (COP)</label>
+                <input type="number" id="nueva-cot-unitario" placeholder="350000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Precio Total (COP)</label>
+                <input type="number" id="nueva-cot-total" placeholder="700000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Tiempo de Entrega</label>
+                <input type="text" id="nueva-cot-entrega" placeholder="Ej: 24 horas, 3 días..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Notas técnicas de la cotización</label>
+              <input type="text" id="nueva-cot-notas" placeholder="Marca, garantía, flete incluido..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <label class="flex items-center gap-2 cursor-pointer text-xs text-emerald-400 font-bold">
+                <input type="checkbox" id="nueva-cot-seleccionada" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                <span>Marcar directamente como cotización ganadora</span>
+              </label>
+
+              <div class="flex gap-2">
+                <button type="button" onclick="toggleFormAgregarCotizacion()" class="px-3 py-1 bg-slate-700 text-slate-300 rounded-lg text-xs">Cancelar</button>
+                <button type="button" onclick="guardarCotizacionRapida()" class="px-3.5 py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold shadow">Guardar Cotización</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lista de cotizaciones existentes -->
+          <div id="gestion-lista-cotizaciones" class="space-y-2">
+            <!-- Rellenado dinámico -->
+          </div>
+        </div>
+
+        <!-- SECCIÓN B: DATOS DE LA COMPRA Y PROVEEDOR GANADOR -->
+        <div class="bg-slate-900/50 border border-slate-700/80 rounded-2xl p-4 space-y-3">
+          <h4 class="text-xs font-extrabold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-store"></i> 2. Adjudicación y Orden de Compra
+          </h4>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Proveedor Adjudicado</label>
+              <input type="text" id="gestion-proveedor" placeholder="Proveedor seleccionado" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">N° de Factura / O.C.</label>
+              <input type="text" id="gestion-factura" placeholder="FAC-12345 o OC-098" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Valor Total de Compra (COP)</label>
+              <input type="number" id="gestion-valor-total" placeholder="Valor acordado" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 font-bold text-cyan-300">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN C: ESTADO DE PAGO -->
+        <div class="bg-slate-900/50 border border-slate-700/80 rounded-2xl p-4 space-y-3">
+          <h4 class="text-xs font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-money-check-dollar"></i> 3. Estado de Pago
+          </h4>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">¿Ya se realizó el pago?</label>
+              <select id="gestion-estado-pago" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+                <option value="pendiente">Pendiente de Pago</option>
+                <option value="pagado">Pagado (Transferencia / Contado)</option>
+                <option value="credito">A Crédito (30/60 días)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">N° Referencia o Comprobante de Pago</label>
+              <input type="text" id="gestion-pago-ref" placeholder="Ej: TRANSF-99210, Cheque #45..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN D: RECEPCIÓN EN PLANTA Y STOCK -->
+        <div class="bg-slate-900/50 border border-slate-700/80 rounded-2xl p-4 space-y-3">
+          <h4 class="text-xs font-extrabold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-boxes-stacked"></i> 4. Recepción en Planta y Almacén
+          </h4>
+
+          <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <label class="flex items-center gap-2.5 cursor-pointer">
+              <input type="checkbox" id="gestion-llego-planta" class="w-4 h-4 rounded bg-slate-800 border-slate-600 text-cyan-500 focus:ring-0">
+              <div>
+                <span class="text-xs font-bold text-white block">¿Ya llegó el repuesto a planta?</span>
+                <span class="text-[10px] text-slate-400">Marca esta casilla cuando el proveedor entregue físicamente en almacén</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Recibido en Planta por</label>
+              <input type="text" id="gestion-recibido-por" placeholder="Nombre de quien recibió en almacén" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Cantidad Física Recibida (Ingreso a Stock)</label>
+              <input type="number" id="gestion-cantidad-recibida" min="0" step="any" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 font-bold text-emerald-400">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN E: ESTADO GENERAL Y NOTAS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Estado de la Solicitud</label>
+            <select id="gestion-estado-general" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+              <option value="solicitado">Solicitado (Recién creado)</option>
+              <option value="cotizando">Cotizando (Evaluando proveedores)</option>
+              <option value="comprado">Comprado (Con orden de compra)</option>
+              <option value="en_transito">En Tránsito (Despachado)</option>
+              <option value="en_planta">En Planta / Almacén</option>
+              <option value="en_stock">En Stock Disponible</option>
+              <option value="consumido">Consumido Total</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Nota de bitácora (Opcional)</label>
+            <input type="text" id="gestion-nota-cambio" placeholder="Ej: Se autorizó compra por gerencia..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-4 border-t border-slate-700 flex items-center justify-end gap-2">
+          <button type="button" onclick="cerrarModalGestionarCompra()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-xs font-semibold transition">
+            Cerrar
+          </button>
+          <button type="submit" id="btn-guardar-gestion-compra" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-cyan-600/30">
+            <i class="fa-solid fa-check mr-1"></i> Guardar Cambios
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. MODAL REGISTRAR CONSUMO DE STOCK -->
+  <div id="modal-consumir-stock" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl my-auto">
+      
+      <!-- Header -->
+      <div class="bg-slate-900/90 px-5 sm:px-6 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <i class="fa-solid fa-box-open"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm sm:text-base text-white">Registrar Consumo de Stock</h3>
+            <p class="text-[11px] text-slate-400">Descontar repuesto del inventario para una máquina</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalConsumoStock()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700/50 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="form-consumo-stock" onsubmit="guardarConsumoStock(event)" class="p-5 sm:p-6 space-y-4">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Repuesto a Consumir *</label>
+          <select id="consumo-compra-id" onchange="actualizarInfoConsumoSeleccionado()" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <!-- Rellenado dinámico -->
+          </select>
+          <span id="consumo-stock-disp-txt" class="block text-[11px] text-cyan-400 font-bold mt-1">-- disponibles</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Cantidad a Usar *</label>
+            <input type="number" id="consumo-cantidad" min="1" step="any" value="1" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 font-bold text-emerald-400">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Equipo / Máquina Destino *</label>
+            <input type="text" id="consumo-equipo" required placeholder="Ej: Tambor saca moños" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Responsable del Consumo / Técnico *</label>
+          <input type="text" id="consumo-responsable" required placeholder="Nombre del mecánico que retira" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Observaciones de Instalación</label>
+          <input type="text" id="consumo-observaciones" placeholder="Ej: Instalado por daño de rodamiento lado norte..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-4 border-t border-slate-700 flex items-center justify-end gap-2">
+          <button type="button" onclick="cerrarModalConsumoStock()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-xs font-semibold transition">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-guardar-consumo" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-emerald-600/30">
+            <i class="fa-solid fa-box-open mr-1"></i> Descontar del Stock
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. MODAL DETALLE COMPLETO E HISTORIAL -->
+  <div id="modal-detalle-compra" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl my-auto">
+      
+      <!-- Header -->
+      <div class="bg-slate-900/90 px-5 sm:px-6 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <span id="det-compra-id" class="font-mono text-xs font-extrabold text-cyan-400 bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">SOL-0000</span>
+          <h3 id="det-compra-item" class="font-extrabold text-sm sm:text-base text-white">Detalles de la Solicitud</h3>
+        </div>
+        <button onclick="cerrarModalDetalleCompra()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700/50 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 text-xs">
+        
+        <!-- Ficha de solicitud -->
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <span class="text-slate-400 block text-[10px]">Equipo Destino:</span>
+            <span id="det-compra-equipo" class="font-bold text-white text-xs">-</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px]">Solicitante:</span>
+            <span id="det-compra-solicitante" class="font-bold text-slate-200 text-xs">-</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px]">Fecha de Solicitud:</span>
+            <span id="det-compra-fecha" class="text-slate-300 text-xs">-</span>
+          </div>
+          <div class="sm:col-span-3 pt-2 border-t border-slate-700/40">
+            <span class="text-slate-400 block text-[10px]">Cantidad Solicitada:</span>
+            <span id="det-compra-cantidad" class="font-extrabold text-cyan-300 text-sm">-</span>
+          </div>
+          <div class="sm:col-span-3">
+            <span class="text-slate-400 block text-[10px]">Justificación / Falla:</span>
+            <p id="det-compra-justificacion" class="text-slate-300 italic mt-0.5">-</p>
+          </div>
+        </div>
+
+        <!-- Cotizaciones -->
+        <div>
+          <h4 class="font-extrabold text-cyan-400 uppercase tracking-wider text-[11px] mb-2">Cotizaciones de Proveedores</h4>
+          <div id="det-compra-cotizaciones" class="space-y-2"></div>
+        </div>
+
+        <!-- Compra y Factura -->
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <span class="text-slate-400 block text-[10px]">Proveedor:</span>
+            <span id="det-compra-proveedor" class="font-bold text-white text-xs">-</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px]">Factura / O.C.:</span>
+            <span id="det-compra-factura" class="font-bold text-slate-200 text-xs">-</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px]">Valor Compra:</span>
+            <span id="det-compra-valor" class="font-extrabold text-emerald-400 text-xs">-</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px]">Pago:</span>
+            <span id="det-compra-pago" class="font-bold text-cyan-300 text-xs">-</span>
+          </div>
+        </div>
+
+        <!-- Recepción y Stock -->
+        <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400 text-[10px]">Recepción en Planta:</span>
+            <span id="det-compra-llegada" class="font-bold text-emerald-400">-</span>
+          </div>
+          <div class="flex items-center justify-between border-t border-slate-700/40 pt-1.5">
+            <span class="text-slate-400 text-[10px]">Inventario Actual:</span>
+            <span id="det-compra-stock-resumen" class="font-extrabold text-white">-</span>
+          </div>
+        </div>
+
+        <!-- Historial de Consumos -->
+        <div>
+          <h4 class="font-extrabold text-cyan-400 uppercase tracking-wider text-[11px] mb-2">Bitácora de Consumos del Repuesto</h4>
+          <div id="det-compra-consumos-lista" class="space-y-1.5"></div>
+        </div>
+
+        <!-- Historial de Cambios -->
+        <div>
+          <h4 class="font-extrabold text-slate-400 uppercase tracking-wider text-[11px] mb-2">Línea de Tiempo del Proceso</h4>
+          <div id="det-compra-historial" class="space-y-1"></div>
+        </div>
+
+      </div>
+
+      <div class="bg-slate-900 px-6 py-3 border-t border-slate-700 text-right">
+        <button onclick="cerrarModalDetalleCompra()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 5. MODAL PERMISOS DE COMPRAS (SOLO ADMIN HOLGER) -->
+  <div id="modal-permisos-compras" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl my-auto">
+      
+      <!-- Header -->
+      <div class="bg-slate-900/90 px-5 sm:px-6 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-sm sm:text-base text-white">Permisos de Acceso a Compras</h3>
+            <p class="text-[11px] text-slate-400">Controla quién puede ver y usar el módulo de compras</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalPermisosCompras()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-700/50 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="p-5 sm:p-6 space-y-4 text-xs">
+        <p class="text-slate-300 leading-relaxed">
+          Selecciona qué roles tienen autorización para ver el módulo de compras y radicar solicitudes. El Administrador siempre tiene control total.
+        </p>
+
+        <div class="space-y-2.5 bg-slate-900/70 p-3.5 rounded-xl border border-slate-700">
+          
+          <div class="flex items-center justify-between pb-2 border-b border-slate-700/60 font-bold text-slate-400 text-[11px]">
+            <span>Perfil / Rol</span>
+            <div class="flex gap-4">
+              <span>Ver Módulo</span>
+              <span>Crear Solicitud</span>
+            </div>
+          </div>
+
+          <!-- Admin (fijo) -->
+          <div class="flex items-center justify-between py-1 text-slate-200">
+            <span class="font-bold text-emerald-400"><i class="fa-solid fa-crown mr-1.5"></i> Administrador (Holger)</span>
+            <span class="text-[11px] text-slate-400 italic">Acceso Total</span>
+          </div>
+
+          <!-- Encargado de Compras -->
+          <div class="flex items-center justify-between py-1 text-slate-200">
+            <span class="font-semibold"><i class="fa-solid fa-cart-shopping text-cyan-400 mr-1.5"></i> Encargado de Compras</span>
+            <div class="flex gap-6 pr-2">
+              <input type="checkbox" id="perm-ver-compras" checked class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+              <input type="checkbox" id="perm-crear-compras" checked class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+            </div>
+          </div>
+
+          <!-- Director de Planta -->
+          <div class="flex items-center justify-between py-1 text-slate-200">
+            <span class="font-semibold"><i class="fa-solid fa-user-tie text-blue-400 mr-1.5"></i> Director de Planta</span>
+            <div class="flex gap-6 pr-2">
+              <input type="checkbox" id="perm-ver-director" checked class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+              <input type="checkbox" id="perm-crear-director" checked class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+            </div>
+          </div>
+
+          <!-- Supervisor de Mantenimiento -->
+          <div class="flex items-center justify-between py-1 text-slate-200">
+            <span class="font-semibold"><i class="fa-solid fa-user-gear text-purple-400 mr-1.5"></i> Supervisor</span>
+            <div class="flex gap-6 pr-2">
+              <input type="checkbox" id="perm-ver-supervisor" class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+              <input type="checkbox" id="perm-crear-supervisor" checked class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+            </div>
+          </div>
+
+          <!-- SST -->
+          <div class="flex items-center justify-between py-1 text-slate-200">
+            <span class="font-semibold"><i class="fa-solid fa-hard-hat text-amber-400 mr-1.5"></i> SST</span>
+            <div class="flex gap-6 pr-2">
+              <input type="checkbox" id="perm-ver-sst" class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+              <input type="checkbox" id="perm-crear-sst" class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+            </div>
+          </div>
+
+          <!-- Mecánicos -->
+          <div class="flex items-center justify-between py-1 text-slate-200">
+            <span class="font-semibold"><i class="fa-solid fa-wrench text-slate-400 mr-1.5"></i> Mecánicos / Eléctricos</span>
+            <div class="flex gap-6 pr-2">
+              <input type="checkbox" id="perm-ver-mecanico" class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+              <input type="checkbox" id="perm-crear-mecanico" class="rounded bg-slate-800 border-slate-600 text-cyan-500">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="pt-3 border-t border-slate-700 flex items-center justify-end gap-2">
+          <button type="button" onclick="cerrarModalPermisosCompras()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-xl text-xs font-semibold transition">
+            Cancelar
+          </button>
+          <button type="button" onclick="guardarPermisosComprasDesdeModal()" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-cyan-600/30">
+            <i class="fa-solid fa-check mr-1"></i> Guardar Permisos
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-800 border border-emerald-500/50 text-white text-xs px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2">
     <i class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
     <span id="toast-msg">Mensaje</span>
   </div>
 
-  <!-- SCRIPTS DASHBOARD -->
+  <!-- SCRIPTS DASHBOARD & COMPRAS -->
   <script src="/js/dashboard.js"></script>
+  <script src="/js/compras.js"></script>
 </body>
 </html>

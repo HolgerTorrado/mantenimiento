@@ -1,0 +1,157 @@
+[
+  {
+    "id": "SOL-1002",
+    "item": "Aceite Hidráulico Shell Tellus S2 M 68 (Tambor 55 Gal)",
+    "equipo": "Unidades hidráulicas",
+    "tarea_id": "TSK-1008",
+    "cantidad_solicitada": 1,
+    "unidad": "tambores (55 gal)",
+    "prioridad": "media",
+    "justificacion": "Reposición de nivel de reserva para mantenimiento de unidades hidráulicas de prensas.",
+    "foto_muestra": null,
+    "solicitado_por": "Anderson Jaimes",
+    "solicitado_por_rol": "electrico",
+    "fecha_solicitud": "2026-09-29T14:00:00.000Z",
+    "estado": "cotizando",
+    "cotizaciones": [
+      {
+        "id": "COT-1",
+        "proveedor": "Distribuidora de Lubricantes Terpel & Shell",
+        "precio_unitario": 2150000,
+        "precio_total": 2150000,
+        "tiempo_entrega": "48 horas",
+        "contacto": "Marcela Gómez (310-7766554)",
+        "seleccionada": false,
+        "notas": "Incluye transporte hasta planta",
+        "fecha": "2026-09-30T09:15:00.000Z"
+      },
+      {
+        "id": "COT-2",
+        "proveedor": "MacroLubricantes Industriales",
+        "precio_unitario": 2080000,
+        "precio_total": 2080000,
+        "tiempo_entrega": "5 días hábiles",
+        "contacto": "ventas@macrolub.com",
+        "seleccionada": false,
+        "notas": "Flete por cuenta del cliente",
+        "fecha": "2026-09-30T11:00:00.000Z"
+      }
+    ],
+    "proveedor_comprado": null,
+    "numero_factura_oc": null,
+    "valor_compra_total": null,
+    "fecha_compra": null,
+    "estado_pago": "pendiente",
+    "fecha_pago": null,
+    "comprobante_pago_ref": null,
+    "llego_a_planta": false,
+    "fecha_llegada_planta": null,
+    "recibido_por": null,
+    "cantidad_recibida": 0,
+    "cantidad_consumida": 0,
+    "cantidad_en_stock": 0,
+    "consumos": [],
+    "historial_cambios": [
+      {
+        "fecha": "2026-09-29T14:00:00.000Z",
+        "usuario": "Anderson Jaimes",
+        "accion": "Solicitud radicada"
+      },
+      {
+        "fecha": "2026-09-30T11:00:00.000Z",
+        "usuario": "Compras",
+        "accion": "2 cotizaciones cargadas de proveedores"
+      }
+    ]
+  },
+  {
+    "id": "SOL-1001",
+    "item": "Rodamiento oscilante de rodillos 22216 EK",
+    "equipo": "Tambor saca moños",
+    "tarea_id": "TSK-1006",
+    "cantidad_solicitada": 2,
+    "unidad": "unidades",
+    "prioridad": "alta",
+    "justificacion": "Desgaste acelerado en apoyos del tambor saca moños. Se requiere reemplazo urgente para evitar parada de línea.",
+    "foto_muestra": null,
+    "solicitado_por": "Holger Torrado",
+    "solicitado_por_rol": "admin",
+    "fecha_solicitud": "2026-09-28T10:15:00.000Z",
+    "estado": "en_stock",
+    "cotizaciones": [
+      {
+        "id": "COT-1",
+        "proveedor": "Rodamientos y Retenes Industriales S.A.S.",
+        "precio_unitario": 385000,
+        "precio_total": 770000,
+        "tiempo_entrega": "24 horas",
+        "contacto": "Carlos Velez (315-8899000)",
+        "seleccionada": true,
+        "notas": "Marca SKF original con manguito de fijación",
+        "fecha": "2026-09-28T11:30:00.000Z"
+      },
+      {
+        "id": "COT-2",
+        "proveedor": "Distribuciones Técnicas del Norte",
+        "precio_unitario": 410000,
+        "precio_total": 820000,
+        "tiempo_entrega": "3 días",
+        "contacto": "ventas@distritecnicas.com",
+        "seleccionada": false,
+        "notas": "Marca FAG",
+        "fecha": "2026-09-28T12:00:00.000Z"
+      }
+    ],
+    "proveedor_comprado": "Rodamientos y Retenes Industriales S.A.S.",
+    "numero_factura_oc": "FAC-88921",
+    "valor_compra_total": 770000,
+    "fecha_compra": "2026-09-28T14:00:00.000Z",
+    "estado_pago": "pagado",
+    "fecha_pago": "2026-09-28T16:20:00.000Z",
+    "comprobante_pago_ref": "TRANSF-BANC-99210",
+    "llego_a_planta": true,
+    "fecha_llegada_planta": "2026-09-29T08:30:00.000Z",
+    "recibido_por": "Diego Chamorro",
+    "cantidad_recibida": 2,
+    "cantidad_consumida": 1,
+    "cantidad_en_stock": 1,
+    "consumos": [
+      {
+        "id": "CONS-1",
+        "cantidad": 1,
+        "fecha": "2026-09-29T10:45:00.000Z",
+        "consumido_por": "Diego Chamorro",
+        "equipo": "Tambor saca moños",
+        "tarea_id": "TSK-1006",
+        "observaciones": "Instalado en rodillo de apoyo lado norte."
+      }
+    ],
+    "historial_cambios": [
+      {
+        "fecha": "2026-09-28T10:15:00.000Z",
+        "usuario": "Holger Torrado",
+        "accion": "Solicitud radicada"
+      },
+      {
+        "fecha": "2026-09-28T14:00:00.000Z",
+        "usuario": "Compras",
+        "accion": "Cotización seleccionada y compra radicada (FAC-88921)"
+      },
+      {
+        "fecha": "2026-09-28T16:20:00.000Z",
+        "usuario": "Compras",
+        "accion": "Pago registrado (TRANSF-BANC-99210)"
+      },
+      {
+        "fecha": "2026-09-29T08:30:00.000Z",
+        "usuario": "Diego Chamorro",
+        "accion": "Repuesto recibido en almacén de planta (2 unidades)"
+      },
+      {
+        "fecha": "2026-09-29T10:45:00.000Z",
+        "usuario": "Diego Chamorro",
+        "accion": "Consumo de 1 unidad para TSK-1006 (Queda 1 en stock)"
+      }
+    ]
+  }
+]
