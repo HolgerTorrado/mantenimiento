@@ -109,10 +109,18 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarTareas();
   fijarOcurrenciaAhora();
 
-  // Auto-refresco cada 30 segundos
+  // Auto-refresco inteligente cada 30 segundos (solo si la pestaña está activa)
   setInterval(() => {
+    if (document.hidden) return; // Pausar peticiones si la pestaña está en segundo plano
     cargarTareas(false);
   }, 30000);
+
+  // Refrescar al regresar a la pestaña
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      cargarTareas(false);
+    }
+  });
 });
 
 // Cambiar período de visualización
@@ -893,7 +901,7 @@ function procesarFotoInicialCrear(event) {
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
-      const MAX_SIZE = 1024;
+      const MAX_SIZE = 800;
       let width = img.width;
       let height = img.height;
       if (width > height) {
@@ -911,7 +919,7 @@ function procesarFotoInicialCrear(event) {
       canvas.height = height;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
-      fotoInicialCrearBase64 = canvas.toDataURL('image/jpeg', 0.75);
+      fotoInicialCrearBase64 = canvas.toDataURL('image/jpeg', 0.65);
 
       const previewBox = document.getElementById('crear-preview-foto-inicial-box');
       const previewImg = document.getElementById('crear-preview-foto-inicial-img');
@@ -1372,7 +1380,7 @@ function procesarNuevaFotoDetalle(event) {
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
-      const MAX_SIZE = 1024;
+      const MAX_SIZE = 800;
       let width = img.width;
       let height = img.height;
 
@@ -1393,7 +1401,7 @@ function procesarNuevaFotoDetalle(event) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
 
-      nuevaFotoDetalleBase64 = canvas.toDataURL('image/jpeg', 0.75);
+      nuevaFotoDetalleBase64 = canvas.toDataURL('image/jpeg', 0.65);
 
       const imgElement = document.getElementById('det-img-foto');
       const sinFoto = document.getElementById('det-sin-foto');
@@ -1447,7 +1455,7 @@ function procesarNuevaFotoInicialDetalle(event) {
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
-      const MAX_SIZE = 1024;
+      const MAX_SIZE = 800;
       let width = img.width;
       let height = img.height;
 
@@ -1468,7 +1476,7 @@ function procesarNuevaFotoInicialDetalle(event) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, width, height);
 
-      nuevaFotoInicialDetalleBase64 = canvas.toDataURL('image/jpeg', 0.75);
+      nuevaFotoInicialDetalleBase64 = canvas.toDataURL('image/jpeg', 0.65);
 
       const imgElement = document.getElementById('det-img-foto-inicial');
       const sinFoto = document.getElementById('det-sin-foto-inicial');

@@ -161,6 +161,10 @@ async function subirALaNube(rutaRelativa, contenidoStr, permiteEliminar = false)
       body: JSON.stringify(payload)
     });
 
+    if (global.gc) {
+      try { global.gc(); } catch(e) {}
+    }
+
     if (putRes.ok) {
       console.log(`[CloudStorage] Sincronizado exitosamente en la nube: ${rutaRelativa}`);
       return true;
@@ -169,6 +173,9 @@ async function subirALaNube(rutaRelativa, contenidoStr, permiteEliminar = false)
     console.warn(`[CloudStorage] Error PUT en ${rutaRelativa}: ${putRes.status} - ${errText}`);
     return false;
   } catch(e) {
+    if (global.gc) {
+      try { global.gc(); } catch(e) {}
+    }
     console.warn(`[CloudStorage] Error al subir ${rutaRelativa}:`, e.message);
     return false;
   }

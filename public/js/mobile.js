@@ -49,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
       navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
     }
     setInterval(() => {
+      if (document.hidden) return;
       if (typeof cargarCompras === 'function') {
         cargarCompras();
       }
@@ -68,13 +69,25 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
   }
 
-  // Auto-refrescar cada 20 segundos
+  // Auto-refrescar cada 20 segundos (solo si la app está visible en pantalla)
   setInterval(() => {
+    if (document.hidden) return;
     cargarTareasMovil(false);
     if (seccionMovilActiva === 'compras' && typeof cargarCompras === 'function') {
       cargarCompras();
     }
   }, 20000);
+
+  // Al volver a la app o desbloquear el celular, refrescar inmediatamente
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      if (seccionMovilActiva === 'compras' && typeof cargarCompras === 'function') {
+        cargarCompras();
+      } else {
+        cargarTareasMovil(false);
+      }
+    }
+  });
 });
 
 // Manejo de Instalación PWA (App Móvil)
@@ -849,8 +862,8 @@ function fijarArregloAhora() {
 
 let fotoCapturadaBase64 = null;
 
-// Comprimir imagen usando Canvas para generar un Base64 liviano (~60-90KB) que se guarda directamente en la BD de Git
-function comprimirImagenCanvas(file, maxDimension = 1024, calidad = 0.72) {
+// Comprimir imagen usando Canvas para generar un Base64 liviano (~40-60KB)
+function comprimirImagenCanvas(file, maxDimension = 800, calidad = 0.65) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = function(e) {
