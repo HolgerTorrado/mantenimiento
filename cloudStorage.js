@@ -4,11 +4,11 @@ const path = require('path');
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || String.fromCharCode(103,104,112,95,85,100,74,116,74,117,100,69,104,68,71,68,112,73,97,97,65,104,105,80,111,117,76,109,115,84,80,83,101,88,50,101,100,114,105,67);
 const GITHUB_REPO = process.env.GITHUB_REPO || 'HolgerTorrado/mantenimiento';
-const STORAGE_BRANCH = 'db-storage';
+const STORAGE_BRANCH = process.env.STORAGE_BRANCH || 'db-storage';
 
 // Descargar archivo desde la nube (db-storage), blindado contra el límite de 1MB de GitHub Contents API
 async function descargarDeLaNube(rutaRelativa) {
-  if (!GITHUB_TOKEN) return null;
+  if (process.env.DESACTIVAR_NUBE === 'true' || !GITHUB_TOKEN) return null;
   try {
     const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${rutaRelativa}?ref=${STORAGE_BRANCH}&t=${Date.now()}`;
     const res = await fetch(url, {
@@ -102,7 +102,7 @@ async function descargarDeLaNube(rutaRelativa) {
 
 // Guardar archivo en la nube (db-storage) con blindaje contra sobreescritura accidental
 async function subirALaNube(rutaRelativa, contenidoStr, permiteEliminar = false) {
-  if (!GITHUB_TOKEN) return false;
+  if (process.env.DESACTIVAR_NUBE === 'true' || !GITHUB_TOKEN) return false;
   try {
     let shaActual = null;
     let cloudItems = null;
@@ -277,6 +277,10 @@ function mergeMecanicos(listaA = [], listaB = []) {
 
 // Sincronizar un archivo al iniciar el servidor (Blindado contra borrados accidentales)
 async function sincronizarArchivoAlIniciar(nombreArchivo, archivoLocal) {
+  if (process.env.DESACTIVAR_NUBE === 'true') {
+    console.log(`[CloudStorage] Modo aislado local activo: omitiendo sincronización de nube para ${nombreArchivo}.`);
+    return;
+  }
   try {
     let localData = [];
     if (fs.existsSync(archivoLocal)) {
