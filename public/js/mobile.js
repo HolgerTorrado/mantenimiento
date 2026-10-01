@@ -34,6 +34,28 @@ document.addEventListener('DOMContentLoaded', () => {
   const user = verificarSesionMovil();
   if (!user) return; // Detener ejecución si no hay sesión activa
 
+  // Si es perfil de compras, aislar exclusivamente a compras y NO cargar mantenimiento
+  if (user.rol === 'compras') {
+    if (typeof cambiarSeccionMovil === 'function') {
+      cambiarSeccionMovil('compras');
+    }
+    if (typeof verificarAccesoModuloCompras === 'function') {
+      verificarAccesoModuloCompras();
+    }
+    if (typeof cargarCompras === 'function') {
+      cargarCompras();
+    }
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
+    }
+    setInterval(() => {
+      if (typeof cargarCompras === 'function') {
+        cargarCompras();
+      }
+    }, 20000);
+    return;
+  }
+
   cargarTareasMovil();
   cargarMecanicosMovil();
 
@@ -125,16 +147,27 @@ function verificarSesionMovil() {
       }
     }
 
-    // Si el usuario es de Compras, ocultar Tareas y Dashboard de Mantenimiento, mostrando únicamente Compras
+    // Si el usuario es de Compras, aislar estrictamente ocultando módulos de mantenimiento
     if (user.rol === 'compras') {
       const btnSecTareas = document.getElementById('btn-sec-tareas');
       const btnSecDashboard = document.getElementById('btn-sec-dashboard');
       const tabsMovil = document.getElementById('mobile-tabs');
       const navSec = document.getElementById('nav-secciones-movil');
-      if (btnSecTareas) btnSecTareas.classList.add('hidden');
-      if (btnSecDashboard) btnSecDashboard.classList.add('hidden');
-      if (tabsMovil) tabsMovil.classList.add('hidden');
-      if (navSec) navSec.className = 'grid grid-cols-1 gap-1.5 mt-2.5 bg-slate-950/80 p-1 rounded-xl border border-slate-700/70';
+      const secTareas = document.getElementById('contenedor-tareas-movil');
+      const secDashboard = document.getElementById('contenedor-dashboard-movil');
+      const secCompras = document.getElementById('contenedor-compras-movil');
+
+      if (btnSecTareas) { btnSecTareas.style.setProperty('display', 'none', 'important'); btnSecTareas.classList.add('hidden'); }
+      if (btnSecDashboard) { btnSecDashboard.style.setProperty('display', 'none', 'important'); btnSecDashboard.classList.add('hidden'); }
+      if (tabsMovil) { tabsMovil.style.setProperty('display', 'none', 'important'); tabsMovil.classList.add('hidden'); }
+      if (navSec) { navSec.style.setProperty('display', 'none', 'important'); navSec.classList.add('hidden'); }
+      if (secTareas) { secTareas.style.setProperty('display', 'none', 'important'); secTareas.classList.add('hidden'); }
+      if (secDashboard) { secDashboard.style.setProperty('display', 'none', 'important'); secDashboard.classList.add('hidden'); }
+      if (secCompras) { secCompras.style.setProperty('display', 'block', 'important'); secCompras.classList.remove('hidden'); }
+
+      const pie = document.getElementById('txt-mecanico-actual-pie');
+      if (pie) pie.innerText = 'Compras en línea';
+
       if (typeof cambiarSeccionMovil === 'function') {
         cambiarSeccionMovil('compras');
       }
@@ -275,6 +308,8 @@ async function guardarNuevaTareaMovil(e) {
 
 // Cargar mecánicos y restaurar seleccionado
 async function cargarMecanicosMovil() {
+  const user = getUsuarioActivo();
+  if (user && user.rol === 'compras') return;
   try {
     const res = await fetch('/api/mecanicos');
     const mecanicos = await res.json();
@@ -308,14 +343,21 @@ function cambiarMecanicoActivo() {
 }
 
 function actualizarTextoMecanicoPie() {
+  const user = getUsuarioActivo();
   const el = document.getElementById('txt-mecanico-actual-pie');
   if (el) {
-    el.innerText = mecanicoActivo === 'todos' ? 'Mantenimiento en línea' : `Técnico: ${mecanicoActivo}`;
+    if (user && user.rol === 'compras') {
+      el.innerText = 'Compras en línea';
+    } else {
+      el.innerText = mecanicoActivo === 'todos' ? 'Mantenimiento en línea' : `Técnico: ${mecanicoActivo}`;
+    }
   }
 }
 
 // Cargar Tareas desde el Servidor
 async function cargarTareasMovil(mostrarSpin = true) {
+  const user = getUsuarioActivo();
+  if (user && user.rol === 'compras') return;
   const icon = document.getElementById('mob-icon-recarga');
   if (mostrarSpin && icon) icon.classList.add('fa-spin');
 
@@ -1474,6 +1516,46 @@ function renderAvancesDetalleMovil(t) {
 // ==========================================
 
 function cambiarSeccionMovil(seccion) {
+  const user = (function() {
+    try { return JSON.parse(localStorage.getItem('siman_user')) || {}; } catch(e) { return {}; }
+  })();
+
+  // Aislamiento absoluto para rol compras: JAMÁS mostrar tareas ni dashboard de mantenimiento
+  if (user.rol === 'compras') {
+    seccionMovilActiva = 'compras';
+    const secTareas = document.getElementById('contenedor-tareas-movil');
+    const secDashboard = document.getElementById('contenedor-dashboard-movil');
+    const secCompras = document.getElementById('contenedor-compras-movil');
+    const tabsMovil = document.getElementById('mobile-tabs');
+    const navSec = document.getElementById('nav-secciones-movil');
+    const btnTareas = document.getElementById('btn-sec-tareas');
+    const btnDashboard = document.getElementById('btn-sec-dashboard');
+    const btnCompras = document.getElementById('btn-sec-compras');
+
+    if (navSec) { navSec.style.setProperty('display', 'none', 'important'); navSec.classList.add('hidden'); }
+    if (tabsMovil) { tabsMovil.style.setProperty('display', 'none', 'important'); tabsMovil.classList.add('hidden'); }
+    if (btnTareas) { btnTareas.style.setProperty('display', 'none', 'important'); btnTareas.classList.add('hidden'); }
+    if (btnDashboard) { btnDashboard.style.setProperty('display', 'none', 'important'); btnDashboard.classList.add('hidden'); }
+    if (secTareas) { secTareas.style.setProperty('display', 'none', 'important'); secTareas.classList.add('hidden'); }
+    if (secDashboard) { secDashboard.style.setProperty('display', 'none', 'important'); secDashboard.classList.add('hidden'); }
+    if (secCompras) { secCompras.style.setProperty('display', 'block', 'important'); secCompras.classList.remove('hidden'); }
+
+    const btnContextual = document.getElementById('btn-accion-movil-contextual');
+    const txtContextual = document.getElementById('mob-txt-accion-contextual');
+    const iconContextual = document.getElementById('mob-icon-accion-contextual');
+    if (btnContextual) {
+      btnContextual.classList.remove('hidden');
+      btnContextual.className = 'text-xs bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg shadow-md transition flex items-center gap-1.5';
+      if (txtContextual) txtContextual.textContent = 'Solicitar';
+      if (iconContextual) iconContextual.className = 'fa-solid fa-cart-plus text-xs';
+    }
+
+    if (typeof cargarCompras === 'function') {
+      cargarCompras();
+    }
+    return;
+  }
+
   seccionMovilActiva = seccion;
   const secTareas = document.getElementById('contenedor-tareas-movil');
   const secDashboard = document.getElementById('contenedor-dashboard-movil');
@@ -1488,10 +1570,7 @@ function cambiarSeccionMovil(seccion) {
   const txtContextual = document.getElementById('mob-txt-accion-contextual');
   const iconContextual = document.getElementById('mob-icon-accion-contextual');
 
-  const user = (function() {
-    try { return JSON.parse(localStorage.getItem('siman_user')) || {}; } catch(e) { return {}; }
-  })();
-  const esGestion = ['admin', 'supervisor', 'sst', 'director', 'compras'].includes(user.rol);
+  const esGestion = ['admin', 'supervisor', 'sst', 'director'].includes(user.rol);
 
   if (btnTareas) btnTareas.className = 'py-1.5 px-1.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white hover:bg-slate-800';
   if (btnDashboard) btnDashboard.className = 'py-1.5 px-1.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white hover:bg-slate-800';
@@ -1714,28 +1793,34 @@ function formatearFechaRelativaMovil(fechaISO) {
 }
 
 function ejecutarAccionPrincipalMovil() {
+  const user = getUsuarioActivo();
+  if (user.rol === 'compras' || seccionMovilActiva === 'compras') {
+    if (typeof abrirModalNuevaCompra === 'function') {
+      abrirModalNuevaCompra();
+    }
+    return;
+  }
   if (seccionMovilActiva === 'tareas') {
     abrirModalCrearMovil();
   } else if (seccionMovilActiva === 'dashboard') {
     cargarTareasMovil(true);
     renderizarDashboardMovil(periodoMovilActual);
-  } else if (seccionMovilActiva === 'compras') {
-    if (typeof abrirModalNuevaCompra === 'function') {
-      abrirModalNuevaCompra();
-    }
   }
 }
 
 function recargarSeccionMovilActiva() {
+  const user = getUsuarioActivo();
+  if (user.rol === 'compras' || seccionMovilActiva === 'compras') {
+    if (typeof cargarCompras === 'function') {
+      cargarCompras();
+    }
+    return;
+  }
   if (seccionMovilActiva === 'tareas') {
     cargarTareasMovil(true);
   } else if (seccionMovilActiva === 'dashboard') {
     cargarTareasMovil(true);
     renderizarDashboardMovil(periodoMovilActual);
-  } else if (seccionMovilActiva === 'compras') {
-    if (typeof cargarCompras === 'function') {
-      cargarCompras();
-    }
   }
 }
 

@@ -1,8 +1,8 @@
 {
   "sistema": "SIMAN Industrial Maintenance",
   "tipo": "respaldo_automatico",
-  "exportado_en": "2026-10-01T03:28:01.678Z",
-  "hora_colombia": "2026-10-01 22:28:01",
+  "exportado_en": "2026-10-01T04:32:17.106Z",
+  "hora_colombia": "2026-10-01 23:32:17",
   "motivo": "inicio_servidor",
   "users": [
     {
@@ -121,6 +121,15 @@
       "rol": "supervisor",
       "especialidad": "Supervisor de Mantenimiento / Planta",
       "creado_en": "2026-09-30T00:31:58.821Z"
+    },
+    {
+      "id": "USR-14",
+      "username": "compras",
+      "password_hash": "60a48f71a53d8dc2abffec0545e2eb3c1d59ad0e95cce534cfe12e44582fb5eb",
+      "nombre": "Departamento de Compras",
+      "rol": "compras",
+      "especialidad": "Compras y Repuestos",
+      "creado_en": "2026-10-01T03:30:00.000Z"
     }
   ],
   "tasks": [
@@ -674,13 +683,12 @@
       "estado_pago": "pendiente",
       "fecha_pago": null,
       "comprobante_pago_ref": null,
+      "soporte_pago": null,
       "llego_a_planta": false,
       "fecha_llegada_planta": null,
       "recibido_por": null,
+      "foto_remision_llegada": null,
       "cantidad_recibida": 0,
-      "cantidad_consumida": 0,
-      "cantidad_en_stock": 0,
-      "consumos": [],
       "historial_cambios": [
         {
           "fecha": "2026-09-29T14:00:00.000Z",
@@ -707,7 +715,7 @@
       "solicitado_por": "Holger Torrado",
       "solicitado_por_rol": "admin",
       "fecha_solicitud": "2026-09-28T10:15:00.000Z",
-      "estado": "en_stock",
+      "estado": "finalizado",
       "cotizaciones": [
         {
           "id": "COT-1",
@@ -739,23 +747,12 @@
       "estado_pago": "pagado",
       "fecha_pago": "2026-09-28T16:20:00.000Z",
       "comprobante_pago_ref": "TRANSF-BANC-99210",
+      "soporte_pago": null,
       "llego_a_planta": true,
       "fecha_llegada_planta": "2026-09-29T08:30:00.000Z",
       "recibido_por": "Diego Chamorro",
+      "foto_remision_llegada": null,
       "cantidad_recibida": 2,
-      "cantidad_consumida": 1,
-      "cantidad_en_stock": 1,
-      "consumos": [
-        {
-          "id": "CONS-1",
-          "cantidad": 1,
-          "fecha": "2026-09-29T10:45:00.000Z",
-          "consumido_por": "Diego Chamorro",
-          "equipo": "Tambor saca moños",
-          "tarea_id": "TSK-1006",
-          "observaciones": "Instalado en rodillo de apoyo lado norte."
-        }
-      ],
       "historial_cambios": [
         {
           "fecha": "2026-09-28T10:15:00.000Z",
@@ -775,12 +772,7 @@
         {
           "fecha": "2026-09-29T08:30:00.000Z",
           "usuario": "Diego Chamorro",
-          "accion": "Repuesto recibido en almacén de planta (2 unidades)"
-        },
-        {
-          "fecha": "2026-09-29T10:45:00.000Z",
-          "usuario": "Diego Chamorro",
-          "accion": "Consumo de 1 unidad para TSK-1006 (Queda 1 en stock)"
+          "accion": "Repuesto entregado y recibido en planta (2 unidades) - Proceso de Compras Finalizado"
         }
       ]
     }
@@ -794,9 +786,9 @@
     "roles_creacion": [
       "admin",
       "compras",
+      "director",
       "supervisor",
-      "sst",
-      "director"
+      "sst"
     ],
     "roles_gestion": [
       "admin",

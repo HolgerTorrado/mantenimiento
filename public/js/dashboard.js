@@ -97,6 +97,13 @@ function cambiarTipoDetalleModal(nuevoTipo) {
 document.addEventListener('DOMContentLoaded', () => {
   const user = verificarSesionDashboard();
   if (!user) return; // Detener ejecución si no hay sesión activa
+  if (user.rol === 'compras') {
+    // El usuario de compras sólo gestiona compras y cotizaciones, nunca mantenimiento
+    if (typeof cambiarVistaPrincipal === 'function') {
+      cambiarVistaPrincipal('compras');
+    }
+    return;
+  }
   iniciarReloj();
   cargarMecanicosSelect();
   cargarTareas();
@@ -160,10 +167,16 @@ function verificarSesionDashboard() {
       if (btnBackup) btnBackup.classList.add('hidden');
     }
 
-    // Si el usuario es de Compras, ocultar pestaña de mantenimiento y fijar vista compras
+    // Si el usuario es de Compras, aislar estrictamente vista compras
     if (user.rol === 'compras') {
       const btnNavMant = document.getElementById('btn-nav-mantenimiento');
-      if (btnNavMant) btnNavMant.classList.add('hidden');
+      const vMant = document.getElementById('vista-mantenimiento');
+      const vComp = document.getElementById('vista-compras');
+      const btnComp = document.getElementById('btn-nav-compras');
+      if (btnNavMant) { btnNavMant.style.setProperty('display', 'none', 'important'); btnNavMant.classList.add('hidden'); }
+      if (vMant) { vMant.style.setProperty('display', 'none', 'important'); vMant.classList.add('hidden'); }
+      if (vComp) { vComp.style.setProperty('display', 'block', 'important'); vComp.classList.remove('hidden'); }
+      if (btnComp) { btnComp.style.setProperty('display', 'flex', 'important'); btnComp.classList.remove('hidden'); }
       if (typeof cambiarVistaPrincipal === 'function') {
         cambiarVistaPrincipal('compras');
       }

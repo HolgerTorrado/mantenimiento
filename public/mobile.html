@@ -10,13 +10,33 @@
   <title>Portal Mecánico - SIMAN Móvil</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
-  <!-- Verificación inmediata de sesión antes de cargar recursos -->
+  <!-- Verificación inmediata de sesión y aislamiento estricto de roles -->
   <script>
     (function() {
       try {
         var u = localStorage.getItem('siman_user');
         if (!u) {
           window.location.replace('/login');
+          return;
+        }
+        var user = JSON.parse(u);
+        if (user.rol === 'compras') {
+          var style = document.createElement('style');
+          style.id = 'estilo-aislamiento-compras-mob';
+          style.innerHTML = `
+            #nav-secciones-movil,
+            #mobile-tabs,
+            #contenedor-tareas-movil,
+            #contenedor-dashboard-movil,
+            #btn-sec-tareas,
+            #btn-sec-dashboard {
+              display: none !important;
+            }
+            #contenedor-compras-movil {
+              display: block !important;
+            }
+          `;
+          document.head.appendChild(style);
         }
       } catch(e) {
         window.location.replace('/login');

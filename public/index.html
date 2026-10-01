@@ -14,7 +14,8 @@
           return;
         }
         var parsed = JSON.parse(u);
-        if (parsed.rol !== 'admin' && parsed.rol !== 'visualizador') {
+        var rolesPermitidosPC = ['admin', 'visualizador', 'compras', 'supervisor', 'sst', 'director'];
+        if (!rolesPermitidosPC.includes(parsed.rol)) {
           window.location.replace('/mecanico');
           return;
         }
@@ -29,6 +30,29 @@
         // Si el usuario accede desde celular y no seleccionó expresamente "Vista PC", enviar a la vista móvil
         if (esMovil && sessionStorage.getItem('siman_forzar_pc') !== 'true') {
           window.location.replace('/mecanico');
+          return;
+        }
+
+        // AISLAMIENTO ESTRICTO INMEDIATO PARA ROL COMPRAS EN PC (CERO PARPADEO)
+        if (parsed.rol === 'compras') {
+          var style = document.createElement('style');
+          style.id = 'estilo-aislamiento-compras-pc';
+          style.innerHTML = `
+            #btn-nav-mantenimiento,
+            #vista-mantenimiento,
+            #btn-periodo-group,
+            #btn-admin-usuarios,
+            #btn-admin-backup {
+              display: none !important;
+            }
+            #vista-compras {
+              display: block !important;
+            }
+            #btn-nav-compras {
+              display: flex !important;
+            }
+          `;
+          document.head.appendChild(style);
         }
       } catch(e) {
         window.location.replace('/login');

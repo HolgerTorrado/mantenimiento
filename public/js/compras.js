@@ -101,24 +101,71 @@ async function verificarAccesoModuloCompras() {
 
     // Si el rol es compras, aislar estrictamente el módulo de compras
     if (user.rol === 'compras') {
-      // En PC: Ocultar pestaña de mantenimiento
-      if (btnNavMant) btnNavMant.classList.add('hidden');
-      if (btnCrearPrincipal) btnCrearPrincipal.classList.remove('hidden');
+      // En PC: Ocultar pestaña y vista de mantenimiento
+      if (btnNavMant) {
+        btnNavMant.style.setProperty('display', 'none', 'important');
+        btnNavMant.classList.add('hidden');
+      }
+      const vMant = document.getElementById('vista-mantenimiento');
+      if (vMant) {
+        vMant.style.setProperty('display', 'none', 'important');
+        vMant.classList.add('hidden');
+      }
+      const vComp = document.getElementById('vista-compras');
+      if (vComp) {
+        vComp.style.setProperty('display', 'block', 'important');
+        vComp.classList.remove('hidden');
+      }
+      if (btnNav) {
+        btnNav.style.setProperty('display', 'flex', 'important');
+        btnNav.classList.remove('hidden');
+        btnNav.className = 'flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-cyan-600 text-white shadow-md shadow-cyan-900/30';
+      }
+      if (btnCrearPrincipal) {
+        btnCrearPrincipal.classList.remove('hidden');
+        actualizarBotonCrearPrincipal('compras');
+      }
 
-      if (typeof cambiarVistaPrincipal === 'function' && document.getElementById('vista-compras')) {
+      if (typeof cambiarVistaPrincipal === 'function') {
         cambiarVistaPrincipal('compras');
       }
 
-      // En Móvil: Ocultar tareas y dashboard de mantenimiento
-      if (btnSecTareas) btnSecTareas.classList.add('hidden');
-      if (btnSecDashboard) btnSecDashboard.classList.add('hidden');
-
+      // En Móvil: Ocultar tareas, dashboard de mantenimiento y pestañas
+      if (btnSecTareas) {
+        btnSecTareas.style.setProperty('display', 'none', 'important');
+        btnSecTareas.classList.add('hidden');
+      }
+      if (btnSecDashboard) {
+        btnSecDashboard.style.setProperty('display', 'none', 'important');
+        btnSecDashboard.classList.add('hidden');
+      }
+      const tabsMovil = document.getElementById('mobile-tabs');
+      if (tabsMovil) {
+        tabsMovil.style.setProperty('display', 'none', 'important');
+        tabsMovil.classList.add('hidden');
+      }
       const navSeccionesMovil = document.getElementById('nav-secciones-movil');
       if (navSeccionesMovil) {
-        navSeccionesMovil.className = 'grid grid-cols-1 gap-1.5 mt-2.5 bg-slate-950/80 p-1 rounded-xl border border-slate-700/70';
+        navSeccionesMovil.style.setProperty('display', 'none', 'important');
+        navSeccionesMovil.classList.add('hidden');
+      }
+      const cTareas = document.getElementById('contenedor-tareas-movil');
+      if (cTareas) {
+        cTareas.style.setProperty('display', 'none', 'important');
+        cTareas.classList.add('hidden');
+      }
+      const cDash = document.getElementById('contenedor-dashboard-movil');
+      if (cDash) {
+        cDash.style.setProperty('display', 'none', 'important');
+        cDash.classList.add('hidden');
+      }
+      const cComp = document.getElementById('contenedor-compras-movil');
+      if (cComp) {
+        cComp.style.setProperty('display', 'block', 'important');
+        cComp.classList.remove('hidden');
       }
 
-      if (typeof cambiarSeccionMovil === 'function' && document.getElementById('contenedor-compras-movil')) {
+      if (typeof cambiarSeccionMovil === 'function') {
         cambiarSeccionMovil('compras');
       }
     }
@@ -165,27 +212,52 @@ function accionBotonCrearPrincipal() {
 }
 
 function cambiarVistaPrincipal(vista) {
+  const user = getUsuarioActual();
+  if (user.rol === 'compras') {
+    vista = 'compras';
+  }
+
   const vistaMantenimiento = document.getElementById('vista-mantenimiento');
   const vistaCompras = document.getElementById('vista-compras');
   const btnMantenimiento = document.getElementById('btn-nav-mantenimiento');
   const btnCompras = document.getElementById('btn-nav-compras');
 
   if (vista === 'compras') {
-    if (vistaMantenimiento) vistaMantenimiento.classList.add('hidden');
-    if (vistaCompras) vistaCompras.classList.remove('hidden');
+    if (vistaMantenimiento) {
+      vistaMantenimiento.style.setProperty('display', 'none', 'important');
+      vistaMantenimiento.classList.add('hidden');
+    }
+    if (vistaCompras) {
+      vistaCompras.style.setProperty('display', 'block', 'important');
+      vistaCompras.classList.remove('hidden');
+    }
 
     if (btnCompras) {
+      btnCompras.style.setProperty('display', 'flex', 'important');
       btnCompras.className = 'flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-cyan-600 text-white shadow-md shadow-cyan-900/30';
     }
     if (btnMantenimiento) {
-      btnMantenimiento.className = 'flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700/80';
+      if (user.rol === 'compras') {
+        btnMantenimiento.style.setProperty('display', 'none', 'important');
+        btnMantenimiento.classList.add('hidden');
+      } else {
+        btnMantenimiento.className = 'flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700/80';
+      }
     }
 
     actualizarBotonCrearPrincipal('compras');
     cargarCompras();
   } else {
-    if (vistaCompras) vistaCompras.classList.add('hidden');
-    if (vistaMantenimiento) vistaMantenimiento.classList.remove('hidden');
+    if (user.rol === 'compras') return;
+
+    if (vistaCompras) {
+      vistaCompras.classList.add('hidden');
+      vistaCompras.style.display = 'none';
+    }
+    if (vistaMantenimiento) {
+      vistaMantenimiento.classList.remove('hidden');
+      vistaMantenimiento.style.display = 'block';
+    }
 
     if (btnMantenimiento) {
       btnMantenimiento.className = 'flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition bg-emerald-600 text-white shadow-md shadow-emerald-900/30';
@@ -197,6 +269,7 @@ function cambiarVistaPrincipal(vista) {
     actualizarBotonCrearPrincipal('mantenimiento');
   }
 }
+
 
 // ==========================================
 // CARGA Y RENDERIZADO DE COMPRAS
