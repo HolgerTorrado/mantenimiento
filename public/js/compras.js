@@ -65,22 +65,61 @@ async function verificarAccesoModuloCompras() {
   const tieneAcceso = user.rol === 'admin' || permitidos.includes(user.rol);
 
   const btnNav = document.getElementById('btn-nav-compras');
+  const btnSecCompras = document.getElementById('btn-sec-compras');
   const btnPermisos = document.getElementById('btn-admin-permisos-compras');
 
   if (tieneAcceso) {
     if (btnNav) btnNav.classList.remove('hidden');
+    if (btnSecCompras) btnSecCompras.classList.remove('hidden');
     if (btnPermisos && user.rol === 'admin') btnPermisos.classList.remove('hidden');
 
     // Si el rol es compras, abrir directamente la vista de compras
     if (user.rol === 'compras') {
-      cambiarVistaPrincipal('compras');
+      if (typeof cambiarVistaPrincipal === 'function' && document.getElementById('vista-compras')) {
+        cambiarVistaPrincipal('compras');
+      }
+      if (typeof cambiarSeccionMovil === 'function' && document.getElementById('contenedor-compras-movil')) {
+        cambiarSeccionMovil('compras');
+      }
     }
   } else {
     if (btnNav) btnNav.classList.add('hidden');
+    if (btnSecCompras) btnSecCompras.classList.add('hidden');
     if (btnPermisos) btnPermisos.classList.add('hidden');
   }
 
   return tieneAcceso;
+}
+
+function actualizarBotonCrearPrincipal(vista) {
+  const btn = document.getElementById('btn-crear-tarea-dashboard');
+  const txt = document.getElementById('texto-btn-crear');
+  const txtSm = document.getElementById('texto-btn-crear-sm');
+  const icono = document.getElementById('icono-btn-crear');
+  if (!btn) return;
+
+  if (vista === 'compras') {
+    if (txt) txt.textContent = 'Nueva Solicitud';
+    if (txtSm) txtSm.textContent = 'Solicitar';
+    if (icono) icono.className = 'fa-solid fa-cart-plus text-xs';
+    btn.className = 'flex items-center space-x-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs sm:text-sm font-semibold px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-md shadow-cyan-600/25 transition-all';
+  } else {
+    if (txt) txt.textContent = 'Nueva Tarea';
+    if (txtSm) txtSm.textContent = 'Crear';
+    if (icono) icono.className = 'fa-solid fa-plus text-xs';
+    btn.className = 'flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-md shadow-emerald-600/25 transition-all';
+  }
+}
+
+function accionBotonCrearPrincipal() {
+  const vistaCompras = document.getElementById('vista-compras');
+  if (vistaCompras && !vistaCompras.classList.contains('hidden')) {
+    abrirModalNuevaCompra();
+  } else {
+    if (typeof abrirModalCrear === 'function') {
+      abrirModalCrear();
+    }
+  }
 }
 
 function cambiarVistaPrincipal(vista) {
@@ -100,6 +139,7 @@ function cambiarVistaPrincipal(vista) {
       btnMantenimiento.className = 'flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700/80';
     }
 
+    actualizarBotonCrearPrincipal('compras');
     cargarCompras();
   } else {
     if (vistaCompras) vistaCompras.classList.add('hidden');
@@ -111,6 +151,8 @@ function cambiarVistaPrincipal(vista) {
     if (btnCompras) {
       btnCompras.className = 'flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-700/80';
     }
+
+    actualizarBotonCrearPrincipal('mantenimiento');
   }
 }
 
@@ -152,6 +194,14 @@ function actualizarMetricasCompras() {
 
   const badgeConteo = document.getElementById('badge-compras-conteo');
   if (badgeConteo) badgeConteo.innerText = cotizando > 0 ? cotizando : total;
+
+  const mobBadge = document.getElementById('mob-badge-compras');
+  if (mobBadge) {
+    const val = cotizando > 0 ? cotizando : total;
+    mobBadge.innerText = val;
+    if (val > 0) mobBadge.classList.remove('hidden');
+    else mobBadge.classList.add('hidden');
+  }
 
   const elTotal = document.getElementById('compras-kpi-total');
   const elCotizando = document.getElementById('compras-kpi-cotizando');

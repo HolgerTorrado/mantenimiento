@@ -1,6 +1,8 @@
 // Variables del Portal Móvil
 let tareasMovil = [];
 let tabActual = 'pendientes';
+let seccionMovilActiva = 'tareas';
+let periodoMovilActual = 'todo';
 let mecanicoActivo = localStorage.getItem('siman_mecanico_activo') || 'todos';
 let fotoCapturadaFile = null;
 
@@ -33,6 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!user) return; // Detener ejecución si no hay sesión activa
 
   cargarTareasMovil();
+  cargarMecanicosMovil();
+
+  if (typeof verificarAccesoModuloCompras === 'function') {
+    verificarAccesoModuloCompras();
+  }
 
   // Registrar Service Worker para PWA
   if ('serviceWorker' in navigator) {
@@ -42,6 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auto-refrescar cada 20 segundos
   setInterval(() => {
     cargarTareasMovil(false);
+    if (seccionMovilActiva === 'compras' && typeof cargarCompras === 'function') {
+      cargarCompras();
+    }
   }, 20000);
 });
 
@@ -87,12 +97,13 @@ function verificarSesionMovil() {
       else if (user.rol === 'sst') { icon = '🦺'; rolBadge = '<span class="text-[9px] font-bold text-emerald-300 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/40">SST</span>'; }
       else if (user.rol === 'director') { icon = '🏢'; rolBadge = '<span class="text-[9px] font-bold text-indigo-300 bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-500/40">DIRECTOR</span>'; }
       else if (user.rol === 'admin') { icon = '👑'; rolBadge = '<span class="text-[9px] font-bold text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/40">ADMIN</span>'; }
+      else if (user.rol === 'compras') { icon = '🛒'; rolBadge = '<span class="text-[9px] font-bold text-cyan-300 bg-cyan-950/80 px-1.5 py-0.5 rounded border border-cyan-500/40">COMPRAS</span>'; }
       else if (user.rol === 'visualizador') { icon = '👁️'; rolBadge = '<span class="text-[9px] text-purple-300 opacity-80">(Visualizador)</span>'; }
 
       label.innerHTML = `${icon} <span class="font-bold text-white">${escaparHTMLMovil(user.nombre || user.username)}</span> ${rolBadge}`;
     }
 
-    const esGestion = ['admin', 'supervisor', 'sst', 'director'].includes(user.rol);
+    const esGestion = ['admin', 'supervisor', 'sst', 'director', 'compras'].includes(user.rol);
 
     // Si tiene rol de gestión o es Visualizador, habilitar botón de cambiar a Vista PC
     const btnPC = document.getElementById('btn-ir-pc-dashboard');
@@ -104,13 +115,13 @@ function verificarSesionMovil() {
       }
     }
 
-    // Si tiene rol de gestión, habilitar botón de crear tarea en barra móvil
-    const btnCrear = document.getElementById('btn-crear-tarea-movil');
-    if (btnCrear) {
+    // Botón Contextual Móvil (Crear Tarea / Solicitar Compra / Recargar)
+    const btnContextual = document.getElementById('btn-accion-movil-contextual');
+    if (btnContextual) {
       if (esGestion) {
-        btnCrear.classList.remove('hidden');
+        btnContextual.classList.remove('hidden');
       } else {
-        btnCrear.classList.add('hidden');
+        btnContextual.classList.add('hidden');
       }
     }
 
@@ -300,6 +311,9 @@ async function cargarTareasMovil(mostrarSpin = true) {
     tareasMovil = Array.isArray(data) ? data : [];
     actualizarContadoresMovil();
     renderTareasMovil();
+    if (seccionMovilActiva === 'dashboard') {
+      renderizarDashboardMovil(periodoMovilActual);
+    }
   } catch (err) {
     console.error('Error cargando tareas móvil:', err);
     const contenedor = document.getElementById('contenedor-tareas-movil');
@@ -1438,6 +1452,276 @@ function renderAvancesDetalleMovil(t) {
       </div>
     `;
   }).join('');
+}
+
+// ==========================================
+// NAVEGACIÓN Y DASHBOARD MULTI-SECCIÓN MÓVIL
+// ==========================================
+
+function cambiarSeccionMovil(seccion) {
+  seccionMovilActiva = seccion;
+  const secTareas = document.getElementById('contenedor-tareas-movil');
+  const secDashboard = document.getElementById('contenedor-dashboard-movil');
+  const secCompras = document.getElementById('contenedor-compras-movil');
+  const tabsMovil = document.getElementById('mobile-tabs');
+
+  const btnTareas = document.getElementById('btn-sec-tareas');
+  const btnDashboard = document.getElementById('btn-sec-dashboard');
+  const btnCompras = document.getElementById('btn-sec-compras');
+
+  const btnContextual = document.getElementById('btn-accion-movil-contextual');
+  const txtContextual = document.getElementById('mob-txt-accion-contextual');
+  const iconContextual = document.getElementById('mob-icon-accion-contextual');
+
+  const user = (function() {
+    try { return JSON.parse(localStorage.getItem('siman_user')) || {}; } catch(e) { return {}; }
+  })();
+  const esGestion = ['admin', 'supervisor', 'sst', 'director', 'compras'].includes(user.rol);
+
+  if (btnTareas) btnTareas.className = 'py-1.5 px-1.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white hover:bg-slate-800';
+  if (btnDashboard) btnDashboard.className = 'py-1.5 px-1.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white hover:bg-slate-800';
+  if (btnCompras) btnCompras.className = 'py-1.5 px-1.5 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white hover:bg-slate-800';
+
+  if (seccion === 'tareas') {
+    if (tabsMovil) tabsMovil.classList.remove('hidden');
+    if (secTareas) secTareas.classList.remove('hidden');
+    if (secDashboard) secDashboard.classList.add('hidden');
+    if (secCompras) secCompras.classList.add('hidden');
+    if (btnTareas) btnTareas.className = 'py-1.5 px-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-emerald-600 text-white shadow';
+
+    if (btnContextual) {
+      if (esGestion) {
+        btnContextual.classList.remove('hidden');
+        btnContextual.className = 'text-xs bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg shadow-md transition flex items-center gap-1.5';
+        if (txtContextual) txtContextual.textContent = 'Nueva Tarea';
+        if (iconContextual) iconContextual.className = 'fa-solid fa-plus text-xs';
+      } else {
+        btnContextual.classList.add('hidden');
+      }
+    }
+  } else if (seccion === 'dashboard') {
+    if (tabsMovil) tabsMovil.classList.add('hidden');
+    if (secTareas) secTareas.classList.add('hidden');
+    if (secDashboard) secDashboard.classList.remove('hidden');
+    if (secCompras) secCompras.classList.add('hidden');
+    if (btnDashboard) btnDashboard.className = 'py-1.5 px-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-indigo-600 text-white shadow';
+
+    renderizarDashboardMovil(periodoMovilActual);
+
+    if (btnContextual) {
+      btnContextual.classList.remove('hidden');
+      btnContextual.className = 'text-xs bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg shadow-md transition flex items-center gap-1.5';
+      if (txtContextual) txtContextual.textContent = 'Recargar';
+      if (iconContextual) iconContextual.className = 'fa-solid fa-arrows-rotate text-xs';
+    }
+  } else if (seccion === 'compras') {
+    if (tabsMovil) tabsMovil.classList.add('hidden');
+    if (secTareas) secTareas.classList.add('hidden');
+    if (secDashboard) secDashboard.classList.add('hidden');
+    if (secCompras) secCompras.classList.remove('hidden');
+    if (btnCompras) btnCompras.className = 'py-1.5 px-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-cyan-600 text-white shadow';
+
+    if (typeof cargarCompras === 'function') {
+      cargarCompras();
+    }
+
+    if (btnContextual) {
+      btnContextual.classList.remove('hidden');
+      btnContextual.className = 'text-xs bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg shadow-md transition flex items-center gap-1.5';
+      if (txtContextual) txtContextual.textContent = 'Solicitar';
+      if (iconContextual) iconContextual.className = 'fa-solid fa-cart-plus text-xs';
+    }
+  }
+}
+
+function cambiarPeriodoMovil(periodo, btn) {
+  periodoMovilActual = periodo;
+  document.querySelectorAll('.mob-periodo-btn').forEach(b => {
+    b.className = 'mob-periodo-btn px-2.5 py-1 rounded-lg text-xs font-medium text-slate-400 hover:text-white';
+  });
+  if (btn) {
+    btn.className = 'mob-periodo-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow';
+  }
+  renderizarDashboardMovil(periodo);
+}
+
+function filtrarTareasPorPeriodoMovil(tareas, periodo) {
+  if (!periodo || periodo === 'todo') return tareas;
+  const ahora = new Date();
+  return (tareas || []).filter(t => {
+    const fechaRef = t.fecha_inicio || t.creado_en;
+    if (!fechaRef) return false;
+    const f = new Date(fechaRef);
+    if (isNaN(f.getTime())) return false;
+    const diffMs = ahora.getTime() - f.getTime();
+    const diffDias = diffMs / (1000 * 60 * 60 * 24);
+
+    if (periodo === 'dia') {
+      return f.toDateString() === ahora.toDateString();
+    }
+    if (periodo === 'semana') return diffDias <= 7;
+    if (periodo === 'mes') return diffDias <= 30;
+    return true;
+  });
+}
+
+function renderizarDashboardMovil(periodo = 'todo') {
+  const filtradas = filtrarTareasPorPeriodoMovil(tareasMovil, periodo);
+  const total = filtradas.length;
+  const pendientes = filtradas.filter(t => t.estado === 'pendiente').length;
+  const progreso = filtradas.filter(t => t.estado === 'en_progreso').length;
+  const completadas = filtradas.filter(t => t.estado === 'completado').length;
+
+  const minParada = filtradas.reduce((s, t) => s + (Number(t.tiempo_parada_minutos) || 0), 0);
+  const minMecanicos = filtradas.reduce((s, t) => s + (Number(t.tiempo_mecanicos_minutos) || 0), 0);
+  const minElectrico = filtradas.reduce((s, t) => s + (Number(t.tiempo_electrico_minutos) || 0), 0);
+  const minMaquinaria = filtradas.reduce((s, t) => s + (Number(t.tiempo_maquinaria_minutos) || 0), 0);
+  const minRepuestos = filtradas.reduce((s, t) => s + (Number(t.tiempo_espera_repuesto_minutos) || 0), 0);
+  const minExternos = filtradas.reduce((s, t) => s + (Number(t.tiempo_trabajo_externo_minutos) || 0), 0);
+
+  const formatoMin = min => {
+    if (!min) return '0 min';
+    if (min < 60) return `${Math.round(min)} min`;
+    const h = Math.floor(min / 60);
+    const r = Math.round(min % 60);
+    return `${h}h ${r}m`;
+  };
+
+  const elTotal = document.getElementById('mob-kpi-total');
+  const elPendientes = document.getElementById('mob-kpi-pendientes');
+  const elProgreso = document.getElementById('mob-kpi-progreso');
+  const elCompletadas = document.getElementById('mob-kpi-completadas');
+  const elParada = document.getElementById('mob-kpi-parada');
+  const elTasa = document.getElementById('mob-kpi-tasa-exito');
+
+  if (elTotal) elTotal.innerText = total;
+  if (elPendientes) elPendientes.innerText = pendientes;
+  if (elProgreso) elProgreso.innerText = progreso;
+  if (elCompletadas) elCompletadas.innerText = completadas;
+  if (elParada) elParada.innerText = formatoMin(minParada);
+  if (elTasa) {
+    const tasa = total > 0 ? Math.round((completadas / total) * 100) : 0;
+    elTasa.innerText = `${tasa}%`;
+  }
+
+  const elMec = document.getElementById('mob-horas-mecanicos');
+  const elEle = document.getElementById('mob-horas-electrico');
+  const elMaq = document.getElementById('mob-horas-maquinaria');
+  const elRep = document.getElementById('mob-horas-repuestos');
+  const elExt = document.getElementById('mob-horas-externos');
+
+  if (elMec) elMec.innerText = formatoMin(minMecanicos);
+  if (elEle) elEle.innerText = formatoMin(minElectrico);
+  if (elMaq) elMaq.innerText = formatoMin(minMaquinaria);
+  if (elRep) elRep.innerText = formatoMin(minRepuestos);
+  if (elExt) elExt.innerText = formatoMin(minExternos);
+
+  // Tipos
+  const tiposCounts = {};
+  filtradas.forEach(t => {
+    const tipo = (t.tipo || 'otro').toLowerCase();
+    tiposCounts[tipo] = (tiposCounts[tipo] || 0) + 1;
+  });
+
+  const contenedorTipos = document.getElementById('mob-distribucion-tipos');
+  if (contenedorTipos) {
+    const tiposClaves = Object.keys(CONFIG_TIPOS_MOVIL);
+    let htmlTipos = '';
+    tiposClaves.forEach(k => {
+      const cfg = CONFIG_TIPOS_MOVIL[k];
+      const count = tiposCounts[k] || 0;
+      if (count > 0 || ['preventivo', 'correctivo', 'predictivo', 'mejora'].includes(k)) {
+        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+        htmlTipos += `
+          <div class="space-y-1">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="font-medium text-slate-300 flex items-center gap-1.5">
+                <i class="fa-solid ${cfg.icon}" style="color:${cfg.color}"></i> ${cfg.label}
+              </span>
+              <span class="font-mono text-slate-400 font-bold">${count} (${pct}%)</span>
+            </div>
+            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+              <div class="h-1.5 rounded-full" style="width: ${pct}%; background-color: ${cfg.color}"></div>
+            </div>
+          </div>
+        `;
+      }
+    });
+    contenedorTipos.innerHTML = htmlTipos || '<p class="text-slate-400 text-xs text-center py-2">Sin tareas en este rango.</p>';
+  }
+
+  // Avances recientes
+  const avances = [];
+  filtradas.forEach(t => {
+    (t.avances || []).forEach(a => {
+      avances.push({
+        ...a,
+        equipo: t.equipo,
+        tarea_id: t.id
+      });
+    });
+  });
+
+  avances.sort((a, b) => new Date(b.fecha || 0) - new Date(a.fecha || 0));
+  const elBadgeAvances = document.getElementById('mob-total-avances-badge');
+  if (elBadgeAvances) elBadgeAvances.innerText = `${avances.length} avances`;
+
+  const contenedorAvances = document.getElementById('mob-lista-avances-recientes');
+  if (contenedorAvances) {
+    if (avances.length === 0) {
+      contenedorAvances.innerHTML = '<p class="text-xs text-slate-400 text-center py-3">No hay avances registrados en este período.</p>';
+    } else {
+      contenedorAvances.innerHTML = avances.slice(0, 5).map(a => `
+        <div class="bg-slate-900/70 border border-slate-700/60 rounded-xl p-2.5 space-y-1 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-[10px] text-cyan-400 font-bold">${a.tarea_id} - ${escaparHTMLMovil(a.equipo || 'Equipo')}</span>
+            <span class="text-[9px] text-slate-400">${formatearFechaRelativaMovil(a.fecha)}</span>
+          </div>
+          <p class="text-slate-200">${escaparHTMLMovil(a.nota || '')}</p>
+          <div class="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
+            <span>Por: <strong class="text-emerald-400">${escaparHTMLMovil(a.autor || 'Técnico')}</strong></span>
+            ${a.porcentaje ? `<span class="bg-blue-950 text-blue-300 px-1.5 py-0.2 rounded font-bold">${a.porcentaje}% avance</span>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function formatearFechaRelativaMovil(fechaISO) {
+  if (!fechaISO) return '';
+  try {
+    const d = new Date(fechaISO);
+    return d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' });
+  } catch(e) {
+    return '';
+  }
+}
+
+function ejecutarAccionPrincipalMovil() {
+  if (seccionMovilActiva === 'tareas') {
+    abrirModalCrearMovil();
+  } else if (seccionMovilActiva === 'dashboard') {
+    cargarTareasMovil(true);
+    renderizarDashboardMovil(periodoMovilActual);
+  } else if (seccionMovilActiva === 'compras') {
+    if (typeof abrirModalNuevaCompra === 'function') {
+      abrirModalNuevaCompra();
+    }
+  }
+}
+
+function recargarSeccionMovilActiva() {
+  if (seccionMovilActiva === 'tareas') {
+    cargarTareasMovil(true);
+  } else if (seccionMovilActiva === 'dashboard') {
+    cargarTareasMovil(true);
+    renderizarDashboardMovil(periodoMovilActual);
+  } else if (seccionMovilActiva === 'compras') {
+    if (typeof cargarCompras === 'function') {
+      cargarCompras();
+    }
+  }
 }
 
 

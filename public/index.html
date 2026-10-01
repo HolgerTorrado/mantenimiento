@@ -118,11 +118,11 @@
           <span class="hidden md:inline">Respaldo</span>
         </button>
 
-        <!-- Botón Crear Tarea (Exclusivo Admin Holger) -->
-        <button id="btn-crear-tarea-dashboard" onclick="abrirModalCrear()" class="flex items-center space-x-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-md shadow-emerald-600/25 transition-all">
-          <i class="fa-solid fa-plus text-xs"></i>
-          <span class="hidden sm:inline">Nueva Tarea</span>
-          <span class="sm:hidden">Crear</span>
+        <!-- Botón Crear Principal (Mantenimiento o Compras según pestaña activa) -->
+        <button id="btn-crear-tarea-dashboard" onclick="accionBotonCrearPrincipal()" class="flex items-center space-x-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-md shadow-emerald-600/25 transition-all">
+          <i class="fa-solid fa-plus text-xs" id="icono-btn-crear"></i>
+          <span id="texto-btn-crear" class="hidden sm:inline">Nueva Tarea</span>
+          <span id="texto-btn-crear-sm" class="sm:hidden">Crear</span>
         </button>
 
         <!-- Usuario Activo & Salir Seguro (Directo y sin tener que desplazarse) -->
@@ -532,10 +532,12 @@
         </table>
       </div>
 
-    </div> <!-- FIN VISTA MANTENIMIENTO -->
+    </div> <!-- Cierre del contenedor tabla -->
 
-    <!-- SECCIÓN DE COMPRAS, ADQUISICIONES Y CONTROL DE STOCK -->
-    <div id="vista-compras" class="hidden space-y-6">
+  </div> <!-- FIN VISTA MANTENIMIENTO -->
+
+  <!-- SECCIÓN DE COMPRAS, ADQUISICIONES Y CONTROL DE STOCK -->
+  <div id="vista-compras" class="hidden space-y-6">
 
       <!-- ENCABEZADO Y ACCIONES RÁPIDAS DE COMPRAS -->
       <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg">
