@@ -26,5 +26,12 @@
     "username": "esilva",
     "rol": "mecanico",
     "especialidad": "Mecánico de Planta"
+  },
+  {
+    "id": "TEC-05",
+    "nombre": "Herminzon Mandon",
+    "username": "hmandon",
+    "rol": "maquinista",
+    "especialidad": "Operador de Maquinaria"
   }
 ]

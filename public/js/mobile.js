@@ -125,6 +125,21 @@ function verificarSesionMovil() {
       }
     }
 
+    // Si el usuario es de Compras, ocultar Tareas y Dashboard de Mantenimiento, mostrando únicamente Compras
+    if (user.rol === 'compras') {
+      const btnSecTareas = document.getElementById('btn-sec-tareas');
+      const btnSecDashboard = document.getElementById('btn-sec-dashboard');
+      const tabsMovil = document.getElementById('mobile-tabs');
+      const navSec = document.getElementById('nav-secciones-movil');
+      if (btnSecTareas) btnSecTareas.classList.add('hidden');
+      if (btnSecDashboard) btnSecDashboard.classList.add('hidden');
+      if (tabsMovil) tabsMovil.classList.add('hidden');
+      if (navSec) navSec.className = 'grid grid-cols-1 gap-1.5 mt-2.5 bg-slate-950/80 p-1 rounded-xl border border-slate-700/70';
+      if (typeof cambiarSeccionMovil === 'function') {
+        cambiarSeccionMovil('compras');
+      }
+    }
+
     return user;
   } catch (e) {
     window.location.href = '/login';

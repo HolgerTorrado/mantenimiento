@@ -138,7 +138,7 @@ function verificarSesionDashboard() {
     if (rolEl) rolEl.innerText = user.rol.toUpperCase();
 
     // Roles de gestión con permisos para crear tareas y gestionar colaboradores
-    const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
+    const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director', 'compras'];
     const esGestion = ROLES_GESTION.includes(user.rol);
 
     const btnCrear = document.getElementById('btn-crear-tarea-dashboard');
@@ -146,7 +146,10 @@ function verificarSesionDashboard() {
     const btnBackup = document.getElementById('btn-admin-backup');
     if (esGestion) {
       if (btnCrear) btnCrear.classList.remove('hidden');
-      if (btnUsers) btnUsers.classList.remove('hidden');
+      if (btnUsers) {
+        if (user.rol === 'compras') btnUsers.classList.add('hidden');
+        else btnUsers.classList.remove('hidden');
+      }
       if (btnBackup) {
         if (user.rol === 'admin') btnBackup.classList.remove('hidden');
         else btnBackup.classList.add('hidden');
@@ -155,6 +158,15 @@ function verificarSesionDashboard() {
       if (btnCrear) btnCrear.classList.add('hidden');
       if (btnUsers) btnUsers.classList.add('hidden');
       if (btnBackup) btnBackup.classList.add('hidden');
+    }
+
+    // Si el usuario es de Compras, ocultar pestaña de mantenimiento y fijar vista compras
+    if (user.rol === 'compras') {
+      const btnNavMant = document.getElementById('btn-nav-mantenimiento');
+      if (btnNavMant) btnNavMant.classList.add('hidden');
+      if (typeof cambiarVistaPrincipal === 'function') {
+        cambiarVistaPrincipal('compras');
+      }
     }
 
     return user;

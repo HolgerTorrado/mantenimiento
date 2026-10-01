@@ -1584,17 +1584,17 @@ app.put('/api/compras/:id', (req, res) => {
     if (c.estado !== body.estado) cambiosLog.push(`Estado: ${body.estado}`);
     c.estado = body.estado;
   } else {
-    // Cálculo automático coherente
-    if (c.cantidad_en_stock === 0 && (c.consumos || []).length > 0 && c.cantidad_recibida > 0) {
-      c.estado = 'consumido';
-    } else if (c.llego_a_planta && c.cantidad_en_stock > 0) {
-      c.estado = 'en_stock';
-    } else if (c.llego_a_planta) {
-      c.estado = 'en_planta';
+    // Cálculo automático coherente del ciclo de compras
+    if (c.llego_a_planta) {
+      c.estado = 'finalizado'; // Trabajo de compras completado exitosamente (Entregado en Planta)
+    } else if (c.proveedor_comprado && c.estado_pago === 'pagado') {
+      c.estado = 'en_transito'; // Comprado y pagado, en camino a planta
     } else if (c.proveedor_comprado) {
-      c.estado = 'comprado';
+      c.estado = 'comprado'; // Proveedor y orden de compra definidos
     } else if (c.cotizaciones && c.cotizaciones.length > 0) {
-      c.estado = 'cotizando';
+      c.estado = 'cotizando'; // Evaluando cotizaciones de proveedores
+    } else {
+      c.estado = 'solicitado'; // Pendiente de cotizar
     }
   }
 

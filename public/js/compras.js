@@ -50,6 +50,28 @@ function getUsuarioActual() {
 // CONTROL DE ACCESO Y CAMBIO DE VISTA
 // ==========================================
 
+let subseccionComprasMovilActual = 'solicitudes';
+
+function cambiarSubseccionComprasMovil(sub) {
+  subseccionComprasMovilActual = sub;
+  const vSol = document.getElementById('mob-vista-compras-solicitudes');
+  const vDash = document.getElementById('mob-vista-compras-dashboard');
+  const btnSol = document.getElementById('mob-btn-sub-solicitudes');
+  const btnDash = document.getElementById('mob-btn-sub-dashboard');
+
+  if (sub === 'dashboard') {
+    if (vSol) vSol.classList.add('hidden');
+    if (vDash) vDash.classList.remove('hidden');
+    if (btnDash) btnDash.className = 'py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-indigo-600 text-white shadow';
+    if (btnSol) btnSol.className = 'py-1.5 px-2 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white';
+  } else {
+    if (vDash) vDash.classList.add('hidden');
+    if (vSol) vSol.classList.remove('hidden');
+    if (btnSol) btnSol.className = 'py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-cyan-600 text-white shadow';
+    if (btnDash) btnDash.className = 'py-1.5 px-2 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white';
+  }
+}
+
 async function verificarAccesoModuloCompras() {
   const user = getUsuarioActual();
   try {
@@ -65,19 +87,37 @@ async function verificarAccesoModuloCompras() {
   const tieneAcceso = user.rol === 'admin' || permitidos.includes(user.rol);
 
   const btnNav = document.getElementById('btn-nav-compras');
+  const btnNavMant = document.getElementById('btn-nav-mantenimiento');
   const btnSecCompras = document.getElementById('btn-sec-compras');
+  const btnSecTareas = document.getElementById('btn-sec-tareas');
+  const btnSecDashboard = document.getElementById('btn-sec-dashboard');
   const btnPermisos = document.getElementById('btn-admin-permisos-compras');
+  const btnCrearPrincipal = document.getElementById('btn-crear-tarea-dashboard');
 
   if (tieneAcceso) {
     if (btnNav) btnNav.classList.remove('hidden');
     if (btnSecCompras) btnSecCompras.classList.remove('hidden');
     if (btnPermisos && user.rol === 'admin') btnPermisos.classList.remove('hidden');
 
-    // Si el rol es compras, abrir directamente la vista de compras
+    // Si el rol es compras, aislar estrictamente el módulo de compras
     if (user.rol === 'compras') {
+      // En PC: Ocultar pestaña de mantenimiento
+      if (btnNavMant) btnNavMant.classList.add('hidden');
+      if (btnCrearPrincipal) btnCrearPrincipal.classList.remove('hidden');
+
       if (typeof cambiarVistaPrincipal === 'function' && document.getElementById('vista-compras')) {
         cambiarVistaPrincipal('compras');
       }
+
+      // En Móvil: Ocultar tareas y dashboard de mantenimiento
+      if (btnSecTareas) btnSecTareas.classList.add('hidden');
+      if (btnSecDashboard) btnSecDashboard.classList.add('hidden');
+
+      const navSeccionesMovil = document.getElementById('nav-secciones-movil');
+      if (navSeccionesMovil) {
+        navSeccionesMovil.className = 'grid grid-cols-1 gap-1.5 mt-2.5 bg-slate-950/80 p-1 rounded-xl border border-slate-700/70';
+      }
+
       if (typeof cambiarSeccionMovil === 'function' && document.getElementById('contenedor-compras-movil')) {
         cambiarSeccionMovil('compras');
       }
@@ -99,10 +139,10 @@ function actualizarBotonCrearPrincipal(vista) {
   if (!btn) return;
 
   if (vista === 'compras') {
-    if (txt) txt.textContent = 'Nueva Solicitud';
+    if (txt) txt.textContent = 'Radicar Solicitud';
     if (txtSm) txtSm.textContent = 'Solicitar';
     if (icono) icono.className = 'fa-solid fa-cart-plus text-xs';
-    btn.className = 'flex items-center space-x-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs sm:text-sm font-semibold px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-md shadow-cyan-600/25 transition-all';
+    btn.className = 'flex items-center space-x-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs sm:text-sm font-semibold px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-lg shadow-md shadow-cyan-600/25 transition-all';
   } else {
     if (txt) txt.textContent = 'Nueva Tarea';
     if (txtSm) txtSm.textContent = 'Crear';
@@ -113,7 +153,9 @@ function actualizarBotonCrearPrincipal(vista) {
 
 function accionBotonCrearPrincipal() {
   const vistaCompras = document.getElementById('vista-compras');
-  if (vistaCompras && !vistaCompras.classList.contains('hidden')) {
+  const user = getUsuarioActual();
+
+  if (user.rol === 'compras' || (vistaCompras && !vistaCompras.classList.contains('hidden'))) {
     abrirModalNuevaCompra();
   } else {
     if (typeof abrirModalCrear === 'function') {
@@ -185,45 +227,190 @@ async function cargarCompras() {
   }
 }
 
+function actualizarBarraPipe(prefix, valor, total) {
+  const txt = document.getElementById(`${prefix}-txt`);
+  const bar = document.getElementById(`${prefix}-bar`);
+  const pct = total > 0 ? Math.min(100, Math.round((valor / total) * 100)) : 0;
+  if (txt) txt.innerText = `${valor} (${pct}%)`;
+  if (bar) bar.style.width = `${pct}%`;
+}
+
+function renderizarTopProveedores(compras) {
+  const contenedorPC = document.getElementById('compras-top-proveedores-lista');
+  const proveedoresMap = {};
+
+  compras.forEach(c => {
+    if (c.proveedor_comprado) {
+      const p = c.proveedor_comprado.trim();
+      if (!proveedoresMap[p]) {
+        proveedoresMap[p] = { count: 0, total: 0 };
+      }
+      proveedoresMap[p].count += 1;
+      proveedoresMap[p].total += (Number(c.valor_compra_total) || 0);
+    }
+  });
+
+  const ranking = Object.entries(proveedoresMap).sort((a, b) => b[1].total - a[1].total);
+
+  if (contenedorPC) {
+    if (ranking.length === 0) {
+      contenedorPC.innerHTML = '<p class="text-slate-500 italic text-center py-4 text-[11px]">No hay compras adjudicadas aún.</p>';
+    } else {
+      contenedorPC.innerHTML = ranking.slice(0, 4).map(([nombre, data], idx) => `
+        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/50">
+          <div class="flex items-center gap-2 truncate pr-2">
+            <span class="w-5 h-5 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0">${idx + 1}</span>
+            <div class="truncate">
+              <span class="font-bold text-white text-xs block truncate" title="${nombre}">${nombre}</span>
+              <span class="text-[10px] text-slate-400">${data.count} ${data.count === 1 ? 'orden' : 'órdenes'}</span>
+            </div>
+          </div>
+          <span class="font-mono font-extrabold text-cyan-300 text-xs flex-shrink-0">${formatearCOP(data.total)}</span>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+function renderizarTopProveedoresMovil(compras) {
+  const contenedorMovil = document.getElementById('mob-compras-top-proveedores');
+  if (!contenedorMovil) return;
+
+  const proveedoresMap = {};
+  compras.forEach(c => {
+    if (c.proveedor_comprado) {
+      const p = c.proveedor_comprado.trim();
+      if (!proveedoresMap[p]) {
+        proveedoresMap[p] = { count: 0, total: 0 };
+      }
+      proveedoresMap[p].count += 1;
+      proveedoresMap[p].total += (Number(c.valor_compra_total) || 0);
+    }
+  });
+
+  const ranking = Object.entries(proveedoresMap).sort((a, b) => b[1].total - a[1].total);
+  if (ranking.length === 0) {
+    contenedorMovil.innerHTML = '<p class="text-slate-500 italic text-center py-2 text-[11px]">Sin compras adjudicadas aún.</p>';
+  } else {
+    contenedorMovil.innerHTML = ranking.slice(0, 3).map(([nombre, data], idx) => `
+      <div class="flex items-center justify-between p-2 rounded-xl bg-slate-900/60 border border-slate-700/40 text-xs">
+        <span class="truncate font-semibold text-slate-200">${nombre}</span>
+        <span class="font-mono font-bold text-cyan-300 flex-shrink-0 ml-2">${formatearCOP(data.total)}</span>
+      </div>
+    `).join('');
+  }
+}
+
 function actualizarMetricasCompras() {
   const total = solicitudesCompras.length;
-  const cotizando = solicitudesCompras.filter(c => c.estado === 'cotizando' || c.estado === 'solicitado').length;
+  const soloSolicitadas = solicitudesCompras.filter(c => c.estado === 'solicitado' && (!c.cotizaciones || c.cotizaciones.length === 0)).length;
+  const cotizando = solicitudesCompras.filter(c => c.estado === 'cotizando' || (!c.proveedor_comprado && (c.cotizaciones || []).length > 0)).length;
+  const compradas = solicitudesCompras.filter(c => !!c.proveedor_comprado).length;
   const porPagar = solicitudesCompras.filter(c => c.proveedor_comprado && c.estado_pago !== 'pagado').length;
-  const enPlantaStock = solicitudesCompras.filter(c => (c.cantidad_en_stock || 0) > 0).length;
-  const consumidosTotal = solicitudesCompras.filter(c => c.estado === 'consumido').length;
+  const pagadas = solicitudesCompras.filter(c => c.proveedor_comprado && c.estado_pago === 'pagado').length;
+  const enTransito = solicitudesCompras.filter(c => c.proveedor_comprado && !c.llego_a_planta).length;
+  const finalizadas = solicitudesCompras.filter(c => !!c.llego_a_planta || c.estado === 'finalizado').length;
 
+  // Montos Financieros en COP
+  const inversionTotal = solicitudesCompras.reduce((sum, c) => sum + (Number(c.valor_compra_total) || 0), 0);
+  const totalPagado = solicitudesCompras.filter(c => c.estado_pago === 'pagado').reduce((sum, c) => sum + (Number(c.valor_compra_total) || 0), 0);
+  const totalPorPagar = solicitudesCompras.filter(c => c.proveedor_comprado && c.estado_pago !== 'pagado').reduce((sum, c) => sum + (Number(c.valor_compra_total) || 0), 0);
+  const totalCotizaciones = solicitudesCompras.reduce((sum, c) => sum + (Array.isArray(c.cotizaciones) ? c.cotizaciones.length : 0), 0);
+
+  // Actualizar KPIs PC
+  const elTotal = document.getElementById('compras-kpi-total');
+  const elCotizando = document.getElementById('compras-kpi-cotizando');
+  const elAdjudicadas = document.getElementById('compras-kpi-adjudicadas');
+  const elPorPagar = document.getElementById('compras-kpi-por-pagar');
+  const elEnTransito = document.getElementById('compras-kpi-en-transito');
+  const elFinalizadas = document.getElementById('compras-kpi-finalizadas');
+
+  if (elTotal) elTotal.innerText = total;
+  if (elCotizando) elCotizando.innerText = cotizando + soloSolicitadas;
+  if (elAdjudicadas) elAdjudicadas.innerText = compradas;
+  if (elPorPagar) elPorPagar.innerText = porPagar;
+  if (elEnTransito) elEnTransito.innerText = enTransito;
+  if (elFinalizadas) elFinalizadas.innerText = finalizadas;
+
+  // Actualizar Finanzas PC
+  const elInv = document.getElementById('compras-kpi-inversion-total');
+  const elPag = document.getElementById('compras-kpi-monto-pagado');
+  const elPorPag = document.getElementById('compras-kpi-monto-por-pagar');
+  const elTotalCots = document.getElementById('compras-kpi-total-cots');
+
+  if (elInv) elInv.innerText = formatearCOP(inversionTotal);
+  if (elPag) elPag.innerText = formatearCOP(totalPagado);
+  if (elPorPag) elPorPag.innerText = formatearCOP(totalPorPagar);
+  if (elTotalCots) elTotalCots.innerText = totalCotizaciones;
+
+  // Pipeline PC
+  actualizarBarraPipe('pipe-solicitadas', total, total);
+  actualizarBarraPipe('pipe-cotizando', cotizando + compradas + finalizadas, total);
+  actualizarBarraPipe('pipe-compradas', compradas, total);
+  actualizarBarraPipe('pipe-pagadas', pagadas, total);
+  actualizarBarraPipe('pipe-finalizadas', finalizadas, total);
+
+  // Top Proveedores PC
+  renderizarTopProveedores(solicitudesCompras);
+
+  // Actualizar KPIs Móvil
+  const mTotal = document.getElementById('mob-compras-kpi-total');
+  const mCotizando = document.getElementById('mob-compras-kpi-cotizando');
+  const mAdjudicadas = document.getElementById('mob-compras-kpi-adjudicadas');
+  const mPorPagar = document.getElementById('mob-compras-kpi-por-pagar');
+  const mEnTransito = document.getElementById('mob-compras-kpi-en-transito');
+  const mFinalizadas = document.getElementById('mob-compras-kpi-finalizadas');
+
+  if (mTotal) mTotal.innerText = total;
+  if (mCotizando) mCotizando.innerText = cotizando + soloSolicitadas;
+  if (mAdjudicadas) mAdjudicadas.innerText = compradas;
+  if (mPorPagar) mPorPagar.innerText = porPagar;
+  if (mEnTransito) mEnTransito.innerText = enTransito;
+  if (mFinalizadas) mFinalizadas.innerText = finalizadas;
+
+  // Actualizar Finanzas Móvil
+  const mInv = document.getElementById('mob-compras-kpi-inversion-total');
+  const mPag = document.getElementById('mob-compras-kpi-monto-pagado');
+  const mPorPag = document.getElementById('mob-compras-kpi-monto-por-pagar');
+
+  if (mInv) mInv.innerText = formatearCOP(inversionTotal);
+  if (mPag) mPag.innerText = formatearCOP(totalPagado);
+  if (mPorPag) mPorPag.innerText = formatearCOP(totalPorPagar);
+
+  // Pipeline Móvil
+  actualizarBarraPipe('mob-pipe-solicitadas', total, total);
+  actualizarBarraPipe('mob-pipe-cotizando', cotizando + compradas + finalizadas, total);
+  actualizarBarraPipe('mob-pipe-compradas', compradas, total);
+  actualizarBarraPipe('mob-pipe-pagadas', pagadas, total);
+  actualizarBarraPipe('mob-pipe-finalizadas', finalizadas, total);
+
+  // Top Proveedores Móvil
+  renderizarTopProveedoresMovil(solicitudesCompras);
+
+  // Badges numéricos
   const badgeConteo = document.getElementById('badge-compras-conteo');
-  if (badgeConteo) badgeConteo.innerText = cotizando > 0 ? cotizando : total;
+  if (badgeConteo) badgeConteo.innerText = cotizando + soloSolicitadas > 0 ? cotizando + soloSolicitadas : total;
 
   const mobBadge = document.getElementById('mob-badge-compras');
   if (mobBadge) {
-    const val = cotizando > 0 ? cotizando : total;
+    const val = cotizando + soloSolicitadas > 0 ? cotizando + soloSolicitadas : total;
     mobBadge.innerText = val;
     if (val > 0) mobBadge.classList.remove('hidden');
     else mobBadge.classList.add('hidden');
   }
 
-  const elTotal = document.getElementById('compras-kpi-total');
-  const elCotizando = document.getElementById('compras-kpi-cotizando');
-  const elPorPagar = document.getElementById('compras-kpi-por-pagar');
-  const elStock = document.getElementById('compras-kpi-stock');
-  const elConsumidos = document.getElementById('compras-kpi-consumidos');
-
-  if (elTotal) elTotal.innerText = total;
-  if (elCotizando) elCotizando.innerText = cotizando;
-  if (elPorPagar) elPorPagar.innerText = porPagar;
-  if (elStock) elStock.innerText = enPlantaStock;
-  if (elConsumidos) elConsumidos.innerText = consumidosTotal;
+  const mobSubCount = document.getElementById('mob-count-solicitudes-badge');
+  if (mobSubCount) mobSubCount.innerText = total;
 }
 
 function filtrarEstadoCompra(estado, btn) {
   filtroEstadoCompra = estado;
   const botones = document.querySelectorAll('.compras-tab-btn');
   botones.forEach(b => {
-    b.className = 'compras-tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700/60';
+    b.className = 'compras-tab-btn flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700/60';
   });
   if (btn) {
-    btn.className = 'compras-tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-cyan-600 text-white shadow-md';
+    btn.className = 'compras-tab-btn flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-cyan-600 text-white shadow-md';
   }
   renderizarCompras();
 }
@@ -239,18 +426,20 @@ function renderizarCompras() {
 
   let filtradas = [...solicitudesCompras];
 
-  // Filtro por estado
+  // Filtro por estado del ciclo de compras
   if (filtroEstadoCompra !== 'todas') {
     if (filtroEstadoCompra === 'solicitado') {
       filtradas = filtradas.filter(c => c.estado === 'solicitado');
     } else if (filtroEstadoCompra === 'cotizando') {
-      filtradas = filtradas.filter(c => c.estado === 'cotizando');
+      filtradas = filtradas.filter(c => c.estado === 'cotizando' || (!c.proveedor_comprado && (c.cotizaciones || []).length > 0));
     } else if (filtroEstadoCompra === 'comprado') {
-      filtradas = filtradas.filter(c => c.estado === 'comprado' || (c.proveedor_comprado && !c.llego_a_planta));
-    } else if (filtroEstadoCompra === 'en_stock') {
-      filtradas = filtradas.filter(c => (c.cantidad_en_stock || 0) > 0);
-    } else if (filtroEstadoCompra === 'consumido') {
-      filtradas = filtradas.filter(c => c.estado === 'consumido');
+      filtradas = filtradas.filter(c => !!c.proveedor_comprado);
+    } else if (filtroEstadoCompra === 'por_pagar') {
+      filtradas = filtradas.filter(c => c.proveedor_comprado && c.estado_pago !== 'pagado');
+    } else if (filtroEstadoCompra === 'en_transito') {
+      filtradas = filtradas.filter(c => c.proveedor_comprado && !c.llego_a_planta);
+    } else if (filtroEstadoCompra === 'finalizado') {
+      filtradas = filtradas.filter(c => !!c.llego_a_planta || c.estado === 'finalizado');
     }
   }
 
@@ -273,7 +462,7 @@ function renderizarCompras() {
         <h3 class="text-base font-bold text-white mb-1">No se encontraron solicitudes de compra</h3>
         <p class="text-xs text-slate-400 max-w-md mx-auto mb-4">No hay ítems que coincidan con el filtro seleccionado. Puedes radicar una nueva solicitud con el botón superior.</p>
         <button onclick="abrirModalNuevaCompra()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-cyan-600/25">
-          <i class="fa-solid fa-plus mr-1"></i> Nueva Solicitud
+          <i class="fa-solid fa-plus mr-1"></i> Radicar Solicitud
         </button>
       </div>
     `;
@@ -285,30 +474,18 @@ function renderizarCompras() {
   const esGestionCompras = esAdmin || user.rol === 'compras';
 
   contenedor.innerHTML = filtradas.map(c => {
-    // Badges de estado
+    // Badges de estado coherentes con el ciclo real de compras
     let badgeEstado = '';
-    switch(c.estado) {
-      case 'solicitado':
-        badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30"><i class="fa-solid fa-clock mr-1"></i>Solicitado</span>';
-        break;
-      case 'cotizando':
-        badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-300 border border-blue-500/30"><i class="fa-solid fa-comments-dollar mr-1"></i>Cotizando</span>';
-        break;
-      case 'comprado':
-        badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-300 border border-purple-500/30"><i class="fa-solid fa-bag-shopping mr-1"></i>Comprado</span>';
-        break;
-      case 'en_transito':
-        badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/10 text-orange-300 border border-orange-500/30"><i class="fa-solid fa-truck-fast mr-1"></i>En Tránsito</span>';
-        break;
-      case 'en_planta':
-      case 'en_stock':
-        badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"><i class="fa-solid fa-warehouse mr-1"></i>En Planta / Stock</span>';
-        break;
-      case 'consumido':
-        badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/20 text-slate-300 border border-slate-500/30"><i class="fa-solid fa-circle-check mr-1"></i>Consumido Total</span>';
-        break;
-      default:
-        badgeEstado = `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-700 text-slate-300">${c.estado}</span>`;
+    if (c.llego_a_planta || c.estado === 'finalizado') {
+      badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30"><i class="fa-solid fa-circle-check mr-1"></i>Entregado en Planta</span>';
+    } else if (c.proveedor_comprado && !c.llego_a_planta) {
+      badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-orange-500/10 text-orange-300 border border-orange-500/30"><i class="fa-solid fa-truck-fast mr-1"></i>En Tránsito</span>';
+    } else if (c.proveedor_comprado) {
+      badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/10 text-purple-300 border border-purple-500/30"><i class="fa-solid fa-bag-shopping mr-1"></i>Comprado</span>';
+    } else if (c.estado === 'cotizando' || (c.cotizaciones && c.cotizaciones.length > 0)) {
+      badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-300 border border-blue-500/30"><i class="fa-solid fa-comments-dollar mr-1"></i>Cotizando</span>';
+    } else {
+      badgeEstado = '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/30"><i class="fa-solid fa-clock mr-1"></i>Solicitado</span>';
     }
 
     // Badge prioridad
@@ -336,24 +513,16 @@ function renderizarCompras() {
     if (c.llego_a_planta) {
       badgeLlegada = `<span class="text-[10px] font-bold text-emerald-400 flex items-center gap-1"><i class="fa-solid fa-check-double"></i> En Planta (${c.recibido_por || 'Almacén'})</span>`;
     } else if (c.proveedor_comprado) {
-      badgeLlegada = '<span class="text-[10px] font-semibold text-orange-400 flex items-center gap-1"><i class="fa-solid fa-truck"></i> En camino / Despacho</span>';
+      badgeLlegada = '<span class="text-[10px] font-semibold text-orange-400 flex items-center gap-1"><i class="fa-solid fa-truck"></i> En camino a planta</span>';
     } else {
       badgeLlegada = '<span class="text-[10px] text-slate-500">Sin despachar</span>';
     }
 
-    // Barra de Stock y Consumo
-    const cantRec = Number(c.cantidad_recibida) || 0;
-    const cantCons = Number(c.cantidad_consumida) || 0;
-    const cantStock = Number(c.cantidad_en_stock) || 0;
-    const porcentajeStock = cantRec > 0 ? Math.round((cantStock / cantRec) * 100) : 0;
-
-    let barraColor = 'bg-cyan-500';
-    if (cantStock === 0 && cantRec > 0) barraColor = 'bg-slate-600';
-    else if (porcentajeStock <= 25) barraColor = 'bg-rose-500';
-    else if (porcentajeStock <= 50) barraColor = 'bg-amber-500';
-
     const numCotizaciones = (c.cotizaciones || []).length;
-    const cotizacionGanadora = (c.cotizaciones || []).find(x => x.seleccionada);
+    const tieneCots = numCotizaciones > 0;
+    const tieneProveedor = !!c.proveedor_comprado;
+    const estaPagado = c.estado_pago === 'pagado';
+    const estaEnPlanta = !!c.llego_a_planta;
 
     return `
       <div class="bg-slate-800/90 border border-slate-700/80 hover:border-cyan-500/50 rounded-2xl p-4 sm:p-5 flex flex-col justify-between transition-all duration-200 shadow-lg hover:shadow-cyan-950/20">
@@ -372,7 +541,7 @@ function renderizarCompras() {
           <!-- Ítem y equipo -->
           <h3 class="font-bold text-base text-white leading-snug mb-1">${c.item}</h3>
           
-          <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-300 mb-3">
+          <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-300 mb-2.5">
             <span class="flex items-center gap-1 text-slate-400">
               <i class="fa-solid fa-gears text-emerald-400"></i> ${c.equipo}
             </span>
@@ -385,25 +554,55 @@ function renderizarCompras() {
           <!-- Justificación o motivo -->
           ${c.justificacion ? `<p class="text-xs text-slate-400 line-clamp-2 mb-3 bg-slate-900/40 p-2 rounded-lg border border-slate-700/40 italic">"${c.justificacion}"</p>` : ''}
 
+          <!-- Roadmap visual del ciclo de compras (5 Pasos) -->
+          <div class="bg-slate-900/80 border border-slate-700/60 rounded-xl p-2.5 my-2.5">
+            <div class="flex items-center justify-between text-[10px] text-slate-400 font-semibold mb-1.5">
+              <span>Progreso de Adquisición</span>
+              <span class="${estaEnPlanta ? 'text-emerald-400 font-bold' : 'text-cyan-300'}">
+                ${estaEnPlanta ? '✅ 100% Finalizado' : estaPagado ? '80% Pagado' : tieneProveedor ? '60% Adjudicado' : tieneCots ? '40% Cotizando' : '20% Radicado'}
+              </span>
+            </div>
+            <div class="grid grid-cols-5 gap-1 text-[9px] text-center font-bold">
+              <div class="py-1 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30" title="1. Solicitud radicada">1. Pedido</div>
+              <div class="py-1 rounded ${tieneCots || tieneProveedor ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-slate-800 text-slate-500'}" title="2. Cotizaciones de proveedores">2. Cotizado</div>
+              <div class="py-1 rounded ${tieneProveedor ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-slate-800 text-slate-500'}" title="3. Proveedor adjudicado y O.C.">3. Comprado</div>
+              <div class="py-1 rounded ${estaPagado ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-500'}" title="4. Pago realizado">4. Pagado</div>
+              <div class="py-1 rounded ${estaEnPlanta ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'bg-slate-800 text-slate-500'}" title="5. Entregado en planta">5. En Planta</div>
+            </div>
+          </div>
+
+          <!-- Si ya llegó a planta: Cartel verde de Trabajo de Compras Finalizado -->
+          ${estaEnPlanta ? `
+            <div class="bg-emerald-950/60 border border-emerald-500/50 rounded-xl p-2.5 my-2.5 text-xs flex items-center gap-2.5 shadow-sm">
+              <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm flex-shrink-0">
+                <i class="fa-solid fa-circle-check"></i>
+              </div>
+              <div class="truncate">
+                <span class="font-extrabold text-emerald-300 block text-[11px] leading-tight">TRABAJO DE COMPRAS FINALIZADO</span>
+                <span class="text-[10px] text-slate-300 block truncate">Entregado en planta a: <strong>${c.recibido_por || 'Almacén'}</strong></span>
+              </div>
+            </div>
+          ` : ''}
+
           <!-- Sección de Proveedor y Compra -->
-          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-700/50 space-y-2 mb-3 text-xs">
+          <div class="bg-slate-900/60 rounded-xl p-3 border border-slate-700/50 space-y-2 mb-2 text-xs">
             <div class="flex items-center justify-between">
               <span class="text-slate-400 font-medium">Cotizaciones:</span>
               <span class="text-slate-200 font-semibold">
-                ${numCotizaciones > 0 ? `<i class="fa-solid fa-file-invoice-dollar text-blue-400"></i> ${numCotizaciones} cargadas` : '<span class="text-slate-500 italic">Sin cotizaciones aún</span>'}
+                ${numCotizaciones > 0 ? `<i class="fa-solid fa-file-invoice-dollar text-blue-400"></i> ${numCotizaciones} evaluadas` : '<span class="text-slate-500 italic">Sin cotizaciones aún</span>'}
               </span>
             </div>
 
             <div class="flex items-center justify-between">
               <span class="text-slate-400 font-medium">Proveedor:</span>
-              <span class="text-white font-bold truncate max-w-[180px]" title="${c.proveedor_comprado || 'Pendiente'}">
+              <span class="text-white font-bold truncate max-w-[180px]" title="${c.proveedor_comprado || 'Por adjudicar'}">
                 ${c.proveedor_comprado || '<span class="text-slate-500 font-normal">Por adjudicar</span>'}
               </span>
             </div>
 
             <div class="flex items-center justify-between">
               <span class="text-slate-400 font-medium">Valor Total:</span>
-              <span class="font-extrabold text-cyan-300">${c.valor_compra_total ? formatearCOP(c.valor_compra_total) : '-'}</span>
+              <span class="font-extrabold text-cyan-300 font-mono">${c.valor_compra_total ? formatearCOP(c.valor_compra_total) : '-'}</span>
             </div>
 
             <div class="grid grid-cols-2 gap-2 pt-1.5 border-t border-slate-700/50 text-[11px]">
@@ -417,47 +616,20 @@ function renderizarCompras() {
               </div>
             </div>
           </div>
-
-          <!-- Control de Stock y Consumo -->
-          <div class="bg-slate-900/70 border border-slate-700/60 rounded-xl p-2.5 mb-3">
-            <div class="flex items-center justify-between text-xs mb-1">
-              <span class="text-slate-300 font-semibold flex items-center gap-1.5">
-                <i class="fa-solid fa-cubes-stacked text-cyan-400"></i> Stock en Planta
-              </span>
-              <span class="font-extrabold ${cantStock > 0 ? 'text-emerald-400' : 'text-slate-500'}">
-                ${cantStock} / ${cantRec} ${c.unidad}
-              </span>
-            </div>
-            <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden mb-1">
-              <div class="${barraColor} h-2 rounded-full transition-all duration-300" style="width: ${porcentajeStock}%"></div>
-            </div>
-            <div class="flex items-center justify-between text-[10px] text-slate-400">
-              <span>Recibido: ${cantRec}</span>
-              <span>Consumido: ${cantCons}</span>
-              <span class="font-bold ${cantStock > 0 ? 'text-cyan-300' : 'text-slate-500'}">${cantStock > 0 ? 'Disponible' : 'Agotado'}</span>
-            </div>
-          </div>
         </div>
 
-        <!-- Acciones en pie de tarjeta -->
+        <!-- Acciones en pie de tarjeta (Sin consumo de stock) -->
         <div class="pt-2 border-t border-slate-700/60 flex items-center justify-between gap-1.5">
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-1.5">
             <button onclick="abrirModalDetalleCompra('${c.id}')" title="Ver cotizaciones, factura e historial" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg transition flex items-center gap-1">
               <i class="fa-solid fa-eye text-cyan-400"></i>
-              <span class="hidden sm:inline">Detalles</span>
+              <span>Detalles</span>
             </button>
 
             ${esGestionCompras ? `
-              <button onclick="abrirModalGestionarCompra('${c.id}')" title="Actualizar cotizaciones, compra, pago o recepción" class="px-2.5 py-1.5 bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1 shadow">
+              <button onclick="abrirModalGestionarCompra('${c.id}')" title="Gestionar cotizaciones, proveedor, pago y llegada" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1 shadow">
                 <i class="fa-solid fa-pen-to-square"></i>
-                <span class="hidden sm:inline">Gestionar</span>
-              </button>
-            ` : ''}
-
-            ${cantStock > 0 ? `
-              <button onclick="abrirModalConsumoStock('${c.id}')" title="Descontar repuesto para una tarea o equipo" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition flex items-center gap-1 shadow-md shadow-emerald-900/30">
-                <i class="fa-solid fa-box-open"></i>
-                <span>Consumir</span>
+                <span>Gestionar</span>
               </button>
             ` : ''}
           </div>
@@ -936,26 +1108,20 @@ function abrirModalDetalleCompra(id) {
   document.getElementById('det-compra-valor').innerText = c.valor_compra_total ? formatearCOP(c.valor_compra_total) : '-';
   document.getElementById('det-compra-pago').innerText = `${c.estado_pago || 'Pendiente'} ${c.comprobante_pago_ref ? `(${c.comprobante_pago_ref})` : ''}`;
 
-  // Recepción y Stock
-  document.getElementById('det-compra-llegada').innerText = c.llego_a_planta ? `Sí (Recibió: ${c.recibido_por || 'Almacén'})` : 'No ha llegado a planta';
-  document.getElementById('det-compra-stock-resumen').innerText = `Recibido: ${c.cantidad_recibida || 0} | Consumido: ${c.cantidad_consumida || 0} | En Stock: ${c.cantidad_en_stock || 0} ${c.unidad}`;
+  // Recepción en Planta y Finalización
+  document.getElementById('det-compra-llegada').innerText = c.llego_a_planta 
+    ? `Sí, entregado en planta a ${c.recibido_por || 'Almacén'} (${formatearFechaLegible(c.fecha_llegada_planta)})` 
+    : (c.proveedor_comprado ? 'En camino / despacho a planta' : 'Sin despachar aún');
 
-  // Consumos
-  const contenedorCons = document.getElementById('det-compra-consumos-lista');
-  const consumos = c.consumos || [];
-  if (consumos.length === 0) {
-    contenedorCons.innerHTML = '<p class="text-xs text-slate-500 italic">No se han registrado consumos de este repuesto.</p>';
-  } else {
-    contenedorCons.innerHTML = consumos.map(item => `
-      <div class="bg-slate-900/60 p-2 rounded-lg border border-slate-700/40 text-xs">
-        <div class="flex items-center justify-between font-bold text-slate-200">
-          <span>Descuento de ${item.cantidad} ${c.unidad} para ${item.equipo}</span>
-          <span class="text-[10px] text-slate-400">${formatearFechaLegible(item.fecha)}</span>
-        </div>
-        <p class="text-[11px] text-slate-400">Responsable: <strong class="text-cyan-300">${item.consumido_por}</strong></p>
-        ${item.observaciones ? `<p class="text-[11px] text-slate-400 italic">Obs: ${item.observaciones}</p>` : ''}
-      </div>
-    `).join('');
+  const elFinal = document.getElementById('det-compra-estado-final');
+  if (elFinal) {
+    if (c.llego_a_planta || c.estado === 'finalizado') {
+      elFinal.innerHTML = '<span class="text-emerald-400 font-extrabold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> FINALIZADO - Entregado en Planta</span>';
+    } else if (c.proveedor_comprado) {
+      elFinal.innerHTML = '<span class="text-orange-400 font-bold flex items-center gap-1"><i class="fa-solid fa-truck-fast"></i> En curso de adquisición y despacho</span>';
+    } else {
+      elFinal.innerHTML = '<span class="text-amber-400 font-bold flex items-center gap-1"><i class="fa-solid fa-clock"></i> En proceso de cotización</span>';
+    }
   }
 
   // Historial

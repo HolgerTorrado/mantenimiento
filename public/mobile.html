@@ -286,25 +286,24 @@
 
     </div>
 
-    <!-- SECCIÓN 3: COMPRAS Y CONTROL DE STOCK EN MÓVIL -->
-    <div id="contenedor-compras-movil" class="hidden space-y-4">
+    <!-- SECCIÓN 3: COMPRAS Y ADQUISICIONES EN MÓVIL -->
+    <div id="contenedor-compras-movil" class="hidden space-y-3.5">
       
-      <!-- Acciones Rápidas Compras Móvil -->
+      <!-- Encabezado Compras Móvil -->
       <div class="bg-slate-800/90 border border-slate-700/70 rounded-2xl p-3 flex items-center justify-between gap-2 shadow-sm">
         <div class="flex items-center gap-2 truncate">
           <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-500 flex items-center justify-center text-white text-xs shadow-md shadow-cyan-600/30 flex-shrink-0">
             <i class="fa-solid fa-cart-flatbed"></i>
           </div>
           <div class="truncate">
-            <span class="font-bold text-xs text-white block truncate">Compras & Stock</span>
-            <span class="text-[10px] text-slate-400 block">Suministros y repuestos</span>
+            <span class="font-bold text-xs text-white block truncate">Gestión de Compras</span>
+            <span class="text-[10px] text-slate-400 block truncate">Repuestos, suministros y cotizaciones</span>
           </div>
         </div>
 
         <div class="flex items-center gap-1.5 flex-shrink-0">
-          <button onclick="abrirModalConsumoStock()" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 text-cyan-300 rounded-lg text-xs font-bold transition flex items-center gap-1 border border-slate-600">
-            <i class="fa-solid fa-box-open text-xs text-cyan-400"></i>
-            <span class="hidden sm:inline">Consumir</span>
+          <button onclick="cargarCompras()" title="Recargar compras" class="p-1.5 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg text-xs transition">
+            <i class="fa-solid fa-arrows-rotate"></i>
           </button>
           <button onclick="abrirModalNuevaCompra()" class="px-2.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white rounded-lg text-xs font-bold transition shadow-md shadow-cyan-600/30 flex items-center gap-1">
             <i class="fa-solid fa-plus text-xs"></i>
@@ -313,58 +312,215 @@
         </div>
       </div>
 
-      <!-- Tarjetas KPIs Compras Móvil -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        <div class="bg-slate-800/80 border border-slate-700/60 rounded-xl p-2.5">
-          <span class="text-[10px] text-slate-400 block">Total Solicitudes</span>
-          <span id="compras-kpi-total" class="text-lg font-black text-white">0</span>
-        </div>
-        <div class="bg-slate-800/80 border border-amber-500/30 rounded-xl p-2.5">
-          <span class="text-[10px] text-amber-400 block">En Cotización</span>
-          <span id="compras-kpi-cotizando" class="text-lg font-black text-amber-400">0</span>
-        </div>
-        <div class="bg-slate-800/80 border border-purple-500/30 rounded-xl p-2.5">
-          <span class="text-[10px] text-purple-400 block">Por Pagar</span>
-          <span id="compras-kpi-por-pagar" class="text-lg font-black text-purple-400">0</span>
-        </div>
-        <div class="bg-slate-800/80 border border-emerald-500/30 rounded-xl p-2.5">
-          <span class="text-[10px] text-emerald-400 block">En Stock</span>
-          <span id="compras-kpi-stock" class="text-lg font-black text-emerald-400">0</span>
-        </div>
-        <div class="hidden">
-          <span id="compras-kpi-consumidos">0</span>
-          <span id="badge-compras-conteo">0</span>
-        </div>
-      </div>
-
-      <!-- Filtros de Estado de Compras Móvil -->
-      <div class="flex items-center space-x-1 bg-slate-950/80 p-1 rounded-xl border border-slate-700/70 overflow-x-auto" id="mob-tabs-compras">
-        <button onclick="filtrarEstadoCompra('todas', this)" class="compras-tab-btn flex-1 py-1 px-2 rounded-lg text-xs font-bold text-center transition bg-cyan-600 text-white shadow">
-          Todas
+      <!-- Selector de Sub-vista: Solicitudes vs Dashboard Compras -->
+      <div class="grid grid-cols-2 gap-1.5 bg-slate-950/80 p-1 rounded-xl border border-slate-700/70" id="mob-subnav-compras">
+        <button id="mob-btn-sub-solicitudes" onclick="cambiarSubseccionComprasMovil('solicitudes')" class="py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 bg-cyan-600 text-white shadow">
+          <i class="fa-solid fa-file-invoice text-xs"></i>
+          <span>Solicitudes</span>
+          <span id="mob-count-solicitudes-badge" class="bg-cyan-950 text-cyan-300 text-[10px] font-mono px-1.5 py-0.2 rounded-full">0</span>
         </button>
-        <button onclick="filtrarEstadoCompra('cotizando', this)" class="compras-tab-btn flex-1 py-1 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
-          Cotizando
-        </button>
-        <button onclick="filtrarEstadoCompra('comprado', this)" class="compras-tab-btn flex-1 py-1 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
-          En Tránsito
-        </button>
-        <button onclick="filtrarEstadoCompra('en_stock', this)" class="compras-tab-btn flex-1 py-1 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
-          En Stock
+        <button id="mob-btn-sub-dashboard" onclick="cambiarSubseccionComprasMovil('dashboard')" class="py-1.5 px-2 rounded-lg text-xs font-semibold transition flex items-center justify-center gap-1.5 text-slate-400 hover:text-white">
+          <i class="fa-solid fa-chart-pie text-indigo-400 text-xs"></i>
+          <span>Dashboard Compras</span>
         </button>
       </div>
 
-      <!-- Buscador de compras móvil -->
-      <div class="relative">
-        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-        <input type="text" oninput="filtrarBusquedaCompras(this.value)" placeholder="Buscar repuesto, proveedor, orden..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+      <!-- SUB-VISTA 1: LISTADO OPERATIVO DE SOLICITUDES DE COMPRA -->
+      <div id="mob-vista-compras-solicitudes" class="space-y-3">
+        
+        <!-- Filtros Rápidos de Estado de Compras Móvil -->
+        <div class="flex items-center space-x-1 bg-slate-900/90 p-1 rounded-xl border border-slate-700/60 overflow-x-auto" id="mob-tabs-compras">
+          <button onclick="filtrarEstadoCompra('todas', this)" class="compras-tab-btn flex-shrink-0 py-1 px-2.5 rounded-lg text-xs font-bold text-center transition bg-cyan-600 text-white shadow">
+            Todas
+          </button>
+          <button onclick="filtrarEstadoCompra('solicitado', this)" class="compras-tab-btn flex-shrink-0 py-1 px-2.5 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+            Solicitadas
+          </button>
+          <button onclick="filtrarEstadoCompra('cotizando', this)" class="compras-tab-btn flex-shrink-0 py-1 px-2.5 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+            Cotizando
+          </button>
+          <button onclick="filtrarEstadoCompra('comprado', this)" class="compras-tab-btn flex-shrink-0 py-1 px-2.5 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+            Compradas
+          </button>
+          <button onclick="filtrarEstadoCompra('por_pagar', this)" class="compras-tab-btn flex-shrink-0 py-1 px-2.5 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+            Por Pagar
+          </button>
+          <button onclick="filtrarEstadoCompra('en_transito', this)" class="compras-tab-btn flex-shrink-0 py-1 px-2.5 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+            En Tránsito
+          </button>
+          <button onclick="filtrarEstadoCompra('finalizado', this)" class="compras-tab-btn flex-shrink-0 py-1 px-2.5 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+            En Planta ✅
+          </button>
+        </div>
+
+        <!-- Buscador de compras móvil -->
+        <div class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          <input type="text" oninput="filtrarBusquedaCompras(this.value)" placeholder="Buscar repuesto, equipo, proveedor..." class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+        </div>
+
+        <!-- Lista / Grid de Tarjetas de Compras Móvil -->
+        <div id="lista-solicitudes-compras" class="space-y-3">
+          <div class="py-12 text-center text-slate-400">
+            <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-cyan-400"></i>
+            <p class="text-xs">Cargando compras y repuestos...</p>
+          </div>
+        </div>
+
       </div>
 
-      <!-- Lista / Grid de Compras Móvil -->
-      <div id="lista-solicitudes-compras" class="space-y-3">
-        <div class="py-12 text-center text-slate-400">
-          <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-cyan-400"></i>
-          <p class="text-xs">Cargando compras y repuestos...</p>
+      <!-- SUB-VISTA 2: DASHBOARD Y MÉTRICAS DE COMPRAS EN MÓVIL -->
+      <div id="mob-vista-compras-dashboard" class="hidden space-y-3">
+        
+        <!-- Tarjetas KPIs Principales Móvil -->
+        <div class="grid grid-cols-2 gap-2.5">
+          <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-3 shadow-sm">
+            <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+              <span class="text-[10px]">Total Solicitudes</span>
+              <i class="fa-solid fa-file-invoice text-blue-400"></i>
+            </div>
+            <span id="mob-compras-kpi-total" class="text-2xl font-black text-white font-mono">0</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Radicadas</span>
+          </div>
+
+          <div class="bg-slate-800/90 border border-amber-500/30 rounded-2xl p-3 shadow-sm">
+            <div class="flex items-center justify-between text-amber-400 text-xs mb-1">
+              <span class="text-[10px]">En Cotización</span>
+              <i class="fa-solid fa-comments-dollar text-amber-400"></i>
+            </div>
+            <span id="mob-compras-kpi-cotizando" class="text-2xl font-black text-amber-400 font-mono">0</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Evaluando precios</span>
+          </div>
+
+          <div class="bg-slate-800/90 border border-purple-500/30 rounded-2xl p-3 shadow-sm">
+            <div class="flex items-center justify-between text-purple-400 text-xs mb-1">
+              <span class="text-[10px]">Adjudicadas</span>
+              <i class="fa-solid fa-bag-shopping text-purple-400"></i>
+            </div>
+            <span id="mob-compras-kpi-adjudicadas" class="text-2xl font-black text-purple-300 font-mono">0</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Con orden de compra</span>
+          </div>
+
+          <div class="bg-slate-800/90 border border-rose-500/30 rounded-2xl p-3 shadow-sm">
+            <div class="flex items-center justify-between text-rose-400 text-xs mb-1">
+              <span class="text-[10px]">Por Pagar</span>
+              <i class="fa-solid fa-credit-card text-rose-400"></i>
+            </div>
+            <span id="mob-compras-kpi-por-pagar" class="text-2xl font-black text-rose-300 font-mono">0</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Pendiente pago</span>
+          </div>
+
+          <div class="bg-slate-800/90 border border-orange-500/30 rounded-2xl p-3 shadow-sm">
+            <div class="flex items-center justify-between text-orange-400 text-xs mb-1">
+              <span class="text-[10px]">En Tránsito</span>
+              <i class="fa-solid fa-truck-fast text-orange-400"></i>
+            </div>
+            <span id="mob-compras-kpi-en-transito" class="text-2xl font-black text-orange-300 font-mono">0</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Despachadas</span>
+          </div>
+
+          <div class="bg-slate-800/90 border border-emerald-500/40 rounded-2xl p-3 shadow-sm bg-gradient-to-br from-emerald-950/30 to-slate-800/90">
+            <div class="flex items-center justify-between text-emerald-400 text-xs mb-1">
+              <span class="text-[10px]">En Planta ✅</span>
+              <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            </div>
+            <span id="mob-compras-kpi-finalizadas" class="text-2xl font-black text-emerald-300 font-mono">0</span>
+            <span class="text-[10px] text-emerald-400 block mt-0.5 font-bold">Completadas</span>
+          </div>
         </div>
+
+        <!-- Inversión Financiera en COP Móvil -->
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-3.5 shadow-sm space-y-2">
+          <div class="flex items-center justify-between border-b border-slate-700/60 pb-2">
+            <span class="text-xs font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-hand-holding-dollar text-cyan-400"></i> Inversión en Repuestos (COP)
+            </span>
+          </div>
+          <div>
+            <span class="text-[10px] text-slate-400 block">Total Comprado:</span>
+            <span id="mob-compras-kpi-inversion-total" class="text-2xl font-black text-cyan-300 font-mono">$ 0</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 pt-1 text-xs">
+            <div class="bg-slate-900/60 p-2 rounded-xl border border-emerald-500/30">
+              <span class="text-[10px] text-emerald-400 block font-semibold">Pagado</span>
+              <span id="mob-compras-kpi-monto-pagado" class="text-xs font-extrabold text-white font-mono">$ 0</span>
+            </div>
+            <div class="bg-slate-900/60 p-2 rounded-xl border border-rose-500/30">
+              <span class="text-[10px] text-rose-400 block font-semibold">Por Pagar</span>
+              <span id="mob-compras-kpi-monto-por-pagar" class="text-xs font-extrabold text-rose-300 font-mono">$ 0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Embudo del Ciclo de Compras Móvil -->
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-3.5 shadow-sm space-y-2.5">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-timeline text-indigo-400"></i> Embudo de Adquisiciones (5 Fases)
+          </span>
+
+          <div class="space-y-2 text-xs">
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300">1. Radicadas</span>
+                <span id="mob-pipe-solicitadas-txt" class="font-bold text-white font-mono">0</span>
+              </div>
+              <div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <div id="mob-pipe-solicitadas-bar" class="bg-blue-500 h-1.5 rounded-full" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300">2. En Cotización</span>
+                <span id="mob-pipe-cotizando-txt" class="font-bold text-amber-400 font-mono">0</span>
+              </div>
+              <div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <div id="mob-pipe-cotizando-bar" class="bg-amber-500 h-1.5 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300">3. Adjudicadas (O.C.)</span>
+                <span id="mob-pipe-compradas-txt" class="font-bold text-purple-300 font-mono">0</span>
+              </div>
+              <div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <div id="mob-pipe-compradas-bar" class="bg-purple-500 h-1.5 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300">4. Pagadas</span>
+                <span id="mob-pipe-pagadas-txt" class="font-bold text-emerald-400 font-mono">0</span>
+              </div>
+              <div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <div id="mob-pipe-pagadas-bar" class="bg-emerald-500 h-1.5 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <div class="flex justify-between text-[11px]">
+                <span class="text-slate-300">5. Entregadas en Planta ✅</span>
+                <span id="mob-pipe-finalizadas-txt" class="font-bold text-cyan-300 font-mono">0</span>
+              </div>
+              <div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden">
+                <div id="mob-pipe-finalizadas-bar" class="bg-cyan-400 h-1.5 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Proveedores Top Móvil -->
+        <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-3.5 shadow-sm space-y-2">
+          <span class="text-xs font-bold text-white flex items-center gap-1.5">
+            <i class="fa-solid fa-store text-purple-400"></i> Proveedores Adjudicados
+          </span>
+          <div id="mob-compras-top-proveedores" class="space-y-1.5 text-xs">
+            <p class="text-slate-500 italic text-center py-2 text-[11px]">Sin compras adjudicadas aún.</p>
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -1281,29 +1437,32 @@
           </div>
         </div>
 
-        <!-- SECCIÓN D: RECEPCIÓN EN PLANTA Y STOCK -->
+        <!-- SECCIÓN D: RECEPCIÓN Y ENTREGA EN PLANTA (FINALIZACIÓN) -->
         <div class="bg-slate-900/50 border border-slate-700/80 rounded-2xl p-4 space-y-3">
-          <h4 class="text-xs font-extrabold text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-boxes-stacked"></i> 4. Recepción en Planta y Almacén
-          </h4>
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-extrabold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-truck-ramp-box"></i> 4. Entrega en Planta (Finalización del Trabajo de Compras)
+            </h4>
+            <span class="text-[10px] bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded font-bold">Paso Final</span>
+          </div>
 
-          <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div class="p-3 bg-slate-900 rounded-xl border border-emerald-500/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <label class="flex items-center gap-2.5 cursor-pointer">
-              <input type="checkbox" id="gestion-llego-planta" class="w-4 h-4 rounded bg-slate-800 border-slate-600 text-cyan-500 focus:ring-0">
+              <input type="checkbox" id="gestion-llego-planta" class="w-5 h-5 rounded bg-slate-800 border-slate-600 text-emerald-500 focus:ring-0">
               <div>
                 <span class="text-xs font-bold text-white block">¿Ya llegó el repuesto a planta?</span>
-                <span class="text-[10px] text-slate-400">Marca esta casilla cuando el proveedor entregue físicamente en almacén</span>
+                <span class="text-[10px] text-emerald-300">Al marcar esta casilla, el trabajo de compras queda COMPLETADO y finalizado con éxito.</span>
               </div>
             </label>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Recibido en Planta por</label>
-              <input type="text" id="gestion-recibido-por" placeholder="Nombre de quien recibió en almacén" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Recibido en Planta por *</label>
+              <input type="text" id="gestion-recibido-por" placeholder="Nombre de quien recibió en almacén o planta" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
             </div>
             <div>
-              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Cantidad Física Recibida (Ingreso a Stock)</label>
+              <label class="block text-[11px] font-semibold text-slate-300 mb-1">Cantidad Entregada en Planta</label>
               <input type="number" id="gestion-cantidad-recibida" min="0" step="any" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500 font-bold text-emerald-400">
             </div>
           </div>
@@ -1314,18 +1473,17 @@
           <div>
             <label class="block text-[11px] font-semibold text-slate-300 mb-1">Estado de la Solicitud</label>
             <select id="gestion-estado-general" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
-              <option value="solicitado">Solicitado (Recién creado)</option>
+              <option value="solicitado">Solicitado (Pendiente cotizar)</option>
               <option value="cotizando">Cotizando (Evaluando proveedores)</option>
-              <option value="comprado">Comprado (Con orden de compra)</option>
-              <option value="en_transito">En Tránsito (Despachado)</option>
-              <option value="en_planta">En Planta / Almacén</option>
-              <option value="en_stock">En Stock Disponible</option>
-              <option value="consumido">Consumido Total</option>
+              <option value="comprado">Comprado (Con orden de compra / proveedor)</option>
+              <option value="en_transito">En Tránsito (Despachado a planta)</option>
+              <option value="finalizado">Entregado en Planta (Finalizado ✅)</option>
+              <option value="cancelado">Cancelado / Descartado</option>
             </select>
           </div>
           <div>
             <label class="block text-[11px] font-semibold text-slate-300 mb-1">Nota de bitácora (Opcional)</label>
-            <input type="text" id="gestion-nota-cambio" placeholder="Ej: Se autorizó compra por gerencia..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
+            <input type="text" id="gestion-nota-cambio" placeholder="Ej: Se autorizó compra, cotización aprobada..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyan-500">
           </div>
         </div>
 
@@ -1475,22 +1633,16 @@
           </div>
         </div>
 
-        <!-- Recepción y Stock -->
+        <!-- Recepción y Entrega en Planta (Finalización) -->
         <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700/60 space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-slate-400 text-[10px]">Recepción en Planta:</span>
+            <span class="text-slate-400 text-[10px]">Entrega Física en Planta:</span>
             <span id="det-compra-llegada" class="font-bold text-emerald-400">-</span>
           </div>
           <div class="flex items-center justify-between border-t border-slate-700/40 pt-1.5">
-            <span class="text-slate-400 text-[10px]">Inventario Actual:</span>
-            <span id="det-compra-stock-resumen" class="font-extrabold text-white">-</span>
+            <span class="text-slate-400 text-[10px]">Estado del Trabajo de Compras:</span>
+            <span id="det-compra-estado-final" class="font-extrabold text-white">-</span>
           </div>
-        </div>
-
-        <!-- Historial de Consumos -->
-        <div>
-          <h4 class="font-extrabold text-cyan-400 uppercase tracking-wider text-[11px] mb-2">Bitácora de Consumos del Repuesto</h4>
-          <div id="det-compra-consumos-lista" class="space-y-1.5"></div>
         </div>
 
         <!-- Historial de Cambios -->
