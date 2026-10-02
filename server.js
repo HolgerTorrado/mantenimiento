@@ -57,11 +57,30 @@ const TIPOS_VALIDOS = [
 ];
 
 // Middlewares
+// Middlewares (Límite optimizado a 10MB para prevenir desbordes de memoria en Render)
 app.use(cors());
-app.use(express.json({ limit: '25mb' }));
-app.use(express.urlencoded({ extended: true, limit: '25mb' }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.use('/uploads', express.static(UPLOADS_DIR));
+
+// Monitor de memoria y recolección proactiva de basura para Render (Límite 512MB)
+setInterval(() => {
+  const mem = process.memoryUsage();
+  const heapMB = Math.round(mem.heapUsed / 1024 / 1024);
+  const rssMB = Math.round(mem.rss / 1024 / 1024);
+
+  // Si la memoria heap supera 180MB o RSS supera 250MB, liberar basura proactivamente
+  if (heapMB > 180 || rssMB > 250) {
+    if (global.gc) {
+      try {
+        global.gc();
+        const postMem = process.memoryUsage();
+        console.log(`[OPTIMIZADOR-MEMORIA] 🧹 GC preventivo ejecutado. Heap: ${heapMB}MB -> ${Math.round(postMem.heapUsed / 1024 / 1024)}MB | RSS: ${rssMB}MB -> ${Math.round(postMem.rss / 1024 / 1024)}MB`);
+      } catch(e) {}
+    }
+  }
+}, 60000);
 
 // Configuración de Multer para fotos
 const storage = multer.diskStorage({
@@ -77,22 +96,44 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 20 * 1024 * 1024 } // 20MB
+  limits: { fileSize: 10 * 1024 * 1024 } // 10MB
 });
 
-// Helpers de persistencia
+// ==========================================
+// CACHÉ EN MEMORIA ULTRA-RÁPIDO (CERO LECTURAS REDUNDANTES DE DISCO)
+// ==========================================
+let cacheTareas = null;
+let cacheMecanicos = null;
+let cacheUsuarios = null;
+
+function invalidarTodosLosCaches() {
+  cacheTareas = null;
+  cacheMecanicos = null;
+  cacheUsuarios = null;
+  if (global.gc) {
+    try { global.gc(); } catch(e) {}
+  }
+}
+
+// Helpers de persistencia con caché en RAM
 function leerTareas() {
+  if (cacheTareas) return cacheTareas;
   try {
-    if (!fs.existsSync(TASKS_FILE)) return [];
+    if (!fs.existsSync(TASKS_FILE)) {
+      cacheTareas = [];
+      return cacheTareas;
+    }
     const raw = fs.readFileSync(TASKS_FILE, 'utf-8');
-    return JSON.parse(raw);
+    cacheTareas = JSON.parse(raw);
+    return cacheTareas;
   } catch (err) {
     console.error('Error al leer tasks.json:', err);
-    return [];
+    return cacheTareas || [];
   }
 }
 
 function guardarTareas(tareas, permiteEliminar = false) {
+  cacheTareas = tareas;
   try {
     const str = JSON.stringify(tareas, null, 2);
     fs.writeFileSync(TASKS_FILE, str, 'utf-8');
@@ -105,16 +146,22 @@ function guardarTareas(tareas, permiteEliminar = false) {
 }
 
 function leerMecanicos() {
+  if (cacheMecanicos) return cacheMecanicos;
   try {
-    if (!fs.existsSync(MECANICOS_FILE)) return [];
-    return JSON.parse(fs.readFileSync(MECANICOS_FILE, 'utf-8'));
+    if (!fs.existsSync(MECANICOS_FILE)) {
+      cacheMecanicos = [];
+      return cacheMecanicos;
+    }
+    cacheMecanicos = JSON.parse(fs.readFileSync(MECANICOS_FILE, 'utf-8'));
+    return cacheMecanicos;
   } catch (err) {
     console.error('Error al leer mecanicos.json:', err);
-    return [];
+    return cacheMecanicos || [];
   }
 }
 
 function guardarMecanicos(mecanicos) {
+  cacheMecanicos = mecanicos;
   try {
     const str = JSON.stringify(mecanicos, null, 2);
     fs.writeFileSync(MECANICOS_FILE, str, 'utf-8');
@@ -127,16 +174,22 @@ function guardarMecanicos(mecanicos) {
 }
 
 function leerUsuarios() {
+  if (cacheUsuarios) return cacheUsuarios;
   try {
-    if (!fs.existsSync(USERS_FILE)) return [];
-    return JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
+    if (!fs.existsSync(USERS_FILE)) {
+      cacheUsuarios = [];
+      return cacheUsuarios;
+    }
+    cacheUsuarios = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
+    return cacheUsuarios;
   } catch (err) {
     console.error('Error al leer users.json:', err);
-    return [];
+    return cacheUsuarios || [];
   }
 }
 
 function guardarUsuarios(usuarios) {
+  cacheUsuarios = usuarios;
   try {
     const str = JSON.stringify(usuarios, null, 2);
     fs.writeFileSync(USERS_FILE, str, 'utf-8');
@@ -1392,6 +1445,10 @@ function generarRespaldoAutomatico(motivo = 'sistema') {
         .catch(err => console.error('[GITHUB-SYNC] Error sincronizando respaldo con GitHub:', err.message));
     }
 
+    if (global.gc) {
+      try { global.gc(); } catch(e) {}
+    }
+
     return { ok: true, fecha: fechaStr, totalTareas: backupData.tasks.length };
   } catch (err) {
     console.error('[RESPALDO AUTOMÁTICO] Error generando copia:', err);
@@ -1593,6 +1650,14 @@ async function iniciarServidor() {
       cloudStorage.sincronizarArchivoAlIniciar('mecanicos.json', MECANICOS_FILE)
     ]);
     console.log('[SIMAN] Sincronización blindada inicial completada con éxito.');
+
+    // Precargar cachés en RAM de alto rendimiento
+    cacheUsuarios = leerUsuarios();
+    cacheTareas = leerTareas();
+    cacheMecanicos = leerMecanicos();
+    if (global.gc) {
+      try { global.gc(); } catch(e) {}
+    }
   } catch(e) {
     console.warn('[SIMAN] Advertencia en sincronización inicial:', e.message);
   }

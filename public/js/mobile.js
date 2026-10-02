@@ -39,10 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
   }
 
-  // Auto-refrescar cada 20 segundos
+  // Auto-refrescar cada 20 segundos (solo si la app está visible en pantalla)
   setInterval(() => {
+    if (document.hidden) return;
     cargarTareasMovil(false);
   }, 20000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      cargarTareasMovil(false);
+    }
+  });
 });
 
 // Manejo de Instalación PWA (App Móvil)

@@ -102,10 +102,17 @@ document.addEventListener('DOMContentLoaded', () => {
   cargarTareas();
   fijarOcurrenciaAhora();
 
-  // Auto-refresco cada 30 segundos
+  // Auto-refresco inteligente cada 30 segundos (solo si la pestaña está activa)
   setInterval(() => {
+    if (document.hidden) return;
     cargarTareas(false);
   }, 30000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      cargarTareas(false);
+    }
+  });
 });
 
 // Cambiar período de visualización
