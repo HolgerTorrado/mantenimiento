@@ -195,24 +195,48 @@ function mergeTareas(listaA = [], listaB = []) {
     const timeBase = new Date(base.completado_en || base.modificado_en || base.actualizado_en || base.creado_en || 0).getTime();
     const timeInc = new Date(incoming.completado_en || incoming.modificado_en || incoming.actualizado_en || incoming.creado_en || 0).getTime();
 
-    let primary = base;
-    let secondary = incoming;
-    if (incoming.estado === 'completado' && base.estado !== 'completado') {
+    // Detectar si incoming fue explícitamente reabierta o modificada después de ser completada
+    const incomingEsMasReciente = timeInc > timeBase;
+    const incomingFueReabierta = incoming.reabierta || (incomingEsMasReciente && incoming.estado !== 'completado' && base.estado === 'completado');
+
+    if (incomingFueReabierta) {
+      primary = incoming;
+      secondary = base;
+    } else if (incoming.estado === 'completado' && base.estado !== 'completado') {
       primary = incoming;
       secondary = base;
     } else if (base.estado === 'completado' && incoming.estado !== 'completado') {
       primary = base;
       secondary = incoming;
-    } else if (timeInc > timeBase) {
+    } else if (incomingEsMasReciente) {
       primary = incoming;
       secondary = base;
     }
 
     const merged = { ...secondary, ...primary };
 
-    // Blindaje de fotografías (nunca perder fotos si existen en alguno de los dos)
-    if (!merged.foto_comprobante && secondary.foto_comprobante) merged.foto_comprobante = secondary.foto_comprobante;
-    if (!merged.foto_inicial && secondary.foto_inicial) merged.foto_inicial = secondary.foto_inicial;
+    // Si fue reabierta, asegurar que su estado sea el nuevo y limpiar fecha de completado
+    if (incomingFueReabierta) {
+      merged.estado = incoming.estado;
+      merged.completado_en = null;
+      merged.completado_por_usuario = null;
+      merged.completado_por_nombre = null;
+      merged.completado_por_rol = null;
+      merged.fecha_arreglo = incoming.fecha_arreglo || null;
+    }
+
+    // Blindaje de fotografías (solo preservar si NO fueron explícitamente eliminadas)
+    if (primary.foto_comprobante_eliminada) {
+      merged.foto_comprobante = null;
+    } else if (!merged.foto_comprobante && secondary.foto_comprobante && !secondary.foto_comprobante_eliminada) {
+      merged.foto_comprobante = secondary.foto_comprobante;
+    }
+
+    if (primary.foto_inicial_eliminada) {
+      merged.foto_inicial = null;
+    } else if (!merged.foto_inicial && secondary.foto_inicial && !secondary.foto_inicial_eliminada) {
+      merged.foto_inicial = secondary.foto_inicial;
+    }
 
     // Blindaje de notas y descripciones
     if (!merged.notas_mecanico && secondary.notas_mecanico) merged.notas_mecanico = secondary.notas_mecanico;

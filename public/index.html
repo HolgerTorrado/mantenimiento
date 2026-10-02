@@ -1204,6 +1204,21 @@
             </select>
           </div>
 
+          <!-- Selector de Estado de la Tarea (Editable por Admin) -->
+          <div class="flex items-center gap-1.5 bg-slate-950/80 px-2 py-1 rounded-lg border border-slate-700">
+            <label for="edit-det-estado" class="text-[10px] text-slate-400 font-semibold uppercase">Estado:</label>
+            <select id="edit-det-estado" onchange="alCambiarEstadoDetalleModal(this.value)" class="bg-slate-900 border border-slate-700 text-slate-200 text-xs rounded px-2 py-0.5 font-medium focus:ring-1 focus:ring-emerald-500 focus:outline-none">
+              <option value="pendiente">⏳ Pendiente</option>
+              <option value="en_proceso">⚙️ En Proceso</option>
+              <option value="completado">✅ Completada</option>
+            </select>
+          </div>
+
+          <!-- Botón Reabrir Tarea Rápido (Si está completada) -->
+          <button type="button" id="btn-reabrir-tarea-detalle" onclick="reabrirTareaActual()" title="Reabrir tarea cerrada por error" class="hidden px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow">
+            <i class="fa-solid fa-rotate-left"></i> Reabrir Tarea
+          </button>
+
           <h3 id="det-id-titulo" class="font-bold text-white text-base ml-1">TSK-1001 - Bomba</h3>
         </div>
         <button onclick="cerrarModalDetalle()" class="text-slate-400 hover:text-white transition p-1 text-lg">
@@ -1245,10 +1260,15 @@
               <span class="text-[10px] text-slate-400 truncate flex items-center gap-1">
                 <i class="fa-solid fa-cloud-arrow-up text-sky-400"></i> Guía para el técnico
               </span>
-              <input type="file" id="input-cambiar-foto-inicial-detalle" accept="image/*" class="hidden" onchange="procesarNuevaFotoInicialDetalle(event)">
-              <button type="button" onclick="document.getElementById('input-cambiar-foto-inicial-detalle').click()" class="px-2.5 py-1 bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
-                <i class="fa-solid fa-camera-rotate"></i> Cambiar Inicial
-              </button>
+              <div class="flex items-center gap-1.5">
+                <button type="button" id="btn-quitar-foto-inicial-detalle" onclick="marcarEliminarFotoInicialDetalle()" title="Quitar foto inicial" class="hidden px-2.5 py-1 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
+                  <i class="fa-solid fa-trash-can"></i> Quitar
+                </button>
+                <input type="file" id="input-cambiar-foto-inicial-detalle" accept="image/*" class="hidden" onchange="procesarNuevaFotoInicialDetalle(event)">
+                <button type="button" onclick="document.getElementById('input-cambiar-foto-inicial-detalle').click()" class="px-2.5 py-1 bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
+                  <i class="fa-solid fa-camera-rotate"></i> Cambiar Inicial
+                </button>
+              </div>
             </div>
 
             <!-- Alerta de foto inicial nueva -->
@@ -1289,10 +1309,15 @@
               <span id="det-foto-info-txt" class="text-[10px] text-slate-400 truncate flex items-center gap-1">
                 <i class="fa-solid fa-cloud-arrow-up text-emerald-400"></i> Respaldo permanente
               </span>
-              <input type="file" id="input-cambiar-foto-detalle" accept="image/*" class="hidden" onchange="procesarNuevaFotoDetalle(event)">
-              <button type="button" onclick="document.getElementById('input-cambiar-foto-detalle').click()" class="px-2.5 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
-                <i class="fa-solid fa-camera-rotate"></i> Cambiar Final
-              </button>
+              <div class="flex items-center gap-1.5">
+                <button type="button" id="btn-quitar-foto-detalle" onclick="marcarEliminarFotoDetalle()" title="Quitar foto de comprobante subida por error" class="hidden px-2.5 py-1 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
+                  <i class="fa-solid fa-trash-can"></i> Quitar Foto
+                </button>
+                <input type="file" id="input-cambiar-foto-detalle" accept="image/*" class="hidden" onchange="procesarNuevaFotoDetalle(event)">
+                <button type="button" onclick="document.getElementById('input-cambiar-foto-detalle').click()" class="px-2.5 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
+                  <i class="fa-solid fa-camera-rotate"></i> Cambiar Final
+                </button>
+              </div>
             </div>
 
             <!-- Alerta de foto final nueva -->

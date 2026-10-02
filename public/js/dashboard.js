@@ -1049,6 +1049,10 @@ function abrirModalDetalle(id) {
   // Título e ID
   document.getElementById('det-id-titulo').innerText = `${t.id} - ${t.equipo}`;
   
+  // Resetear estados de eliminación de fotos
+  eliminarFotoDetallePendiente = false;
+  eliminarFotoInicialDetallePendiente = false;
+
   // Badge y Selector de tipo de actividad / re-clasificación
   const selTipo = document.getElementById('edit-det-tipo');
   if (selTipo) {
@@ -1056,6 +1060,33 @@ function abrirModalDetalle(id) {
     selTipo.disabled = !esAdmin;
   }
   cambiarTipoDetalleModal(t.tipo || 'correctivo');
+
+  // Estado de la tarea y Botón Reabrir
+  const selEstado = document.getElementById('edit-det-estado');
+  const btnReabrir = document.getElementById('btn-reabrir-tarea-detalle');
+  if (selEstado) {
+    selEstado.value = t.estado || 'pendiente';
+    selEstado.disabled = !esAdmin;
+  }
+  if (btnReabrir) {
+    if (esAdmin && t.estado === 'completado') {
+      btnReabrir.classList.remove('hidden');
+    } else {
+      btnReabrir.classList.add('hidden');
+    }
+  }
+
+  // Visibilidad de botones para quitar fotos
+  const btnQuitarFoto = document.getElementById('btn-quitar-foto-detalle');
+  const btnQuitarFotoIni = document.getElementById('btn-quitar-foto-inicial-detalle');
+  if (btnQuitarFoto) {
+    if (esAdmin && t.foto_comprobante) btnQuitarFoto.classList.remove('hidden');
+    else btnQuitarFoto.classList.add('hidden');
+  }
+  if (btnQuitarFotoIni) {
+    if (esAdmin && t.foto_inicial) btnQuitarFotoIni.classList.remove('hidden');
+    else btnQuitarFotoIni.classList.add('hidden');
+  }
 
   // Fechas y Tiempos Editables por el Administrador
   const inOcurrio = document.getElementById('edit-det-fecha-ocurrio');
@@ -1533,6 +1564,146 @@ function abrirFotoInicialDetalleActual() {
   }
 }
 
+let eliminarFotoDetallePendiente = false;
+let eliminarFotoInicialDetallePendiente = false;
+
+function alCambiarEstadoDetalleModal(nuevoEstado) {
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  const btnReabrir = document.getElementById('btn-reabrir-tarea-detalle');
+  if (btnReabrir) {
+    if (esAdmin && nuevoEstado === 'completado') btnReabrir.classList.remove('hidden');
+    else btnReabrir.classList.add('hidden');
+  }
+  if (nuevoEstado !== 'completado') {
+    const inArreglo = document.getElementById('edit-det-fecha-arreglo');
+    if (inArreglo) inArreglo.value = '';
+    const txtArreglo = document.getElementById('det-fecha-arreglo-txt');
+    if (txtArreglo) txtArreglo.innerText = 'Pendiente de registrar';
+    calcularTiemposDetalle();
+  }
+}
+
+function reabrirTareaActual() {
+  if (!tareaSeleccionadaId) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    mostrarToast('❌ Acceso Restringido: Solo el Administrador puede reabrir tareas.', 'error');
+    return;
+  }
+  const selEstado = document.getElementById('edit-det-estado');
+  if (selEstado) selEstado.value = 'en_proceso';
+  alCambiarEstadoDetalleModal('en_proceso');
+
+  const t = todasLasTareas.find(item => item.id === tareaSeleccionadaId);
+  if (t && t.foto_comprobante && !eliminarFotoDetallePendiente) {
+    if (confirm('¿Deseas también quitar la fotografía de comprobante subida por error?')) {
+      marcarEliminarFotoDetalle();
+    }
+  }
+
+  mostrarToast('ℹ️ Tarea reabierta a "En Proceso". Haz clic en "Guardar Cambios" para aplicar.');
+}
+
+function marcarEliminarFotoDetalle() {
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    mostrarToast('❌ Acceso Restringido: Solo el Administrador puede eliminar fotografías.', 'error');
+    return;
+  }
+  if (!confirm('¿Está seguro de quitar la fotografía de comprobante final?')) return;
+  eliminarFotoDetallePendiente = true;
+  nuevaFotoDetalleBase64 = null;
+  const imgFoto = document.getElementById('det-img-foto');
+  const sinFoto = document.getElementById('det-sin-foto');
+  const badgeAmpliar = document.getElementById('det-badge-ampliar');
+  const btnQuitar = document.getElementById('btn-quitar-foto-detalle');
+  if (imgFoto) {
+    imgFoto.src = '';
+    imgFoto.classList.add('hidden');
+  }
+  if (badgeAmpliar) badgeAmpliar.classList.add('hidden');
+  if (sinFoto) sinFoto.classList.remove('hidden');
+  if (btnQuitar) btnQuitar.classList.add('hidden');
+  
+  const aviso = document.getElementById('aviso-nueva-foto-detalle');
+  if (aviso) {
+    aviso.innerHTML = `<span class="flex items-center gap-1 text-[11px] text-rose-300"><i class="fa-solid fa-trash-can text-rose-400"></i> Foto de comprobante marcada para eliminar al guardar</span>
+    <button type="button" onclick="cancelarEliminarFotoDetalle()" class="text-slate-300 hover:text-white text-xs font-bold underline ml-2">Deshacer</button>`;
+    aviso.classList.remove('hidden');
+  }
+  mostrarToast('🗑️ Fotografía final marcada para eliminar');
+}
+
+function cancelarEliminarFotoDetalle() {
+  eliminarFotoDetallePendiente = false;
+  const t = todasLasTareas.find(item => item.id === tareaSeleccionadaId);
+  const aviso = document.getElementById('aviso-nueva-foto-detalle');
+  if (aviso) aviso.classList.add('hidden');
+  if (t && t.foto_comprobante) {
+    const imgFoto = document.getElementById('det-img-foto');
+    const sinFoto = document.getElementById('det-sin-foto');
+    const badgeAmpliar = document.getElementById('det-badge-ampliar');
+    const btnQuitar = document.getElementById('btn-quitar-foto-detalle');
+    if (imgFoto) {
+      imgFoto.src = t.foto_comprobante;
+      imgFoto.classList.remove('hidden');
+    }
+    if (badgeAmpliar) badgeAmpliar.classList.remove('hidden');
+    if (sinFoto) sinFoto.classList.add('hidden');
+    if (btnQuitar) btnQuitar.classList.remove('hidden');
+  }
+}
+
+function marcarEliminarFotoInicialDetalle() {
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    mostrarToast('❌ Acceso Restringido: Solo el Administrador puede eliminar fotografías.', 'error');
+    return;
+  }
+  if (!confirm('¿Está seguro de quitar la fotografía inicial?')) return;
+  eliminarFotoInicialDetallePendiente = true;
+  nuevaFotoInicialDetalleBase64 = null;
+  const imgFoto = document.getElementById('det-img-foto-inicial');
+  const sinFoto = document.getElementById('det-sin-foto-inicial');
+  const badgeAmpliar = document.getElementById('det-badge-ampliar-inicial');
+  const btnQuitar = document.getElementById('btn-quitar-foto-inicial-detalle');
+  if (imgFoto) {
+    imgFoto.src = '';
+    imgFoto.classList.add('hidden');
+  }
+  if (badgeAmpliar) badgeAmpliar.classList.add('hidden');
+  if (sinFoto) sinFoto.classList.remove('hidden');
+  if (btnQuitar) btnQuitar.classList.add('hidden');
+
+  const aviso = document.getElementById('aviso-nueva-foto-inicial-detalle');
+  if (aviso) {
+    aviso.innerHTML = `<span class="flex items-center gap-1 text-[11px] text-rose-300"><i class="fa-solid fa-trash-can text-rose-400"></i> Foto inicial marcada para eliminar al guardar</span>
+    <button type="button" onclick="cancelarEliminarFotoInicialDetalle()" class="text-slate-300 hover:text-white text-xs font-bold underline ml-2">Deshacer</button>`;
+    aviso.classList.remove('hidden');
+  }
+}
+
+function cancelarEliminarFotoInicialDetalle() {
+  eliminarFotoInicialDetallePendiente = false;
+  const t = todasLasTareas.find(item => item.id === tareaSeleccionadaId);
+  const aviso = document.getElementById('aviso-nueva-foto-inicial-detalle');
+  if (aviso) aviso.classList.add('hidden');
+  if (t && t.foto_inicial) {
+    const imgFoto = document.getElementById('det-img-foto-inicial');
+    const sinFoto = document.getElementById('det-sin-foto-inicial');
+    const badgeAmpliar = document.getElementById('det-badge-ampliar-inicial');
+    const btnQuitar = document.getElementById('btn-quitar-foto-inicial-detalle');
+    if (imgFoto) {
+      imgFoto.src = t.foto_inicial;
+      imgFoto.classList.remove('hidden');
+    }
+    if (badgeAmpliar) badgeAmpliar.classList.remove('hidden');
+    if (sinFoto) sinFoto.classList.add('hidden');
+    if (btnQuitar) btnQuitar.classList.remove('hidden');
+  }
+}
+
 // Guardar Modificación Completa de Tarea (Fechas, Roles, Participantes, Tiempos y Fotos)
 async function guardarEdicionDetalleAdmin() {
   if (!tareaSeleccionadaId) return;
@@ -1587,11 +1758,18 @@ async function guardarEdicionDetalleAdmin() {
   };
 
   const tipoSeleccionado = document.getElementById('edit-det-tipo')?.value;
+  const estadoSeleccionado = document.getElementById('edit-det-estado')?.value || 'pendiente';
+  const tareaActual = todasLasTareas.find(item => item.id === tareaSeleccionadaId);
+  const esReapertura = Boolean(tareaActual && tareaActual.estado === 'completado' && estadoSeleccionado !== 'completado');
 
   const payload = {
     tipo: tipoSeleccionado,
+    estado: estadoSeleccionado,
+    reabrir: esReapertura,
+    eliminar_foto_comprobante: eliminarFotoDetallePendiente,
+    eliminar_foto_inicial: eliminarFotoInicialDetallePendiente,
     fecha_ocurrencia: fOcurrio,
-    fecha_arreglo: fArreglo || null,
+    fecha_arreglo: esReapertura ? null : (fArreglo || null),
     notas_mecanico: notas,
     roles_asignados: rolesFinales,
     tecnicos_asignados: tecnicosFinales,

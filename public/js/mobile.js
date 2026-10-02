@@ -1319,8 +1319,87 @@ function abrirDetalleTareaMovil(id) {
   const elNotas = document.getElementById('mob-det-notas');
   if (elNotas) elNotas.innerText = t.notas_mecanico ? `"${t.notas_mecanico}"` : 'Sin observaciones adicionales registradas';
 
+  // Acciones administrativas en móvil (Reabrir tarea y Quitar foto - Exclusivo Perfil Admin)
+  const user = JSON.parse(localStorage.getItem('siman_mecanico') || localStorage.getItem('siman_user') || '{}');
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  const boxAdmin = document.getElementById('mob-det-admin-actions');
+  const btnQuitar = document.getElementById('mob-btn-quitar-foto');
+
+  if (boxAdmin) {
+    if (esAdmin && t.estado === 'completado') {
+      boxAdmin.classList.remove('hidden');
+      if (btnQuitar) {
+        if (t.foto_comprobante) btnQuitar.classList.remove('hidden');
+        else btnQuitar.classList.add('hidden');
+      }
+    } else {
+      boxAdmin.classList.add('hidden');
+    }
+  }
+
   const modal = document.getElementById('modal-detalle-movil');
   if (modal) modal.classList.remove('hidden');
+}
+
+async function reabrirTareaMovil() {
+  if (!tareaDetalleMovilActual) return;
+  const user = JSON.parse(localStorage.getItem('siman_mecanico') || localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    alert('Acceso Restringido: Solo el Administrador puede reabrir tareas.');
+    return;
+  }
+  if (!confirm(`¿Está seguro de reabrir la tarea ${tareaDetalleMovilActual.id} y pasarla a "En Proceso"?`)) return;
+
+  let quitarFoto = false;
+  if (tareaDetalleMovilActual.foto_comprobante) {
+    quitarFoto = confirm('¿Desea también quitar la fotografía de comprobante subida por error?');
+  }
+
+  try {
+    const res = await fetch(`/api/tasks/${tareaDetalleMovilActual.id}/reabrir`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin'
+      },
+      body: JSON.stringify({ nuevo_estado: 'en_proceso', quitar_foto: quitarFoto })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al reabrir tarea');
+
+    mostrarToastMovil('✅ Tarea reabierta con éxito');
+    cerrarDetalleTareaMovil();
+    cargarTareasMovil(false);
+  } catch(err) {
+    alert(err.message);
+  }
+}
+
+async function quitarFotoMovil() {
+  if (!tareaDetalleMovilActual) return;
+  const user = JSON.parse(localStorage.getItem('siman_mecanico') || localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    alert('Acceso Restringido: Solo el Administrador puede eliminar fotografías.');
+    return;
+  }
+  if (!confirm(`¿Está seguro de eliminar la fotografía de comprobante de ${tareaDetalleMovilActual.id}?`)) return;
+
+  try {
+    const res = await fetch(`/api/tasks/${tareaDetalleMovilActual.id}/foto`, {
+      method: 'DELETE',
+      headers: {
+        'x-user-role': user.rol || 'admin'
+      }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al eliminar foto');
+
+    mostrarToastMovil('🗑️ Foto eliminada con éxito');
+    cerrarDetalleTareaMovil();
+    cargarTareasMovil(false);
+  } catch(err) {
+    alert(err.message);
+  }
 }
 
 function cerrarDetalleTareaMovil() {
