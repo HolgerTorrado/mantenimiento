@@ -72,6 +72,13 @@ const TIPOS_VALIDOS = [
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Middleware de blindaje de codificación UTF-8 para todas las respuestas HTTP
+app.use((req, res, next) => {
+  res.setHeader('Charset', 'utf-8');
+  next();
+});
+
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.use('/uploads', express.static(UPLOADS_DIR));
 
@@ -130,7 +137,7 @@ function invalidarTodosLosCaches() {
   }
 }
 
-// Helpers de persistencia con caché en RAM
+// Helpers de persistencia con caché en RAM y sanitización permanente de codificación UTF-8
 function leerTareas() {
   if (cacheTareas) return cacheTareas;
   try {
@@ -139,7 +146,7 @@ function leerTareas() {
       return cacheTareas;
     }
     const raw = fs.readFileSync(TASKS_FILE, 'utf-8');
-    cacheTareas = JSON.parse(raw);
+    cacheTareas = cloudStorage.sanitizarObjeto(JSON.parse(raw));
     return cacheTareas;
   } catch (err) {
     console.error('Error al leer tasks.json:', err);
@@ -148,9 +155,10 @@ function leerTareas() {
 }
 
 function guardarTareas(tareas, permiteEliminar = false) {
-  cacheTareas = tareas;
+  const tareasLimpias = cloudStorage.sanitizarObjeto(tareas);
+  cacheTareas = tareasLimpias;
   try {
-    const str = JSON.stringify(tareas, null, 2);
+    const str = JSON.stringify(tareasLimpias, null, 2);
     fs.writeFileSync(TASKS_FILE, str, 'utf-8');
     cloudStorage.subirALaNube('data/tasks.json', str, permiteEliminar).catch(() => {});
     return true;
@@ -167,7 +175,7 @@ function leerMecanicos() {
       cacheMecanicos = [];
       return cacheMecanicos;
     }
-    cacheMecanicos = JSON.parse(fs.readFileSync(MECANICOS_FILE, 'utf-8'));
+    cacheMecanicos = cloudStorage.sanitizarObjeto(JSON.parse(fs.readFileSync(MECANICOS_FILE, 'utf-8')));
     return cacheMecanicos;
   } catch (err) {
     console.error('Error al leer mecanicos.json:', err);
@@ -176,9 +184,10 @@ function leerMecanicos() {
 }
 
 function guardarMecanicos(mecanicos) {
-  cacheMecanicos = mecanicos;
+  const mecanicosLimpios = cloudStorage.sanitizarObjeto(mecanicos);
+  cacheMecanicos = mecanicosLimpios;
   try {
-    const str = JSON.stringify(mecanicos, null, 2);
+    const str = JSON.stringify(mecanicosLimpios, null, 2);
     fs.writeFileSync(MECANICOS_FILE, str, 'utf-8');
     cloudStorage.subirALaNube('data/mecanicos.json', str).catch(() => {});
     return true;
@@ -195,7 +204,7 @@ function leerUsuarios() {
       cacheUsuarios = [];
       return cacheUsuarios;
     }
-    cacheUsuarios = JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
+    cacheUsuarios = cloudStorage.sanitizarObjeto(JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8')));
     return cacheUsuarios;
   } catch (err) {
     console.error('Error al leer users.json:', err);
@@ -204,9 +213,10 @@ function leerUsuarios() {
 }
 
 function guardarUsuarios(usuarios) {
-  cacheUsuarios = usuarios;
+  const usuariosLimpios = cloudStorage.sanitizarObjeto(usuarios);
+  cacheUsuarios = usuariosLimpios;
   try {
-    const str = JSON.stringify(usuarios, null, 2);
+    const str = JSON.stringify(usuariosLimpios, null, 2);
     fs.writeFileSync(USERS_FILE, str, 'utf-8');
     cloudStorage.subirALaNube('data/users.json', str).catch(() => {});
     return true;
@@ -223,7 +233,7 @@ function leerCompras() {
       cacheCompras = [];
       return cacheCompras;
     }
-    cacheCompras = JSON.parse(fs.readFileSync(COMPRAS_FILE, 'utf-8'));
+    cacheCompras = cloudStorage.sanitizarObjeto(JSON.parse(fs.readFileSync(COMPRAS_FILE, 'utf-8')));
     return cacheCompras;
   } catch (err) {
     console.error('Error al leer compras.json:', err);
@@ -232,9 +242,10 @@ function leerCompras() {
 }
 
 function guardarCompras(compras) {
-  cacheCompras = compras;
+  const comprasLimpias = cloudStorage.sanitizarObjeto(compras);
+  cacheCompras = comprasLimpias;
   try {
-    const str = JSON.stringify(compras, null, 2);
+    const str = JSON.stringify(comprasLimpias, null, 2);
     fs.writeFileSync(COMPRAS_FILE, str, 'utf-8');
     cloudStorage.subirALaNube('data/compras.json', str).catch(() => {});
     return true;

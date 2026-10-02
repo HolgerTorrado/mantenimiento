@@ -8,6 +8,64 @@ const STORAGE_BRANCH = process.env.STORAGE_BRANCH || 'db-storage';
 
 const isNubeDesactivada = () => (process.env.DESACTIVAR_NUBE || '').trim().toLowerCase() === 'true';
 
+// Sanitización activa para blindar tildes, eñes y caracteres especiales contra corrupción (mojibake)
+function arreglarMojibake(texto) {
+  if (typeof texto !== 'string' || !texto) return texto;
+  if (!/[ÃÂ]/.test(texto)) return texto;
+
+  return texto
+    .replace(/Ã¡/g, 'á')
+    .replace(/Ã©/g, 'é')
+    .replace(/Ã­/g, 'í')
+    .replace(/Ã\xad/g, 'í')
+    .replace(/Ã\u00ad/g, 'í')
+    .replace(/Ã³/g, 'ó')
+    .replace(/Ãº/g, 'ú')
+    .replace(/Ã±/g, 'ñ')
+    .replace(/Ã¼/g, 'ü')
+    .replace(/Ã /g, 'Á')
+    .replace(/Ã\x81/g, 'Á')
+    .replace(/Ã\u0081/g, 'Á')
+    .replace(/Ã\s*rea/g, 'Área')
+    .replace(/Ã‰/g, 'É')
+    .replace(/Ã\x89/g, 'É')
+    .replace(/Ã\u0089/g, 'É')
+    .replace(/Ã /g, 'Í')
+    .replace(/Ã\x8d/g, 'Í')
+    .replace(/Ã\u008d/g, 'Í')
+    .replace(/Ã“/g, 'Ó')
+    .replace(/Ã\x93/g, 'Ó')
+    .replace(/Ã\u0093/g, 'Ó')
+    .replace(/Ãš/g, 'Ú')
+    .replace(/Ã\x9a/g, 'Ú')
+    .replace(/Ã\u009a/g, 'Ú')
+    .replace(/Ã‘/g, 'Ñ')
+    .replace(/Ã\x91/g, 'Ñ')
+    .replace(/Ã\u0091/g, 'Ñ')
+    .replace(/Ãœ/g, 'Ü')
+    .replace(/Â¿/g, '¿')
+    .replace(/Â¡/g, '¡')
+    .replace(/Â°/g, '°');
+}
+
+function sanitizarObjeto(obj) {
+  if (!obj || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizarObjeto);
+  }
+  const clean = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (typeof v === 'string') {
+      clean[k] = v.startsWith('data:image/') ? v : arreglarMojibake(v);
+    } else if (typeof v === 'object' && v !== null) {
+      clean[k] = sanitizarObjeto(v);
+    } else {
+      clean[k] = v;
+    }
+  }
+  return clean;
+}
+
 // Descargar archivo desde la nube (db-storage), blindado contra el límite de 1MB de GitHub Contents API
 async function descargarDeLaNube(rutaRelativa) {
   if (isNubeDesactivada() || !GITHUB_TOKEN) return null;
@@ -95,6 +153,9 @@ async function descargarDeLaNube(rutaRelativa) {
 
     if (!contenidoStr) return null;
 
+    // Sanitización preventiva automática de codificación UTF-8
+    contenidoStr = arreglarMojibake(contenidoStr);
+
     return {
       contenido: contenidoStr,
       sha: data.sha
@@ -125,11 +186,11 @@ async function subirALaNube(rutaRelativa, contenidoStr, permiteEliminar = false)
       }
     } catch(e) {}
 
-    // BLINDAJE PARA TAREAS: Evitar que una lista reducida borre tareas de la nube
-    let contenidoFinal = contenidoStr;
+    // BLINDAJE PARA TAREAS: Evitar que una lista reducida borre tareas de la nube y blindar codificación UTF-8
+    let contenidoFinal = arreglarMojibake(contenidoStr);
     if (rutaRelativa === 'data/tasks.json' && !permiteEliminar) {
       try {
-        const incomingTasks = JSON.parse(contenidoStr);
+        const incomingTasks = JSON.parse(contenidoFinal);
         const cloudData = await descargarDeLaNube(rutaRelativa);
         if (cloudData && cloudData.contenido) {
           const currentCloudTasks = JSON.parse(cloudData.contenido);
@@ -149,7 +210,7 @@ async function subirALaNube(rutaRelativa, contenidoStr, permiteEliminar = false)
 
     const payload = {
       message: `Persistencia blindada: ${rutaRelativa} [${new Date().toISOString()}]`,
-      content: Buffer.from(contenidoFinal).toString('base64'),
+      content: Buffer.from(arreglarMojibake(contenidoFinal), 'utf8').toString('base64'),
       branch: STORAGE_BRANCH
     };
     if (shaActual) payload.sha = shaActual;
@@ -265,7 +326,7 @@ function mergeTareas(listaA = [], listaB = []) {
     }
   });
 
-  return Array.from(map.values()).sort((a, b) => {
+  return Array.from(map.values()).map(sanitizarObjeto).sort((a, b) => {
     const numA = parseInt(String(a.id || '').replace(/\D/g, ''), 10) || 0;
     const numB = parseInt(String(b.id || '').replace(/\D/g, ''), 10) || 0;
     return numB - numA; // Más reciente primero
@@ -410,13 +471,16 @@ async function sincronizarArchivoAlIniciar(nombreArchivo, archivoLocal) {
       resultadoFinal = nubeData.length > 0 ? nubeData : localData;
     }
 
+    resultadoFinal = sanitizarObjeto(resultadoFinal);
+
     if (resultadoFinal && (Array.isArray(resultadoFinal) ? resultadoFinal.length > 0 : Object.keys(resultadoFinal).length > 0)) {
       fs.writeFileSync(archivoLocal, JSON.stringify(resultadoFinal, null, 2), 'utf-8');
       const count = Array.isArray(resultadoFinal) ? resultadoFinal.length : 'config';
       console.log(`[CloudStorage] Sincronización blindada de ${nombreArchivo}: ${count} registros protegidos.`);
 
-      // Si el resultado local fusionado tiene más datos o difiere de la nube, actualizar la nube
-      if (!nubeData || (Array.isArray(resultadoFinal) && resultadoFinal.length > nubeData.length)) {
+      // Si el resultado local fusionado tiene más datos o difiere de la nube, o la nube tenía mojibake, actualizar la nube
+      const nubeTieneMojibake = nube && nube.contenido && /[ÃÂ][\x80-\xBF]|[\uFFFD]/.test(nube.contenido);
+      if (!nubeData || (Array.isArray(resultadoFinal) && resultadoFinal.length > nubeData.length) || nubeTieneMojibake) {
         subirALaNube(`data/${nombreArchivo}`, JSON.stringify(resultadoFinal, null, 2), false).catch(() => {});
       }
     } else {
@@ -434,5 +498,7 @@ module.exports = {
   mergeUsuarios,
   mergeMecanicos,
   mergeCompras,
-  sincronizarArchivoAlIniciar
+  sincronizarArchivoAlIniciar,
+  arreglarMojibake,
+  sanitizarObjeto
 };
