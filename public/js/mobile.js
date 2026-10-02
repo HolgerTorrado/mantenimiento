@@ -1242,14 +1242,14 @@ function abrirDetalleTareaMovil(id) {
   const elNotas = document.getElementById('mob-det-notas');
   if (elNotas) elNotas.innerText = t.notas_mecanico ? `"${t.notas_mecanico}"` : 'Sin observaciones adicionales registradas';
 
-  // Acciones administrativas en móvil (Reabrir tarea y Quitar foto)
+  // Acciones administrativas en móvil (Reabrir tarea y Quitar foto - Exclusivo Perfil Admin)
   const user = JSON.parse(localStorage.getItem('siman_mecanico') || localStorage.getItem('siman_user') || '{}');
-  const esGestion = ['admin', 'supervisor', 'sst', 'director'].includes(user.rol);
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
   const boxAdmin = document.getElementById('mob-det-admin-actions');
   const btnQuitar = document.getElementById('mob-btn-quitar-foto');
 
   if (boxAdmin) {
-    if (esGestion && t.estado === 'completado') {
+    if (esAdmin && t.estado === 'completado') {
       boxAdmin.classList.remove('hidden');
       if (btnQuitar) {
         if (t.foto_comprobante) btnQuitar.classList.remove('hidden');
@@ -1267,6 +1267,10 @@ function abrirDetalleTareaMovil(id) {
 async function reabrirTareaMovil() {
   if (!tareaDetalleMovilActual) return;
   const user = JSON.parse(localStorage.getItem('siman_mecanico') || localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    alert('Acceso Restringido: Solo el Administrador puede reabrir tareas.');
+    return;
+  }
   if (!confirm(`¿Está seguro de reabrir la tarea ${tareaDetalleMovilActual.id} y pasarla a "En Proceso"?`)) return;
 
   let quitarFoto = false;
@@ -1297,6 +1301,10 @@ async function reabrirTareaMovil() {
 async function quitarFotoMovil() {
   if (!tareaDetalleMovilActual) return;
   const user = JSON.parse(localStorage.getItem('siman_mecanico') || localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    alert('Acceso Restringido: Solo el Administrador puede eliminar fotografías.');
+    return;
+  }
   if (!confirm(`¿Está seguro de eliminar la fotografía de comprobante de ${tareaDetalleMovilActual.id}?`)) return;
 
   try {

@@ -1006,9 +1006,12 @@ app.put('/api/tasks/:id', (req, res) => {
   if (titulo !== undefined) tareas[idx].titulo = titulo.trim();
   if (tipo !== undefined) tareas[idx].tipo = tipo.toLowerCase();
   if (prioridad !== undefined) tareas[idx].prioridad = prioridad;
-  // Soporte explícito para Reabrir Tarea
-  const quiereReabrir = req.body.reabrir === true || (estado !== undefined && estado !== 'completado' && tareas[idx].estado === 'completado');
+  // Soporte explícito para Reabrir Tarea (Exclusivo Perfil Admin)
+  const quiereReabrir = tareas[idx].estado === 'completado' && (req.body.reabrir === true || (estado !== undefined && estado !== 'completado'));
   if (quiereReabrir) {
+    if (userRol !== 'admin') {
+      return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene autorización para reabrir una tarea finalizada.' });
+    }
     tareas[idx].estado = (estado && estado !== 'completado') ? estado : 'en_proceso';
     tareas[idx].completado_en = null;
     tareas[idx].completado_por_usuario = null;
@@ -1020,18 +1023,27 @@ app.put('/api/tasks/:id', (req, res) => {
     tareas[idx].reabierta_en = new Date().toISOString();
     tareas[idx].reabierta_por = userRol;
   } else if (estado !== undefined) {
+    if (tareas[idx].estado === 'completado' && estado !== 'completado' && userRol !== 'admin') {
+      return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene autorización para modificar el estado de una tarea finalizada.' });
+    }
     tareas[idx].estado = estado;
   }
 
-  // Soporte explícito para Quitar / Eliminar Foto Comprobante de Finalización
+  // Soporte explícito para Quitar / Eliminar Foto Comprobante de Finalización (Exclusivo Perfil Admin)
   if (req.body.eliminar_foto_comprobante === true || foto_comprobante === null) {
+    if (userRol !== 'admin') {
+      return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene autorización para eliminar fotografías de comprobante.' });
+    }
     tareas[idx].foto_comprobante = null;
     tareas[idx].foto_comprobante_eliminada = true;
     tareas[idx].foto_actualizada_en = new Date().toISOString();
   }
 
-  // Soporte explícito para Quitar / Eliminar Foto Inicial
+  // Soporte explícito para Quitar / Eliminar Foto Inicial (Exclusivo Perfil Admin)
   if (req.body.eliminar_foto_inicial === true || foto_inicial === null) {
+    if (userRol !== 'admin') {
+      return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene autorización para eliminar fotografías iniciales.' });
+    }
     tareas[idx].foto_inicial = null;
     tareas[idx].foto_inicial_eliminada = true;
     tareas[idx].foto_inicial_actualizada_en = new Date().toISOString();
@@ -1079,11 +1091,11 @@ app.put('/api/tasks/:id', (req, res) => {
   });
 });
 
-// Endpoint directo: Reabrir Tarea (Quitar estado de finalizada y opcionalmente quitar foto)
+// Endpoint directo: Reabrir Tarea (Exclusivo Perfil Admin)
 app.post('/api/tasks/:id/reabrir', (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (!ROLES_GESTION.includes(userRol)) {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo personal de gestión puede reabrir tareas.' });
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene permiso para reabrir tareas finalizadas.' });
   }
 
   let tareas = leerTareas();
@@ -1109,15 +1121,15 @@ app.post('/api/tasks/:id/reabrir', (req, res) => {
   }
 
   guardarTareas(tareas, true);
-  console.log(`[SIMAN] Tarea ${tareas[idx].id} reabierta con éxito por ${userRol}.`);
+  console.log(`[SIMAN] Tarea ${tareas[idx].id} reabierta con éxito exclusivamente por Admin.`);
   res.json({ ok: true, mensaje: `Tarea ${tareas[idx].id} reabierta exitosamente.`, tarea: tareas[idx] });
 });
 
-// Endpoint directo: Quitar Foto Comprobante de Finalización
+// Endpoint directo: Quitar Foto Comprobante de Finalización (Exclusivo Perfil Admin)
 app.delete('/api/tasks/:id/foto', (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (!ROLES_GESTION.includes(userRol)) {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo personal de gestión puede eliminar fotografías.' });
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene permiso para eliminar fotografías de comprobante.' });
   }
 
   let tareas = leerTareas();
@@ -1129,7 +1141,7 @@ app.delete('/api/tasks/:id/foto', (req, res) => {
   tareas[idx].modificado_en = new Date().toISOString();
 
   guardarTareas(tareas, true);
-  console.log(`[SIMAN] Foto comprobante eliminada de ${tareas[idx].id} por ${userRol}.`);
+  console.log(`[SIMAN] Foto comprobante eliminada de ${tareas[idx].id} exclusivamente por Admin.`);
   res.json({ ok: true, mensaje: 'Fotografía comprobante eliminada correctamente.', tarea: tareas[idx] });
 });
 

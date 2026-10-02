@@ -1541,9 +1541,11 @@ function abrirFotoInicialDetalleActual() {
 }
 
 function alCambiarEstadoDetalleModal(nuevoEstado) {
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
   const btnReabrir = document.getElementById('btn-reabrir-tarea-detalle');
   if (btnReabrir) {
-    if (nuevoEstado === 'completado') btnReabrir.classList.remove('hidden');
+    if (esAdmin && nuevoEstado === 'completado') btnReabrir.classList.remove('hidden');
     else btnReabrir.classList.add('hidden');
   }
   if (nuevoEstado !== 'completado') {
@@ -1557,6 +1559,11 @@ function alCambiarEstadoDetalleModal(nuevoEstado) {
 
 function reabrirTareaActual() {
   if (!tareaSeleccionadaId) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    mostrarToast('❌ Acceso Restringido: Solo el Administrador puede reabrir tareas.', 'error');
+    return;
+  }
   const selEstado = document.getElementById('edit-det-estado');
   if (selEstado) selEstado.value = 'en_proceso';
   alCambiarEstadoDetalleModal('en_proceso');
@@ -1572,6 +1579,11 @@ function reabrirTareaActual() {
 }
 
 function marcarEliminarFotoDetalle() {
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    mostrarToast('❌ Acceso Restringido: Solo el Administrador puede eliminar fotografías.', 'error');
+    return;
+  }
   if (!confirm('¿Está seguro de quitar la fotografía de comprobante final?')) return;
   eliminarFotoDetallePendiente = true;
   nuevaFotoDetalleBase64 = null;
@@ -1617,6 +1629,11 @@ function cancelarEliminarFotoDetalle() {
 }
 
 function marcarEliminarFotoInicialDetalle() {
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
+    mostrarToast('❌ Acceso Restringido: Solo el Administrador puede eliminar fotografías.', 'error');
+    return;
+  }
   if (!confirm('¿Está seguro de quitar la fotografía inicial?')) return;
   eliminarFotoInicialDetallePendiente = true;
   nuevaFotoInicialDetalleBase64 = null;
@@ -1715,7 +1732,8 @@ async function guardarEdicionDetalleAdmin() {
 
   const tipoSeleccionado = document.getElementById('edit-det-tipo')?.value;
   const estadoSeleccionado = document.getElementById('edit-det-estado')?.value || 'pendiente';
-  const esReapertura = estadoSeleccionado !== 'completado';
+  const tareaActual = todasLasTareas.find(item => item.id === tareaSeleccionadaId);
+  const esReapertura = Boolean(tareaActual && tareaActual.estado === 'completado' && estadoSeleccionado !== 'completado');
 
   const payload = {
     tipo: tipoSeleccionado,
