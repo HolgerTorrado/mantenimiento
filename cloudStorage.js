@@ -27,26 +27,48 @@ async function descargarDeLaNube(rutaRelativa) {
     }
 
     // Si el archivo supera 1MB (fotos base64), GitHub Contents API devuelve content vacío / encoding: 'none'.
-    // Usamos Git Blobs API (inmune a caché de CDN) o raw.githubusercontent.com como fallback transparente y robusto.
+    // Usamos raw.githubusercontent.com (altamente eficiente para >10MB) o Git Blobs API como fallback.
     if (!contenidoStr && data.sha) {
-      console.log(`[CloudStorage] Archivo ${rutaRelativa} supera 1MB (${data.size} bytes). Descargando via Git Blobs API...`);
+      console.log(`[CloudStorage] Archivo ${rutaRelativa} supera 1MB (${data.size} bytes). Descargando...`);
+      
+      // 1. Intentar primero via raw.githubusercontent.com con autenticación (inmune a límites de blobs API)
       try {
-        const blobUrl = `https://api.github.com/repos/${GITHUB_REPO}/git/blobs/${data.sha}`;
-        const blobRes = await fetch(blobUrl, {
+        const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/${STORAGE_BRANCH}/${rutaRelativa}?t=${Date.now()}`;
+        const rawRes = await fetch(rawUrl, {
           headers: {
             'Authorization': `token ${GITHUB_TOKEN}`,
             'User-Agent': 'SIMAN-CloudStorage',
-            'Accept': 'application/vnd.github.raw'
+            'Cache-Control': 'no-cache'
           }
         });
-        if (blobRes.ok) {
-          contenidoStr = await blobRes.text();
+        if (rawRes.ok) {
+          contenidoStr = await rawRes.text();
+          console.log(`[CloudStorage] Descarga exitosa via raw.githubusercontent.com (${contenidoStr.length} caracteres).`);
         }
       } catch(e) {
-        console.warn(`[CloudStorage] Fallo al leer Git Blob raw para ${rutaRelativa}:`, e.message);
+        console.warn(`[CloudStorage] Fallo al leer Raw URL para ${rutaRelativa}:`, e.message);
       }
 
-      // Si falla Git Blob raw, intentamos Git Blobs API JSON
+      // 2. Fallback: Git Blobs API raw
+      if (!contenidoStr) {
+        try {
+          const blobUrl = `https://api.github.com/repos/${GITHUB_REPO}/git/blobs/${data.sha}`;
+          const blobRes = await fetch(blobUrl, {
+            headers: {
+              'Authorization': `token ${GITHUB_TOKEN}`,
+              'User-Agent': 'SIMAN-CloudStorage',
+              'Accept': 'application/vnd.github.raw'
+            }
+          });
+          if (blobRes.ok) {
+            contenidoStr = await blobRes.text();
+          }
+        } catch(e) {
+          console.warn(`[CloudStorage] Fallo al leer Git Blob raw para ${rutaRelativa}:`, e.message);
+        }
+      }
+
+      // 3. Fallback: Git Blobs API JSON
       if (!contenidoStr) {
         try {
           const blobUrl = `https://api.github.com/repos/${GITHUB_REPO}/git/blobs/${data.sha}`;
@@ -65,25 +87,6 @@ async function descargarDeLaNube(rutaRelativa) {
           }
         } catch(e) {
           console.warn(`[CloudStorage] Fallo al leer Git Blob JSON para ${rutaRelativa}:`, e.message);
-        }
-      }
-
-      // Fallback final: Raw GitHub URL
-      if (!contenidoStr) {
-        try {
-          const rawUrl = `https://raw.githubusercontent.com/${GITHUB_REPO}/${STORAGE_BRANCH}/${rutaRelativa}?t=${Date.now()}`;
-          const rawRes = await fetch(rawUrl, {
-            headers: {
-              'Authorization': `token ${GITHUB_TOKEN}`,
-              'User-Agent': 'SIMAN-CloudStorage',
-              'Cache-Control': 'no-cache'
-            }
-          });
-          if (rawRes.ok) {
-            contenidoStr = await rawRes.text();
-          }
-        } catch(e) {
-          console.warn(`[CloudStorage] Fallo al leer Raw URL para ${rutaRelativa}:`, e.message);
         }
       }
     }
@@ -325,8 +328,8 @@ async function sincronizarArchivoAlIniciar(nombreArchivo, archivoLocal) {
       fs.writeFileSync(archivoLocal, JSON.stringify(resultadoFinal, null, 2), 'utf-8');
       console.log(`[CloudStorage] Sincronización blindada de ${nombreArchivo}: ${resultadoFinal.length} registros protegidos.`);
 
-      // Si el resultado local fusionado tiene más datos o difiere de la nube, actualizar la nube
-      if (!nubeData || resultadoFinal.length > nubeData.length) {
+      // Si el resultado local fusionado tiene más datos válidos que la nube comprobada, actualizar la nube
+      if (nube && nube.contenido && resultadoFinal.length > nubeData.length) {
         subirALaNube(`data/${nombreArchivo}`, JSON.stringify(resultadoFinal, null, 2), false).catch(() => {});
       }
     } else {
