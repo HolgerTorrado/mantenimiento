@@ -54,7 +54,7 @@ function sanitizarObjeto(obj) {
   const clean = {};
   for (const [k, v] of Object.entries(obj)) {
     if (typeof v === 'string') {
-      clean[k] = v.startsWith('data:image/') ? v : arreglarMojibake(v);
+      clean[k] = (v.startsWith('data:image/') || v.startsWith('http://') || v.startsWith('https://')) ? v : arreglarMojibake(v);
     } else if (typeof v === 'object' && v !== null) {
       clean[k] = sanitizarObjeto(v);
     } else {

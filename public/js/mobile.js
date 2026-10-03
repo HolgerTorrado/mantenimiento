@@ -420,13 +420,21 @@ function renderTareasMovil() {
 
   let lista = filtrarTareasPorUsuario(tareasMovil);
 
+  let totalCompletadasOcultas = 0;
   // Filtrar por tab
   if (tabActual === 'pendientes') {
     lista = lista.filter(t => t.estado === 'pendiente');
   } else if (tabActual === 'en_progreso') {
     lista = lista.filter(t => t.estado === 'en_progreso');
   } else if (tabActual === 'completadas') {
-    lista = lista.filter(t => t.estado === 'completado');
+    const todasComp = lista.filter(t => t.estado === 'completado');
+    const limiteActual = window.limiteHistorialCompletadas || 30;
+    if (todasComp.length > limiteActual) {
+      totalCompletadasOcultas = todasComp.length - limiteActual;
+      lista = todasComp.slice(0, limiteActual);
+    } else {
+      lista = todasComp;
+    }
   }
 
   actualizarContadoresMovil();
@@ -699,6 +707,17 @@ function renderTareasMovil() {
       </div>
     `;
   }).join('');
+
+  // Si hay tareas completadas antiguas ocultas en el historial, mostrar botón para cargar más
+  if (tabActual === 'completadas' && totalCompletadasOcultas > 0) {
+    contenedor.innerHTML += `
+      <div class="pt-3 pb-8 text-center">
+        <button type="button" onclick="window.limiteHistorialCompletadas = (window.limiteHistorialCompletadas || 30) + 30; renderTareasMovil();" class="py-2.5 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 mx-auto shadow active:scale-95">
+          <i class="fa-solid fa-clock-rotate-left text-emerald-400"></i> Cargar más tareas del historial (${totalCompletadasOcultas} más)
+        </button>
+      </div>
+    `;
+  }
 }
 
 // Acción Iniciar Tarea

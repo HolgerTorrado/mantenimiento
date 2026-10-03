@@ -7,6 +7,7 @@ const os = require('os');
 const QRCode = require('qrcode');
 const crypto = require('crypto');
 const cloudStorage = require('./cloudStorage');
+const imageStorage = require('./imageStorage');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -692,7 +693,7 @@ app.get('/api/tasks/:id', (req, res) => {
 });
 
 // 5. Crear nueva tarea de mantenimiento (Admin, Supervisor, SST, Director de Planta)
-app.post('/api/tasks', (req, res) => {
+app.post('/api/tasks', async (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
   if (!ROLES_GESTION.includes(userRol)) {
     return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador, Supervisor, SST o Director de Planta tienen autorización para crear y programar tareas.' });
@@ -768,6 +769,12 @@ app.post('/api/tasks', (req, res) => {
   }, 1000);
   const nuevoId = `TSK-${maxIdNum + 1}`;
 
+  // Subir fotografía inicial a Cloudinary si está disponible
+  let fotoInicialFinal = null;
+  if (foto_inicial && String(foto_inicial).length > 20) {
+    fotoInicialFinal = await imageStorage.subirImagenNube(foto_inicial, `ini_${nuevoId}`, 'iniciales');
+  }
+
   const nuevaTarea = {
     id: nuevoId,
     equipo: equipo.trim(),
@@ -784,7 +791,7 @@ app.post('/api/tasks', (req, res) => {
     fecha_arreglo: null,
     estado: 'pendiente',
     notas_mecanico: null,
-    foto_inicial: (foto_inicial && String(foto_inicial).length > 20) ? foto_inicial : null,
+    foto_inicial: fotoInicialFinal,
     foto_comprobante: null,
     tiempo_arreglo_minutos: null,
     creado_por_usuario: (req.headers['x-user-name'] || req.headers['x-user-username'] || creado_por || 'Usuario').trim(),
@@ -819,8 +826,8 @@ app.post('/api/tasks/:id/iniciar', (req, res) => {
   res.json(tareas[idx]);
 });
 
-// 7. Completar tarea con guardado permanente de foto en base64 (Vector / Nube)
-app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
+// 7. Completar tarea con guardado permanente de foto (Cloudinary / Nube)
+app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => {
   const userRol = req.headers['x-user-role'];
   if (userRol === 'visualizador') {
     if (req.file) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
@@ -867,19 +874,20 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
     console.error('Error calculando tiempo:', e);
   }
 
-  // Foto comprobante: Guardar directamente como Data URL Base64 para persistencia total en Git / JSON
+  // Foto comprobante: Subir a Cloudinary (CDN) o Base64/local como fallback seguro
   let rutaFoto = tareas[idx].foto_comprobante;
   if (req.body && req.body.foto_base64 && req.body.foto_base64.startsWith('data:image/')) {
-    rutaFoto = req.body.foto_base64;
+    rutaFoto = await imageStorage.subirImagenNube(req.body.foto_base64, `comp_${tareas[idx].id}`, 'comprobantes');
   } else if (req.file) {
     try {
       const ext = path.extname(req.file.originalname).toLowerCase();
       const mime = ext === '.png' ? 'image/png' : 'image/jpeg';
       const b64 = fs.readFileSync(req.file.path).toString('base64');
-      rutaFoto = `data:${mime};base64,${b64}`;
+      const dataUri = `data:${mime};base64,${b64}`;
+      rutaFoto = await imageStorage.subirImagenNube(dataUri, `comp_${tareas[idx].id}`, 'comprobantes');
       try { fs.unlinkSync(req.file.path); } catch(e) {}
     } catch(e) {
-      console.error('Error convirtiendo foto a base64:', e);
+      console.error('Error procesando foto comprobante:', e);
       rutaFoto = `/uploads/${req.file.filename}`;
     }
   }
@@ -929,7 +937,7 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), (req, res) => {
 });
 
 // 7.1. Actualizar y Modificar Tarea Completa (Admin, Supervisor, SST, Director de Planta)
-app.put('/api/tasks/:id', (req, res) => {
+app.put('/api/tasks/:id', async (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
   if (!ROLES_GESTION.includes(userRol)) {
     return res.status(403).json({ error: 'Acceso Restringido: Solo el personal de gestión (Administrador, Supervisor, SST o Director) tiene permiso para editar tareas y tiempos.' });
@@ -966,9 +974,9 @@ app.put('/api/tasks/:id', (req, res) => {
   if (fecha_arreglo !== undefined) tareas[idx].fecha_arreglo = fecha_arreglo || null;
   if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
 
-  // Actualizar fotografía comprobante si se envía nueva
+  // Actualizar fotografía comprobante si se envía nueva (Subir a Cloudinary si está activo)
   if (foto_base64 && foto_base64.startsWith('data:image/')) {
-    tareas[idx].foto_comprobante = foto_base64;
+    tareas[idx].foto_comprobante = await imageStorage.subirImagenNube(foto_base64, `comp_${tareas[idx].id}`, 'comprobantes');
     tareas[idx].foto_actualizada_en = new Date().toISOString();
   } else if (foto_comprobante !== undefined) {
     tareas[idx].foto_comprobante = foto_comprobante;
@@ -976,7 +984,7 @@ app.put('/api/tasks/:id', (req, res) => {
 
   // Actualizar fotografía inicial del daño o reporte si se envía
   if (foto_inicial_base64 && foto_inicial_base64.startsWith('data:image/')) {
-    tareas[idx].foto_inicial = foto_inicial_base64;
+    tareas[idx].foto_inicial = await imageStorage.subirImagenNube(foto_inicial_base64, `ini_${tareas[idx].id}`, 'iniciales');
     tareas[idx].foto_inicial_actualizada_en = new Date().toISOString();
   } else if (foto_inicial !== undefined) {
     tareas[idx].foto_inicial = foto_inicial;
@@ -1183,7 +1191,7 @@ app.delete('/api/tasks/:id/foto', (req, res) => {
 });
 
 // 7.2. Actualizar o Cambiar Fotografía (Disponible incluso si la tarea ya está finalizada)
-app.post('/api/tasks/:id/foto', (req, res) => {
+app.post('/api/tasks/:id/foto', async (req, res) => {
   const userRol = req.headers['x-user-role'];
   if (userRol === 'visualizador') {
     return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para cambiar fotografías.' });
@@ -1198,7 +1206,9 @@ app.post('/api/tasks/:id/foto', (req, res) => {
     return res.status(400).json({ error: 'Se requiere una imagen válida en formato Data URL Base64.' });
   }
 
-  tareas[idx].foto_comprobante = foto_base64;
+  const fotoSubida = await imageStorage.subirImagenNube(foto_base64, `comp_${tareas[idx].id}`, 'comprobantes');
+
+  tareas[idx].foto_comprobante = fotoSubida;
   tareas[idx].foto_actualizada_en = new Date().toISOString();
   tareas[idx].foto_actualizada_por = req.headers['x-user-name'] || req.headers['x-user-username'] || 'Usuario';
 
@@ -1210,7 +1220,7 @@ app.post('/api/tasks/:id/foto', (req, res) => {
 });
 
 // 7.3. Actualizar o Cambiar Fotografía Inicial del Daño / Reporte
-app.post('/api/tasks/:id/foto-inicial', (req, res) => {
+app.post('/api/tasks/:id/foto-inicial', async (req, res) => {
   const userRol = req.headers['x-user-role'];
   if (userRol === 'visualizador') {
     return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para modificar fotografías.' });
@@ -1225,7 +1235,9 @@ app.post('/api/tasks/:id/foto-inicial', (req, res) => {
     return res.status(400).json({ error: 'Se requiere una imagen válida en formato Data URL Base64.' });
   }
 
-  tareas[idx].foto_inicial = foto_base64;
+  const fotoSubida = await imageStorage.subirImagenNube(foto_base64, `ini_${tareas[idx].id}`, 'iniciales');
+
+  tareas[idx].foto_inicial = fotoSubida;
   tareas[idx].foto_inicial_actualizada_en = new Date().toISOString();
   tareas[idx].foto_inicial_actualizada_por = req.headers['x-user-name'] || req.headers['x-user-username'] || 'Usuario';
 
@@ -1262,7 +1274,7 @@ app.delete('/api/tasks/:id', (req, res) => {
 });
 
 // 8.1. Bitácora de Avances de Tarea en Curso (Para mecánicos, eléctricos y maquinistas)
-app.post('/api/tasks/:id/avances', (req, res) => {
+app.post('/api/tasks/:id/avances', async (req, res) => {
   const userRol = req.headers['x-user-role'];
   if (userRol === 'visualizador') {
     return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para registrar avances.' });
@@ -1291,6 +1303,12 @@ app.post('/api/tasks/:id/avances', (req, res) => {
   const horasNum = parseFloat(horas_dedicadas) || 0;
   const minutosDedicados = Math.round(horasNum * 60);
 
+  // Subir fotografía de avance a Cloudinary si está disponible
+  let fotoAvanceFinal = null;
+  if (foto_base64 && foto_base64.startsWith('data:image/')) {
+    fotoAvanceFinal = await imageStorage.subirImagenNube(foto_base64, `av_${tareas[idx].id}_${Date.now()}`, 'avances');
+  }
+
   const nuevoAvance = {
     id: `AV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     fecha_hora: fecha_hora || new Date().toISOString().slice(0, 16),
@@ -1300,7 +1318,7 @@ app.post('/api/tasks/:id/avances', (req, res) => {
     descripcion: descripcion.trim(),
     horas_dedicadas: horasNum,
     minutos_dedicados: minutosDedicados,
-    foto: (foto_base64 && foto_base64.startsWith('data:image/')) ? foto_base64 : null,
+    foto: fotoAvanceFinal,
     creado_en: new Date().toISOString()
   };
 
@@ -1365,6 +1383,64 @@ app.delete('/api/tasks/:id/avances/:avanceId', (req, res) => {
   }
 
   res.json({ mensaje: 'Avance eliminado correctamente', avances: tareas[idx].avances || [] });
+});
+
+// 8.2. Estado y Migración de Almacenamiento en la Nube (Cloudinary)
+app.get('/api/admin/cloudinary-status', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo Administrador.' });
+  }
+  const tareas = leerTareas();
+  let base64Count = 0;
+  let cdnCount = 0;
+  tareas.forEach(t => {
+    if (t.foto_comprobante) {
+      if (t.foto_comprobante.startsWith('data:image/')) base64Count++;
+      else if (t.foto_comprobante.startsWith('http')) cdnCount++;
+    }
+    if (t.foto_inicial) {
+      if (t.foto_inicial.startsWith('data:image/')) base64Count++;
+      else if (t.foto_inicial.startsWith('http')) cdnCount++;
+    }
+    if (Array.isArray(t.avances)) {
+      t.avances.forEach(a => {
+        if (a.foto) {
+          if (a.foto.startsWith('data:image/')) base64Count++;
+          else if (a.foto.startsWith('http')) cdnCount++;
+        }
+      });
+    }
+  });
+
+  res.json({
+    configurado: imageStorage.isConfigurado(),
+    fotos_en_base64: base64Count,
+    fotos_en_cdn: cdnCount,
+    total_tareas: tareas.length
+  });
+});
+
+app.post('/api/admin/migrar-fotos-cloudinary', async (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo Administrador.' });
+  }
+  if (!imageStorage.isConfigurado()) {
+    return res.status(400).json({ error: 'Cloudinary no está configurado en las variables de entorno aún.' });
+  }
+
+  const tareas = leerTareas();
+  const resultado = await imageStorage.migrarFotosExistentes(tareas, 10);
+  if (resultado.migrados > 0) {
+    guardarTareas(tareas, true);
+  }
+
+  res.json({
+    ok: true,
+    migrados_en_este_lote: resultado.migrados,
+    fotos_pendientes_por_migrar: resultado.totalPendientes
+  });
 });
 
 // 9. Métricas y KPIs para el dashboard (con filtro de período, horas de roles y tiempos muertos)
