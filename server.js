@@ -733,6 +733,33 @@ app.get('/api/tasks', (req, res) => {
   // Ordenar: más recientes primero
   tareas.sort((a, b) => new Date(b.fecha_ocurrencia || b.creado_en) - new Date(a.fecha_ocurrencia || a.creado_en));
 
+  // OPTIMIZACIÓN DE ANCHO DE BANDA (Render 5GB):
+  // Si la tarea está completada, no enviar las fotos pesadas en Base64 en el listado periódico recurrente.
+  // Las fotos de completadas se solicitan bajo demanda vía GET /api/tasks/:id al tocar "Ver Detalles".
+  // Las tareas pendientes y en progreso sí conservan sus fotos completas para visualización directa en la lista.
+  const conTodasFotos = req.query.con_todas_fotos === 'true';
+  if (!conTodasFotos) {
+    tareas = tareas.map(t => {
+      if (t.estado === 'completado') {
+        const copia = { ...t };
+        copia.tiene_foto_comprobante = Boolean(t.foto_comprobante);
+        copia.tiene_foto_inicial = Boolean(t.foto_inicial);
+        delete copia.foto_comprobante;
+        delete copia.foto_inicial;
+        if (Array.isArray(copia.avances)) {
+          copia.avances = copia.avances.map(a => {
+            const ac = { ...a };
+            ac.tiene_foto = Boolean(a.foto);
+            delete ac.foto;
+            return ac;
+          });
+        }
+        return copia;
+      }
+      return t;
+    });
+  }
+
   res.json(tareas);
 });
 

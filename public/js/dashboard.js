@@ -701,10 +701,17 @@ function renderTablaTareas(tareas) {
           </span>
         </div>
       `;
+    } else if (t.tiene_foto_comprobante) {
+      fotoTd = `
+        <button type="button" onclick="cargarYVerFoto('${t.id}', 'comprobante'); event.stopPropagation();" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-900/60 text-xs font-semibold transition shadow-sm" title="Ver fotografía de comprobante (carga ligera)">
+          <i class="fa-solid fa-camera"></i> Ver Foto
+        </button>
+      `;
     } else {
+      const txtFoto = t.estado === 'completado' ? 'Sin comprobante' : 'Pendiente';
       fotoTd = `
         <span class="text-slate-500 text-xs italic flex items-center justify-center gap-1">
-          <i class="fa-regular fa-image text-slate-600"></i> Pendiente
+          <i class="fa-regular fa-image text-slate-600"></i> ${txtFoto}
         </span>
       `;
     }
@@ -1021,10 +1028,46 @@ async function guardarNuevaTarea(e) {
   }
 }
 
-// Modal Detalle
-function abrirModalDetalle(id) {
-  const t = todasLasTareas.find(item => item.id === id);
+// Carga bajo demanda de fotos de una tarea específica (Ahorro de ancho de banda)
+async function cargarYVerFoto(id, tipo = 'comprobante') {
+  let t = todasLasTareas.find(item => item.id === id);
   if (!t) return;
+  if (!t.foto_comprobante && !t.foto_inicial) {
+    try {
+      const res = await fetch(`/api/tasks/${id}`);
+      if (res.ok) {
+        const tCompleta = await res.json();
+        Object.assign(t, tCompleta);
+      }
+    } catch(e) {
+      console.error('Error al cargar foto bajo demanda:', e);
+    }
+  }
+  const foto = (tipo === 'inicial') ? (t.foto_inicial || t.foto_comprobante) : (t.foto_comprobante || t.foto_inicial);
+  if (foto) {
+    abrirVisorFoto(foto, `${t.id} - ${escaparHTML(t.equipo)}`);
+  } else {
+    alert('No se encontró fotografía para esta tarea.');
+  }
+}
+
+// Modal Detalle
+async function abrirModalDetalle(id) {
+  let t = todasLasTareas.find(item => item.id === id);
+  if (!t) return;
+
+  // Si es una tarea optimizada sin fotos cargadas en memoria, cargarlas bajo demanda
+  if ((t.tiene_foto_comprobante && !t.foto_comprobante) || (t.tiene_foto_inicial && !t.foto_inicial)) {
+    try {
+      const res = await fetch(`/api/tasks/${id}`);
+      if (res.ok) {
+        const tCompleta = await res.json();
+        Object.assign(t, tCompleta);
+      }
+    } catch (e) {
+      console.error('Error al cargar fotos de la tarea:', e);
+    }
+  }
 
   tareaSeleccionadaId = id;
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
