@@ -522,15 +522,12 @@ function renderTareasMovil() {
       `;
     } else {
       // Completada
-      const fotoHtml = t.foto_comprobante 
-        ? `<div class="mt-2.5 rounded-xl overflow-hidden border border-slate-700 bg-slate-950 flex flex-col items-center justify-center relative group cursor-pointer" onclick="abrirVisorFoto('${t.foto_comprobante}', '${t.id} - ${escaparHTMLMovil(t.equipo)}'); event.stopPropagation();" title="Toca para ver en pantalla completa">
-             <img src="${t.foto_comprobante}" alt="Comprobante" class="w-full max-h-48 object-contain rounded-lg p-1 transition hover:scale-[1.02]">
-             <div class="w-full bg-slate-900/90 border-t border-slate-800 py-1.5 px-3 flex items-center justify-between text-[11px] text-slate-300">
-               <span class="flex items-center gap-1 text-emerald-400 font-semibold"><i class="fa-solid fa-camera"></i> Foto del Trabajo</span>
-               <span class="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
-                 <i class="fa-solid fa-expand"></i> Ver Completa
-               </span>
-             </div>
+      // En tareas finalizadas, solo mostrar indicador discreto de foto. La foto completa se abre en "Ver Todos los Detalles"
+      const tieneFotoComprobante = Boolean(t.foto_comprobante || t.tiene_foto_comprobante);
+      const fotoHtml = tieneFotoComprobante 
+        ? `<div class="mt-2 flex items-center justify-between text-[11px] text-emerald-400 bg-emerald-950/40 border border-emerald-500/20 px-2.5 py-1.5 rounded-lg">
+             <span class="flex items-center gap-1.5 font-semibold"><i class="fa-solid fa-camera"></i> Foto de comprobante registrada</span>
+             <span class="text-[10px] text-slate-400 italic">Ver en detalles</span>
            </div>`
         : '';
 
@@ -1075,9 +1072,23 @@ function ampliarFotoPreviaMovil() {
 
 let tareaDetalleMovilActual = null;
 
-function abrirDetalleTareaMovil(id) {
-  const t = tareasMovil.find(item => item.id === id);
+async function abrirDetalleTareaMovil(id) {
+  let t = tareasMovil.find(item => item.id === id);
   if (!t) return;
+
+  // Si es una tarea completada optimizada sin fotos en memoria, traerlas bajo demanda
+  if ((t.tiene_foto_comprobante && !t.foto_comprobante) || (t.tiene_foto_inicial && !t.foto_inicial)) {
+    try {
+      const res = await fetch(`/api/tasks/${id}`);
+      if (res.ok) {
+        const tCompleta = await res.json();
+        Object.assign(t, tCompleta);
+      }
+    } catch(err) {
+      console.error('Error al cargar fotos de la tarea en móvil:', err);
+    }
+  }
+
   tareaDetalleMovilActual = t;
 
   // Título e ID
