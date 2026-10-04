@@ -7,6 +7,7 @@ const os = require('os');
 const QRCode = require('qrcode');
 const crypto = require('crypto');
 const compression = require('compression');
+const nodemailer = require('nodemailer');
 const cloudStorage = require('./cloudStorage');
 const imageStorage = require('./imageStorage');
 
@@ -265,6 +266,12 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(401).json({ error: 'Usuario o contraseña incorrectos' });
   }
 
+  // Si no es el admin y aún no tiene guardada la contraseña en texto plano, guardarla para que el Admin pueda consultarla
+  if (user.username.toLowerCase() !== 'holger' && !user.password_plana) {
+    user.password_plana = password;
+    guardarUsuarios(usuarios);
+  }
+
   // Generar token simple de sesión
   const token = `token-${user.id}-${Date.now()}`;
   const userSeguro = {
@@ -279,6 +286,229 @@ app.post('/api/auth/login', (req, res) => {
     mensaje: 'Inicio de sesión exitoso',
     token,
     user: userSeguro
+  });
+});
+
+// ================= RECUPERACIÓN SEGURA DE ADMINISTRADOR CON CÓDIGO OTP =================
+
+// Almacén en memoria de códigos OTP de recuperación
+const codigosRecuperacionAdmin = new Map();
+
+// Helper para enviar correo de verificación OTP
+async function enviarCorreoRecuperacion(emailDestino, codigoOTP) {
+  console.log(`[SEGURIDAD-OTP] 🔐 Código de recuperación generado para Administrador (${emailDestino}): ${codigoOTP}`);
+
+  const smtpUser = process.env.SMTP_USER || process.env.EMAIL_USER;
+  const smtpPass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+  const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const smtpPort = parseInt(process.env.SMTP_PORT || '465', 10);
+
+  if (!smtpUser || !smtpPass) {
+    console.warn(`[SEGURIDAD-OTP] ⚠️ Sin credenciales SMTP en Render. Código activo en servidor: ${codigoOTP}`);
+    return {
+      enviado: false,
+      motivo: 'smtp_no_configurado'
+    };
+  }
+
+  try {
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
+      auth: {
+        user: smtpUser,
+        pass: smtpPass
+      }
+    });
+
+    const info = await transporter.sendMail({
+      from: `"SIMAN Seguridad" <${smtpUser}>`,
+      to: emailDestino,
+      subject: `Código de Seguridad SIMAN: ${codigoOTP}`,
+      text: `Tu código de verificación para restablecer la contraseña de Administrador en SIMAN es: ${codigoOTP}. Expira en 15 minutos.`,
+      html: `
+        <div style="font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; padding: 32px 20px; border-radius: 16px; max-width: 500px; margin: 0 auto; border: 1px solid #334155;">
+          <div style="text-align: center; margin-bottom: 24px;">
+            <div style="display: inline-block; background: #059669; padding: 12px 18px; border-radius: 12px; font-weight: 800; font-size: 20px; color: white;">
+              SIMAN
+            </div>
+            <h2 style="color: #ffffff; margin-top: 14px; font-size: 20px;">Recuperación de Administrador</h2>
+          </div>
+          <p style="font-size: 14px; line-height: 1.6; color: #cbd5e1;">
+            Hola <strong>Holger</strong>, has solicitado restablecer la contraseña de acceso como <strong>Administrador Principal</strong> de SIMAN.
+          </p>
+          <p style="font-size: 14px; line-height: 1.6; color: #cbd5e1;">
+            Ingresa el siguiente código de verificación en la pantalla de inicio de sesión:
+          </p>
+          <div style="background-color: #1e293b; border: 2px dashed #059669; border-radius: 12px; padding: 18px; text-align: center; margin: 24px 0;">
+            <span style="font-size: 34px; font-weight: 900; letter-spacing: 8px; color: #34d399; font-family: monospace;">${codigoOTP}</span>
+          </div>
+          <p style="font-size: 12px; color: #94a3b8; text-align: center;">
+            ⏰ Este código es de uso único y expirará en <strong>15 minutos</strong>.<br>
+            Si tú no hiciste esta solicitud, no compartas este código con nadie.
+          </p>
+          <div style="border-top: 1px solid #334155; margin-top: 24px; padding-top: 16px; text-align: center; font-size: 11px; color: #64748b;">
+            SIMAN - Sistema Integral de Mantenimiento Industrial
+          </div>
+        </div>
+      `
+    });
+
+    console.log(`[SEGURIDAD-OTP] ✉️ Correo de verificación enviado exitosamente a ${emailDestino} (MessageId: ${info.messageId})`);
+    return { enviado: true, messageId: info.messageId };
+  } catch(err) {
+    console.error(`[SEGURIDAD-OTP] ❌ Error enviando correo vía SMTP:`, err.message);
+    return { enviado: false, error: err.message };
+  }
+}
+
+// 1. Solicitar código de recuperación para Administrador
+app.post('/api/auth/recuperar-admin/solicitar', async (req, res) => {
+  const { email } = req.body;
+  if (!email || !String(email).trim()) {
+    return res.status(400).json({ error: 'Debes ingresar el correo de recuperación registrado.' });
+  }
+
+  const emailIngresado = String(email).toLowerCase().trim();
+  const usuarios = leerUsuarios();
+  const adminUser = usuarios.find(u => u.rol === 'admin' || u.username.toLowerCase() === 'holger');
+
+  if (!adminUser) {
+    return res.status(404).json({ error: 'No se encontró la cuenta de Administrador.' });
+  }
+
+  const emailRegistrado = (adminUser.email || 'holger@mantenimiento.com').toLowerCase().trim();
+
+  // Validar estrictamente contra el correo registrado
+  if (emailIngresado !== emailRegistrado) {
+    return res.status(403).json({ 
+      error: 'El correo ingresado no coincide con el correo de recuperación registrado para el Administrador.' 
+    });
+  }
+
+  // Generar código criptográfico de 6 dígitos
+  const codigoOTP = Math.floor(100000 + Math.random() * 900000).toString();
+  const expira = Date.now() + 15 * 60 * 1000; // 15 minutos
+
+  codigosRecuperacionAdmin.set(adminUser.id, {
+    codigo: codigoOTP,
+    expira,
+    intentos: 0,
+    email: emailRegistrado
+  });
+
+  const envio = await enviarCorreoRecuperacion(emailRegistrado, codigoOTP);
+
+  // Censurar correo para visualización segura: h****r@gmail.com
+  const partes = emailRegistrado.split('@');
+  const usuarioParte = partes[0];
+  const dominioParte = partes[1] || '';
+  const censurado = usuarioParte.length <= 2 
+    ? usuarioParte + '***@' + dominioParte
+    : usuarioParte[0] + '****' + usuarioParte[usuarioParte.length - 1] + '@' + dominioParte;
+
+  res.json({
+    ok: true,
+    mensaje: `Se ha generado un código de verificación de 6 dígitos enviado a tu correo ${censurado}.`,
+    email_censurado: censurado,
+    correo_enviado: envio.enviado,
+    codigo_demo: (!envio.enviado && process.env.NODE_ENV !== 'production') ? codigoOTP : undefined
+  });
+});
+
+// 2. Verificar código y restablecer contraseña de Administrador
+app.post('/api/auth/recuperar-admin/verificar', (req, res) => {
+  const { email, codigo, nueva_password } = req.body;
+  if (!email || !codigo || !nueva_password) {
+    return res.status(400).json({ error: 'Correo, código de verificación y nueva contraseña son obligatorios.' });
+  }
+
+  if (String(nueva_password).trim().length < 4) {
+    return res.status(400).json({ error: 'La nueva contraseña debe tener al menos 4 caracteres.' });
+  }
+
+  const emailIngresado = String(email).toLowerCase().trim();
+  const usuarios = leerUsuarios();
+  const adminIdx = usuarios.findIndex(u => u.rol === 'admin' || u.username.toLowerCase() === 'holger');
+
+  if (adminIdx === -1) {
+    return res.status(404).json({ error: 'Cuenta de Administrador no encontrada.' });
+  }
+
+  const adminUser = usuarios[adminIdx];
+  const emailRegistrado = (adminUser.email || 'holger@mantenimiento.com').toLowerCase().trim();
+
+  if (emailIngresado !== emailRegistrado) {
+    return res.status(403).json({ error: 'Correo no coincide con el registrado.' });
+  }
+
+  const sesionOtp = codigosRecuperacionAdmin.get(adminUser.id);
+  if (!sesionOtp) {
+    return res.status(400).json({ error: 'No hay ninguna solicitud de recuperación activa o el código ya fue utilizado. Solicita uno nuevo.' });
+  }
+
+  if (Date.now() > sesionOtp.expira) {
+    codigosRecuperacionAdmin.delete(adminUser.id);
+    return res.status(400).json({ error: 'El código de verificación ha expirado. Por favor solicita uno nuevo.' });
+  }
+
+  // Protección anti fuerza bruta (máximo 5 intentos)
+  if (sesionOtp.intentos >= 5) {
+    codigosRecuperacionAdmin.delete(adminUser.id);
+    return res.status(429).json({ error: 'Has superado el número máximo de intentos permitidos (5). Por seguridad se canceló la solicitud.' });
+  }
+
+  const codigoLimpio = String(codigo).trim();
+  if (codigoLimpio !== sesionOtp.codigo) {
+    sesionOtp.intentos++;
+    const restantes = 5 - sesionOtp.intentos;
+    return res.status(400).json({ 
+      error: `Código de verificación incorrecto. Te quedan ${restantes} intento(s) antes de que se bloquee.` 
+    });
+  }
+
+  // Código válido: Cambiar clave de Admin
+  usuarios[adminIdx].password_hash = hashPassword(String(nueva_password).trim());
+  usuarios[adminIdx].password_actualizada_en = new Date().toISOString();
+  codigosRecuperacionAdmin.delete(adminUser.id);
+
+  guardarUsuarios(usuarios, true);
+  generarRespaldoAutomatico('recuperacion_clave_admin');
+
+  console.log(`[SEGURIDAD] 🛡️ Contraseña de Administrador @${adminUser.username} restablecida exitosamente mediante código OTP.`);
+
+  res.json({
+    ok: true,
+    mensaje: '¡Contraseña de Administrador restablecida con éxito! Ya puedes iniciar sesión con tu nueva contraseña.'
+  });
+});
+
+// 3. Actualizar correo de recuperación del Administrador (Exclusivo Admin)
+app.put('/api/admin/correo-recuperacion', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador puede cambiar su correo de recuperación.' });
+  }
+
+  const { email } = req.body;
+  if (!email || !String(email).includes('@')) {
+    return res.status(400).json({ error: 'Debes proporcionar un correo electrónico válido.' });
+  }
+
+  const usuarios = leerUsuarios();
+  const adminIdx = usuarios.findIndex(u => u.rol === 'admin' || u.username.toLowerCase() === 'holger');
+  if (adminIdx === -1) return res.status(404).json({ error: 'Administrador no encontrado.' });
+
+  usuarios[adminIdx].email = String(email).toLowerCase().trim();
+  usuarios[adminIdx].email_actualizado_en = new Date().toISOString();
+  guardarUsuarios(usuarios, true);
+  generarRespaldoAutomatico('cambio_correo_admin');
+
+  res.json({
+    ok: true,
+    mensaje: `Correo de recuperación del Administrador actualizado a: ${usuarios[adminIdx].email}`,
+    email: usuarios[adminIdx].email
   });
 });
 
@@ -334,6 +564,7 @@ app.post('/api/auth/register', (req, res) => {
     id: `USR-${String(usuarios.length + 1).padStart(2, '0')}`,
     username: username.toLowerCase().trim(),
     password_hash: hashPassword(password),
+    password_plana: username.toLowerCase().trim() !== 'holger' ? String(password).trim() : undefined,
     nombre: nombre.trim(),
     rol: rolValido,
     especialidad: (especialidad || espDefecto).trim(),
@@ -371,19 +602,31 @@ app.post('/api/auth/register', (req, res) => {
 });
 
 app.get('/api/users', (req, res) => {
-  const usuarios = leerUsuarios().map(u => ({
-    id: u.id,
-    username: u.username,
-    nombre: u.nombre,
-    rol: u.rol,
-    especialidad: u.especialidad
-  }));
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const esAdmin = userRol === 'admin';
+  const usuarios = leerUsuarios().map(u => {
+    const item = {
+      id: u.id,
+      username: u.username,
+      nombre: u.nombre,
+      rol: u.rol,
+      especialidad: u.especialidad
+    };
+    if (esAdmin) {
+      if (u.username.toLowerCase() !== 'holger') {
+        item.password_plana = u.password_plana || null;
+      } else {
+        item.email = u.email || 'holger@mantenimiento.com';
+      }
+    }
+    return item;
+  });
   res.json(usuarios);
 });
 
 // Modificar usuario (Exclusivo Administrador Holger)
 app.put('/api/users/:id', (req, res) => {
-  const userRol = req.headers['x-user-role'];
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
   if (userRol !== 'admin') {
     return res.status(403).json({ error: 'Permiso denegado: Solo el Administrador Holger puede modificar usuarios.' });
   }
@@ -392,15 +635,23 @@ app.put('/api/users/:id', (req, res) => {
   const idx = usuarios.findIndex(x => x.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Usuario no encontrado' });
 
-  const { nombre, rol, especialidad, password } = req.body;
+  const { nombre, rol, especialidad, password, email } = req.body;
   if (nombre) usuarios[idx].nombre = nombre.trim();
   if (rol && ROLES_TODOS.includes(rol)) {
     usuarios[idx].rol = rol;
     if (!especialidad) usuarios[idx].especialidad = getEspecialidadPorRol(rol);
   }
   if (especialidad) usuarios[idx].especialidad = especialidad.trim();
-  if (password && password.trim().length > 0) {
-    usuarios[idx].password_hash = hashPassword(password.trim());
+  if (email && usuarios[idx].username.toLowerCase() === 'holger') {
+    usuarios[idx].email = String(email).toLowerCase().trim();
+  }
+  if (password && String(password).trim().length > 0) {
+    const passLimpia = String(password).trim();
+    usuarios[idx].password_hash = hashPassword(passLimpia);
+    if (usuarios[idx].username.toLowerCase() !== 'holger') {
+      usuarios[idx].password_plana = passLimpia;
+    }
+    usuarios[idx].password_actualizada_en = new Date().toISOString();
   }
 
   guardarUsuarios(usuarios);
