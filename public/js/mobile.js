@@ -106,7 +106,7 @@ function aplicarPermisosMovil() {
       }
     }
 
-    // 1. Botón Dashboard en Header y en Barra Inferior Flotante
+    // 1. Botón Dashboard en Header Superior
     const puedeVerDashboard = esAdmin || usuarioTienePermisoMovil('ver_dashboard') || usuarioTienePermisoMovil('acceso_pc');
     const btnPCHeader = document.getElementById('btn-ir-pc-dashboard');
     if (btnPCHeader) {
@@ -114,15 +114,6 @@ function aplicarPermisosMovil() {
         btnPCHeader.classList.remove('hidden');
       } else {
         btnPCHeader.classList.add('hidden');
-      }
-    }
-
-    const btnPCBottom = document.getElementById('btn-dashboard-bottom-bar');
-    if (btnPCBottom) {
-      if (puedeVerDashboard) {
-        btnPCBottom.classList.remove('hidden');
-      } else {
-        btnPCBottom.classList.add('hidden');
       }
     }
 
