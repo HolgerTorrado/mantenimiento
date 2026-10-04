@@ -6,10 +6,12 @@ const fs = require('fs');
 const os = require('os');
 const QRCode = require('qrcode');
 const crypto = require('crypto');
+const compression = require('compression');
 const cloudStorage = require('./cloudStorage');
 const imageStorage = require('./imageStorage');
 
 const app = express();
+app.use(compression());
 const PORT = process.env.PORT || 3000;
 
 // Rutas de archivos
@@ -734,24 +736,39 @@ app.get('/api/tasks', (req, res) => {
   // Ordenar: más recientes primero
   tareas.sort((a, b) => new Date(b.fecha_ocurrencia || b.creado_en) - new Date(a.fecha_ocurrencia || a.creado_en));
 
-  // OPTIMIZACIÓN DE ANCHO DE BANDA (Render 5GB):
-  // Si la tarea está completada, no enviar las fotos pesadas en Base64 en el listado periódico recurrente.
-  // Las fotos de completadas se solicitan bajo demanda vía GET /api/tasks/:id al tocar "Ver Detalles".
-  // Las tareas pendientes y en progreso sí conservan sus fotos completas para visualización directa en la lista.
+  // OPTIMIZACIÓN RADICAL DE ANCHO DE BANDA (Render 5GB):
+  // 1. Si la foto es una URL externa de CDN (https://res.cloudinary.com/...), solo pesa ~80 bytes y se entrega desde Cloudinary (0 bytes de Render).
+  // 2. Si la foto es Base64 pesada (data:image/...), NUNCA se envía en el listado periódico recurrente para no consumir ancho de banda.
+  //    Se entregan banderas booleanas (tiene_foto_comprobante, tiene_foto_inicial) y se cargan bajo demanda vía GET /api/tasks/:id.
   const conTodasFotos = req.query.con_todas_fotos === 'true';
   if (!conTodasFotos) {
     tareas = tareas.map(t => {
-      if (t.estado === 'completado') {
+      const tieneBase64Comp = t.foto_comprobante && t.foto_comprobante.startsWith('data:image/');
+      const tieneBase64Ini = t.foto_inicial && t.foto_inicial.startsWith('data:image/');
+      const tieneAvancesBase64 = Array.isArray(t.avances) && t.avances.some(a => a.foto && a.foto.startsWith('data:image/'));
+
+      if (tieneBase64Comp || tieneBase64Ini || tieneAvancesBase64 || t.estado === 'completado') {
         const copia = { ...t };
         copia.tiene_foto_comprobante = Boolean(t.foto_comprobante);
         copia.tiene_foto_inicial = Boolean(t.foto_inicial);
-        delete copia.foto_comprobante;
-        delete copia.foto_inicial;
+
+        // Remover Base64 comprobante o si ya está completada (a menos que sea link CDN)
+        if (tieneBase64Comp || (t.estado === 'completado' && !t.foto_comprobante?.startsWith('https://'))) {
+          delete copia.foto_comprobante;
+        }
+
+        // Remover Base64 inicial pesada (si es link CDN ligero, se conserva)
+        if (tieneBase64Ini) {
+          delete copia.foto_inicial;
+        }
+
         if (Array.isArray(copia.avances)) {
           copia.avances = copia.avances.map(a => {
             const ac = { ...a };
             ac.tiene_foto = Boolean(a.foto);
-            delete ac.foto;
+            if (a.foto && a.foto.startsWith('data:image/')) {
+              delete ac.foto;
+            }
             return ac;
           });
         }
@@ -1494,11 +1511,58 @@ app.get('/api/admin/cloudinary-status', (req, res) => {
     }
   });
 
+// Variable y función de migración en segundo plano de fotos históricas a Cloudinary
+let migracionFotosEnCurso = false;
+let estadoMigracion = { en_curso: false, total_migradas: 0, restantes: 0, error: null };
+
+async function iniciarMigracionSegundoPlano(limiteTotal = 500) {
+  if (migracionFotosEnCurso) return { iniciada: false, motivo: 'Ya hay una migración en curso', estado: estadoMigracion };
+  if (!imageStorage.isConfigurado()) return { iniciada: false, motivo: 'Cloudinary no configurado', estado: estadoMigracion };
+
+  migracionFotosEnCurso = true;
+  estadoMigracion = { en_curso: true, total_migradas: 0, restantes: 0, error: null };
+
+  // Ejecutar en segundo plano de manera desacoplada
+  (async () => {
+    try {
+      console.log('[Cloudinary-Migracion] 🚀 Iniciando proceso en segundo plano para migrar fotos históricas a Cloudinary...');
+      let totalMigradas = 0;
+      while (totalMigradas < limiteTotal) {
+        const tareas = leerTareas();
+        const res = await imageStorage.migrarFotosExistentes(tareas, 10);
+        if (res.migrados > 0) {
+          totalMigradas += res.migrados;
+          estadoMigracion.total_migradas = totalMigradas;
+          estadoMigracion.restantes = res.totalPendientes;
+          guardarTareas(tareas, true);
+          console.log(`[Cloudinary-Migracion] 📸 Lote completado: ${totalMigradas} fotos migradas. Quedan ${res.totalPendientes} pendientes.`);
+        }
+        if (res.migrados === 0 || res.totalPendientes === 0) {
+          console.log(`[Cloudinary-Migracion] 🎉 Todas las fotos históricas han sido migradas exitosamente a Cloudinary (Total: ${totalMigradas})!`);
+          break;
+        }
+        // Esperar 1 segundo entre lotes para no saturar memoria ni CPU en Render
+        await new Promise(r => setTimeout(r, 1000));
+      }
+      generarRespaldoAutomatico('migracion_completa_cloudinary');
+    } catch(err) {
+      console.error('[Cloudinary-Migracion] ❌ Error en migración:', err.message);
+      estadoMigracion.error = err.message;
+    } finally {
+      migracionFotosEnCurso = false;
+      estadoMigracion.en_curso = false;
+    }
+  })();
+
+  return { iniciada: true, mensaje: 'Migración de fotos a Cloudinary iniciada en segundo plano', estado: estadoMigracion };
+}
+
   res.json({
     configurado: imageStorage.isConfigurado(),
     fotos_en_base64: base64Count,
     fotos_en_cdn: cdnCount,
-    total_tareas: tareas.length
+    total_tareas: tareas.length,
+    migracion: estadoMigracion
   });
 });
 
@@ -1511,17 +1575,8 @@ app.post('/api/admin/migrar-fotos-cloudinary', async (req, res) => {
     return res.status(400).json({ error: 'Cloudinary no está configurado en las variables de entorno aún.' });
   }
 
-  const tareas = leerTareas();
-  const resultado = await imageStorage.migrarFotosExistentes(tareas, 10);
-  if (resultado.migrados > 0) {
-    guardarTareas(tareas, true);
-  }
-
-  res.json({
-    ok: true,
-    migrados_en_este_lote: resultado.migrados,
-    fotos_pendientes_por_migrar: resultado.totalPendientes
-  });
+  const resultado = await iniciarMigracionSegundoPlano(500);
+  res.json(resultado);
 });
 
 // 9. Métricas y KPIs para el dashboard (con filtro de período, horas de roles y tiempos muertos)
@@ -2336,6 +2391,22 @@ async function iniciarServidor() {
       console.log(`📱 Vista Móvil para Mecánicos (${net.name}): http://${net.ip}:${PORT}/mecanico`);
     });
     console.log(`=======================================================`);
+
+    // Si Cloudinary está configurado, verificar si hay fotos Base64 históricas y disparar auto-migración
+    setTimeout(() => {
+      if (imageStorage.isConfigurado()) {
+        const tareas = leerTareas();
+        const hayFotosBase64 = tareas.some(t => 
+          (t.foto_comprobante && t.foto_comprobante.startsWith('data:image/')) ||
+          (t.foto_inicial && t.foto_inicial.startsWith('data:image/')) ||
+          (Array.isArray(t.avances) && t.avances.some(a => a.foto && a.foto.startsWith('data:image/')))
+        );
+        if (hayFotosBase64) {
+          console.log('[Cloudinary] 💡 Se detectaron fotos históricas en Base64. Iniciando migración automática a la nube en 5 segundos...');
+          setTimeout(() => iniciarMigracionSegundoPlano(500), 5000);
+        }
+      }
+    }, 10000);
   });
 }
 

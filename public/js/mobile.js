@@ -776,7 +776,13 @@ function renderTareasMovil() {
               </span>
             </div>
           </div>
-        ` : ''}
+        ` : (t.tiene_foto_inicial ? `
+          <div class="mt-2.5">
+            <button type="button" onclick="cargarFotoInicialBajoDemandaMovil('${t.id}', this); event.stopPropagation();" class="w-full py-2 px-3 bg-sky-950/70 hover:bg-sky-900/80 text-sky-300 border border-sky-600/50 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow active:scale-95">
+              <i class="fa-solid fa-camera text-sky-400"></i> Ver Foto Inicial del Problema
+            </button>
+          </div>
+        ` : '')}
 
         <!-- Botones de Acción -->
         ${botonesAccion}
@@ -1163,6 +1169,32 @@ function ampliarFotoPreviaMovil() {
   const subtitulo = document.getElementById('modal-subtitulo-tarea')?.innerText || 'Fotografía de Comprobante';
   if (imgPrevia && imgPrevia.src) {
     abrirVisorFoto(imgPrevia.src, subtitulo);
+  }
+}
+
+async function cargarFotoInicialBajoDemandaMovil(id, btn) {
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando foto...';
+  }
+  try {
+    const res = await fetch(`/api/tasks/${id}`);
+    if (!res.ok) throw new Error('Error al cargar foto');
+    const tCompleta = await res.json();
+    const tLocal = tareasMovil.find(x => x.id === id);
+    if (tLocal) {
+      Object.assign(tLocal, tCompleta);
+    }
+    if (tCompleta.foto_inicial) {
+      abrirVisorFoto(tCompleta.foto_inicial, `Foto Inicial - ${tCompleta.id} - ${tCompleta.equipo}`);
+    }
+    renderTareasMovil();
+  } catch(e) {
+    alert('No se pudo cargar la foto: ' + e.message);
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-camera"></i> Reintentar ver foto';
+    }
   }
 }
 
