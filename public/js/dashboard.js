@@ -403,12 +403,11 @@ function poblarCheckboxesTecnicos() {
 
 function actualizarEstadoTrabajoConjunto() {
   const roles = Array.from(document.querySelectorAll('#form-crear-tarea input[name="roles_asignados"]:checked'));
-  const tecnicos = Array.from(document.querySelectorAll('#form-crear-tarea input[name="tecnicos_asignados"]:checked'));
   const badge = document.getElementById('badge-tarea-conjunta-crear');
   if (badge) {
-    if (roles.length > 1 || tecnicos.length > 1) {
+    if (roles.length > 1) {
       badge.classList.remove('hidden');
-      badge.innerText = `👥 Trabajo en Conjunto (${roles.length} roles, ${tecnicos.length} personas)`;
+      badge.innerText = `👥 Trabajo en Conjunto (${roles.length} especialidades)`;
     } else {
       badge.classList.add('hidden');
     }
@@ -892,7 +891,7 @@ function renderTablaTareas(tareas) {
           ${badgeTipo}
         </td>
 
-        <!-- Técnicos Asignados / Especialidad -->
+        <!-- Especialidad Requerida -->
         <td class="py-3 px-4">
           <div class="space-y-1">
             <div class="flex items-center gap-1 flex-wrap">
@@ -901,11 +900,9 @@ function renderTablaTareas(tareas) {
                 if (r === 'maquinista') return '<span class="text-[9px] bg-orange-950 text-orange-300 border border-orange-800/80 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-tractor"></i> Maquinaria</span>';
                 return '<span class="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-800/80 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-wrench"></i> Mecánica</span>';
               }).join(' ')}
-              ${(t.es_conjunta || (t.roles_asignados && t.roles_asignados.length > 1) || (t.tecnicos_asignados && t.tecnicos_asignados.length > 1)) ? '<span class="text-[9px] bg-purple-900/80 text-purple-200 border border-purple-600 px-1.5 py-0.5 rounded font-bold">👥 Conjunta</span>' : ''}
+              ${(t.es_conjunta || (t.roles_asignados && t.roles_asignados.length > 1)) ? '<span class="text-[9px] bg-purple-900/80 text-purple-200 border border-purple-600 px-1.5 py-0.5 rounded font-bold">👥 Conjunta</span>' : ''}
             </div>
-            <div class="text-xs text-slate-200 font-medium truncate max-w-[200px]" title="${escaparHTML(t.mecanico_asignado || 'Sin Asignar')}">
-              ${escaparHTML(t.mecanico_asignado || 'Sin Asignar')}
-            </div>
+            ${t.completado_por_nombre ? `<div class="text-[11px] text-slate-400 font-medium truncate max-w-[200px]" title="Finalizado por ${escaparHTML(t.completado_por_nombre)}"><i class="fa-solid fa-user-check text-emerald-400 mr-1"></i>${escaparHTML(t.completado_por_nombre)}</div>` : ''}
             ${desgloseHorasRoles}
           </div>
         </td>
@@ -1074,7 +1071,9 @@ async function guardarNuevaTarea(e) {
   }
 
   const roles = Array.from(form.querySelectorAll('input[name="roles_asignados"]:checked')).map(cb => cb.value);
-  const tecnicos = Array.from(form.querySelectorAll('input[name="tecnicos_asignados"]:checked')).map(cb => cb.value);
+  const NOMBRES_ESP = { mecanico: 'Mecánica', electrico: 'Eléctrica', maquinista: 'Maquinaria' };
+  const rolesFinales = roles.length > 0 ? roles : ['mecanico'];
+  const especialidadesStr = rolesFinales.map(r => NOMBRES_ESP[r] || r).join(', ');
 
   const payload = {
     tipo: formData.get('tipo'),
@@ -1083,9 +1082,9 @@ async function guardarNuevaTarea(e) {
     titulo: formData.get('titulo'),
     fecha_ocurrencia: formData.get('fecha_ocurrencia'),
     prioridad: formData.get('prioridad'),
-    roles_asignados: roles.length > 0 ? roles : ['mecanico'],
-    tecnicos_asignados: tecnicos,
-    mecanico_asignado: tecnicos.length > 0 ? tecnicos.join(', ') : 'Sin Asignar',
+    roles_asignados: rolesFinales,
+    tecnicos_asignados: [],
+    mecanico_asignado: especialidadesStr,
     descripcion: formData.get('descripcion'),
     foto_inicial: fotoInicialCrearBase64
   };
@@ -1519,12 +1518,11 @@ function actualizarEstadoConjuntaDetalle() {
   if (document.getElementById('edit-det-rol-electrico')?.checked) roles.push('electrico');
   if (document.getElementById('edit-det-rol-maquinista')?.checked) roles.push('maquinista');
 
-  const tecs = Array.from(document.querySelectorAll('#det-tecnicos-checkboxes-container input[type="checkbox"]:checked'));
   const badge = document.getElementById('det-badge-conjunta');
   if (badge) {
-    if (roles.length > 1 || tecs.length > 1) {
+    if (roles.length > 1) {
       badge.classList.remove('hidden');
-      badge.innerText = `👥 Tarea en Conjunto (${roles.length} roles, ${tecs.length} técnicos)`;
+      badge.innerText = `👥 Tarea en Conjunto (${roles.length} especialidades)`;
     } else {
       badge.classList.add('hidden');
     }
@@ -1891,6 +1889,9 @@ async function guardarEdicionDetalleAdmin() {
   const tareaActual = todasLasTareas.find(item => item.id === tareaSeleccionadaId);
   const esReapertura = Boolean(tareaActual && tareaActual.estado === 'completado' && estadoSeleccionado !== 'completado');
 
+  const NOMBRES_ESP = { mecanico: 'Mecánica', electrico: 'Eléctrica', maquinista: 'Maquinaria' };
+  const especialidadesStr = rolesFinales.map(r => NOMBRES_ESP[r] || r).join(', ');
+
   const payload = {
     tipo: tipoSeleccionado,
     estado: estadoSeleccionado,
@@ -1901,7 +1902,8 @@ async function guardarEdicionDetalleAdmin() {
     fecha_arreglo: esReapertura ? null : (fArreglo || null),
     notas_mecanico: notas,
     roles_asignados: rolesFinales,
-    tecnicos_asignados: tecnicosFinales,
+    mecanico_asignado: especialidadesStr,
+    tecnicos_asignados: [],
     tiempo_espera_minutos: tiempoEsperaMin,
     tiempo_espera_repuestos_minutos: tiempoEsperaMin,
     motivo_espera: motivoEspera,

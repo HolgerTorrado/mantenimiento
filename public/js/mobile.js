@@ -850,7 +850,9 @@ function renderTareasMovil() {
             <i class="fa-solid fa-location-dot text-slate-500"></i> ${escaparHTMLMovil(t.ubicacion || 'Planta')}
           </span>
           <span class="flex items-center gap-1 font-medium text-slate-300">
-            <i class="fa-solid fa-user-gear text-emerald-400"></i> ${escaparHTMLMovil(t.mecanico_asignado || 'Sin Asignar')}
+            ${t.completado_por_nombre 
+              ? `<i class="fa-solid fa-user-check text-emerald-400"></i> ${escaparHTMLMovil(t.completado_por_nombre)}` 
+              : `<i class="fa-solid fa-toolbox text-slate-400"></i> ${escaparHTMLMovil(t.mecanico_asignado && t.mecanico_asignado !== 'Sin Asignar' ? t.mecanico_asignado : (Array.isArray(t.roles_asignados) ? t.roles_asignados.map(r => r === 'electrico' ? 'Eléctrica' : r === 'maquinista' ? 'Maquinaria' : 'Mecánica').join(', ') : 'Mecánica'))}`}
           </span>
         </div>
 
