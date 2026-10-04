@@ -1919,10 +1919,17 @@ function cerrarModalUsuarios() {
 async function cargarListaUsuariosAdmin() {
   const tbody = document.getElementById('tabla-usuarios-body');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-400">Cargando usuarios...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Cargando usuarios...</td></tr>';
+
+  const userActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
 
   try {
-    const res = await fetch('/api/users');
+    const res = await fetch('/api/users', {
+      headers: {
+        'x-user-role': userActual.rol || 'admin',
+        'x-user-username': userActual.username || 'Holger'
+      }
+    });
     const users = await res.json();
 
     tbody.innerHTML = users.map(u => {
@@ -1937,6 +1944,14 @@ async function cargarListaUsuariosAdmin() {
       else badgeRol = '<span class="bg-emerald-950 text-emerald-300 border border-emerald-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-wrench mr-1"></i>MECÁNICO</span>';
 
       const esHolger = u.username.toLowerCase() === 'holger';
+
+      if (esHolger && u.email) {
+        const inputCorreo = document.getElementById('input-admin-correo-recuperacion');
+        if (inputCorreo && !inputCorreo.value) {
+          inputCorreo.value = u.email;
+        }
+      }
+
       const colRol = esHolger
         ? badgeRol
         : `
@@ -1954,6 +1969,32 @@ async function cargarListaUsuariosAdmin() {
           </div>
         `;
 
+      let colPassword = '';
+      if (esHolger) {
+        colPassword = `<span class="bg-emerald-950 text-emerald-300 border border-emerald-600/40 px-2 py-0.5 rounded text-[10px] font-bold inline-flex items-center gap-1"><i class="fa-solid fa-shield-halved text-emerald-400"></i>Protegida (OTP)</span>`;
+      } else if (u.password_plana) {
+        colPassword = `
+          <div class="flex items-center gap-1.5">
+            <span id="pass-txt-${u.id}" class="font-mono text-slate-300 text-xs">••••••••</span>
+            <button type="button" data-pass="${encodeURIComponent(u.password_plana)}" onclick="toggleVerPasswordAdmin('${u.id}', decodeURIComponent(this.getAttribute('data-pass')))" title="Ver / Ocultar clave" class="text-slate-400 hover:text-white p-1 text-xs transition">
+              <i id="pass-eye-${u.id}" class="fa-solid fa-eye"></i>
+            </button>
+            <button type="button" data-user="${encodeURIComponent(u.username)}" data-nombre="${encodeURIComponent(u.nombre)}" onclick="abrirModalCambiarPasswordAdmin('${u.id}', decodeURIComponent(this.getAttribute('data-user')), decodeURIComponent(this.getAttribute('data-nombre')))" title="Asignar nueva contraseña" class="text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-800/40 px-2 py-0.5 rounded text-[10px] font-semibold hover:bg-amber-900/60 transition ml-1 flex items-center gap-1 active:scale-95">
+              <i class="fa-solid fa-key text-[9px]"></i> Cambiar
+            </button>
+          </div>
+        `;
+      } else {
+        colPassword = `
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-500 italic text-[11px]">No visible aún</span>
+            <button type="button" data-user="${encodeURIComponent(u.username)}" data-nombre="${encodeURIComponent(u.nombre)}" onclick="abrirModalCambiarPasswordAdmin('${u.id}', decodeURIComponent(this.getAttribute('data-user')), decodeURIComponent(this.getAttribute('data-nombre')))" title="Asignar contraseña conocida" class="text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-800/40 px-2 py-0.5 rounded text-[10px] font-semibold hover:bg-amber-900/60 transition ml-1 flex items-center gap-1 active:scale-95">
+              <i class="fa-solid fa-key text-[9px]"></i> Asignar
+            </button>
+          </div>
+        `;
+      }
+
       const botonEliminar = esHolger
         ? '<span class="text-[10px] text-slate-500 font-semibold italic">Principal</span>'
         : `<button onclick="eliminarUsuarioAdmin('${u.id}', '${escaparHTML(u.nombre)}', '${u.username}')" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-800/40 rounded hover:bg-rose-900 transition">Eliminar</button>`;
@@ -1963,12 +2004,135 @@ async function cargarListaUsuariosAdmin() {
           <td class="py-2.5 px-3 font-mono font-bold text-white">@${escaparHTML(u.username)}</td>
           <td class="py-2.5 px-3 font-medium">${escaparHTML(u.nombre)}</td>
           <td class="py-2.5 px-3">${colRol}</td>
+          <td class="py-2.5 px-3">${colPassword}</td>
           <td class="py-2.5 px-3 text-right">${botonEliminar}</td>
         </tr>
       `;
     }).join('');
   } catch (err) {
-    tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-rose-400">Error cargando usuarios</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-rose-400">Error cargando usuarios</td></tr>';
+  }
+}
+
+function toggleVerPasswordAdmin(id, passPlana) {
+  const txt = document.getElementById(`pass-txt-${id}`);
+  const eye = document.getElementById(`pass-eye-${id}`);
+  if (!txt || !eye) return;
+  if (txt.getAttribute('data-revealed') === 'true') {
+    txt.innerText = '••••••••';
+    txt.removeAttribute('data-revealed');
+    eye.className = 'fa-solid fa-eye';
+  } else {
+    txt.innerText = passPlana;
+    txt.setAttribute('data-revealed', 'true');
+    eye.className = 'fa-solid fa-eye-slash text-emerald-400';
+  }
+}
+
+function abrirModalCambiarPasswordAdmin(id, username, nombre) {
+  const modal = document.getElementById('modal-cambiar-password-admin');
+  if (!modal) return;
+  const idInput = document.getElementById('input-cambiar-pass-id');
+  const userTxt = document.getElementById('txt-cambiar-pass-usuario');
+  const passInput = document.getElementById('input-cambiar-pass-nueva');
+  if (idInput) idInput.value = id;
+  if (userTxt) userTxt.innerText = `@${username} (${nombre})`;
+  if (passInput) {
+    passInput.value = '';
+    modal.classList.remove('hidden');
+    setTimeout(() => passInput.focus(), 100);
+  }
+}
+
+function cerrarModalCambiarPasswordAdmin() {
+  const modal = document.getElementById('modal-cambiar-password-admin');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function ejecutarCambioPasswordUsuarioAdmin(e) {
+  e.preventDefault();
+  const id = document.getElementById('input-cambiar-pass-id').value;
+  const passInput = document.getElementById('input-cambiar-pass-nueva');
+  const nuevaPass = (passInput ? passInput.value : '').trim();
+
+  if (!nuevaPass || nuevaPass.length < 4) {
+    alert('La contraseña debe tener al menos 4 caracteres.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-submit-cambiar-pass');
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+  }
+
+  const userActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch(`/api/users/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': userActual.rol || 'admin',
+        'x-user-username': userActual.username || 'Holger'
+      },
+      body: JSON.stringify({ password: nuevaPass })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error cambiando contraseña');
+
+    cerrarModalCambiarPasswordAdmin();
+    mostrarToast('¡Contraseña actualizada exitosamente!');
+    await cargarListaUsuariosAdmin();
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
+}
+
+async function guardarCorreoRecuperacionAdmin(e) {
+  e.preventDefault();
+  const emailInput = document.getElementById('input-admin-correo-recuperacion');
+  const email = emailInput ? emailInput.value.trim() : '';
+
+  if (!email || !email.includes('@')) {
+    alert('Por favor ingresa un correo electrónico válido.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-guardar-correo-admin');
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+  }
+
+  const userActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch('/api/admin/correo-recuperacion', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': userActual.rol || 'admin',
+        'x-user-username': userActual.username || 'Holger'
+      },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error guardando correo');
+
+    mostrarToast(data.mensaje || '¡Correo de recuperación guardado con éxito!');
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
   }
 }
 
