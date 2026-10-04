@@ -5,8 +5,9 @@
     "password_hash": "a94a885b2cd4f2d0a9b48065f5c86491cff6f75db0054dc2a1ee2f967763d3e2",
     "nombre": "Holger Torrado",
     "rol": "admin",
-    "email": "holger@mantenimiento.com",
-    "creado_en": "2026-09-26T18:00:00.000Z"
+    "email": "holgertorrado@gmail.com",
+    "creado_en": "2026-09-26T18:00:00.000Z",
+    "email_actualizado_en": "2026-10-04T16:34:07.838Z"
   },
   {
     "id": "USR-02",
@@ -61,5 +62,78 @@
     "rol": "director",
     "especialidad": "Director de Planta",
     "creado_en": "2026-09-28T14:56:58.547Z"
+  },
+  {
+    "id": "USR-08",
+    "username": "jospino",
+    "password_hash": "c2f78c20ea6f566cdb2dbefc3d2fcfce732b02eb3b8c4c7f7f1c222bacf88ab1",
+    "nombre": "Jhonier Ospino",
+    "rol": "supervisor",
+    "especialidad": "Supervisor de Mantenimiento / Planta",
+    "creado_en": "2026-09-29T12:46:38.366Z"
+  },
+  {
+    "id": "USR-09",
+    "username": "emogollon",
+    "password_hash": "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5",
+    "nombre": "Edgar mogollon",
+    "rol": "sst",
+    "especialidad": "Seguridad y Salud en el Trabajo (SST)",
+    "creado_en": "2026-09-29T15:39:14.045Z",
+    "password_plana": "12345"
+  },
+  {
+    "id": "USR-10",
+    "username": "hmandon",
+    "password_hash": "1672528c68c958e3f58bc7a1c5ebd9a7f9d1c890c459aa442056d9e67c256834",
+    "nombre": "Herminzon Mandon",
+    "rol": "maquinista",
+    "especialidad": "Operador de Maquinaria",
+    "creado_en": "2026-09-29T15:48:13.448Z"
+  },
+  {
+    "id": "USR-11",
+    "username": "llopez",
+    "password_hash": "43e11c8a434734d39c865987ef10639c397bf267541fdb1befbb0033fcf70da9",
+    "nombre": "Luis Lopez",
+    "rol": "director",
+    "especialidad": "Director de Planta",
+    "creado_en": "2026-09-29T21:24:48.613Z"
+  },
+  {
+    "id": "USR-12",
+    "username": "rpatiño",
+    "password_hash": "95cbbbe227524c96a4490b07db7dd505ea42dfe33a989e5bdb1f80a65ece53eb",
+    "nombre": "Richard Patiño",
+    "rol": "sst",
+    "especialidad": "Seguridad y Salud en el Trabajo (SST)",
+    "creado_en": "2026-09-29T21:25:53.501Z"
+  },
+  {
+    "id": "USR-13",
+    "username": "jbarajas",
+    "password_hash": "1442ae9224e9b390c10ccb306eded97298190bae4379625fd331095f8c6c0ff1",
+    "nombre": "Jesus Barajas",
+    "rol": "supervisor",
+    "especialidad": "Supervisor de Mantenimiento / Planta",
+    "creado_en": "2026-09-30T00:31:58.821Z"
+  },
+  {
+    "id": "USR-14",
+    "username": "storrado",
+    "password_hash": "983d7556dde89a34cd48b7601b0fa6515623492ce9a0aaaf072d4004decc551e",
+    "nombre": "Stefany Torrado",
+    "rol": "supervisor",
+    "especialidad": "Supervisor de Mantenimiento / Planta",
+    "creado_en": "2026-10-01T17:13:59.823Z"
+  },
+  {
+    "id": "USR-15",
+    "username": "darevalo",
+    "password_hash": "e703d75ef59ae30e3330389175ab870a58dd517c0f6d78888499fec619e366f8",
+    "nombre": "Diego Arevalo",
+    "rol": "maquinista",
+    "especialidad": "Operador de Maquinaria",
+    "creado_en": "2026-10-02T17:25:44.979Z"
   }
 ]

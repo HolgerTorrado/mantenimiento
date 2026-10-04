@@ -27,11 +27,58 @@ function getBadgeTipoMovil(tipo) {
   </span>`;
 }
 
+// Matriz dinámica de permisos RBAC en Móvil
+let simanPermisosCacheMovil = null;
+
+async function cargarPermisosMovil() {
+  try {
+    const res = await fetch('/api/permisos');
+    if (res.ok) {
+      simanPermisosCacheMovil = await res.json();
+      aplicarPermisosMovil();
+    }
+  } catch (e) {
+    console.warn('No se pudo cargar permisos en móvil:', e);
+  }
+}
+
+function usuarioTienePermisoMovil(permiso) {
+  const userJson = localStorage.getItem('siman_user');
+  if (!userJson) return false;
+  try {
+    const user = JSON.parse(userJson);
+    const rol = (user.rol || '').toLowerCase().trim();
+    if (rol === 'admin') return true;
+    if (simanPermisosCacheMovil && simanPermisosCacheMovil[rol] && simanPermisosCacheMovil[rol][permiso] !== undefined) {
+      return Boolean(simanPermisosCacheMovil[rol][permiso]);
+    }
+    // Fallbacks
+    if (permiso === 'crear_tareas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
+    if (permiso === 'cerrar_tareas') return ['admin', 'mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
+    if (permiso === 'cambiar_foto') return true;
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+
+function aplicarPermisosMovil() {
+  const btnCrear = document.getElementById('btn-crear-tarea-movil');
+  if (btnCrear) {
+    if (usuarioTienePermisoMovil('crear_tareas')) {
+      btnCrear.classList.remove('hidden');
+    } else {
+      btnCrear.classList.add('hidden');
+    }
+  }
+}
+
 // Inicialización
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const user = verificarSesionMovil();
   if (!user) return; // Detener ejecución si no hay sesión activa
 
+  await cargarPermisosMovil();
   cargarTareasMovil();
 
   // Registrar Service Worker para PWA
@@ -111,15 +158,8 @@ function verificarSesionMovil() {
       }
     }
 
-    // Si tiene rol de gestión, habilitar botón de crear tarea en barra móvil
-    const btnCrear = document.getElementById('btn-crear-tarea-movil');
-    if (btnCrear) {
-      if (esGestion) {
-        btnCrear.classList.remove('hidden');
-      } else {
-        btnCrear.classList.add('hidden');
-      }
-    }
+    // Habilitar botón de crear tarea según matriz de permisos
+    aplicarPermisosMovil();
 
     return user;
   } catch (e) {
@@ -141,8 +181,12 @@ function irModoPC() {
   window.location.replace('/dashboard');
 }
 
-// Modal Crear Tarea desde Móvil (Administrador)
+// Modal Crear Tarea desde Móvil
 function abrirModalCrearMovil() {
+  if (!usuarioTienePermisoMovil('crear_tareas')) {
+    mostrarToastMovil('❌ Acceso Restringido: Tu rol no tiene permisos para crear tareas.');
+    return;
+  }
   const modal = document.getElementById('modal-crear-movil');
   if (modal) modal.classList.remove('hidden');
 }
@@ -750,6 +794,10 @@ async function iniciarTareaMovil(id) {
 
 // Abrir Modal de Completar
 function abrirModalCompletar(id) {
+  if (!usuarioTienePermisoMovil('cerrar_tareas')) {
+    mostrarToastMovil('❌ Acceso Restringido: Tu rol no tiene permisos para cerrar tareas.');
+    return;
+  }
   const t = tareasMovil.find(item => item.id === id);
   if (!t) return;
 

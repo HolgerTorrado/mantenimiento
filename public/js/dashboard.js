@@ -11,6 +11,91 @@ let fotoDetalleOriginal = null;
 let eliminarFotoDetallePendiente = false;
 let eliminarFotoInicialDetallePendiente = false;
 
+// Matriz dinámica de permisos RBAC
+let simanPermisosCache = null;
+
+async function cargarPermisosSistema() {
+  try {
+    const res = await fetch('/api/permisos');
+    if (res.ok) {
+      simanPermisosCache = await res.json();
+      window.SIMAN_PERMISOS = simanPermisosCache;
+      aplicarPermisosEnUI();
+    }
+  } catch (err) {
+    console.warn('No se pudo sincronizar matriz de permisos:', err);
+  }
+}
+
+function usuarioTienePermiso(permiso) {
+  const userJson = localStorage.getItem('siman_user');
+  if (!userJson) return false;
+  try {
+    const user = JSON.parse(userJson);
+    const rol = (user.rol || '').toLowerCase().trim();
+    if (rol === 'admin') return true; // Administrador Holger siempre tiene acceso total
+    if (simanPermisosCache && simanPermisosCache[rol] && simanPermisosCache[rol][permiso] !== undefined) {
+      return Boolean(simanPermisosCache[rol][permiso]);
+    }
+    // Fallbacks inteligentes antes de recibir la red
+    if (permiso === 'crear_tareas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
+    if (permiso === 'cerrar_tareas') return ['admin', 'mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
+    if (permiso === 'cambiar_foto') return true;
+    if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista'].includes(rol);
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+
+function aplicarPermisosEnUI() {
+  const userJson = localStorage.getItem('siman_user');
+  if (!userJson) return;
+  try {
+    const user = JSON.parse(userJson);
+    const rol = (user.rol || '').toLowerCase().trim();
+    const esAdmin = rol === 'admin';
+
+    // 1. Botón Nueva Tarea en el Dashboard
+    const btnCrear = document.getElementById('btn-crear-tarea-dashboard');
+    if (btnCrear) {
+      if (usuarioTienePermiso('crear_tareas')) {
+        btnCrear.classList.remove('hidden');
+      } else {
+        btnCrear.classList.add('hidden');
+      }
+    }
+
+    // 2. Botón Gestión de Usuarios / Colaboradores / Permisos
+    const btnUsers = document.getElementById('btn-admin-usuarios');
+    if (btnUsers) {
+      const puedeGestionarUsuarios = esAdmin || usuarioTienePermiso('ver_contrasenas') || usuarioTienePermiso('cambiar_contrasenas') || ['supervisor', 'sst', 'director'].includes(rol);
+      if (puedeGestionarUsuarios) {
+        btnUsers.classList.remove('hidden');
+      } else {
+        btnUsers.classList.add('hidden');
+      }
+    }
+
+    // 3. Pestaña de Matriz de Permisos en el modal (Solo Administrador)
+    const tabBtnPermisos = document.getElementById('tab-btn-permisos');
+    if (tabBtnPermisos) {
+      if (esAdmin) {
+        tabBtnPermisos.classList.remove('hidden');
+      } else {
+        tabBtnPermisos.classList.add('hidden');
+      }
+    }
+
+    // 4. Botón Backup (Exclusivo Administrador)
+    const btnBackup = document.getElementById('btn-admin-backup');
+    if (btnBackup) {
+      if (esAdmin) btnBackup.classList.remove('hidden');
+      else btnBackup.classList.add('hidden');
+    }
+  } catch (e) {}
+}
+
 // Configuración completa de tipos de actividades de planta y mantenimiento
 const CONFIG_TIPOS = {
   preventivo: {
@@ -96,10 +181,11 @@ function cambiarTipoDetalleModal(nuevoTipo) {
 }
 
 // Inicialización
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   const user = verificarSesionDashboard();
   if (!user) return; // Detener ejecución si no hay sesión activa
   iniciarReloj();
+  await cargarPermisosSistema();
   cargarMecanicosSelect();
   cargarTareas();
   fijarOcurrenciaAhora();
@@ -146,26 +232,7 @@ function verificarSesionDashboard() {
     if (nombreEl) nombreEl.innerText = user.nombre || user.username;
     if (rolEl) rolEl.innerText = user.rol.toUpperCase();
 
-    // Roles de gestión con permisos para crear tareas y gestionar colaboradores
-    const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
-    const esGestion = ROLES_GESTION.includes(user.rol);
-
-    const btnCrear = document.getElementById('btn-crear-tarea-dashboard');
-    const btnUsers = document.getElementById('btn-admin-usuarios');
-    const btnBackup = document.getElementById('btn-admin-backup');
-    if (esGestion) {
-      if (btnCrear) btnCrear.classList.remove('hidden');
-      if (btnUsers) btnUsers.classList.remove('hidden');
-      if (btnBackup) {
-        if (user.rol === 'admin') btnBackup.classList.remove('hidden');
-        else btnBackup.classList.add('hidden');
-      }
-    } else {
-      if (btnCrear) btnCrear.classList.add('hidden');
-      if (btnUsers) btnUsers.classList.add('hidden');
-      if (btnBackup) btnBackup.classList.add('hidden');
-    }
-
+    aplicarPermisosEnUI();
     return user;
   } catch (e) {
     window.location.href = '/login';
@@ -1603,8 +1670,8 @@ function alCambiarEstadoDetalleModal(nuevoEstado) {
 function reabrirTareaActual() {
   if (!tareaSeleccionadaId) return;
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
-    mostrarToast('❌ Acceso Restringido: Solo el Administrador puede reabrir tareas.', 'error');
+  if (!usuarioTienePermiso('reabrir_tareas')) {
+    mostrarToast('❌ Acceso Restringido: Tu rol no tiene permisos para reabrir tareas.', 'error');
     return;
   }
   const selEstado = document.getElementById('edit-det-estado');
@@ -1623,8 +1690,8 @@ function reabrirTareaActual() {
 
 function marcarEliminarFotoDetalle() {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
-    mostrarToast('❌ Acceso Restringido: Solo el Administrador puede eliminar fotografías.', 'error');
+  if (!usuarioTienePermiso('cambiar_foto')) {
+    mostrarToast('❌ Acceso Restringido: Tu rol no tiene permisos para modificar o eliminar fotografías.', 'error');
     return;
   }
   if (!confirm('¿Está seguro de quitar la fotografía de comprobante final?')) return;
@@ -1673,8 +1740,8 @@ function cancelarEliminarFotoDetalle() {
 
 function marcarEliminarFotoInicialDetalle() {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
-    mostrarToast('❌ Acceso Restringido: Solo el Administrador puede eliminar fotografías.', 'error');
+  if (!usuarioTienePermiso('cambiar_foto')) {
+    mostrarToast('❌ Acceso Restringido: Tu rol no tiene permisos para modificar o eliminar fotografías.', 'error');
     return;
   }
   if (!confirm('¿Está seguro de quitar la fotografía inicial?')) return;
@@ -1724,9 +1791,8 @@ function cancelarEliminarFotoInicialDetalle() {
 async function guardarEdicionDetalleAdmin() {
   if (!tareaSeleccionadaId) return;
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
-  if (!ROLES_GESTION.includes(user.rol)) {
-    alert('Acceso Restringido: Solo personal de gestión (Administrador, Supervisor, SST o Director) tiene autorización para modificar tareas.');
+  if (!usuarioTienePermiso('cambiar_horas') && !usuarioTienePermiso('crear_tareas')) {
+    alert('Acceso Restringido: Tu rol no tiene autorización para modificar fechas, horas o detalles de las tareas.');
     return;
   }
 
@@ -1846,8 +1912,8 @@ function guardarEdicionFechasAdmin() {
 
 async function eliminarTarea(id) {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  if (user.rol !== 'admin') {
-    alert('Acceso Restringido: Solo el Administrador Holger tiene permiso para eliminar tareas.');
+  if (!usuarioTienePermiso('eliminar_tareas')) {
+    alert('Acceso Restringido: Tu rol no tiene autorización para eliminar tareas en SIMAN.');
     return;
   }
 
@@ -1878,11 +1944,365 @@ function eliminarTareaActual() {
   }
 }
 
-// ================= GESTIÓN DE USUARIOS (ADMIN HOLGER) =================
+// ================= GESTIÓN DE USUARIOS Y PERMISOS RBAC =================
+
+const ROLES_MATRIZ = [
+  { key: 'mecanico', label: 'Mecánico', icon: '🔧', colorClass: 'text-cyan-400' },
+  { key: 'electrico', label: 'Eléctrico', icon: '⚡', colorClass: 'text-amber-400' },
+  { key: 'maquinista', label: 'Maquinista', icon: '🚜', colorClass: 'text-orange-400' },
+  { key: 'supervisor', label: 'Supervisor', icon: '👷', colorClass: 'text-sky-400' },
+  { key: 'sst', label: 'SST', icon: '🦺', colorClass: 'text-emerald-400' },
+  { key: 'director', label: 'Director', icon: '🏢', colorClass: 'text-indigo-400' },
+  { key: 'visualizador', label: 'Solo Ver', icon: '👁️', colorClass: 'text-purple-400' },
+  { key: 'admin', label: 'Admin', icon: '💻', colorClass: 'text-blue-400' }
+];
+
+const PERMISOS_CONFIG_UI = [
+  {
+    key: 'crear_tareas',
+    nombre: 'Crear Tareas / Fallas',
+    desc: 'Registrar nuevas órdenes y reportar fallas en planta',
+    icono: 'fa-plus-circle',
+    color: 'text-emerald-400'
+  },
+  {
+    key: 'cerrar_tareas',
+    nombre: 'Cerrar / Finalizar Tareas',
+    desc: 'Completar tareas en proceso y registrar el arreglo',
+    icono: 'fa-check-circle',
+    color: 'text-green-400'
+  },
+  {
+    key: 'cambiar_horas',
+    nombre: 'Modificar Fechas / Horas',
+    desc: 'Editar horas de inicio, término y fecha de ocurrencia',
+    icono: 'fa-clock',
+    color: 'text-amber-400'
+  },
+  {
+    key: 'cambiar_foto',
+    nombre: 'Subir / Cambiar Fotos',
+    desc: 'Subir fotos iniciales o evidencias del trabajo',
+    icono: 'fa-camera',
+    color: 'text-cyan-400'
+  },
+  {
+    key: 'asignable_tareas',
+    nombre: 'Asignable en Tareas',
+    desc: 'Aparece en listas para asignarle órdenes de trabajo',
+    icono: 'fa-user-tag',
+    color: 'text-teal-400'
+  },
+  {
+    key: 'ver_contrasenas',
+    nombre: 'Ver Contraseñas',
+    desc: 'Poder revelar las contraseñas de los usuarios',
+    icono: 'fa-eye',
+    color: 'text-yellow-400'
+  },
+  {
+    key: 'cambiar_contrasenas',
+    nombre: 'Cambiar Contraseñas',
+    desc: 'Asignar o restablecer contraseñas de los usuarios',
+    icono: 'fa-key',
+    color: 'text-orange-400'
+  },
+  {
+    key: 'reabrir_tareas',
+    nombre: 'Reabrir Tareas',
+    desc: 'Volver a abrir una orden completada a estado en proceso',
+    icono: 'fa-rotate-left',
+    color: 'text-rose-400'
+  },
+  {
+    key: 'eliminar_tareas',
+    nombre: 'Eliminar Tareas',
+    desc: 'Borrar definitivamente órdenes o registros de fallas',
+    icono: 'fa-trash-can',
+    color: 'text-red-400'
+  },
+  {
+    key: 'ver_compras',
+    nombre: 'Ver Módulo de Compras',
+    desc: 'Visualizar solicitudes de repuestos y materiales',
+    icono: 'fa-cart-shopping',
+    color: 'text-indigo-400'
+  },
+  {
+    key: 'crear_compras',
+    nombre: 'Crear Solicitudes de Compra',
+    desc: 'Generar nuevos requerimientos de compra y repuestos',
+    icono: 'fa-bag-shopping',
+    color: 'text-violet-400'
+  }
+];
+
+function cambiarTabUsuarios(tab) {
+  const btnUsuarios = document.getElementById('tab-btn-usuarios');
+  const btnPermisos = document.getElementById('tab-btn-permisos');
+  const panelUsuarios = document.getElementById('tab-panel-usuarios');
+  const panelPermisos = document.getElementById('tab-panel-permisos');
+
+  if (!btnUsuarios || !btnPermisos || !panelUsuarios || !panelPermisos) return;
+
+  if (tab === 'permisos') {
+    btnPermisos.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-emerald-600 text-white shadow';
+    btnUsuarios.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800';
+    panelUsuarios.classList.add('hidden');
+    panelPermisos.classList.remove('hidden');
+    renderizarMatrizPermisos();
+  } else {
+    btnUsuarios.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 bg-blue-600 text-white shadow';
+    btnPermisos.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800';
+    panelPermisos.classList.add('hidden');
+    panelUsuarios.classList.remove('hidden');
+  }
+}
+
+async function renderizarMatrizPermisos() {
+  const tbody = document.getElementById('tabla-matriz-permisos-body');
+  if (!tbody) return;
+
+  if (!simanPermisosCache) {
+    tbody.innerHTML = '<tr><td colspan="9" class="p-6 text-center text-slate-400"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Cargando matriz de permisos...</td></tr>';
+    await cargarPermisosSistema();
+  }
+
+  const matriz = simanPermisosCache || {};
+
+  tbody.innerHTML = PERMISOS_CONFIG_UI.map((p, idx) => {
+    const bgRow = idx % 2 === 0 ? 'bg-slate-900/40' : 'bg-slate-950/40';
+
+    const celdasRoles = ROLES_MATRIZ.map(r => {
+      const esAdminRol = r.key === 'admin';
+      const valor = esAdminRol ? true : (matriz[r.key] && matriz[r.key][p.key] !== undefined ? Boolean(matriz[r.key][p.key]) : false);
+
+      if (esAdminRol) {
+        return `
+          <td class="py-2.5 px-2 text-center">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-blue-950 border border-blue-500/40 text-blue-400 text-xs shadow-inner" title="El rol Admin siempre tiene este permiso activo">
+              <i class="fa-solid fa-check"></i>
+            </span>
+            <input type="checkbox" data-rol="${r.key}" data-permiso="${p.key}" checked disabled class="hidden">
+          </td>
+        `;
+      }
+
+      return `
+        <td class="py-2.5 px-2 text-center">
+          <label class="inline-flex items-center justify-center cursor-pointer p-1">
+            <input type="checkbox" data-rol="${r.key}" data-permiso="${p.key}" ${valor ? 'checked' : ''} class="w-4 h-4 rounded text-emerald-500 bg-slate-950 border-slate-700 focus:ring-emerald-500 focus:ring-offset-slate-900 cursor-pointer accent-emerald-500 transition">
+          </label>
+        </td>
+      `;
+    }).join('');
+
+    return `
+      <tr class="${bgRow} hover:bg-slate-800/40 transition">
+        <td class="py-2.5 px-3.5">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid ${p.icono} ${p.color} text-xs w-4 text-center"></i>
+            <div>
+              <div class="font-bold text-white text-xs leading-tight">${p.nombre}</div>
+              <div class="text-[10px] text-slate-400 leading-tight">${p.desc}</div>
+            </div>
+          </div>
+        </td>
+        ${celdasRoles}
+      </tr>
+    `;
+  }).join('');
+}
+
+async function guardarMatrizPermisos() {
+  const btn = document.getElementById('btn-guardar-matriz-permisos');
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando cambios...';
+  }
+
+  const inputs = document.querySelectorAll('#tabla-matriz-permisos-body input[data-rol][data-permiso]');
+  const nuevaMatriz = {};
+
+  ROLES_MATRIZ.forEach(r => {
+    nuevaMatriz[r.key] = {};
+  });
+
+  inputs.forEach(inp => {
+    const rol = inp.getAttribute('data-rol');
+    const perm = inp.getAttribute('data-permiso');
+    if (rol && perm) {
+      if (!nuevaMatriz[rol]) nuevaMatriz[rol] = {};
+      nuevaMatriz[rol][perm] = rol === 'admin' ? true : inp.checked;
+    }
+  });
+
+  // Asegurar admin con todo en true
+  nuevaMatriz.admin = {
+    crear_tareas: true,
+    cerrar_tareas: true,
+    cambiar_horas: true,
+    cambiar_foto: true,
+    asignable_tareas: true,
+    ver_contrasenas: true,
+    cambiar_contrasenas: true,
+    eliminar_tareas: true,
+    reabrir_tareas: true,
+    ver_compras: true,
+    crear_compras: true
+  };
+
+  const userActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
+
+  try {
+    const res = await fetch('/api/permisos', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': userActual.rol || 'admin',
+        'x-user-username': userActual.username || 'Holger'
+      },
+      body: JSON.stringify(nuevaMatriz)
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al guardar permisos');
+
+    simanPermisosCache = data.permisos || nuevaMatriz;
+    window.SIMAN_PERMISOS = simanPermisosCache;
+    mostrarToast('¡Matriz de permisos guardada y respaldada en la nube con éxito!');
+    aplicarPermisosEnUI();
+    cargarMecanicosSelect(); // Actualiza selector de técnicos según asignable_tareas
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
+}
+
+async function restaurarPermisosPorDefecto() {
+  if (!confirm('¿Deseas restaurar la matriz a los permisos recomendados de fábrica para todos los roles?')) return;
+
+  const defaults = {
+    mecanico: {
+      crear_tareas: false,
+      cerrar_tareas: true,
+      cambiar_horas: false,
+      cambiar_foto: true,
+      asignable_tareas: true,
+      ver_contrasenas: false,
+      cambiar_contrasenas: false,
+      eliminar_tareas: false,
+      reabrir_tareas: false,
+      ver_compras: false,
+      crear_compras: false
+    },
+    electrico: {
+      crear_tareas: false,
+      cerrar_tareas: true,
+      cambiar_horas: false,
+      cambiar_foto: true,
+      asignable_tareas: true,
+      ver_contrasenas: false,
+      cambiar_contrasenas: false,
+      eliminar_tareas: false,
+      reabrir_tareas: false,
+      ver_compras: false,
+      crear_compras: false
+    },
+    maquinista: {
+      crear_tareas: false,
+      cerrar_tareas: true,
+      cambiar_horas: false,
+      cambiar_foto: true,
+      asignable_tareas: true,
+      ver_contrasenas: false,
+      cambiar_contrasenas: false,
+      eliminar_tareas: false,
+      reabrir_tareas: false,
+      ver_compras: false,
+      crear_compras: false
+    },
+    supervisor: {
+      crear_tareas: true,
+      cerrar_tareas: true,
+      cambiar_horas: true,
+      cambiar_foto: true,
+      asignable_tareas: true,
+      ver_contrasenas: false,
+      cambiar_contrasenas: false,
+      eliminar_tareas: false,
+      reabrir_tareas: true,
+      ver_compras: true,
+      crear_compras: true
+    },
+    sst: {
+      crear_tareas: true,
+      cerrar_tareas: false,
+      cambiar_horas: false,
+      cambiar_foto: true,
+      asignable_tareas: false,
+      ver_contrasenas: false,
+      cambiar_contrasenas: false,
+      eliminar_tareas: false,
+      reabrir_tareas: false,
+      ver_compras: false,
+      crear_compras: false
+    },
+    director: {
+      crear_tareas: true,
+      cerrar_tareas: true,
+      cambiar_horas: true,
+      cambiar_foto: true,
+      asignable_tareas: false,
+      ver_contrasenas: false,
+      cambiar_contrasenas: false,
+      eliminar_tareas: false,
+      reabrir_tareas: true,
+      ver_compras: true,
+      crear_compras: true
+    },
+    visualizador: {
+      crear_tareas: false,
+      cerrar_tareas: false,
+      cambiar_horas: false,
+      cambiar_foto: false,
+      asignable_tareas: false,
+      ver_contrasenas: false,
+      cambiar_contrasenas: false,
+      eliminar_tareas: false,
+      reabrir_tareas: false,
+      ver_compras: true,
+      crear_compras: false
+    },
+    admin: {
+      crear_tareas: true,
+      cerrar_tareas: true,
+      cambiar_horas: true,
+      cambiar_foto: true,
+      asignable_tareas: true,
+      ver_contrasenas: true,
+      cambiar_contrasenas: true,
+      eliminar_tareas: true,
+      reabrir_tareas: true,
+      ver_compras: true,
+      crear_compras: true
+    }
+  };
+
+  simanPermisosCache = defaults;
+  renderizarMatrizPermisos();
+  await guardarMatrizPermisos();
+}
 
 async function abrirModalUsuarios() {
   document.getElementById('modal-usuarios').classList.remove('hidden');
-  await Promise.all([cargarListaUsuariosAdmin(), cargarListaPersonalApoyo()]);
+  cambiarTabUsuarios('usuarios');
+  await Promise.all([cargarPermisosSistema(), cargarListaUsuariosAdmin(), cargarListaPersonalApoyo()]);
 }
 
 function cerrarModalUsuarios() {
@@ -1904,6 +2324,10 @@ async function cargarListaUsuariosAdmin() {
       }
     });
     const users = await res.json();
+
+    const puedeVerPass = usuarioTienePermiso('ver_contrasenas');
+    const puedeCambiarPass = usuarioTienePermiso('cambiar_contrasenas');
+    const esAdmin = (userActual.rol || '').toLowerCase().trim() === 'admin';
 
     tbody.innerHTML = users.map(u => {
       let badgeRol = '';
@@ -1945,32 +2369,40 @@ async function cargarListaUsuariosAdmin() {
       let colPassword = '';
       if (esHolger) {
         colPassword = `<span class="bg-emerald-950 text-emerald-300 border border-emerald-600/40 px-2 py-0.5 rounded text-[10px] font-bold inline-flex items-center gap-1"><i class="fa-solid fa-shield-halved text-emerald-400"></i>Protegida (OTP)</span>`;
-      } else if (u.password_plana) {
-        colPassword = `
-          <div class="flex items-center gap-1.5">
-            <span id="pass-txt-${u.id}" class="font-mono text-slate-300 text-xs">••••••••</span>
-            <button type="button" data-pass="${encodeURIComponent(u.password_plana)}" onclick="toggleVerPasswordAdmin('${u.id}', decodeURIComponent(this.getAttribute('data-pass')))" title="Ver / Ocultar clave" class="text-slate-400 hover:text-white p-1 text-xs transition">
-              <i id="pass-eye-${u.id}" class="fa-solid fa-eye"></i>
-            </button>
-            <button type="button" data-user="${encodeURIComponent(u.username)}" data-nombre="${encodeURIComponent(u.nombre)}" onclick="abrirModalCambiarPasswordAdmin('${u.id}', decodeURIComponent(this.getAttribute('data-user')), decodeURIComponent(this.getAttribute('data-nombre')))" title="Asignar nueva contraseña" class="text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-800/40 px-2 py-0.5 rounded text-[10px] font-semibold hover:bg-amber-900/60 transition ml-1 flex items-center gap-1 active:scale-95">
-              <i class="fa-solid fa-key text-[9px]"></i> Cambiar
-            </button>
-          </div>
-        `;
       } else {
-        colPassword = `
-          <div class="flex items-center gap-1.5">
-            <span class="text-slate-500 italic text-[11px]">No visible aún</span>
-            <button type="button" data-user="${encodeURIComponent(u.username)}" data-nombre="${encodeURIComponent(u.nombre)}" onclick="abrirModalCambiarPasswordAdmin('${u.id}', decodeURIComponent(this.getAttribute('data-user')), decodeURIComponent(this.getAttribute('data-nombre')))" title="Asignar contraseña conocida" class="text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-800/40 px-2 py-0.5 rounded text-[10px] font-semibold hover:bg-amber-900/60 transition ml-1 flex items-center gap-1 active:scale-95">
-              <i class="fa-solid fa-key text-[9px]"></i> Asignar
-            </button>
-          </div>
-        `;
+        const btnCambiarHtml = puedeCambiarPass
+          ? `<button type="button" data-user="${encodeURIComponent(u.username)}" data-nombre="${encodeURIComponent(u.nombre)}" onclick="abrirModalCambiarPasswordAdmin('${u.id}', decodeURIComponent(this.getAttribute('data-user')), decodeURIComponent(this.getAttribute('data-nombre')))" title="${u.password_plana ? 'Cambiar contraseña' : 'Asignar contraseña conocida'}" class="text-amber-400 hover:text-amber-300 bg-amber-950/40 border border-amber-800/40 px-2 py-0.5 rounded text-[10px] font-semibold hover:bg-amber-900/60 transition ml-1 flex items-center gap-1 active:scale-95">
+              <i class="fa-solid fa-key text-[9px]"></i> ${u.password_plana ? 'Cambiar' : 'Asignar'}
+            </button>`
+          : '';
+
+        if (u.password_plana) {
+          const btnEyeHtml = puedeVerPass
+            ? `<button type="button" data-pass="${encodeURIComponent(u.password_plana)}" onclick="toggleVerPasswordAdmin('${u.id}', decodeURIComponent(this.getAttribute('data-pass')))" title="Ver / Ocultar clave" class="text-slate-400 hover:text-white p-1 text-xs transition">
+                <i id="pass-eye-${u.id}" class="fa-solid fa-eye"></i>
+              </button>`
+            : '';
+
+          colPassword = `
+            <div class="flex items-center gap-1.5">
+              <span id="pass-txt-${u.id}" class="font-mono text-slate-300 text-xs">••••••••</span>
+              ${btnEyeHtml}
+              ${btnCambiarHtml}
+            </div>
+          `;
+        } else {
+          colPassword = `
+            <div class="flex items-center gap-1.5">
+              <span class="text-slate-500 italic text-[11px]">No visible aún</span>
+              ${btnCambiarHtml}
+            </div>
+          `;
+        }
       }
 
       const botonEliminar = esHolger
         ? '<span class="text-[10px] text-slate-500 font-semibold italic">Principal</span>'
-        : `<button onclick="eliminarUsuarioAdmin('${u.id}', '${escaparHTML(u.nombre)}', '${u.username}')" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-800/40 rounded hover:bg-rose-900 transition">Eliminar</button>`;
+        : (esAdmin ? `<button onclick="eliminarUsuarioAdmin('${u.id}', '${escaparHTML(u.nombre)}', '${u.username}')" class="text-rose-400 hover:text-rose-300 text-xs px-2 py-1 bg-rose-950/40 border border-rose-800/40 rounded hover:bg-rose-900 transition">Eliminar</button>` : '');
 
       return `
         <tr>
