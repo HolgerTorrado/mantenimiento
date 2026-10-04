@@ -83,7 +83,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 80,
-    "completado_en": "2026-10-03T23:46:42.187Z"
+    "completado_en": "2026-10-03T23:46:42.187Z",
+    "tiempos_por_rol": {
+      "mecanico": 80,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1079",
@@ -220,7 +225,7 @@
     "tiempo_fuera_planta_minutos": 0,
     "motivo_fuera_planta": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 278,
       "electrico": 0,
       "maquinista": 0
     },
@@ -259,7 +264,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 5,
-    "completado_en": "2026-10-02T00:15:48.920Z"
+    "completado_en": "2026-10-02T00:15:48.920Z",
+    "tiempos_por_rol": {
+      "mecanico": 5,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1074",
@@ -294,7 +304,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 238,
-    "completado_en": "2026-10-01T23:48:53.329Z"
+    "completado_en": "2026-10-01T23:48:53.329Z",
+    "tiempos_por_rol": {
+      "mecanico": 238,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1073",
@@ -388,7 +403,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 29,
-    "completado_en": "2026-10-01T19:52:17.172Z"
+    "completado_en": "2026-10-01T19:52:17.172Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 29,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1071",
@@ -423,7 +443,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 105,
-    "completado_en": "2026-10-01T21:27:15.664Z"
+    "completado_en": "2026-10-01T21:27:15.664Z",
+    "tiempos_por_rol": {
+      "mecanico": 105,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1070",
@@ -492,7 +517,9 @@
       }
     ],
     "tiempos_por_rol": {
-      "electrico": 60
+      "mecanico": 0,
+      "electrico": 538,
+      "maquinista": 0
     },
     "completado_por_usuario": "ajaimes",
     "completado_por_nombre": "Anderson Jaimes",
@@ -581,7 +608,7 @@
     "tiempo_fuera_planta_minutos": 0,
     "motivo_fuera_planta": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 3490,
       "electrico": 0,
       "maquinista": 0
     },
@@ -620,7 +647,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 1160,
-    "completado_en": "2026-10-01T19:53:27.868Z"
+    "completado_en": "2026-10-01T19:53:27.868Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 1160,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1065",
@@ -655,7 +687,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 31,
       "electrico": 0,
       "maquinista": 0
     },
@@ -699,7 +731,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 10,
-    "completado_en": "2026-09-30T20:06:30.138Z"
+    "completado_en": "2026-09-30T20:06:30.138Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 10,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1063",
@@ -733,7 +770,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 4,
-    "completado_en": "2026-09-30T19:39:09.829Z"
+    "completado_en": "2026-09-30T19:39:09.829Z",
+    "tiempos_por_rol": {
+      "mecanico": 4,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1062",
@@ -766,7 +808,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 1695,
       "electrico": 0,
       "maquinista": 0
     },
@@ -867,7 +909,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 33,
-    "completado_en": "2026-09-30T17:16:14.520Z"
+    "completado_en": "2026-09-30T17:16:14.520Z",
+    "tiempos_por_rol": {
+      "mecanico": 33,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1058",
@@ -901,7 +948,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 30,
-    "completado_en": "2026-09-30T16:32:48.232Z"
+    "completado_en": "2026-09-30T16:32:48.232Z",
+    "tiempos_por_rol": {
+      "mecanico": 30,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1057",
@@ -935,7 +987,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 25,
-    "completado_en": "2026-09-30T15:59:33.062Z"
+    "completado_en": "2026-09-30T15:59:33.062Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 25,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1056",
@@ -969,7 +1026,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 7,
-    "completado_en": "2026-09-30T15:19:42.269Z"
+    "completado_en": "2026-09-30T15:19:42.269Z",
+    "tiempos_por_rol": {
+      "mecanico": 7,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1055",
@@ -1130,7 +1192,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 209,
-    "completado_en": "2026-09-30T15:57:36.971Z"
+    "completado_en": "2026-09-30T15:57:36.971Z",
+    "tiempos_por_rol": {
+      "mecanico": 209,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1048",
@@ -1191,7 +1258,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 40,
       "electrico": 0,
       "maquinista": 0
     },
@@ -1235,7 +1302,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 852,
-    "completado_en": "2026-09-30T15:12:30.069Z"
+    "completado_en": "2026-09-30T15:12:30.069Z",
+    "tiempos_por_rol": {
+      "mecanico": 852,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1045",
@@ -1270,7 +1342,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 10,
       "electrico": 0,
       "maquinista": 0
     },
@@ -1343,7 +1415,7 @@
     "tiempo_trabajo_activo_minutos": 62,
     "tiempos_por_rol": {
       "mecanico": 0,
-      "electrico": 0,
+      "electrico": 62,
       "maquinista": 0
     },
     "modificado_por_admin": true,
@@ -1385,7 +1457,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 788,
-    "completado_en": "2026-09-30T21:13:11.139Z"
+    "completado_en": "2026-09-30T21:13:11.139Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 788,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1041",
@@ -1419,7 +1496,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 78,
-    "completado_en": "2026-09-30T01:02:18.017Z"
+    "completado_en": "2026-09-30T01:02:18.017Z",
+    "tiempos_por_rol": {
+      "mecanico": 78,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1040",
@@ -1454,7 +1536,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 35,
       "electrico": 0,
       "maquinista": 0
     },
@@ -1509,7 +1591,9 @@
       }
     ],
     "tiempos_por_rol": {
-      "electrico": 60
+      "mecanico": 0,
+      "electrico": 4104,
+      "maquinista": 0
     },
     "completado_por_usuario": "ajaimes",
     "completado_por_nombre": "Anderson Jaimes",
@@ -1558,7 +1642,7 @@
     "tiempo_fuera_planta_minutos": 0,
     "motivo_fuera_planta": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 302,
       "electrico": 0,
       "maquinista": 0
     },
@@ -1600,8 +1684,8 @@
     "motivo_espera": "",
     "tiempos_por_rol": {
       "mecanico": 0,
-      "electrico": 0,
-      "maquinista": 0
+      "electrico": 730,
+      "maquinista": 730
     },
     "modificado_por_admin": true,
     "modificado_en": "2026-09-30T20:00:42.326Z",
@@ -1643,7 +1727,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 77,
-    "completado_en": "2026-09-29T21:36:47.968Z"
+    "completado_en": "2026-09-29T21:36:47.968Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 77,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1035",
@@ -1677,7 +1766,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 1188,
-    "completado_en": "2026-09-30T16:00:55.171Z"
+    "completado_en": "2026-09-30T16:00:55.171Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 1188,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1034",
@@ -1824,7 +1918,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 1179,
-    "completado_en": "2026-09-30T16:04:35.165Z"
+    "completado_en": "2026-09-30T16:04:35.165Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 1179,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1028",
@@ -1858,7 +1957,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 193,
-    "completado_en": "2026-09-29T21:35:06.870Z"
+    "completado_en": "2026-09-29T21:35:06.870Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 193,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1027",
@@ -1945,7 +2049,7 @@
     "tiempos_por_rol": {
       "mecanico": 0,
       "electrico": 0,
-      "maquinista": 0
+      "maquinista": 79
     },
     "modificado_por_admin": true,
     "modificado_en": "2026-09-29T14:45:26.675Z",
@@ -1987,7 +2091,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 6,
-    "completado_en": "2026-09-29T14:43:37.138Z"
+    "completado_en": "2026-09-29T14:43:37.138Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 6,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1022",
@@ -2021,7 +2130,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 30,
-    "completado_en": "2026-09-29T15:04:50.571Z"
+    "completado_en": "2026-09-29T15:04:50.571Z",
+    "tiempos_por_rol": {
+      "mecanico": 30,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1020",
@@ -2055,7 +2169,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 11,
-    "completado_en": "2026-09-29T15:16:00.067Z"
+    "completado_en": "2026-09-29T15:16:00.067Z",
+    "tiempos_por_rol": {
+      "mecanico": 11,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1019",
@@ -2089,7 +2208,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 3064,
-    "completado_en": "2026-10-01T16:43:54.074Z"
+    "completado_en": "2026-10-01T16:43:54.074Z",
+    "tiempos_por_rol": {
+      "mecanico": 3064,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1018",
@@ -2125,7 +2249,7 @@
     "motivo_espera": "",
     "tiempos_por_rol": {
       "mecanico": 0,
-      "electrico": 0,
+      "electrico": 62,
       "maquinista": 0
     },
     "modificado_por_admin": true,
@@ -2169,7 +2293,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 26,
-    "completado_en": "2026-09-29T03:40:23.228Z"
+    "completado_en": "2026-09-29T03:40:23.228Z",
+    "tiempos_por_rol": {
+      "mecanico": 26,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1016",
@@ -2264,7 +2393,12 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 335,
-    "completado_en": "2026-09-29T02:35:34.444Z"
+    "completado_en": "2026-09-29T02:35:34.444Z",
+    "tiempos_por_rol": {
+      "mecanico": 335,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1014",
@@ -2346,7 +2480,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 188,
       "electrico": 0,
       "maquinista": 0
     },
@@ -2477,7 +2611,7 @@
     "motivo_espera": "",
     "tiempos_por_rol": {
       "mecanico": 0,
-      "electrico": 0,
+      "electrico": 75,
       "maquinista": 0
     },
     "modificado_por_admin": true,
@@ -2569,8 +2703,8 @@
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 30,
     "tiempos_por_rol": {
-      "mecanico": 0,
-      "electrico": 0,
+      "mecanico": 15,
+      "electrico": 15,
       "maquinista": 0
     },
     "completado_por_usuario": "ajaimes",
@@ -2613,8 +2747,8 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
-      "electrico": 0,
+      "mecanico": 940,
+      "electrico": 940,
       "maquinista": 0
     },
     "modificado_por_admin": true,

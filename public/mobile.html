@@ -889,6 +889,72 @@
           </div>
         </div>
 
+        <!-- DESGLOSE DE HORAS POR ESPECIALIDAD (MANO DE OBRA) -->
+        <div id="seccion-horas-roles-movil" class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-3.5 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-bold text-sky-400 uppercase tracking-wide flex items-center gap-1.5">
+              <i class="fa-solid fa-users-gear"></i> Horas de Mano de Obra
+            </label>
+            <span id="badge-tipo-asignacion-movil" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700 font-semibold">Cálculo Automático</span>
+          </div>
+          <p id="desc-horas-roles-movil" class="text-[11px] text-slate-400 leading-tight">
+            Las horas activas de reparación se asignan automáticamente a la especialidad correspondiente (o se reparten si es en conjunto). También puedes modificarlas aquí por separado si lo requieres:
+          </p>
+          <div class="grid grid-cols-3 gap-2 pt-1">
+            <div>
+              <label class="text-[10px] text-indigo-300 font-bold block mb-1">
+                🔧 Mecánica
+              </label>
+              <div class="relative">
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  min="0" 
+                  id="input-horas-mecanico-movil" 
+                  placeholder="0.0" 
+                  class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:ring-1 focus:ring-indigo-500 font-mono"
+                >
+                <span class="absolute right-1.5 top-1.5 text-[9px] text-slate-500 pointer-events-none">hrs</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-[10px] text-amber-300 font-bold block mb-1">
+                ⚡ Eléctrica
+              </label>
+              <div class="relative">
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  min="0" 
+                  id="input-horas-electrico-movil" 
+                  placeholder="0.0" 
+                  class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 font-mono"
+                >
+                <span class="absolute right-1.5 top-1.5 text-[9px] text-slate-500 pointer-events-none">hrs</span>
+              </div>
+            </div>
+            <div>
+              <label class="text-[10px] text-emerald-300 font-bold block mb-1">
+                🚜 Maquinaria
+              </label>
+              <div class="relative">
+                <input 
+                  type="number" 
+                  step="0.1" 
+                  min="0" 
+                  id="input-horas-maquinista-movil" 
+                  placeholder="0.0" 
+                  class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-xs text-white focus:ring-1 focus:ring-emerald-500 font-mono"
+                >
+                <span class="absolute right-1.5 top-1.5 text-[9px] text-slate-500 pointer-events-none">hrs</span>
+              </div>
+            </div>
+          </div>
+          <div id="aviso-avances-previos-movil" class="hidden text-[10px] text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 rounded-lg p-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-list-check"></i> <span id="aviso-avances-txt"></span>
+          </div>
+        </div>
+
         <!-- INPUT OCULTO PARA CAMBIAR FOTO EN TAREAS COMPLETADAS -->
         <input 
           type="file" 

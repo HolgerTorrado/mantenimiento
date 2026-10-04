@@ -306,6 +306,46 @@ function irModoPC() {
   window.location.replace('/dashboard');
 }
 
+// Cómputo inteligente de tiempos por rol en cliente móvil
+function resolverTiemposRolesClienteMovil(t) {
+  let tpr = t.tiempos_por_rol ? { ...t.tiempos_por_rol } : { mecanico: 0, electrico: 0, maquinista: 0 };
+  const m = parseInt(tpr.mecanico) || 0;
+  const e = parseInt(tpr.electrico) || 0;
+  const q = parseInt(tpr.maquinista) || 0;
+  if ((m + e + q) > 0) return { mecanico: m, electrico: e, maquinista: q };
+
+  const tActivo = Math.max(0, parseInt(t.tiempo_trabajo_activo_minutos) || (parseInt(t.tiempo_arreglo_minutos) - parseInt(t.tiempo_espera_minutos || 0)) || parseInt(t.tiempo_arreglo_minutos) || 0);
+  if (tActivo === 0) return { mecanico: 0, electrico: 0, maquinista: 0 };
+
+  let avTpr = { mecanico: 0, electrico: 0, maquinista: 0 };
+  let sumAv = 0;
+  if (Array.isArray(t.avances)) {
+    t.avances.forEach(a => {
+      const aRol = (a.tecnico_rol === 'electrico' || a.tecnico_rol === 'electrica') ? 'electrico' : (a.tecnico_rol === 'maquinista' || a.tecnico_rol === 'maquinaria') ? 'maquinista' : 'mecanico';
+      const aMin = parseInt(a.minutos_dedicados) || Math.round((parseFloat(a.horas_dedicadas) || 0) * 60) || 0;
+      if (aMin > 0) { avTpr[aRol] += aMin; sumAv += aMin; }
+    });
+  }
+  if (sumAv >= tActivo) return avTpr;
+  const rest = tActivo - sumAv;
+
+  let roles = [];
+  if (Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0) {
+    roles = t.roles_asignados.map(r => (r === 'electrico' || r === 'electrica') ? 'electrico' : (r === 'maquinista' || r === 'maquinaria') ? 'maquinista' : 'mecanico');
+  }
+  const rolesUnicos = [...new Set(roles)];
+  const rolFin = (t.completado_por_rol === 'electrico' || t.completado_por_rol === 'electrica') ? 'electrico' : (t.completado_por_rol === 'maquinista' || t.completado_por_rol === 'maquinaria') ? 'maquinista' : (rolesUnicos[0] || 'mecanico');
+
+  if (rolesUnicos.length > 1) {
+    const porRol = Math.round(rest / rolesUnicos.length);
+    rolesUnicos.forEach(r => { avTpr[r] = (avTpr[r] || 0) + porRol; });
+    return avTpr;
+  }
+  const rDest = rolesUnicos.length === 1 ? rolesUnicos[0] : rolFin;
+  avTpr[rDest] = (avTpr[rDest] || 0) + rest;
+  return avTpr;
+}
+
 // Modal Crear Tarea desde Móvil
 function abrirModalCrearMovil() {
   if (!usuarioTienePermisoMovil('crear_tareas')) {
@@ -760,22 +800,20 @@ function renderTareasMovil() {
         `;
       }
 
-      // Desglose de horas por especialidad si existen
+      // Desglose de horas por especialidad
       let tiemposRolesHtml = '';
-      if (t.tiempos_por_rol && Object.keys(t.tiempos_por_rol).length > 0) {
-        const tr = t.tiempos_por_rol;
-        const badgesRoles = [];
-        if (tr.mecanico > 0) badgesRoles.push(`🔧 Mec: ${formatMinutosMovil(tr.mecanico)}`);
-        if (tr.electrico > 0) badgesRoles.push(`⚡ Elec: ${formatMinutosMovil(tr.electrico)}`);
-        if (tr.maquinista > 0) badgesRoles.push(`🚜 Maq: ${formatMinutosMovil(tr.maquinista)}`);
-        if (badgesRoles.length > 0) {
-          tiemposRolesHtml = `
-            <div class="text-[10px] text-slate-300 bg-slate-900/60 p-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5 flex-wrap">
-              <span class="font-semibold text-slate-400">Labor:</span>
-              ${badgesRoles.map(b => `<span class="bg-slate-800 px-1.5 py-0.5 rounded font-mono font-bold">${b}</span>`).join('')}
-            </div>
-          `;
-        }
+      const tr = resolverTiemposRolesClienteMovil(t);
+      const badgesRoles = [];
+      if (tr.mecanico > 0) badgesRoles.push(`🔧 Mec: ${formatMinutosMovil(tr.mecanico)}`);
+      if (tr.electrico > 0) badgesRoles.push(`⚡ Elec: ${formatMinutosMovil(tr.electrico)}`);
+      if (tr.maquinista > 0) badgesRoles.push(`🚜 Maq: ${formatMinutosMovil(tr.maquinista)}`);
+      if (badgesRoles.length > 0) {
+        tiemposRolesHtml = `
+          <div class="text-[10px] text-slate-300 bg-slate-900/60 p-1.5 rounded-lg border border-slate-800 flex items-center gap-1.5 flex-wrap">
+            <span class="font-semibold text-slate-400">Labor:</span>
+            ${badgesRoles.map(b => `<span class="bg-slate-800 px-1.5 py-0.5 rounded font-mono font-bold">${b}</span>`).join('')}
+          </div>
+        `;
       }
 
       const botonCambiarFoto = !esVisualizador ? `
@@ -974,6 +1012,43 @@ function abrirModalCompletar(id) {
   // Pre-llenar fecha y hora al momento de arreglar con la hora exacta actual
   fijarArregloAhora();
 
+  // Calcular tiempos sugeridos por especialidad
+  const tprSugerido = resolverTiemposRolesClienteMovil(t);
+  const inHMec = document.getElementById('input-horas-mecanico-movil');
+  const inHElec = document.getElementById('input-horas-electrico-movil');
+  const inHMaq = document.getElementById('input-horas-maquinista-movil');
+  if (inHMec) inHMec.value = tprSugerido.mecanico ? (tprSugerido.mecanico / 60).toFixed(1).replace('.0', '') : '';
+  if (inHElec) inHElec.value = tprSugerido.electrico ? (tprSugerido.electrico / 60).toFixed(1).replace('.0', '') : '';
+  if (inHMaq) inHMaq.value = tprSugerido.maquinista ? (tprSugerido.maquinista / 60).toFixed(1).replace('.0', '') : '';
+
+  // Informar tipo de asignación en badge
+  const badgeAsig = document.getElementById('badge-tipo-asignacion-movil');
+  const esConjunta = (Array.isArray(t.roles_asignados) && t.roles_asignados.length > 1) || t.es_conjunta;
+  if (badgeAsig) {
+    if (esConjunta) {
+      badgeAsig.innerText = '👥 Tarea en Conjunto';
+      badgeAsig.className = 'text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-700 font-bold';
+    } else {
+      const rolUnico = (t.roles_asignados && t.roles_asignados[0]) || 'mecanico';
+      const labelRol = rolUnico === 'electrico' ? '⚡ Eléctrica (100%)' : rolUnico === 'maquinista' ? '🚜 Maquinaria (100%)' : '🔧 Mecánica (100%)';
+      badgeAsig.innerText = labelRol;
+      badgeAsig.className = 'text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700 font-bold';
+    }
+  }
+
+  // Si hay avances registrados, mostrar aviso
+  const avisoAvances = document.getElementById('aviso-avances-previos-movil');
+  const txtAvances = document.getElementById('aviso-avances-txt');
+  if (avisoAvances && txtAvances) {
+    if (Array.isArray(t.avances) && t.avances.length > 0) {
+      const totalMinAv = t.avances.reduce((acc, a) => acc + (parseInt(a.minutos_dedicados) || Math.round((parseFloat(a.horas_dedicadas) || 0) * 60) || 0), 0);
+      avisoAvances.classList.remove('hidden');
+      txtAvances.innerText = `${t.avances.length} avance(s) previo(s) registrado(s) (${(totalMinAv / 60).toFixed(1)} hrs dedicadas acreditadas).`;
+    } else {
+      avisoAvances.classList.add('hidden');
+    }
+  }
+
   document.getElementById('modal-completar-movil').classList.remove('hidden');
 }
 
@@ -1069,6 +1144,19 @@ async function enviarFinalizacion(e) {
   const tiempoEsperaMin = Math.max(0, (hEspera * 60) + mEspera);
   const motivoEspera = (document.getElementById('input-motivo-espera-movil')?.value || '').trim();
 
+  // Horas por especialidad (Mano de obra)
+  const hMec = parseFloat(document.getElementById('input-horas-mecanico-movil')?.value) || 0;
+  const hElec = parseFloat(document.getElementById('input-horas-electrico-movil')?.value) || 0;
+  const hMaq = parseFloat(document.getElementById('input-horas-maquinista-movil')?.value) || 0;
+  let tiemposPorRolMovil = null;
+  if ((hMec + hElec + hMaq) > 0) {
+    tiemposPorRolMovil = {
+      mecanico: Math.round(hMec * 60),
+      electrico: Math.round(hElec * 60),
+      maquinista: Math.round(hMaq * 60)
+    };
+  }
+
   // Usuario autenticado que realiza la acción
   const usuarioActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
   const usuarioNombre = usuarioActual.nombre || 'Técnico de Turno';
@@ -1104,7 +1192,8 @@ async function enviarFinalizacion(e) {
           mecanico_nombre: usuarioNombre,
           usuario_username: usuarioLogin,
           tiempo_espera_minutos: tiempoEsperaMin,
-          motivo_espera: motivoEspera
+          motivo_espera: motivoEspera,
+          tiempos_por_rol: tiemposPorRolMovil
         })
       });
     } else {
@@ -1117,6 +1206,9 @@ async function enviarFinalizacion(e) {
       formData.append('usuario_username', usuarioLogin);
       formData.append('tiempo_espera_minutos', tiempoEsperaMin);
       formData.append('motivo_espera', motivoEspera);
+      if (tiemposPorRolMovil) {
+        formData.append('tiempos_por_rol', JSON.stringify(tiemposPorRolMovil));
+      }
 
       res = await fetch(`/api/tasks/${tareaId}/completar`, {
         method: 'POST',
