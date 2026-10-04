@@ -56,6 +56,14 @@ function aplicarPermisosEnUI() {
     const rol = (user.rol || '').toLowerCase().trim();
     const esAdmin = rol === 'admin';
 
+    // 0. Verificar si el usuario tiene permiso para estar en el Dashboard / Modo PC
+    const puedePC = esAdmin || usuarioTienePermiso('acceso_pc') || usuarioTienePermiso('ver_dashboard');
+    if (!puedePC) {
+      alert('Tu rol no tiene acceso al Dashboard de PC. Redirigiendo a tu vista móvil...');
+      window.location.replace('/mecanico');
+      return;
+    }
+
     // 1. Botón Nueva Tarea en el Dashboard
     const btnCrear = document.getElementById('btn-crear-tarea-dashboard');
     if (btnCrear) {
@@ -92,6 +100,17 @@ function aplicarPermisosEnUI() {
     if (btnBackup) {
       if (esAdmin) btnBackup.classList.remove('hidden');
       else btnBackup.classList.add('hidden');
+    }
+
+    // 5. Botón Volver a Modo Móvil
+    const btnIrMovil = document.getElementById('btn-ir-modo-movil');
+    if (btnIrMovil) {
+      const puedeMovil = esAdmin || usuarioTienePermiso('acceso_movil');
+      if (puedeMovil) {
+        btnIrMovil.classList.remove('hidden');
+      } else {
+        btnIrMovil.classList.add('hidden');
+      }
     }
   } catch (e) {}
 }
@@ -244,12 +263,16 @@ function cerrarSesionDashboard() {
   localStorage.removeItem('siman_token');
   localStorage.removeItem('siman_user');
   localStorage.removeItem('siman_mecanico_activo');
+  localStorage.removeItem('siman_vista_preferida');
   sessionStorage.removeItem('siman_forzar_pc');
+  localStorage.removeItem('siman_forzar_pc');
   window.location.replace('/login?logout=true');
 }
 
 function irModoMovilDesdePC() {
+  localStorage.setItem('siman_vista_preferida', 'movil');
   sessionStorage.removeItem('siman_forzar_pc');
+  localStorage.removeItem('siman_forzar_pc');
   window.location.replace('/mecanico');
 }
 
@@ -2034,6 +2057,27 @@ const PERMISOS_CONFIG_UI = [
     desc: 'Generar nuevos requerimientos de compra y repuestos',
     icono: 'fa-bag-shopping',
     color: 'text-violet-400'
+  },
+  {
+    key: 'ver_dashboard',
+    nombre: 'Ver Dashboard y Métricas',
+    desc: 'Visualizar gráficas de fallas, tiempos, indicadores KPI y reportes',
+    icono: 'fa-chart-pie',
+    color: 'text-sky-400'
+  },
+  {
+    key: 'acceso_pc',
+    nombre: 'Acceso a Modo PC / Escritorio',
+    desc: 'Permite ingresar a la interfaz de escritorio en computadora',
+    icono: 'fa-laptop',
+    color: 'text-indigo-400'
+  },
+  {
+    key: 'acceso_movil',
+    nombre: 'Acceso a Modo Móvil',
+    desc: 'Permite ingresar a la aplicación móvil para celulares y tablets',
+    icono: 'fa-mobile-screen',
+    color: 'text-emerald-400'
   }
 ];
 
@@ -2150,7 +2194,10 @@ async function guardarMatrizPermisos() {
     eliminar_tareas: true,
     reabrir_tareas: true,
     ver_compras: true,
-    crear_compras: true
+    crear_compras: true,
+    ver_dashboard: true,
+    acceso_pc: true,
+    acceso_movil: true
   };
 
   const userActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
@@ -2199,7 +2246,10 @@ async function restaurarPermisosPorDefecto() {
       eliminar_tareas: false,
       reabrir_tareas: false,
       ver_compras: false,
-      crear_compras: false
+      crear_compras: false,
+      ver_dashboard: false,
+      acceso_pc: false,
+      acceso_movil: true
     },
     electrico: {
       crear_tareas: false,
@@ -2212,7 +2262,10 @@ async function restaurarPermisosPorDefecto() {
       eliminar_tareas: false,
       reabrir_tareas: false,
       ver_compras: false,
-      crear_compras: false
+      crear_compras: false,
+      ver_dashboard: false,
+      acceso_pc: false,
+      acceso_movil: true
     },
     maquinista: {
       crear_tareas: false,
@@ -2225,7 +2278,10 @@ async function restaurarPermisosPorDefecto() {
       eliminar_tareas: false,
       reabrir_tareas: false,
       ver_compras: false,
-      crear_compras: false
+      crear_compras: false,
+      ver_dashboard: false,
+      acceso_pc: false,
+      acceso_movil: true
     },
     supervisor: {
       crear_tareas: true,
@@ -2238,7 +2294,10 @@ async function restaurarPermisosPorDefecto() {
       eliminar_tareas: false,
       reabrir_tareas: true,
       ver_compras: true,
-      crear_compras: true
+      crear_compras: true,
+      ver_dashboard: true,
+      acceso_pc: true,
+      acceso_movil: true
     },
     sst: {
       crear_tareas: true,
@@ -2251,7 +2310,10 @@ async function restaurarPermisosPorDefecto() {
       eliminar_tareas: false,
       reabrir_tareas: false,
       ver_compras: false,
-      crear_compras: false
+      crear_compras: false,
+      ver_dashboard: true,
+      acceso_pc: true,
+      acceso_movil: true
     },
     director: {
       crear_tareas: true,
@@ -2264,7 +2326,10 @@ async function restaurarPermisosPorDefecto() {
       eliminar_tareas: false,
       reabrir_tareas: true,
       ver_compras: true,
-      crear_compras: true
+      crear_compras: true,
+      ver_dashboard: true,
+      acceso_pc: true,
+      acceso_movil: true
     },
     visualizador: {
       crear_tareas: false,
@@ -2276,8 +2341,11 @@ async function restaurarPermisosPorDefecto() {
       cambiar_contrasenas: false,
       eliminar_tareas: false,
       reabrir_tareas: false,
-      ver_compras: true,
-      crear_compras: false
+      ver_compras: false,
+      crear_compras: false,
+      ver_dashboard: true,
+      acceso_pc: true,
+      acceso_movil: true
     },
     admin: {
       crear_tareas: true,
@@ -2290,7 +2358,10 @@ async function restaurarPermisosPorDefecto() {
       eliminar_tareas: true,
       reabrir_tareas: true,
       ver_compras: true,
-      crear_compras: true
+      crear_compras: true,
+      ver_dashboard: true,
+      acceso_pc: true,
+      acceso_movil: true
     }
   };
 
