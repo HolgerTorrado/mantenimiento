@@ -33,5 +33,15 @@
     "username": "hmandon",
     "rol": "maquinista",
     "especialidad": "Operador de Maquinaria"
+  },
+  {
+    "id": "APOYO-06",
+    "nombre": "Juan Moises Arevalo",
+    "username": null,
+    "rol": "auxiliar",
+    "especialidad": "Auxiliar Mecánico",
+    "es_apoyo": true,
+    "sin_cuenta": true,
+    "creado_en": "2026-10-04T18:35:38.069Z"
   }
 ]
