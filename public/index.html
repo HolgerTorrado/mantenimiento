@@ -1666,172 +1666,256 @@
     </div>
   </div>
 
-  <!-- 4. MODAL GESTIÓN DE USUARIOS (EXCLUSIVO ADMINISTRADOR HOLGER) -->
-  <div id="modal-usuarios" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-slate-800 border border-indigo-500/40 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl my-8">
+  <!-- 4. MODAL GESTIÓN DE USUARIOS Y MATRIZ DE PERMISOS (EXCLUSIVO ADMINISTRADOR HOLGER) -->
+  <div id="modal-usuarios" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-indigo-500/40 rounded-2xl w-full max-w-5xl overflow-hidden shadow-2xl my-6">
       
       <!-- Header -->
       <div class="bg-slate-900 px-6 py-4 border-b border-slate-700 flex items-center justify-between">
         <div class="flex items-center space-x-2.5">
           <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
-            <i class="fa-solid fa-users-gear"></i>
+            <i class="fa-solid fa-users-gear text-base"></i>
           </div>
           <div>
-            <h3 class="font-bold text-white text-base">Control y Gestión de Usuarios</h3>
+            <h3 class="font-bold text-white text-base">Control de Usuarios y Permisos</h3>
             <p class="text-xs text-slate-400">Panel exclusivo de Holger (Administrador Principal)</p>
           </div>
         </div>
-        <button onclick="cerrarModalUsuarios()" class="text-slate-400 hover:text-white p-1">
+        <button onclick="cerrarModalUsuarios()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
           <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Barra de Pestañas (Tabs) -->
+      <div class="bg-slate-950 px-6 pt-3 flex gap-2 border-b border-slate-700 text-xs font-bold">
+        <button type="button" id="tab-btn-usuarios" onclick="cambiarTabUsuarios('usuarios')" class="px-4 py-2.5 rounded-t-xl text-white bg-slate-800 border-t-2 border-indigo-500 border-x border-slate-700 flex items-center gap-2 transition shadow">
+          <i class="fa-solid fa-id-card text-indigo-400"></i>
+          <span>Cuentas de Acceso y Contraseñas</span>
+        </button>
+        <button type="button" id="tab-btn-permisos" onclick="cambiarTabUsuarios('permisos')" class="px-4 py-2.5 rounded-t-xl text-slate-400 hover:text-white border-t-2 border-transparent border-x border-transparent flex items-center gap-2 transition">
+          <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+          <span>Matriz de Permisos por Rol</span>
         </button>
       </div>
 
       <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
         
-        <!-- Formulario Crear Usuario -->
-        <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4 space-y-3">
-          <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
-            <i class="fa-solid fa-user-plus"></i> Registrar Nuevo Usuario
-          </h4>
-          <form id="form-crear-usuario-admin" onsubmit="guardarNuevoUsuarioAdmin(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-            <div>
-              <label class="block text-slate-400 mb-1">Nombre Completo *</label>
-              <input type="text" id="usr-adm-nombre" required placeholder="Ej: Mario Santos" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">Usuario de Acceso *</label>
-              <input type="text" id="usr-adm-username" required placeholder="msantos" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">Contraseña *</label>
-              <input type="password" id="usr-adm-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-            </div>
-            <div>
-              <label class="block text-slate-400 mb-1">Rol en el Sistema *</label>
-              <select id="usr-adm-rol" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                <option value="mecanico">🔧 Mecánico (Reparaciones mecánicas)</option>
-                <option value="electrico">⚡ Eléctrico (Sistemas eléctricos, motores)</option>
-                <option value="maquinista">🚜 Maquinista (Operación y maquinaria)</option>
-                <option value="supervisor">👷 Supervisor de Mantenimiento / Planta (Crea y asigna tareas)</option>
-                <option value="sst">🦺 SST - Seguridad y Salud en el Trabajo (Crea y asigna tareas)</option>
-                <option value="director">🏢 Director de Planta (Supervisión y asignación)</option>
-                <option value="visualizador">👁️ Solo Visualizar (Consultas)</option>
-                <option value="admin">💻 Administrador (Control total)</option>
-              </select>
-            </div>
-            <div class="sm:col-span-2 flex items-center justify-between pt-2">
-              <span class="text-[11px] text-slate-500">Los usuarios creados podrán ingresar de inmediato con su clave.</span>
-              <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
-                <i class="fa-solid fa-plus"></i> Crear Usuario
-              </button>
-            </div>
-          </form>
-        </div>
+        <!-- PESTAÑA 1: CUENTAS DE ACCESO Y CONTRASEÑAS -->
+        <div id="tab-panel-usuarios" class="space-y-6">
 
-        <!-- SEGURIDAD Y RECUPERACIÓN DE CUENTA ADMINISTRADOR -->
-        <div class="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-4 space-y-2.5">
-          <div class="flex items-center justify-between">
-            <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-shield-halved"></i> Correo de Seguridad del Administrador (Holger)
+          <!-- Formulario Crear Usuario -->
+          <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-4 space-y-3">
+            <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+              <i class="fa-solid fa-user-plus"></i> Registrar Nuevo Usuario
             </h4>
-            <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-bold flex items-center gap-1">
-              <i class="fa-solid fa-lock text-[9px]"></i> Recuperación OTP
-            </span>
+            <form id="form-crear-usuario-admin" onsubmit="guardarNuevoUsuarioAdmin(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label class="block text-slate-400 mb-1">Nombre Completo *</label>
+                <input type="text" id="usr-adm-nombre" required placeholder="Ej: Mario Santos" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1">Usuario de Acceso *</label>
+                <input type="text" id="usr-adm-username" required placeholder="msantos" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1">Contraseña *</label>
+                <input type="password" id="usr-adm-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-slate-400 mb-1">Rol en el Sistema *</label>
+                <select id="usr-adm-rol" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                  <option value="mecanico">🔧 Mecánico (Reparaciones mecánicas)</option>
+                  <option value="electrico">⚡ Eléctrico (Sistemas eléctricos, motores)</option>
+                  <option value="maquinista">🚜 Maquinista (Operación y maquinaria)</option>
+                  <option value="supervisor">👷 Supervisor de Mantenimiento / Planta (Crea y asigna tareas)</option>
+                  <option value="sst">🦺 SST - Seguridad y Salud en el Trabajo (Crea y asigna tareas)</option>
+                  <option value="director">🏢 Director de Planta (Supervisión y asignación)</option>
+                  <option value="visualizador">👁️ Solo Visualizar (Consultas)</option>
+                  <option value="admin">💻 Administrador (Control total)</option>
+                </select>
+              </div>
+              <div class="sm:col-span-2 flex items-center justify-between pt-2">
+                <span class="text-[11px] text-slate-500">Los usuarios creados podrán ingresar de inmediato con su clave.</span>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
+                  <i class="fa-solid fa-plus"></i> Crear Usuario
+                </button>
+              </div>
+            </form>
           </div>
-          <p class="text-[11px] text-slate-400 leading-relaxed">
-            Este correo es el único autorizado para recibir los códigos de verificación si necesitas restablecer tu contraseña de Administrador. Nadie más puede cambiar tu clave.
-          </p>
-          <form id="form-correo-recuperacion-admin" onsubmit="guardarCorreoRecuperacionAdmin(event)" class="flex flex-col sm:flex-row gap-2">
-            <div class="relative flex-1">
-              <i class="fa-solid fa-envelope absolute left-3 top-2.5 text-slate-500 text-xs"></i>
-              <input type="email" id="input-admin-correo-recuperacion" required placeholder="ejemplo@correo.com" class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-8 pr-3 py-2 text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
-            </div>
-            <button type="submit" id="btn-guardar-correo-admin" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-lg transition text-xs flex items-center justify-center gap-1.5 shadow whitespace-nowrap active:scale-95">
-              <i class="fa-solid fa-floppy-disk"></i> Guardar Correo
-            </button>
-          </form>
-        </div>
 
-        <!-- Listado de Usuarios Existentes -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-id-card"></i> Usuarios Registrados con Cuenta de Acceso
-            </h4>
-            <span class="text-[10px] text-slate-400 italic">Puedes ver o reasignar la contraseña de los usuarios</span>
-          </div>
-          <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
-            <table class="w-full text-left text-xs text-slate-300">
-              <thead class="bg-slate-950 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-800">
-                <tr>
-                  <th class="py-2.5 px-3">Usuario</th>
-                  <th class="py-2.5 px-3">Nombre</th>
-                  <th class="py-2.5 px-3">Rol</th>
-                  <th class="py-2.5 px-3">Contraseña</th>
-                  <th class="py-2.5 px-3 text-right">Acción</th>
-                </tr>
-              </thead>
-              <tbody id="tabla-usuarios-body" class="divide-y divide-slate-800">
-                <!-- Usuarios dinámicos -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- PERSONAL DE APOYO DE PLANTA (SIN CUENTA DE ACCESO) -->
-        <div class="pt-4 border-t border-slate-700/80 space-y-4">
-          <div class="flex items-start justify-between">
-            <div>
-              <h4 class="text-xs font-bold text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
-                <i class="fa-solid fa-hands-holding-circle"></i> Personal de Apoyo de Planta (Sin Cuenta de Ingreso)
+          <!-- SEGURIDAD Y RECUPERACIÓN DE CUENTA ADMINISTRADOR -->
+          <div class="bg-slate-900/90 border border-emerald-500/40 rounded-xl p-4 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-shield-halved"></i> Correo de Seguridad del Administrador (Holger)
               </h4>
-              <p class="text-[11px] text-slate-400 mt-0.5">
-                Auxiliares, operarios de planta y supernumerarios que no requieren usuario ni clave. Se registran por nombre para asignarlos como apoyo en tareas y registrar sus horas.
+              <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                <i class="fa-solid fa-lock text-[9px]"></i> Recuperación OTP
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              Este correo es el único autorizado para recibir los códigos de verificación si necesitas restablecer tu contraseña de Administrador. Nadie más puede cambiar tu clave.
+            </p>
+            <form id="form-correo-recuperacion-admin" onsubmit="guardarCorreoRecuperacionAdmin(event)" class="flex flex-col sm:flex-row gap-2">
+              <div class="relative flex-1">
+                <i class="fa-solid fa-envelope absolute left-3 top-2.5 text-slate-500 text-xs"></i>
+                <input type="email" id="input-admin-correo-recuperacion" required placeholder="ejemplo@correo.com" class="w-full bg-slate-950 border border-slate-700 rounded-lg pl-8 pr-3 py-2 text-xs text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+              </div>
+              <button type="submit" id="btn-guardar-correo-admin" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-lg transition text-xs flex items-center justify-center gap-1.5 shadow whitespace-nowrap active:scale-95">
+                <i class="fa-solid fa-floppy-disk"></i> Guardar Correo
+              </button>
+            </form>
+          </div>
+
+          <!-- Banner Informativo: Claves no visibles y cómo revelarlas -->
+          <div class="bg-indigo-950/40 border border-indigo-500/30 p-3.5 rounded-xl flex items-start gap-3 text-xs">
+            <i class="fa-solid fa-circle-question text-indigo-400 text-base mt-0.5"></i>
+            <div class="space-y-1">
+              <span class="font-bold text-white block">💡 ¿Por qué algunas cuentas dicen "No visible aún"?</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                Las cuentas creadas anteriormente protegían su clave con cifrado unidireccional. Puedes pulsar el botón <strong class="text-amber-300 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-800/40">[ 🔑 Asignar ]</strong> en cualquier momento para reescribirle la clave que desees; al instante quedará visible para ti con el botón de ojo (<i class="fa-solid fa-eye text-emerald-400"></i>). También se hace visible automáticamente tan pronto el usuario inicia sesión.
               </p>
             </div>
           </div>
 
-          <!-- Formulario Registro Personal de Apoyo -->
-          <form id="form-crear-apoyo" onsubmit="guardarNuevoPersonalApoyo(event)" class="bg-slate-900/80 border border-teal-500/30 rounded-xl p-3.5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-            <div>
-              <label class="block text-slate-300 mb-1 font-semibold">Nombre Completo *</label>
-              <input type="text" id="apoyo-nombre" required placeholder="Ej: Juan Camilo Pérez" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-1 focus:ring-teal-500 focus:outline-none">
+          <!-- Listado de Usuarios Existentes -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                <i class="fa-solid fa-id-card"></i> Usuarios Registrados con Cuenta de Acceso
+              </h4>
+              <span class="text-[10px] text-slate-400 italic">Puedes ver o reasignar la contraseña de los usuarios</span>
             </div>
-            <div>
-              <label class="block text-slate-300 mb-1 font-semibold">Rol de Apoyo *</label>
-              <select id="apoyo-rol" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-1 focus:ring-teal-500 focus:outline-none">
-                <option value="auxiliar">🛠️ Auxiliar Mecánico</option>
-                <option value="operario">👷 Operario de Planta</option>
-                <option value="supernumerario">⏱️ Supernumerario</option>
-              </select>
+            <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-950 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-800">
+                  <tr>
+                    <th class="py-2.5 px-3">Usuario</th>
+                    <th class="py-2.5 px-3">Nombre</th>
+                    <th class="py-2.5 px-3">Rol</th>
+                    <th class="py-2.5 px-3">Contraseña</th>
+                    <th class="py-2.5 px-3 text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-usuarios-body" class="divide-y divide-slate-800">
+                  <!-- Usuarios dinámicos -->
+                </tbody>
+              </table>
             </div>
-            <div>
-              <label class="block text-slate-300 mb-1 font-semibold">Especialidad / Detalle (Opcional)</label>
-              <input type="text" id="apoyo-especialidad" placeholder="Ej: Apoyo soldadura / Turno rotativo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-1 focus:ring-teal-500 focus:outline-none">
-            </div>
-            <div class="sm:col-span-3 flex justify-end pt-1">
-              <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow text-xs">
-                <i class="fa-solid fa-user-plus"></i> Registrar Colaborador de Apoyo
-              </button>
-            </div>
-          </form>
-
-          <!-- Tabla de Personal de Apoyo -->
-          <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
-            <table class="w-full text-left text-xs text-slate-300">
-              <thead class="bg-slate-950 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-800">
-                <tr>
-                  <th class="py-2.5 px-3">Nombre</th>
-                  <th class="py-2.5 px-3">Rol de Apoyo</th>
-                  <th class="py-2.5 px-3">Especialidad</th>
-                  <th class="py-2.5 px-3 text-right">Acción</th>
-                </tr>
-              </thead>
-              <tbody id="tabla-apoyo-body" class="divide-y divide-slate-800">
-                <!-- Rellenado dinámicamente -->
-              </tbody>
-            </table>
           </div>
+
+          <!-- PERSONAL DE APOYO DE PLANTA (SIN CUENTA DE ACCESO) -->
+          <div class="pt-4 border-t border-slate-700/80 space-y-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <h4 class="text-xs font-bold text-teal-300 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="fa-solid fa-hands-holding-circle"></i> Personal de Apoyo de Planta (Sin Cuenta de Ingreso)
+                </h4>
+                <p class="text-[11px] text-slate-400 mt-0.5">
+                  Auxiliares, operarios de planta y supernumerarios que no requieren usuario ni clave. Se registran por nombre para asignarlos como apoyo en tareas y registrar sus horas.
+                </p>
+              </div>
+            </div>
+
+            <!-- Formulario Registro Personal de Apoyo -->
+            <form id="form-crear-apoyo" onsubmit="guardarNuevoPersonalApoyo(event)" class="bg-slate-900/80 border border-teal-500/30 rounded-xl p-3.5 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Nombre Completo *</label>
+                <input type="text" id="apoyo-nombre" required placeholder="Ej: Juan Camilo Pérez" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-1 focus:ring-teal-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Rol de Apoyo *</label>
+                <select id="apoyo-rol" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-1 focus:ring-teal-500 focus:outline-none">
+                  <option value="auxiliar">🛠️ Auxiliar Mecánico</option>
+                  <option value="operario">👷 Operario de Planta</option>
+                  <option value="supernumerario">⏱️ Supernumerario</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-slate-300 mb-1 font-semibold">Especialidad / Detalle (Opcional)</label>
+                <input type="text" id="apoyo-especialidad" placeholder="Ej: Apoyo soldadura / Turno rotativo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-white focus:ring-1 focus:ring-teal-500 focus:outline-none">
+              </div>
+              <div class="sm:col-span-3 flex justify-end pt-1">
+                <button type="submit" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow text-xs">
+                  <i class="fa-solid fa-user-plus"></i> Registrar Colaborador de Apoyo
+                </button>
+              </div>
+            </form>
+
+            <!-- Tabla de Personal de Apoyo -->
+            <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-950 text-slate-400 text-[10px] uppercase font-bold border-b border-slate-800">
+                  <tr>
+                    <th class="py-2.5 px-3">Nombre</th>
+                    <th class="py-2.5 px-3">Rol de Apoyo</th>
+                    <th class="py-2.5 px-3">Especialidad</th>
+                    <th class="py-2.5 px-3 text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-apoyo-body" class="divide-y divide-slate-800">
+                  <!-- Rellenado dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PESTAÑA 2: MATRIZ DE PERMISOS POR ROL -->
+        <div id="tab-panel-permisos" class="hidden space-y-4">
+          
+          <div class="bg-slate-900/90 border border-emerald-500/30 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-base shrink-0 mt-0.5">
+                <i class="fa-solid fa-sliders"></i>
+              </div>
+              <div>
+                <h4 class="text-xs font-bold text-white uppercase tracking-wider">Matriz de Acceso y Funciones de SIMAN</h4>
+                <p class="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+                  Configura de forma individual qué puede hacer cada perfil en el sistema. Marca o desmarca cada casilla según tus necesidades operativas y pulsa <strong class="text-emerald-400">"Guardar Matriz de Permisos"</strong>.
+                </p>
+              </div>
+            </div>
+            <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-2 py-1 rounded font-bold whitespace-nowrap self-start sm:self-auto flex items-center gap-1">
+              <i class="fa-solid fa-bolt text-[9px]"></i> Control RBAC Activo
+            </span>
+          </div>
+
+          <!-- Matriz Tabla Responsiva -->
+          <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden shadow">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300 border-collapse min-w-[780px]">
+                <thead class="bg-slate-950 text-[10px] uppercase font-bold text-slate-400 border-b border-slate-800">
+                  <tr>
+                    <th class="py-3 px-3.5 min-w-[200px]">Acción / Permiso en SIMAN</th>
+                    <th class="py-3 px-2 text-center text-cyan-300 min-w-[70px]">🔧 Mecánico</th>
+                    <th class="py-3 px-2 text-center text-amber-300 min-w-[70px]">⚡ Eléctrico</th>
+                    <th class="py-3 px-2 text-center text-orange-300 min-w-[75px]">🚜 Maquinista</th>
+                    <th class="py-3 px-2 text-center text-sky-300 min-w-[75px]">👷 Supervisor</th>
+                    <th class="py-3 px-2 text-center text-emerald-300 min-w-[60px]">🦺 SST</th>
+                    <th class="py-3 px-2 text-center text-indigo-300 min-w-[65px]">🏢 Director</th>
+                    <th class="py-3 px-2 text-center text-purple-300 min-w-[65px]">👁️ Solo Ver</th>
+                    <th class="py-3 px-2 text-center text-blue-300 min-w-[65px]">💻 Admin</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-matriz-permisos-body" class="divide-y divide-slate-800/80">
+                  <!-- Filas dinámicas generadas por JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Barra de Acciones de Permisos -->
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2">
+            <button type="button" onclick="restaurarPermisosPorDefecto()" class="w-full sm:w-auto px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 active:scale-95">
+              <i class="fa-solid fa-rotate-left text-xs"></i> Restaurar Valores por Defecto
+            </button>
+            <button type="button" id="btn-guardar-matriz-permisos" onclick="guardarMatrizPermisos()" class="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/30 transition flex items-center justify-center gap-2 text-xs active:scale-95">
+              <i class="fa-solid fa-floppy-disk"></i> Guardar Matriz de Permisos
+            </button>
+          </div>
+
         </div>
 
       </div>

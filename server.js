@@ -23,6 +23,7 @@ const MECANICOS_FILE = path.join(DATA_DIR, 'mecanicos.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const COMPRAS_FILE = path.join(DATA_DIR, 'compras.json');
 const COMPRAS_PERMISOS_FILE = path.join(DATA_DIR, 'compras_permisos.json');
+const PERMISOS_FILE = path.join(DATA_DIR, 'permisos.json');
 
 // Asegurar directorios y persistencia permanente
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -129,6 +130,7 @@ let cacheMecanicos = null;
 let cacheUsuarios = null;
 let cacheCompras = null;
 let cachePermisosCompras = null;
+let cachePermisos = null;
 
 function invalidarTodosLosCaches() {
   cacheTareas = null;
@@ -136,6 +138,7 @@ function invalidarTodosLosCaches() {
   cacheUsuarios = null;
   cacheCompras = null;
   cachePermisosCompras = null;
+  cachePermisos = null;
   if (global.gc) {
     try { global.gc(); } catch(e) {}
   }
@@ -296,6 +299,194 @@ function guardarPermisosCompras(permisos) {
 
 function hashPassword(pass) {
   return crypto.createHash('sha256').update(String(pass)).digest('hex');
+}
+
+// ================= MATRIZ DINÁMICA DE PERMISOS POR ROL EN SIMAN =================
+const PERMISOS_DEFAULT = {
+  mecanico: {
+    crear_tareas: false,
+    cerrar_tareas: true,
+    cambiar_horas: false,
+    cambiar_foto: true,
+    asignable_tareas: true,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: false,
+    ver_compras: false,
+    crear_compras: false
+  },
+  electrico: {
+    crear_tareas: false,
+    cerrar_tareas: true,
+    cambiar_horas: false,
+    cambiar_foto: true,
+    asignable_tareas: true,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: false,
+    ver_compras: false,
+    crear_compras: false
+  },
+  maquinista: {
+    crear_tareas: false,
+    cerrar_tareas: true,
+    cambiar_horas: false,
+    cambiar_foto: true,
+    asignable_tareas: true,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: false,
+    ver_compras: false,
+    crear_compras: false
+  },
+  supervisor: {
+    crear_tareas: true,
+    cerrar_tareas: true,
+    cambiar_horas: true,
+    cambiar_foto: true,
+    asignable_tareas: true,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: true,
+    ver_compras: true,
+    crear_compras: true
+  },
+  sst: {
+    crear_tareas: true,
+    cerrar_tareas: true,
+    cambiar_horas: true,
+    cambiar_foto: true,
+    asignable_tareas: false,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: false,
+    ver_compras: true,
+    crear_compras: true
+  },
+  director: {
+    crear_tareas: true,
+    cerrar_tareas: true,
+    cambiar_horas: true,
+    cambiar_foto: true,
+    asignable_tareas: false,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: true,
+    ver_compras: true,
+    crear_compras: true
+  },
+  compras: {
+    crear_tareas: false,
+    cerrar_tareas: false,
+    cambiar_horas: false,
+    cambiar_foto: false,
+    asignable_tareas: false,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: false,
+    ver_compras: true,
+    crear_compras: true
+  },
+  visualizador: {
+    crear_tareas: false,
+    cerrar_tareas: false,
+    cambiar_horas: false,
+    cambiar_foto: false,
+    asignable_tareas: false,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: false,
+    ver_compras: false,
+    crear_compras: false
+  },
+  admin: {
+    crear_tareas: true,
+    cerrar_tareas: true,
+    cambiar_horas: true,
+    cambiar_foto: true,
+    asignable_tareas: true,
+    ver_contrasenas: true,
+    cambiar_contrasenas: true,
+    eliminar_tareas: true,
+    reabrir_tareas: true,
+    ver_compras: true,
+    crear_compras: true
+  }
+};
+
+function leerPermisos() {
+  if (cachePermisos) return cachePermisos;
+  try {
+    if (!fs.existsSync(PERMISOS_FILE)) {
+      cachePermisos = JSON.parse(JSON.stringify(PERMISOS_DEFAULT));
+      fs.writeFileSync(PERMISOS_FILE, JSON.stringify(cachePermisos, null, 2), 'utf-8');
+      return cachePermisos;
+    }
+    const data = JSON.parse(fs.readFileSync(PERMISOS_FILE, 'utf-8'));
+    const merged = JSON.parse(JSON.stringify(PERMISOS_DEFAULT));
+    for (const rol in data) {
+      if (!merged[rol]) merged[rol] = {};
+      Object.assign(merged[rol], data[rol]);
+    }
+    // El Administrador Holger siempre conserva todos los permisos
+    merged.admin = {
+      crear_tareas: true,
+      cerrar_tareas: true,
+      cambiar_horas: true,
+      cambiar_foto: true,
+      asignable_tareas: true,
+      ver_contrasenas: true,
+      cambiar_contrasenas: true,
+      eliminar_tareas: true,
+      reabrir_tareas: true,
+      ver_compras: true,
+      crear_compras: true
+    };
+    cachePermisos = merged;
+    return cachePermisos;
+  } catch (err) {
+    console.error('Error al leer permisos.json:', err);
+    return cachePermisos || JSON.parse(JSON.stringify(PERMISOS_DEFAULT));
+  }
+}
+
+function guardarPermisos(permisos) {
+  if (!permisos.admin) permisos.admin = {};
+  for (const k in PERMISOS_DEFAULT.admin) {
+    permisos.admin[k] = true;
+  }
+  cachePermisos = permisos;
+  try {
+    const str = JSON.stringify(permisos, null, 2);
+    fs.writeFileSync(PERMISOS_FILE, str, 'utf-8');
+    cloudStorage.subirALaNube('data/permisos.json', str).catch(() => {});
+    return true;
+  } catch (err) {
+    console.error('Error al guardar permisos.json:', err);
+    return false;
+  }
+}
+
+function tienePermiso(userRol, permiso) {
+  if (!userRol) return false;
+  const rol = String(userRol).toLowerCase().trim();
+  if (rol === 'admin') return true; // Administrador siempre tiene acceso total
+  const permisos = leerPermisos();
+  if (permisos && permisos[rol] && permisos[rol][permiso] !== undefined) {
+    return Boolean(permisos[rol][permiso]);
+  }
+  if (PERMISOS_DEFAULT[rol] && PERMISOS_DEFAULT[rol][permiso] !== undefined) {
+    return Boolean(PERMISOS_DEFAULT[rol][permiso]);
+  }
+  return false;
 }
 
 // Obtener IPs locales de la red Wi-Fi o Ethernet
@@ -683,7 +874,9 @@ app.post('/api/auth/register', (req, res) => {
 
 app.get('/api/users', (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const puedeVerPass = userRol === 'admin' || tienePermiso(userRol, 'ver_contrasenas');
   const esAdmin = userRol === 'admin';
+
   const usuarios = leerUsuarios().map(u => {
     const item = {
       id: u.id,
@@ -692,23 +885,27 @@ app.get('/api/users', (req, res) => {
       rol: u.rol,
       especialidad: u.especialidad
     };
-    if (esAdmin) {
+    if (puedeVerPass) {
       if (u.username.toLowerCase() !== 'holger') {
         item.password_plana = u.password_plana || null;
-      } else {
-        item.email = u.email || 'holger@mantenimiento.com';
       }
+    }
+    if (esAdmin && u.username.toLowerCase() === 'holger') {
+      item.email = u.email || 'holger@mantenimiento.com';
     }
     return item;
   });
   res.json(usuarios);
 });
 
-// Modificar usuario (Exclusivo Administrador Holger)
+// Modificar usuario o reasignar contraseña
 app.put('/api/users/:id', (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (userRol !== 'admin') {
-    return res.status(403).json({ error: 'Permiso denegado: Solo el Administrador Holger puede modificar usuarios.' });
+  const puedeCambiarPass = userRol === 'admin' || tienePermiso(userRol, 'cambiar_contrasenas');
+  const esAdmin = userRol === 'admin';
+
+  if (!esAdmin && !puedeCambiarPass) {
+    return res.status(403).json({ error: 'Permiso denegado: No tiene autorización para modificar usuarios ni contraseñas.' });
   }
 
   let usuarios = leerUsuarios();
@@ -716,16 +913,28 @@ app.put('/api/users/:id', (req, res) => {
   if (idx === -1) return res.status(404).json({ error: 'Usuario no encontrado' });
 
   const { nombre, rol, especialidad, password, email } = req.body;
-  if (nombre) usuarios[idx].nombre = nombre.trim();
-  if (rol && ROLES_TODOS.includes(rol)) {
-    usuarios[idx].rol = rol;
-    if (!especialidad) usuarios[idx].especialidad = getEspecialidadPorRol(rol);
+
+  // Solo el Admin puede alterar nombre, rol, especialidad o correo
+  if (esAdmin) {
+    if (nombre) usuarios[idx].nombre = nombre.trim();
+    if (rol && ROLES_TODOS.includes(rol)) {
+      usuarios[idx].rol = rol;
+      if (!especialidad) usuarios[idx].especialidad = getEspecialidadPorRol(rol);
+    }
+    if (especialidad) usuarios[idx].especialidad = especialidad.trim();
+    if (email && usuarios[idx].username.toLowerCase() === 'holger') {
+      usuarios[idx].email = String(email).toLowerCase().trim();
+    }
   }
-  if (especialidad) usuarios[idx].especialidad = especialidad.trim();
-  if (email && usuarios[idx].username.toLowerCase() === 'holger') {
-    usuarios[idx].email = String(email).toLowerCase().trim();
-  }
+
+  // Cambio de contraseña (requiere admin o permiso cambiar_contrasenas)
   if (password && String(password).trim().length > 0) {
+    if (!puedeCambiarPass) {
+      return res.status(403).json({ error: 'No tiene permiso para cambiar contraseñas de usuarios.' });
+    }
+    if (usuarios[idx].username.toLowerCase() === 'holger' && !esAdmin) {
+      return res.status(403).json({ error: 'No se puede modificar la clave de Administrador Principal por este canal.' });
+    }
     const passLimpia = String(password).trim();
     usuarios[idx].password_hash = hashPassword(passLimpia);
     if (usuarios[idx].username.toLowerCase() !== 'holger') {
@@ -755,6 +964,8 @@ app.put('/api/users/:id', (req, res) => {
     guardarMecanicos(mecanicos);
   }
 
+  generarRespaldoAutomatico('modificacion_usuario');
+
   res.json({
     mensaje: `Usuario @${usuarios[idx].username} actualizado exitosamente`,
     user: {
@@ -762,8 +973,38 @@ app.put('/api/users/:id', (req, res) => {
       username: usuarios[idx].username,
       nombre: usuarios[idx].nombre,
       rol: usuarios[idx].rol,
-      especialidad: usuarios[idx].especialidad
+      especialidad: usuarios[idx].especialidad,
+      password_plana: (esAdmin || puedeCambiarPass) ? usuarios[idx].password_plana : undefined
     }
+  });
+});
+
+// ================= GESTIÓN DE PERMISOS SIMAN (MATRIZ RBAC) =================
+
+// 1. Obtener la matriz de permisos de todos los roles
+app.get('/api/permisos', (req, res) => {
+  res.json(leerPermisos());
+});
+
+// 2. Modificar la matriz de permisos por rol (Exclusivo Administrador Holger)
+app.put('/api/permisos', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador Holger puede configurar los permisos de SIMAN.' });
+  }
+
+  const nuevosPermisos = req.body;
+  if (!nuevosPermisos || typeof nuevosPermisos !== 'object') {
+    return res.status(400).json({ error: 'Estructura de matriz de permisos inválida' });
+  }
+
+  guardarPermisos(nuevosPermisos);
+  generarRespaldoAutomatico('actualizacion_matriz_permisos');
+
+  res.json({
+    ok: true,
+    mensaje: '¡Matriz de permisos de SIMAN actualizada y aplicada correctamente!',
+    permisos: leerPermisos()
   });
 });
 
@@ -823,7 +1064,7 @@ app.get('/api/network-info', async (req, res) => {
 function obtenerListaTecnicos() {
   const usuarios = leerUsuarios();
   const tecnicos = usuarios
-    .filter(u => ROLES_TECNICOS_MOVIL.includes(u.rol))
+    .filter(u => tienePermiso(u.rol, 'asignable_tareas'))
     .map(u => ({
       id: u.id,
       nombre: u.nombre,
@@ -1040,11 +1281,11 @@ app.get('/api/tasks/:id', (req, res) => {
   res.json(tarea);
 });
 
-// 5. Crear nueva tarea de mantenimiento (Admin, Supervisor, SST, Director de Planta)
+// 5. Crear nueva tarea de mantenimiento
 app.post('/api/tasks', async (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (!ROLES_GESTION.includes(userRol)) {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador, Supervisor, SST o Director de Planta tienen autorización para crear y programar tareas.' });
+  if (!tienePermiso(userRol, 'crear_tareas')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para crear ni programar tareas en SIMAN.' });
   }
 
   const {
@@ -1176,10 +1417,10 @@ app.post('/api/tasks/:id/iniciar', (req, res) => {
 
 // 7. Completar tarea con guardado permanente de foto (Cloudinary / Nube)
 app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => {
-  const userRol = req.headers['x-user-role'];
-  if (userRol === 'visualizador') {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (!tienePermiso(userRol, 'cerrar_tareas')) {
     if (req.file) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
-    return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para finalizar tareas ni subir fotos.' });
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para finalizar o cerrar tareas.' });
   }
 
   const tareas = leerTareas();
@@ -1284,11 +1525,11 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
   });
 });
 
-// 7.1. Actualizar y Modificar Tarea Completa (Admin, Supervisor, SST, Director de Planta)
+// 7.1. Actualizar y Modificar Tarea Completa
 app.put('/api/tasks/:id', async (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (!ROLES_GESTION.includes(userRol)) {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo el personal de gestión (Administrador, Supervisor, SST o Director) tiene permiso para editar tareas y tiempos.' });
+  if (!tienePermiso(userRol, 'cambiar_horas') && !tienePermiso(userRol, 'crear_tareas')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para editar tareas ni modificar fechas u horas.' });
   }
 
   let tareas = leerTareas();
@@ -1485,11 +1726,11 @@ app.put('/api/tasks/:id', async (req, res) => {
   });
 });
 
-// Endpoint directo: Reabrir Tarea (Exclusivo Perfil Admin)
+// Endpoint directo: Reabrir Tarea
 app.post('/api/tasks/:id/reabrir', (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (userRol !== 'admin') {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene permiso para reabrir tareas finalizadas.' });
+  if (!tienePermiso(userRol, 'reabrir_tareas')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para reabrir tareas finalizadas.' });
   }
 
   let tareas = leerTareas();
@@ -1541,9 +1782,9 @@ app.delete('/api/tasks/:id/foto', (req, res) => {
 
 // 7.2. Actualizar o Cambiar Fotografía (Disponible incluso si la tarea ya está finalizada)
 app.post('/api/tasks/:id/foto', async (req, res) => {
-  const userRol = req.headers['x-user-role'];
-  if (userRol === 'visualizador') {
-    return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para cambiar fotografías.' });
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (!tienePermiso(userRol, 'cambiar_foto')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para cambiar o subir fotografías.' });
   }
 
   let tareas = leerTareas();
@@ -1570,9 +1811,9 @@ app.post('/api/tasks/:id/foto', async (req, res) => {
 
 // 7.3. Actualizar o Cambiar Fotografía Inicial del Daño / Reporte
 app.post('/api/tasks/:id/foto-inicial', async (req, res) => {
-  const userRol = req.headers['x-user-role'];
-  if (userRol === 'visualizador') {
-    return res.status(403).json({ error: 'Acceso Restringido: El rol de Solo Visualizar no tiene permiso para modificar fotografías.' });
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (!tienePermiso(userRol, 'cambiar_foto')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar fotografías.' });
   }
 
   let tareas = leerTareas();
@@ -1597,11 +1838,11 @@ app.post('/api/tasks/:id/foto-inicial', async (req, res) => {
   });
 });
 
-// 8. Eliminar tarea (Exclusivo Administrador Holger)
+// 8. Eliminar tarea
 app.delete('/api/tasks/:id', (req, res) => {
-  const userRol = req.headers['x-user-role'];
-  if (userRol !== 'admin') {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador Holger tiene permiso para eliminar tareas.' });
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (!tienePermiso(userRol, 'eliminar_tareas')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para eliminar tareas.' });
   }
 
   let tareas = leerTareas();
@@ -2369,7 +2610,8 @@ function generarRespaldoAutomatico(motivo = 'sistema') {
       tasks: leerTareas(),
       mecanicos: leerMecanicos(),
       compras: leerCompras(),
-      compras_permisos: leerPermisosCompras()
+      compras_permisos: leerPermisosCompras(),
+      permisos: leerPermisos()
     };
 
     const payload = JSON.stringify(backupData, null, 2);
@@ -2497,7 +2739,8 @@ app.get('/api/backup/export', (req, res) => {
     tasks: leerTareas(),
     mecanicos: leerMecanicos(),
     compras: leerCompras(),
-    compras_permisos: leerPermisosCompras()
+    compras_permisos: leerPermisosCompras(),
+    permisos: leerPermisos()
   });
 });
 
@@ -2514,7 +2757,8 @@ app.get('/api/backup', (req, res) => {
     tasks: leerTareas(),
     mecanicos: leerMecanicos(),
     compras: leerCompras(),
-    compras_permisos: leerPermisosCompras()
+    compras_permisos: leerPermisosCompras(),
+    permisos: leerPermisos()
   });
 });
 
@@ -2559,7 +2803,7 @@ app.post('/api/restore', (req, res) => {
     return res.status(403).json({ error: 'Permiso denegado: Solo el Administrador Holger puede restaurar respaldos.' });
   }
 
-  const { users, tasks, mecanicos, compras, compras_permisos } = req.body;
+  const { users, tasks, mecanicos, compras, compras_permisos, permisos } = req.body;
   let restaurados = [];
   if (Array.isArray(users) && users.length > 0) {
     guardarUsuarios(users);
@@ -2580,6 +2824,10 @@ app.post('/api/restore', (req, res) => {
   if (compras_permisos) {
     guardarPermisosCompras(compras_permisos);
     restaurados.push('permisos de compras');
+  }
+  if (permisos && typeof permisos === 'object') {
+    guardarPermisos(permisos);
+    restaurados.push('matriz de permisos');
   }
 
   generarRespaldoAutomatico('post_restauracion');
