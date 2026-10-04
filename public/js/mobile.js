@@ -37,6 +37,9 @@ async function cargarPermisosMovil() {
     const res = await fetch('/api/permisos');
     if (res.ok) {
       simanPermisosCacheMovil = await res.json();
+      try {
+        localStorage.setItem('siman_permisos', JSON.stringify(simanPermisosCacheMovil));
+      } catch (e) {}
       aplicarPermisosMovil();
     }
   } catch (e) {
@@ -50,14 +53,29 @@ function usuarioTienePermisoMovil(permiso) {
   try {
     const user = JSON.parse(userJson);
     const rol = (user.rol || '').toLowerCase().trim();
-    if (rol === 'admin') return true;
+    if (rol === 'admin') return true; // Administrador siempre tiene acceso absoluto
+
+    // 1. Memoria activa
     if (simanPermisosCacheMovil && simanPermisosCacheMovil[rol] && simanPermisosCacheMovil[rol][permiso] !== undefined) {
       return Boolean(simanPermisosCacheMovil[rol][permiso]);
     }
-    // Fallbacks
+    // 2. Caché local persistente
+    const cacheLocal = localStorage.getItem('siman_permisos');
+    if (cacheLocal) {
+      try {
+        const parsed = JSON.parse(cacheLocal);
+        if (parsed[rol] && parsed[rol][permiso] !== undefined) {
+          return Boolean(parsed[rol][permiso]);
+        }
+      } catch (e) {}
+    }
+    // Fallbacks inteligentes según el estándar SIMAN
     if (permiso === 'crear_tareas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
     if (permiso === 'cerrar_tareas') return ['admin', 'mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
     if (permiso === 'cambiar_foto') return true;
+    if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
+    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
+    if (permiso === 'acceso_movil') return true;
     return false;
   } catch (e) {
     return false;
@@ -65,13 +83,60 @@ function usuarioTienePermisoMovil(permiso) {
 }
 
 function aplicarPermisosMovil() {
-  const btnCrear = document.getElementById('btn-crear-tarea-movil');
-  if (btnCrear) {
-    if (usuarioTienePermisoMovil('crear_tareas')) {
-      btnCrear.classList.remove('hidden');
-    } else {
-      btnCrear.classList.add('hidden');
+  const userJson = localStorage.getItem('siman_user');
+  if (!userJson) return;
+  try {
+    const user = JSON.parse(userJson);
+    const rol = (user.rol || '').toLowerCase().trim();
+    const esAdmin = rol === 'admin';
+
+    // 0. Si el usuario NO tiene acceso_movil y tiene acceso_pc o ver_dashboard, redirigir al Dashboard
+    if (!esAdmin && !usuarioTienePermisoMovil('acceso_movil')) {
+      if (usuarioTienePermisoMovil('acceso_pc') || usuarioTienePermisoMovil('ver_dashboard')) {
+        alert('Tu rol está configurado para la interfaz de PC / Dashboard. Redirigiendo...');
+        localStorage.setItem('siman_vista_preferida', 'pc');
+        sessionStorage.setItem('siman_forzar_pc', 'true');
+        localStorage.setItem('siman_forzar_pc', 'true');
+        window.location.replace('/dashboard');
+        return;
+      } else {
+        alert('Tu rol no tiene permisos de acceso al sistema móvil. Contacta al Administrador.');
+        window.location.replace('/login');
+        return;
+      }
     }
+
+    // 1. Botón Dashboard en Header y en Barra Inferior Flotante
+    const puedeVerDashboard = esAdmin || usuarioTienePermisoMovil('ver_dashboard') || usuarioTienePermisoMovil('acceso_pc');
+    const btnPCHeader = document.getElementById('btn-ir-pc-dashboard');
+    if (btnPCHeader) {
+      if (puedeVerDashboard) {
+        btnPCHeader.classList.remove('hidden');
+      } else {
+        btnPCHeader.classList.add('hidden');
+      }
+    }
+
+    const btnPCBottom = document.getElementById('btn-dashboard-bottom-bar');
+    if (btnPCBottom) {
+      if (puedeVerDashboard) {
+        btnPCBottom.classList.remove('hidden');
+      } else {
+        btnPCBottom.classList.add('hidden');
+      }
+    }
+
+    // 2. Botón Crear Tarea en Móvil
+    const btnCrear = document.getElementById('btn-crear-tarea-movil');
+    if (btnCrear) {
+      if (usuarioTienePermisoMovil('crear_tareas')) {
+        btnCrear.classList.remove('hidden');
+      } else {
+        btnCrear.classList.add('hidden');
+      }
+    }
+  } catch (e) {
+    console.error('Error aplicando permisos en móvil:', e);
   }
 }
 
@@ -187,17 +252,7 @@ function verificarSesionMovil() {
 
     const esGestion = ['admin', 'supervisor', 'sst', 'director', 'compras'].includes(user.rol);
 
-    // Si tiene rol de gestión o es Visualizador, habilitar botón de cambiar a Vista PC
-    const btnPC = document.getElementById('btn-ir-pc-dashboard');
-    if (btnPC) {
-      if (esGestion || user.rol === 'visualizador') {
-        btnPC.classList.remove('hidden');
-      } else {
-        btnPC.classList.add('hidden');
-      }
-    }
-
-    // Habilitar botón de crear tarea según matriz de permisos
+    // Habilitar controles según matriz de permisos
     aplicarPermisosMovil();
 
     // Botón Contextual Móvil (Crear Tarea / Solicitar Compra / Recargar)
@@ -247,12 +302,16 @@ function cerrarSesion() {
   localStorage.removeItem('siman_token');
   localStorage.removeItem('siman_user');
   localStorage.removeItem('siman_mecanico_activo');
+  localStorage.removeItem('siman_vista_preferida');
   sessionStorage.removeItem('siman_forzar_pc');
+  localStorage.removeItem('siman_forzar_pc');
   window.location.replace('/login?logout=true');
 }
 
 function irModoPC() {
+  localStorage.setItem('siman_vista_preferida', 'pc');
   sessionStorage.setItem('siman_forzar_pc', 'true');
+  localStorage.setItem('siman_forzar_pc', 'true');
   window.location.replace('/dashboard');
 }
 
@@ -305,9 +364,8 @@ function quitarFotoInicialCrearMovil() {
 async function guardarNuevaTareaMovil(e) {
   e.preventDefault();
   const user = getUsuarioActivo();
-  const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
-  if (!ROLES_GESTION.includes(user.rol)) {
-    alert('Acceso Restringido: Solo el Administrador, Supervisor, SST o Director de Planta pueden crear tareas.');
+  if (!usuarioTienePermisoMovil('crear_tareas')) {
+    alert('Acceso Restringido: Tu rol no tiene permisos para crear órdenes de trabajo.');
     return;
   }
 

@@ -19,8 +19,10 @@
           window.location.replace('/login');
           return;
         }
-        var user = JSON.parse(u);
-        if (user.rol === 'compras') {
+        var parsed = JSON.parse(u);
+        var rol = (parsed.rol || '').toLowerCase().trim();
+
+        if (rol === 'compras') {
           var style = document.createElement('style');
           style.id = 'estilo-aislamiento-compras-mob';
           style.innerHTML = `
@@ -37,6 +39,18 @@
             }
           `;
           document.head.appendChild(style);
+        }
+
+        // Si no es admin, verificar si tiene prohibido el acceso móvil y solo tiene acceso PC
+        var permisosStr = localStorage.getItem('siman_permisos');
+        if (permisosStr && rol !== 'admin') {
+          try {
+            var perms = JSON.parse(permisosStr);
+            if (perms[rol] && perms[rol].acceso_movil === false && (perms[rol].acceso_pc || perms[rol].ver_dashboard)) {
+              window.location.replace('/dashboard');
+              return;
+            }
+          } catch(e) {}
         }
       } catch(e) {
         window.location.replace('/login');
@@ -95,11 +109,11 @@
         </div>
       </div>
 
-      <!-- Acciones de Cabecera: Modo PC (para Admin/Visualizador) y Salir Seguro -->
+      <!-- Acciones de Cabecera: Modo Dashboard/PC y Salir Seguro -->
       <div class="flex items-center space-x-1.5 flex-shrink-0">
-        <button id="btn-ir-pc-dashboard" onclick="irModoPC()" class="hidden bg-slate-700/90 hover:bg-slate-600 active:scale-95 text-indigo-300 border border-slate-600 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1 shadow">
-          <i class="fa-solid fa-laptop text-indigo-400"></i>
-          <span>Vista PC</span>
+        <button id="btn-ir-pc-dashboard" onclick="irModoPC()" title="Ver Dashboard de Métricas y Gestión" class="hidden bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 active:scale-95 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-indigo-600/30">
+          <i class="fa-solid fa-chart-pie text-indigo-200"></i>
+          <span>Dashboard</span>
         </button>
         <button onclick="cerrarSesion()" title="Cerrar sesión del sistema" class="bg-rose-950/80 border border-rose-500/50 hover:bg-rose-900 active:scale-95 text-rose-300 hover:text-white px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 shadow">
           <i class="fa-solid fa-right-from-bracket"></i>
@@ -554,10 +568,18 @@
       <span id="txt-mecanico-actual-pie" class="font-medium truncate">Mantenimiento en línea</span>
     </div>
     <div class="flex items-center space-x-2 flex-shrink-0">
+      <!-- Botón Dashboard (Para Admin y roles con acceso a PC/Dashboard) -->
+      <button id="btn-dashboard-bottom-bar" onclick="irModoPC()" title="Ver Dashboard y Métricas" class="hidden text-xs bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg shadow-md shadow-indigo-600/25 transition flex items-center gap-1.5">
+        <i class="fa-solid fa-chart-pie text-xs"></i> <span>Dashboard</span>
+      </button>
       <!-- Botón Acción Principal Contextual Móvil (Adapta su función a la pestaña activa) -->
       <button id="btn-accion-movil-contextual" onclick="ejecutarAccionPrincipalMovil()" class="hidden text-xs bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg shadow-md transition flex items-center gap-1.5">
         <i class="fa-solid fa-plus text-xs" id="mob-icon-accion-contextual"></i>
         <span id="mob-txt-accion-contextual">Nueva Tarea</span>
+      </button>
+      <!-- Botón Nueva Tarea (Exclusivo Administrador y roles con permiso) -->
+      <button id="btn-crear-tarea-movil" onclick="abrirModalCrearMovil()" class="hidden text-xs bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold px-3 py-1.5 rounded-lg shadow-md transition flex items-center gap-1.5">
+        <i class="fa-solid fa-plus text-xs"></i> <span>Nueva Tarea</span>
       </button>
       <button onclick="recargarSeccionMovilActiva()" title="Recargar órdenes" class="text-xs bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 font-semibold px-2.5 py-1.5 rounded-lg border border-slate-700 flex items-center gap-1 shadow">
         <i class="fa-solid fa-arrows-rotate" id="mob-icon-recarga"></i>

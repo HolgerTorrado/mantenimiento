@@ -314,7 +314,10 @@ const PERMISOS_DEFAULT = {
     eliminar_tareas: false,
     reabrir_tareas: false,
     ver_compras: false,
-    crear_compras: false
+    crear_compras: false,
+    ver_dashboard: false,
+    acceso_pc: false,
+    acceso_movil: true
   },
   electrico: {
     crear_tareas: false,
@@ -327,7 +330,10 @@ const PERMISOS_DEFAULT = {
     eliminar_tareas: false,
     reabrir_tareas: false,
     ver_compras: false,
-    crear_compras: false
+    crear_compras: false,
+    ver_dashboard: false,
+    acceso_pc: false,
+    acceso_movil: true
   },
   maquinista: {
     crear_tareas: false,
@@ -340,7 +346,10 @@ const PERMISOS_DEFAULT = {
     eliminar_tareas: false,
     reabrir_tareas: false,
     ver_compras: false,
-    crear_compras: false
+    crear_compras: false,
+    ver_dashboard: false,
+    acceso_pc: false,
+    acceso_movil: true
   },
   supervisor: {
     crear_tareas: true,
@@ -353,7 +362,10 @@ const PERMISOS_DEFAULT = {
     eliminar_tareas: false,
     reabrir_tareas: true,
     ver_compras: true,
-    crear_compras: true
+    crear_compras: true,
+    ver_dashboard: true,
+    acceso_pc: true,
+    acceso_movil: true
   },
   sst: {
     crear_tareas: true,
@@ -366,7 +378,10 @@ const PERMISOS_DEFAULT = {
     eliminar_tareas: false,
     reabrir_tareas: false,
     ver_compras: true,
-    crear_compras: true
+    crear_compras: true,
+    ver_dashboard: true,
+    acceso_pc: true,
+    acceso_movil: true
   },
   director: {
     crear_tareas: true,
@@ -379,7 +394,10 @@ const PERMISOS_DEFAULT = {
     eliminar_tareas: false,
     reabrir_tareas: true,
     ver_compras: true,
-    crear_compras: true
+    crear_compras: true,
+    ver_dashboard: true,
+    acceso_pc: true,
+    acceso_movil: true
   },
   compras: {
     crear_tareas: false,
@@ -392,7 +410,10 @@ const PERMISOS_DEFAULT = {
     eliminar_tareas: false,
     reabrir_tareas: false,
     ver_compras: true,
-    crear_compras: true
+    crear_compras: true,
+    ver_dashboard: false,
+    acceso_pc: true,
+    acceso_movil: true
   },
   visualizador: {
     crear_tareas: false,
@@ -405,7 +426,10 @@ const PERMISOS_DEFAULT = {
     eliminar_tareas: false,
     reabrir_tareas: false,
     ver_compras: false,
-    crear_compras: false
+    crear_compras: false,
+    ver_dashboard: true,
+    acceso_pc: true,
+    acceso_movil: true
   },
   admin: {
     crear_tareas: true,
@@ -418,7 +442,10 @@ const PERMISOS_DEFAULT = {
     eliminar_tareas: true,
     reabrir_tareas: true,
     ver_compras: true,
-    crear_compras: true
+    crear_compras: true,
+    ver_dashboard: true,
+    acceso_pc: true,
+    acceso_movil: true
   }
 };
 
@@ -448,7 +475,10 @@ function leerPermisos() {
       eliminar_tareas: true,
       reabrir_tareas: true,
       ver_compras: true,
-      crear_compras: true
+      crear_compras: true,
+      ver_dashboard: true,
+      acceso_pc: true,
+      acceso_movil: true
     };
     cachePermisos = merged;
     return cachePermisos;

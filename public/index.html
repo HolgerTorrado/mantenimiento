@@ -14,21 +14,40 @@
           return;
         }
         var parsed = JSON.parse(u);
-        var rolesPermitidosPC = ['admin', 'visualizador', 'compras', 'supervisor', 'sst', 'director'];
-        if (!rolesPermitidosPC.includes(parsed.rol)) {
-          window.location.replace('/mecanico');
-          return;
+        var rol = (parsed.rol || '').toLowerCase().trim();
+
+        // Roles con acceso potencial a PC / Dashboard
+        var rolesPC = ['admin', 'supervisor', 'sst', 'director', 'compras', 'visualizador'];
+        if (rol !== 'admin') {
+          var permisosStr = localStorage.getItem('siman_permisos');
+          var tienePermisoPC = false;
+          if (permisosStr) {
+            try {
+              var perms = JSON.parse(permisosStr);
+              if (perms[rol] && (perms[rol].acceso_pc || perms[rol].ver_dashboard)) {
+                tienePermisoPC = true;
+              }
+            } catch(e) {}
+          }
+          if (!rolesPC.includes(rol) && !tienePermisoPC) {
+            window.location.replace('/mecanico');
+            return;
+          }
         }
 
-        // Detección inteligente de dispositivo (Móvil vs PC)
+        // Detección de dispositivo móvil vs preferencia explícita
+        var forzarPC = sessionStorage.getItem('siman_forzar_pc') === 'true' || 
+                       localStorage.getItem('siman_vista_preferida') === 'pc' ||
+                       localStorage.getItem('siman_forzar_pc') === 'true';
+
         var ua = navigator.userAgent || '';
         var esMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Mobile|mobile/i.test(ua);
         var esPantallaChica = (window.innerWidth <= 768) || (screen.width <= 768);
         var esTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
         var esMovil = esMobileUA || (esPantallaChica && esTouch);
 
-        // Si el usuario accede desde celular y no seleccionó expresamente "Vista PC", enviar a la vista móvil
-        if (esMovil && sessionStorage.getItem('siman_forzar_pc') !== 'true') {
+        // Si es dispositivo móvil y NO ha seleccionado expresamente ver PC/Dashboard:
+        if (esMovil && !forzarPC) {
           window.location.replace('/mecanico');
           return;
         }
@@ -119,9 +138,9 @@
       <div class="flex items-center space-x-1.5 sm:space-x-2.5 flex-shrink-0">
 
         <!-- Botón Cambiar a Vista Móvil (Para que el Admin pueda ir a la app móvil con 1 clic) -->
-        <button onclick="irModoMovilDesdePC()" title="Cambiar a Versión Móvil" class="flex items-center space-x-1 bg-emerald-950/70 hover:bg-emerald-900 text-emerald-300 text-xs font-semibold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg border border-emerald-500/40 transition shadow">
+        <button id="btn-ir-modo-movil" onclick="irModoMovilDesdePC()" title="Cambiar a Versión Móvil" class="flex items-center space-x-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 text-xs font-semibold px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg border border-emerald-500/50 transition shadow active:scale-95">
           <i class="fa-solid fa-mobile-screen text-emerald-400"></i>
-          <span class="hidden sm:inline">Modo Móvil</span>
+          <span>Modo Móvil</span>
         </button>
 
         <!-- Reloj / Hora actual (Solo en pantallas grandes) -->
