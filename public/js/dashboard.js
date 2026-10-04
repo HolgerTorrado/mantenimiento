@@ -48,6 +48,47 @@ function usuarioTienePermiso(permiso) {
   }
 }
 
+// Cómputo inteligente de tiempos por rol en cliente PC
+function resolverTiemposRolesCliente(t) {
+  if (!t) return { mecanico: 0, electrico: 0, maquinista: 0 };
+  let tpr = t.tiempos_por_rol ? { ...t.tiempos_por_rol } : { mecanico: 0, electrico: 0, maquinista: 0 };
+  const m = parseInt(tpr.mecanico) || 0;
+  const e = parseInt(tpr.electrico) || 0;
+  const q = parseInt(tpr.maquinista) || 0;
+  if ((m + e + q) > 0) return { mecanico: m, electrico: e, maquinista: q };
+
+  const tActivo = Math.max(0, parseInt(t.tiempo_trabajo_activo_minutos) || (parseInt(t.tiempo_arreglo_minutos) - parseInt(t.tiempo_espera_minutos || 0)) || parseInt(t.tiempo_arreglo_minutos) || 0);
+  if (tActivo === 0) return { mecanico: 0, electrico: 0, maquinista: 0 };
+
+  let avTpr = { mecanico: 0, electrico: 0, maquinista: 0 };
+  let sumAv = 0;
+  if (Array.isArray(t.avances)) {
+    t.avances.forEach(a => {
+      const aRol = (a.tecnico_rol === 'electrico' || a.tecnico_rol === 'electrica') ? 'electrico' : (a.tecnico_rol === 'maquinista' || a.tecnico_rol === 'maquinaria') ? 'maquinista' : 'mecanico';
+      const aMin = parseInt(a.minutos_dedicados) || Math.round((parseFloat(a.horas_dedicadas) || 0) * 60) || 0;
+      if (aMin > 0) { avTpr[aRol] += aMin; sumAv += aMin; }
+    });
+  }
+  if (sumAv >= tActivo) return avTpr;
+  const rest = tActivo - sumAv;
+
+  let roles = [];
+  if (Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0) {
+    roles = t.roles_asignados.map(r => (r === 'electrico' || r === 'electrica') ? 'electrico' : (r === 'maquinista' || r === 'maquinaria') ? 'maquinista' : 'mecanico');
+  }
+  const rolesUnicos = [...new Set(roles)];
+  const rolFin = (t.completado_por_rol === 'electrico' || t.completado_por_rol === 'electrica') ? 'electrico' : (t.completado_por_rol === 'maquinista' || t.completado_por_rol === 'maquinaria') ? 'maquinista' : (rolesUnicos[0] || 'mecanico');
+
+  if (rolesUnicos.length > 1) {
+    const porRol = Math.round(rest / rolesUnicos.length);
+    rolesUnicos.forEach(r => { avTpr[r] = (avTpr[r] || 0) + porRol; });
+    return avTpr;
+  }
+  const rDest = rolesUnicos.length === 1 ? rolesUnicos[0] : rolFin;
+  avTpr[rDest] = (avTpr[rDest] || 0) + rest;
+  return avTpr;
+}
+
 function aplicarPermisosEnUI() {
   const userJson = localStorage.getItem('siman_user');
   if (!userJson) return;
@@ -833,17 +874,15 @@ function renderTablaTareas(tareas) {
          </button>`
       : '';
 
-    // Horas por rol en la fila si existen
+    // Horas por rol en la fila si existen o calculadas
     let desgloseHorasRoles = '';
-    if (t.tiempos_por_rol) {
-      const tpr = t.tiempos_por_rol;
-      const partes = [];
-      if (tpr.mecanico > 0) partes.push(`🔧 ${formatMinutos(tpr.mecanico)}`);
-      if (tpr.electrico > 0) partes.push(`⚡ ${formatMinutos(tpr.electrico)}`);
-      if (tpr.maquinista > 0) partes.push(`🚜 ${formatMinutos(tpr.maquinista)}`);
-      if (partes.length > 0) {
-        desgloseHorasRoles = `<div class="text-[10px] text-indigo-300 font-mono mt-0.5">${partes.join(' | ')}</div>`;
-      }
+    const tpr = resolverTiemposRolesCliente(t);
+    const partes = [];
+    if (tpr.mecanico > 0) partes.push(`🔧 ${formatMinutos(tpr.mecanico)}`);
+    if (tpr.electrico > 0) partes.push(`⚡ ${formatMinutos(tpr.electrico)}`);
+    if (tpr.maquinista > 0) partes.push(`🚜 ${formatMinutos(tpr.maquinista)}`);
+    if (partes.length > 0) {
+      desgloseHorasRoles = `<div class="text-[10px] text-indigo-300 font-mono mt-0.5">${partes.join(' | ')}</div>`;
     }
 
     return `
@@ -1245,20 +1284,20 @@ async function abrirModalDetalle(id) {
   if (inMotivoFuera) { inMotivoFuera.value = motExt; inMotivoFuera.disabled = !esAdmin; }
 
   // Horas por especialidad / rol
-  const tpr = t.tiempos_por_rol || {};
+  const tpr = resolverTiemposRolesCliente(t);
   const inHorasMec = document.getElementById('edit-horas-mecanico');
   const inHorasElec = document.getElementById('edit-horas-electrico');
   const inHorasMaq = document.getElementById('edit-horas-maquinista');
   if (inHorasMec) {
-    inHorasMec.value = tpr.mecanico ? (tpr.mecanico / 60) : '';
+    inHorasMec.value = tpr.mecanico ? (tpr.mecanico / 60).toFixed(1).replace('.0', '') : '';
     inHorasMec.disabled = !esAdmin;
   }
   if (inHorasElec) {
-    inHorasElec.value = tpr.electrico ? (tpr.electrico / 60) : '';
+    inHorasElec.value = tpr.electrico ? (tpr.electrico / 60).toFixed(1).replace('.0', '') : '';
     inHorasElec.disabled = !esAdmin;
   }
   if (inHorasMaq) {
-    inHorasMaq.value = tpr.maquinista ? (tpr.maquinista / 60) : '';
+    inHorasMaq.value = tpr.maquinista ? (tpr.maquinista / 60).toFixed(1).replace('.0', '') : '';
     inHorasMaq.disabled = !esAdmin;
   }
 
@@ -1854,7 +1893,7 @@ async function guardarEdicionDetalleAdmin() {
   const hMec = parseFloat(document.getElementById('edit-horas-mecanico')?.value) || 0;
   const hElec = parseFloat(document.getElementById('edit-horas-electrico')?.value) || 0;
   const hMaq = parseFloat(document.getElementById('edit-horas-maquinista')?.value) || 0;
-  const tiemposPorRol = {
+  let tiemposPorRol = {
     mecanico: Math.round(hMec * 60),
     electrico: Math.round(hElec * 60),
     maquinista: Math.round(hMaq * 60)
@@ -1864,6 +1903,11 @@ async function guardarEdicionDetalleAdmin() {
   const estadoSeleccionado = document.getElementById('edit-det-estado')?.value || 'pendiente';
   const tareaActual = todasLasTareas.find(item => item.id === tareaSeleccionadaId);
   const esReapertura = Boolean(tareaActual && tareaActual.estado === 'completado' && estadoSeleccionado !== 'completado');
+
+  // Si la tarea queda completada y las horas se dejaron en 0, auto-deducir para no poner todo en 0 accidentalmente
+  if (estadoSeleccionado === 'completado' && (tiemposPorRol.mecanico + tiemposPorRol.electrico + tiemposPorRol.maquinista === 0) && tareaActual) {
+    tiemposPorRol = resolverTiemposRolesCliente({ ...tareaActual, roles_asignados: rolesFinales });
+  }
 
   const NOMBRES_ESP = { mecanico: 'Mecánica', electrico: 'Eléctrica', maquinista: 'Maquinaria' };
   const especialidadesStr = rolesFinales.map(r => NOMBRES_ESP[r] || r).join(', ');

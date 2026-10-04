@@ -440,6 +440,93 @@ function tienePermiso(userRol, permiso) {
   return false;
 }
 
+// Normalizar nombres de rol a las 3 especialidades canónicas de taller
+function normalizarRol(rol) {
+  const r = String(rol || '').toLowerCase().trim();
+  if (r === 'electrico' || r === 'electrica') return 'electrico';
+  if (r === 'maquinista' || r === 'maquinaria') return 'maquinista';
+  return 'mecanico';
+}
+
+/**
+ * Calcula y distribuye con precisión las horas de mano de obra por especialidad (Mecánica, Eléctrica, Maquinaria).
+ * - Si se envían tiempos explícitos con valor > 0 (ej: ajuste manual en modal), se respetan esos tiempos.
+ * - Si la tarea fue realizada por un solo rol o cerrada únicamente por esa especialidad, el 100% del tiempo activo se le asigna.
+ * - Si la tarea es conjunta (múltiples especialidades):
+ *     1. Se acreditan los minutos específicos de avances registrados en la bitácora por cada especialidad.
+ *     2. El tiempo activo restante no cubierto por avances se reparte equitativamente entre las especialidades asignadas.
+ */
+function calcularTiemposPorRol(tarea, tiemposEnviados, rolCompletador) {
+  let tpr = { mecanico: 0, electrico: 0, maquinista: 0 };
+
+  // 1. Tiempos explícitos enviados con suma > 0
+  if (tiemposEnviados && typeof tiemposEnviados === 'object') {
+    const m = parseInt(tiemposEnviados.mecanico) || 0;
+    const e = parseInt(tiemposEnviados.electrico) || 0;
+    const q = parseInt(tiemposEnviados.maquinista) || 0;
+    if ((m + e + q) > 0) {
+      return { mecanico: Math.max(0, m), electrico: Math.max(0, e), maquinista: Math.max(0, q) };
+    }
+  }
+
+  // 2. Extraer tiempo de trabajo activo real de la tarea
+  const tActivo = Math.max(0, 
+    parseInt(tarea.tiempo_trabajo_activo_minutos) || 
+    (parseInt(tarea.tiempo_arreglo_minutos) - parseInt(tarea.tiempo_espera_minutos || 0)) || 
+    parseInt(tarea.tiempo_arreglo_minutos) || 
+    0
+  );
+
+  // 3. Sumar avances registrados previamente en la bitácora
+  let sumAvances = 0;
+  if (Array.isArray(tarea.avances)) {
+    tarea.avances.forEach(a => {
+      const aRol = normalizarRol(a.tecnico_rol);
+      const aMin = parseInt(a.minutos_dedicados) || Math.round((parseFloat(a.horas_dedicadas) || 0) * 60) || 0;
+      if (aMin > 0) {
+        tpr[aRol] = (tpr[aRol] || 0) + aMin;
+        sumAvances += aMin;
+      }
+    });
+  }
+
+  if (tActivo === 0) return tpr;
+  if (sumAvances >= tActivo) return tpr;
+
+  const restante = Math.max(0, tActivo - sumAvances);
+
+  // Identificar roles asignados normalizados
+  let roles = [];
+  if (Array.isArray(tarea.roles_asignados) && tarea.roles_asignados.length > 0) {
+    roles = tarea.roles_asignados.map(normalizarRol);
+  } else if (typeof tarea.roles_asignados === 'string' && tarea.roles_asignados.trim()) {
+    try {
+      const p = JSON.parse(tarea.roles_asignados);
+      if (Array.isArray(p)) roles = p.map(normalizarRol);
+    } catch(err) {
+      roles = [normalizarRol(tarea.roles_asignados)];
+    }
+  }
+  roles = [...new Set(roles)];
+
+  const rolComp = normalizarRol(rolCompletador || tarea.completado_por_rol);
+
+  // Caso A: Tarea en conjunto (múltiples especialidades asignadas)
+  if (roles.length > 1) {
+    const porRol = Math.round(restante / roles.length);
+    roles.forEach(r => {
+      tpr[r] = (tpr[r] || 0) + porRol;
+    });
+    return tpr;
+  }
+
+  // Caso B: Tarea de una sola especialidad
+  const rolDestino = roles.length === 1 ? roles[0] : rolComp;
+  tpr[rolDestino] = (tpr[rolDestino] || 0) + restante;
+
+  return tpr;
+}
+
 // Obtener IPs locales de la red Wi-Fi o Ethernet
 function getLocalIps() {
   const nets = os.networkInterfaces();
@@ -1451,10 +1538,10 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
     tareas[idx].tiempo_trabajo_activo_minutos = Math.max(0, tiempoMinutos - tareas[idx].tiempo_espera_minutos);
   }
 
-  // Desglose de horas por rol (ej: mecánico 3h, eléctrico 2h)
-  if (tiempos_por_rol !== undefined) {
-    tareas[idx].tiempos_por_rol = typeof tiempos_por_rol === 'string' ? JSON.parse(tiempos_por_rol || '{}') : tiempos_por_rol;
-  }
+  // Desglose de horas por rol (ej: mecánico 3h, eléctrico 2h, o cómputo automático)
+  const tprRaw = typeof tiempos_por_rol === 'string' ? JSON.parse(tiempos_por_rol || '{}') : (tiempos_por_rol || null);
+  tareas[idx].tiempos_por_rol = calcularTiemposPorRol(tareas[idx], tprRaw, rolFinal);
+
   if (tiempos_por_tecnico !== undefined) {
     tareas[idx].tiempos_por_tecnico = typeof tiempos_por_tecnico === 'string' ? JSON.parse(tiempos_por_tecnico || '{}') : tiempos_por_tecnico;
   }
@@ -1659,9 +1746,12 @@ app.put('/api/tasks/:id', async (req, res) => {
     tareas[idx].tiempo_trabajo_activo_minutos = Math.max(0, (tareas[idx].tiempo_arreglo_minutos || 0) - espera);
   }
 
-  // Desglose de horas por rol (ej: electrico 2h, mecanico 3h)
+  // Desglose de horas por rol (ej: electrico 2h, mecanico 3h, o cómputo automático)
   if (tiempos_por_rol !== undefined) {
-    tareas[idx].tiempos_por_rol = typeof tiempos_por_rol === 'string' ? JSON.parse(tiempos_por_rol || '{}') : tiempos_por_rol;
+    const rawTpr = typeof tiempos_por_rol === 'string' ? JSON.parse(tiempos_por_rol || '{}') : tiempos_por_rol;
+    tareas[idx].tiempos_por_rol = calcularTiemposPorRol(tareas[idx], rawTpr, tareas[idx].completado_por_rol || userRol);
+  } else if (tareas[idx].estado === 'completado') {
+    tareas[idx].tiempos_por_rol = calcularTiemposPorRol(tareas[idx], tareas[idx].tiempos_por_rol, tareas[idx].completado_por_rol || userRol);
   }
   if (tiempos_por_tecnico !== undefined) {
     tareas[idx].tiempos_por_tecnico = typeof tiempos_por_tecnico === 'string' ? JSON.parse(tiempos_por_tecnico || '{}') : tiempos_por_tecnico;
@@ -1884,9 +1974,11 @@ app.post('/api/tasks/:id/avances', async (req, res) => {
 
   // Si registró horas dedicadas en este avance, sumar al rol correspondiente
   if (minutosDedicados > 0) {
-    if (!tareas[idx].tiempos_por_rol) tareas[idx].tiempos_por_rol = {};
-    const rolKey = (rolFinal === 'electrico' || rolFinal === 'maquinista') ? rolFinal : 'mecanico';
-    tareas[idx].tiempos_por_rol[rolKey] = (tareas[idx].tiempos_por_rol[rolKey] || 0) + minutosDedicados;
+    if (!tareas[idx].tiempos_por_rol) {
+      tareas[idx].tiempos_por_rol = { mecanico: 0, electrico: 0, maquinista: 0 };
+    }
+    const rolKey = normalizarRol(rolFinal);
+    tareas[idx].tiempos_por_rol[rolKey] = (parseInt(tareas[idx].tiempos_por_rol[rolKey]) || 0) + minutosDedicados;
   }
 
   tareas[idx].actualizado_en = new Date().toISOString();
@@ -2110,12 +2202,11 @@ app.get('/api/metrics', (req, res) => {
   let total_avances = 0;
 
   tareas.forEach(t => {
-    // Horas por rol
-    if (t.tiempos_por_rol) {
-      horas_mecanica_min += (parseInt(t.tiempos_por_rol.mecanico) || 0);
-      horas_electrica_min += (parseInt(t.tiempos_por_rol.electrico) || 0);
-      horas_maquinaria_min += (parseInt(t.tiempos_por_rol.maquinista) || 0);
-    }
+    // Horas por especialidad (cálculo dinámico y robusto por rol)
+    const tTpr = calcularTiemposPorRol(t, t.tiempos_por_rol, t.completado_por_rol);
+    horas_mecanica_min += (parseInt(tTpr.mecanico) || 0);
+    horas_electrica_min += (parseInt(tTpr.electrico) || 0);
+    horas_maquinaria_min += (parseInt(tTpr.maquinista) || 0);
     
     // Tiempos muertos
     const tEsp = parseInt(t.tiempo_espera_repuestos_minutos) || parseInt(t.tiempo_espera_minutos) || 0;
