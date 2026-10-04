@@ -1289,15 +1289,17 @@ app.post('/api/tasks', async (req, res) => {
     }
   }
 
-  // Retrocompatibilidad con mecanico_asignado
-  if (tecnicosFinal.length === 0 && mecanico_asignado && mecanico_asignado !== 'Sin Asignar') {
-    tecnicosFinal = [mecanico_asignado.trim()];
-  }
+  const MAP_NOMBRES_ROLES = {
+    mecanico: 'Mecánica',
+    electrico: 'Eléctrica',
+    maquinista: 'Maquinaria'
+  };
+  const especialidadesDefecto = rolesFinal.map(r => MAP_NOMBRES_ROLES[r] || r).join(', ');
 
-  let resumenAsignado = 'Sin Asignar';
+  let resumenAsignado = especialidadesDefecto;
   if (tecnicosFinal.length > 0) {
     resumenAsignado = tecnicosFinal.join(', ');
-  } else if (mecanico_asignado) {
+  } else if (mecanico_asignado && mecanico_asignado !== 'Sin Asignar') {
     resumenAsignado = mecanico_asignado.trim();
   }
 
