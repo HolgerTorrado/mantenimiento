@@ -43,5 +43,15 @@
     "es_apoyo": true,
     "sin_cuenta": true,
     "creado_en": "2026-10-04T18:35:38.069Z"
+  },
+  {
+    "id": "APOYO-07",
+    "nombre": "Franklin Ortega",
+    "username": null,
+    "rol": "auxiliar",
+    "especialidad": "Auxiliar Mecánico",
+    "es_apoyo": true,
+    "sin_cuenta": true,
+    "creado_en": "2026-10-04T18:35:47.895Z"
   }
 ]
