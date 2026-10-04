@@ -1402,34 +1402,6 @@ app.delete('/api/tasks/:id/avances/:avanceId', (req, res) => {
   res.json({ mensaje: 'Avance eliminado correctamente', avances: tareas[idx].avances || [] });
 });
 
-// 8.2. Estado y Migración de Almacenamiento en la Nube (Cloudinary)
-app.get('/api/admin/cloudinary-status', (req, res) => {
-  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (userRol !== 'admin') {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo Administrador.' });
-  }
-  const tareas = leerTareas();
-  let base64Count = 0;
-  let cdnCount = 0;
-  tareas.forEach(t => {
-    if (t.foto_comprobante) {
-      if (t.foto_comprobante.startsWith('data:image/')) base64Count++;
-      else if (t.foto_comprobante.startsWith('http')) cdnCount++;
-    }
-    if (t.foto_inicial) {
-      if (t.foto_inicial.startsWith('data:image/')) base64Count++;
-      else if (t.foto_inicial.startsWith('http')) cdnCount++;
-    }
-    if (Array.isArray(t.avances)) {
-      t.avances.forEach(a => {
-        if (a.foto) {
-          if (a.foto.startsWith('data:image/')) base64Count++;
-          else if (a.foto.startsWith('http')) cdnCount++;
-        }
-      });
-    }
-  });
-
 // Variable y función de migración en segundo plano de fotos históricas a Cloudinary
 let migracionFotosEnCurso = false;
 let estadoMigracion = { en_curso: false, total_migradas: 0, restantes: 0, error: null };
@@ -1475,6 +1447,34 @@ async function iniciarMigracionSegundoPlano(limiteTotal = 500) {
 
   return { iniciada: true, mensaje: 'Migración de fotos a Cloudinary iniciada en segundo plano', estado: estadoMigracion };
 }
+
+// 8.2. Estado y Migración de Almacenamiento en la Nube (Cloudinary)
+app.get('/api/admin/cloudinary-status', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin') {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo Administrador.' });
+  }
+  const tareas = leerTareas();
+  let base64Count = 0;
+  let cdnCount = 0;
+  tareas.forEach(t => {
+    if (t.foto_comprobante) {
+      if (t.foto_comprobante.startsWith('data:image/')) base64Count++;
+      else if (t.foto_comprobante.startsWith('http')) cdnCount++;
+    }
+    if (t.foto_inicial) {
+      if (t.foto_inicial.startsWith('data:image/')) base64Count++;
+      else if (t.foto_inicial.startsWith('http')) cdnCount++;
+    }
+    if (Array.isArray(t.avances)) {
+      t.avances.forEach(a => {
+        if (a.foto) {
+          if (a.foto.startsWith('data:image/')) base64Count++;
+          else if (a.foto.startsWith('http')) cdnCount++;
+        }
+      });
+    }
+  });
 
   res.json({
     configurado: imageStorage.isConfigurado(),
