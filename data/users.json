@@ -43,7 +43,8 @@
     "nombre": "Ender Silva",
     "rol": "mecanico",
     "especialidad": "Mecánico de Planta",
-    "creado_en": "2026-09-27T04:10:47.273Z"
+    "creado_en": "2026-09-27T04:10:47.273Z",
+    "password_plana": "Esilva"
   },
   {
     "id": "USR-06",
@@ -79,7 +80,8 @@
     "nombre": "Edgar mogollon",
     "rol": "sst",
     "especialidad": "Seguridad y Salud en el Trabajo (SST)",
-    "creado_en": "2026-09-29T15:39:14.045Z"
+    "creado_en": "2026-09-29T15:39:14.045Z",
+    "password_plana": "12345"
   },
   {
     "id": "USR-10",
