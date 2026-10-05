@@ -87,20 +87,34 @@
       "mecanico",
       "maquinista"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Sin Asignar",
+    "tecnicos_asignados": [
+      "Ender Silva"
+    ],
+    "mecanico_asignado": "Ender Silva",
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-10-03T17:35",
-    "fecha_arreglo": null,
-    "estado": "en_progreso",
-    "notas_mecanico": null,
+    "fecha_arreglo": "2026-10-05T10:18",
+    "estado": "completado",
+    "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791212541/siman/iniciales/ini_TSK-1082_1791212541143.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791213538/siman/comprobantes/comp_TSK-1082_1791213538376.webp",
+    "tiempo_arreglo_minutos": 2443,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-10-03T22:35:02.526Z",
-    "actualizado_en": "2026-10-05T15:18:34.478Z"
+    "actualizado_en": "2026-10-05T15:18:34.478Z",
+    "completado_por_usuario": "esilva",
+    "completado_por_nombre": "Ender Silva",
+    "completado_por_rol": "mecanico",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 2443,
+    "tiempos_por_rol": {
+      "mecanico": 1222,
+      "electrico": 0,
+      "maquinista": 1222
+    },
+    "completado_en": "2026-10-05T15:18:59.284Z"
   },
   {
     "id": "TSK-1081",
