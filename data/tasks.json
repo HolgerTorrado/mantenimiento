@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1086",
+    "equipo": "Tractor Kubota",
+    "titulo": "Tractor colmado de suciedad",
+    "tipo": "5s",
+    "prioridad": "alta",
+    "ubicacion": "Almacén",
+    "descripcion": "Se requiere lavar tractor, verificando retirar suciedad por las actividades; ademas de la grasa y otras sustancias",
+    "roles_asignados": [
+      "maquinista"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Maquinaria",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-05T10:47",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791215243/siman/iniciales/ini_TSK-1086_1791215243288.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-05T15:47:24.298Z"
+  },
+  {
     "id": "TSK-1085",
     "equipo": "Puestos de trabajo",
     "titulo": "Recoger y retirar basura de puestos de trabajo",
