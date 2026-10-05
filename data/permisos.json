@@ -70,10 +70,10 @@
     "crear_remisiones": true,
     "finalizar_remisiones": true,
     "ver_compras": true,
-    "crear_compras": true,
+    "crear_compras": false,
     "ver_dashboard": false,
     "acceso_pc": true,
-    "acceso_movil": false
+    "acceso_movil": true
   },
   "supervisor": {
     "crear_tareas": true,
