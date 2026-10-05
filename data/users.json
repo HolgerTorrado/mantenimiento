@@ -108,7 +108,8 @@
     "nombre": "Richard Patiño",
     "rol": "sst",
     "especialidad": "Seguridad y Salud en el Trabajo (SST)",
-    "creado_en": "2026-09-29T21:25:53.501Z"
+    "creado_en": "2026-09-29T21:25:53.501Z",
+    "password_plana": "Richard16*"
   },
   {
     "id": "USR-13",
