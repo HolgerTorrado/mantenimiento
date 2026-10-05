@@ -9,8 +9,14 @@
     "cambiar_contrasenas": false,
     "reabrir_tareas": false,
     "eliminar_tareas": false,
+    "ver_almacen": false,
+    "crear_remisiones": false,
+    "finalizar_remisiones": false,
     "ver_compras": false,
-    "crear_compras": false
+    "crear_compras": false,
+    "ver_dashboard": false,
+    "acceso_pc": false,
+    "acceso_movil": true
   },
   "electrico": {
     "crear_tareas": false,
@@ -22,8 +28,14 @@
     "cambiar_contrasenas": false,
     "reabrir_tareas": false,
     "eliminar_tareas": false,
+    "ver_almacen": false,
+    "crear_remisiones": false,
+    "finalizar_remisiones": false,
     "ver_compras": false,
-    "crear_compras": false
+    "crear_compras": false,
+    "ver_dashboard": false,
+    "acceso_pc": false,
+    "acceso_movil": true
   },
   "maquinista": {
     "crear_tareas": false,
@@ -35,8 +47,33 @@
     "cambiar_contrasenas": false,
     "reabrir_tareas": false,
     "eliminar_tareas": false,
+    "ver_almacen": false,
+    "crear_remisiones": false,
+    "finalizar_remisiones": false,
     "ver_compras": false,
-    "crear_compras": false
+    "crear_compras": false,
+    "ver_dashboard": false,
+    "acceso_pc": false,
+    "acceso_movil": true
+  },
+  "almacenista": {
+    "crear_tareas": false,
+    "cerrar_tareas": false,
+    "cambiar_horas": false,
+    "cambiar_foto": false,
+    "asignable_tareas": false,
+    "ver_contrasenas": false,
+    "cambiar_contrasenas": false,
+    "reabrir_tareas": false,
+    "eliminar_tareas": false,
+    "ver_almacen": false,
+    "crear_remisiones": true,
+    "finalizar_remisiones": true,
+    "ver_compras": true,
+    "crear_compras": true,
+    "ver_dashboard": false,
+    "acceso_pc": true,
+    "acceso_movil": false
   },
   "supervisor": {
     "crear_tareas": true,
@@ -46,23 +83,35 @@
     "asignable_tareas": true,
     "ver_contrasenas": false,
     "cambiar_contrasenas": false,
-    "reabrir_tareas": true,
+    "reabrir_tareas": false,
     "eliminar_tareas": false,
+    "ver_almacen": false,
+    "crear_remisiones": false,
+    "finalizar_remisiones": false,
     "ver_compras": true,
-    "crear_compras": true
+    "crear_compras": true,
+    "ver_dashboard": true,
+    "acceso_pc": true,
+    "acceso_movil": true
   },
   "sst": {
     "crear_tareas": true,
     "cerrar_tareas": true,
     "cambiar_horas": true,
     "cambiar_foto": true,
-    "asignable_tareas": false,
+    "asignable_tareas": true,
     "ver_contrasenas": false,
     "cambiar_contrasenas": false,
     "reabrir_tareas": false,
     "eliminar_tareas": false,
+    "ver_almacen": false,
+    "crear_remisiones": false,
+    "finalizar_remisiones": false,
     "ver_compras": true,
-    "crear_compras": true
+    "crear_compras": true,
+    "ver_dashboard": true,
+    "acceso_pc": true,
+    "acceso_movil": true
   },
   "director": {
     "crear_tareas": true,
@@ -74,8 +123,14 @@
     "cambiar_contrasenas": false,
     "reabrir_tareas": true,
     "eliminar_tareas": false,
+    "ver_almacen": true,
+    "crear_remisiones": false,
+    "finalizar_remisiones": true,
     "ver_compras": true,
-    "crear_compras": true
+    "crear_compras": true,
+    "ver_dashboard": true,
+    "acceso_pc": true,
+    "acceso_movil": true
   },
   "visualizador": {
     "crear_tareas": false,
@@ -87,8 +142,14 @@
     "cambiar_contrasenas": false,
     "reabrir_tareas": false,
     "eliminar_tareas": false,
+    "ver_almacen": false,
+    "crear_remisiones": false,
+    "finalizar_remisiones": false,
     "ver_compras": false,
-    "crear_compras": false
+    "crear_compras": false,
+    "ver_dashboard": true,
+    "acceso_pc": true,
+    "acceso_movil": true
   },
   "admin": {
     "crear_tareas": true,
@@ -104,6 +165,10 @@
     "crear_compras": true,
     "ver_dashboard": true,
     "acceso_pc": true,
-    "acceso_movil": true
+    "acceso_movil": true,
+    "ver_almacen": true,
+    "crear_remisiones": true,
+    "finalizar_remisiones": true,
+    "eliminar_remisiones": true
   }
 }
