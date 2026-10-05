@@ -34,7 +34,8 @@
     "nombre": "Marwin Castillejo",
     "rol": "mecanico",
     "especialidad": "Mecánico de Planta",
-    "creado_en": "2026-09-27T04:09:55.769Z"
+    "creado_en": "2026-09-27T04:09:55.769Z",
+    "password_plana": "Mcastillejo"
   },
   {
     "id": "USR-05",
@@ -43,7 +44,8 @@
     "nombre": "Ender Silva",
     "rol": "mecanico",
     "especialidad": "Mecánico de Planta",
-    "creado_en": "2026-09-27T04:10:47.273Z"
+    "creado_en": "2026-09-27T04:10:47.273Z",
+    "password_plana": "Esilva"
   },
   {
     "id": "USR-06",
@@ -107,7 +109,8 @@
     "nombre": "Richard Patiño",
     "rol": "sst",
     "especialidad": "Seguridad y Salud en el Trabajo (SST)",
-    "creado_en": "2026-09-29T21:25:53.501Z"
+    "creado_en": "2026-09-29T21:25:53.501Z",
+    "password_plana": "Richard16*"
   },
   {
     "id": "USR-13",

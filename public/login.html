@@ -53,7 +53,7 @@
             // Detección automática: Si es celular/tablet, enviar a la interfaz móvil
             if (esDispositivoMovil()) {
               window.location.replace('/mecanico');
-            } else if (['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol)) {
+            } else if (['admin', 'supervisor', 'sst', 'director', 'almacenista', 'visualizador'].includes(rol)) {
               window.location.replace('/dashboard');
             } else {
               window.location.replace('/mecanico');
@@ -449,6 +449,13 @@
         const esMovil = esMobileUA || (esPantallaChica && esTouch);
         const rol = (data.user.rol || '').toLowerCase().trim();
 
+        if (rol === 'almacenista') {
+          sessionStorage.setItem('siman_forzar_pc', 'true');
+          localStorage.setItem('siman_forzar_pc', 'true');
+          window.location.replace('/dashboard#almacen');
+          return;
+        }
+
         const vistaPref = localStorage.getItem('siman_vista_preferida');
         if (vistaPref === 'pc') {
           sessionStorage.setItem('siman_forzar_pc', 'true');
@@ -459,7 +466,7 @@
         } else if (esMovil) {
           // Si el usuario ingresa desde teléfono celular o tablet -> Versión Móvil adaptada
           window.location.replace('/mecanico');
-        } else if (['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol)) {
+        } else if (['admin', 'supervisor', 'sst', 'director', 'almacenista', 'visualizador'].includes(rol)) {
           // Si el usuario ingresa desde PC de escritorio o laptop -> Dashboard Completo
           window.location.replace('/dashboard');
         } else {

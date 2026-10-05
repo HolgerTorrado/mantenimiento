@@ -43,9 +43,13 @@ function usuarioTienePermiso(permiso) {
     if (permiso === 'cambiar_foto') return true;
     if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista'].includes(rol);
     if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
-    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
+    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador', 'almacenista'].includes(rol);
     if (permiso === 'reabrir_tareas') return ['admin', 'supervisor', 'director'].includes(rol);
     if (permiso === 'cambiar_horas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
+    if (permiso === 'ver_almacen') return ['admin', 'almacenista', 'supervisor', 'director'].includes(rol);
+    if (permiso === 'crear_remisiones') return ['admin', 'almacenista'].includes(rol);
+    if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista'].includes(rol);
+    if (permiso === 'eliminar_remisiones') return ['admin'].includes(rol);
     return false;
   } catch (e) {
     return false;
@@ -257,6 +261,28 @@ function aplicarPermisosEnUI() {
 
     // 7. Refrescar checkboxes de roles asignables para el modal de crear tarea
     renderCheckboxesRolesCrear();
+
+    // 8. Pestaña de Módulo Almacén & Remisiones
+    const tabAlmacen = document.getElementById('tab-nav-almacen');
+    if (tabAlmacen) {
+      const puedeAlmacen = esAdmin || usuarioTienePermiso('ver_almacen');
+      if (puedeAlmacen) {
+        tabAlmacen.classList.remove('hidden');
+      } else {
+        tabAlmacen.classList.add('hidden');
+      }
+    }
+
+    // 9. Botón Nueva Remisión en Almacén
+    const btnCrearRem = document.getElementById('btn-crear-remision-almacen');
+    if (btnCrearRem) {
+      const puedeCrearRem = esAdmin || usuarioTienePermiso('crear_remisiones');
+      if (puedeCrearRem) {
+        btnCrearRem.classList.remove('hidden');
+      } else {
+        btnCrearRem.classList.add('hidden');
+      }
+    }
   } catch (e) {
     console.error('Error al aplicar permisos en UI:', e);
   }
@@ -356,15 +382,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   cargarTareas();
   fijarOcurrenciaAhora();
 
+  // Soporte para módulo de Almacén & Remisiones
+  if (typeof cargarRemisiones === 'function') {
+    cargarRemisiones(false);
+  }
+  const rolUser = (user.rol || '').toLowerCase().trim();
+  if (rolUser === 'almacenista' || window.location.hash === '#almacen') {
+    if (typeof cambiarModuloPrincipal === 'function') {
+      cambiarModuloPrincipal('almacen');
+    }
+  }
+
   // Auto-refresco inteligente cada 30 segundos (solo si la pestaña está activa)
   setInterval(() => {
     if (document.hidden) return;
     cargarTareas(false);
+    if (typeof cargarRemisiones === 'function') {
+      cargarRemisiones(false);
+    }
   }, 30000);
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
       cargarTareas(false);
+      if (typeof cargarRemisiones === 'function') {
+        cargarRemisiones(false);
+      }
     }
   });
 });
@@ -2150,6 +2193,7 @@ const ROLES_MATRIZ = [
   { key: 'mecanico', label: 'Mecánico', icon: '🔧', colorClass: 'text-cyan-400' },
   { key: 'electrico', label: 'Eléctrico', icon: '⚡', colorClass: 'text-amber-400' },
   { key: 'maquinista', label: 'Maquinista', icon: '🚜', colorClass: 'text-orange-400' },
+  { key: 'almacenista', label: 'Almacén', icon: '📦', colorClass: 'text-amber-300' },
   { key: 'supervisor', label: 'Supervisor', icon: '👷', colorClass: 'text-sky-400' },
   { key: 'sst', label: 'SST', icon: '🦺', colorClass: 'text-emerald-400' },
   { key: 'director', label: 'Director', icon: '🏢', colorClass: 'text-indigo-400' },
@@ -2220,6 +2264,27 @@ const PERMISOS_CONFIG_UI = [
     desc: 'Borrar definitivamente órdenes o registros de fallas',
     icono: 'fa-trash-can',
     color: 'text-red-400'
+  },
+  {
+    key: 'ver_almacen',
+    nombre: 'Ver Módulo de Almacén',
+    desc: 'Acceso a la sección de almacén y consulta de remisiones',
+    icono: 'fa-warehouse',
+    color: 'text-amber-400'
+  },
+  {
+    key: 'crear_remisiones',
+    nombre: 'Crear Remisión de Salida',
+    desc: 'Generar formatos de salida de poleas, repuestos o materiales',
+    icono: 'fa-file-export',
+    color: 'text-cyan-400'
+  },
+  {
+    key: 'finalizar_remisiones',
+    nombre: 'Finalizar Remisión (Retorno)',
+    desc: 'Registrar la llegada del material a planta y cerrar la remisión',
+    icono: 'fa-box-archive',
+    color: 'text-emerald-400'
   },
   {
     key: 'ver_compras',
@@ -2374,7 +2439,11 @@ async function guardarMatrizPermisos() {
     crear_compras: true,
     ver_dashboard: true,
     acceso_pc: true,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: true,
+    finalizar_remisiones: true,
+    eliminar_remisiones: true
   };
 
   const userActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
@@ -2426,7 +2495,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: false,
       ver_dashboard: false,
       acceso_pc: false,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
     },
     electrico: {
       crear_tareas: false,
@@ -2442,7 +2515,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: false,
       ver_dashboard: false,
       acceso_pc: false,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
     },
     maquinista: {
       crear_tareas: false,
@@ -2458,7 +2535,31 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: false,
       ver_dashboard: false,
       acceso_pc: false,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
+    },
+    almacenista: {
+      crear_tareas: false,
+      cerrar_tareas: false,
+      cambiar_horas: false,
+      cambiar_foto: true,
+      asignable_tareas: false,
+      ver_contrasenas: false,
+      cambiar_contrasenas: false,
+      eliminar_tareas: false,
+      reabrir_tareas: false,
+      ver_compras: true,
+      crear_compras: false,
+      ver_dashboard: false,
+      acceso_pc: true,
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: true,
+      finalizar_remisiones: true,
+      eliminar_remisiones: false
     },
     supervisor: {
       crear_tareas: true,
@@ -2474,23 +2575,31 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: true,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: true,
+      finalizar_remisiones: true,
+      eliminar_remisiones: false
     },
     sst: {
       crear_tareas: true,
-      cerrar_tareas: false,
-      cambiar_horas: false,
+      cerrar_tareas: true,
+      cambiar_horas: true,
       cambiar_foto: true,
-      asignable_tareas: false,
+      asignable_tareas: true,
       ver_contrasenas: false,
       cambiar_contrasenas: false,
       eliminar_tareas: false,
       reabrir_tareas: false,
-      ver_compras: false,
-      crear_compras: false,
+      ver_compras: true,
+      crear_compras: true,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
     },
     director: {
       crear_tareas: true,
@@ -2506,7 +2615,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: true,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: true,
+      finalizar_remisiones: true,
+      eliminar_remisiones: true
     },
     visualizador: {
       crear_tareas: false,
@@ -2522,7 +2635,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: false,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
     },
     admin: {
       crear_tareas: true,
@@ -2538,7 +2655,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: true,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: true,
+      finalizar_remisiones: true,
+      eliminar_remisiones: true
     }
   };
 

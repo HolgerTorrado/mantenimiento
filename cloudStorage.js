@@ -373,6 +373,32 @@ function mergeMecanicos(listaA = [], listaB = []) {
   return Array.from(map.values());
 }
 
+// Función de fusión para remisiones
+function mergeRemisiones(listaA = [], listaB = []) {
+  const map = new Map();
+  (listaA || []).forEach(r => {
+    if (r && (r.id || r.consecutivo)) map.set(r.id || r.consecutivo, r);
+  });
+  (listaB || []).forEach(r => {
+    if (r && (r.id || r.consecutivo)) {
+      const key = r.id || r.consecutivo;
+      if (!map.has(key)) {
+        map.set(key, r);
+      } else {
+        const base = map.get(key);
+        const timeBase = new Date((base.retorno && base.retorno.finalizado_en) || base.creado_en || 0).getTime();
+        const timeInc = new Date((r.retorno && r.retorno.finalizado_en) || r.creado_en || 0).getTime();
+        if (timeInc >= timeBase) {
+          map.set(key, { ...base, ...r });
+        } else {
+          map.set(key, { ...r, ...base });
+        }
+      }
+    }
+  });
+  return Array.from(map.values()).map(sanitizarObjeto);
+}
+
 // Sincronizar un archivo al iniciar el servidor (Blindado contra borrados accidentales)
 async function sincronizarArchivoAlIniciar(nombreArchivo, archivoLocal) {
   if (process.env.DESACTIVAR_NUBE === 'true') {
@@ -408,6 +434,8 @@ async function sincronizarArchivoAlIniciar(nombreArchivo, archivoLocal) {
       resultadoFinal = mergeUsuarios(localData, nubeData);
     } else if (nombreArchivo === 'mecanicos.json') {
       resultadoFinal = mergeMecanicos(localData, nubeData);
+    } else if (nombreArchivo === 'remisiones.json') {
+      resultadoFinal = mergeRemisiones(localData, nubeData);
     } else {
       resultadoFinal = nubeData.length > 0 ? nubeData : localData;
     }
@@ -437,6 +465,7 @@ module.exports = {
   mergeTareas,
   mergeUsuarios,
   mergeMecanicos,
+  mergeRemisiones,
   sincronizarArchivoAlIniciar,
   arreglarMojibake,
   sanitizarObjeto

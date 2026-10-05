@@ -1,0 +1,40 @@
+[
+  {
+    "id": "REM-260806-01",
+    "consecutivo": "060826-01",
+    "area": "operativa",
+    "fecha_remision": "2026-08-06",
+    "hora_salida": "01:00 p.m.",
+    "remitido_por": "Andres Rangel",
+    "cargo_remitente": "Supernumerario",
+    "dependencia": "Operativa",
+    "transportador": {
+      "nombre": "Jorge Luis Leal Buitrago",
+      "cc_nit": "88175356",
+      "vehiculo_placa": "HHX - 216"
+    },
+    "destino": {
+      "empresa_proveedor": "MIPCE",
+      "contacto": "",
+      "telefono": "",
+      "direccion": ""
+    },
+    "items": [
+      {
+        "item_num": 1,
+        "cantidad": 1,
+        "unidad": "Und",
+        "descripcion": "POLEA",
+        "observaciones": "Sale de planta para MIPCE arreglo de polea"
+      }
+    ],
+    "observaciones_generales": "Sale de planta para MIPCE arreglo de polea",
+    "foto_salida": null,
+    "estado": "fuera_planta",
+    "creado_por": "Andres Rangel",
+    "creado_por_nombre": "Andres Rangel",
+    "creado_por_rol": "almacenista",
+    "creado_en": "2026-08-06T13:00:00.000Z",
+    "retorno": null
+  }
+]

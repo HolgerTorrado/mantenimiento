@@ -22,16 +22,20 @@
         var parsed = JSON.parse(u);
         var rol = (parsed.rol || '').toLowerCase().trim();
 
-        // Si no es admin, verificar si tiene prohibido el acceso móvil y solo tiene acceso PC
+        // Si no es admin, verificar si tiene prohibido el acceso móvil y solo tiene acceso PC o Almacén
         var permisosStr = localStorage.getItem('siman_permisos');
         if (permisosStr && rol !== 'admin') {
           try {
             var perms = JSON.parse(permisosStr);
-            if (perms[rol] && perms[rol].acceso_movil === false && (perms[rol].acceso_pc || perms[rol].ver_dashboard)) {
-              window.location.replace('/dashboard');
+            if (perms[rol] && perms[rol].acceso_movil === false && (perms[rol].acceso_pc || perms[rol].ver_dashboard || perms[rol].ver_almacen)) {
+              window.location.replace('/dashboard' + (rol === 'almacenista' ? '#almacen' : ''));
               return;
             }
           } catch(e) {}
+        }
+        if (rol === 'almacenista') {
+          window.location.replace('/dashboard#almacen');
+          return;
         }
       } catch(e) {
         window.location.replace('/login');
@@ -92,6 +96,10 @@
 
       <!-- Acciones de Cabecera: Modo Dashboard/PC y Salir Seguro -->
       <div class="flex items-center space-x-1.5 flex-shrink-0">
+        <button id="btn-ir-almacen-movil" onclick="window.location.href='/dashboard#almacen'" title="Módulo de Almacén y Remisiones" class="hidden bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-amber-600/30">
+          <i class="fa-solid fa-boxes-stacked text-amber-200"></i>
+          <span>Almacén</span>
+        </button>
         <button id="btn-ir-pc-dashboard" onclick="irModoPC()" title="Ver Dashboard de Métricas y Gestión" class="hidden bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 active:scale-95 text-white font-bold px-2.5 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-indigo-600/30">
           <i class="fa-solid fa-chart-pie text-indigo-200"></i>
           <span>Dashboard</span>

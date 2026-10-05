@@ -17,7 +17,7 @@
         var rol = (parsed.rol || '').toLowerCase().trim();
 
         // Roles con acceso potencial a PC / Dashboard
-        var rolesPC = ['admin', 'supervisor', 'sst', 'director', 'visualizador'];
+        var rolesPC = ['admin', 'supervisor', 'sst', 'director', 'almacenista', 'visualizador'];
         if (rol !== 'admin') {
           var permisosStr = localStorage.getItem('siman_permisos');
           var tienePermisoPC = false;
@@ -165,6 +165,30 @@
   <!-- MAIN CONTAINER -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
+    <!-- SELECTOR DE MÓDULOS PRINCIPALES (MANTENIMIENTO vs ALMACÉN) -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-900/90 border border-slate-700/80 p-2 sm:p-2.5 rounded-2xl shadow-lg">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+        <!-- Pestaña Mantenimiento -->
+        <button id="tab-nav-mantenimiento" onclick="cambiarModuloPrincipal('mantenimiento')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition bg-emerald-600 text-white shadow-md shadow-emerald-900/30">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+          <span>Mantenimiento & Tareas</span>
+        </button>
+
+        <!-- Pestaña Almacén -->
+        <button id="tab-nav-almacen" onclick="cambiarModuloPrincipal('almacen')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700/60">
+          <i class="fa-solid fa-boxes-stacked text-amber-400"></i>
+          <span>Almacén & Remisiones</span>
+          <span id="badge-nav-almacen-fuera" class="hidden px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse">0 Fuera</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="text-[11px] text-slate-400 hidden md:inline"><i class="fa-solid fa-circle-nodes text-emerald-400 mr-1"></i>Planta & Logística Externa</span>
+      </div>
+    </div>
+
+    <!-- CONTENEDOR MODULAR: MÓDULO 1 - MANTENIMIENTO Y TAREAS -->
+    <div id="seccion-modulo-mantenimiento" class="space-y-6">
 
     <!-- BARRA DE FILTRO POR PERÍODO -->
     <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -532,6 +556,164 @@
       </div>
 
     </div>
+    </div> <!-- Fin seccion-modulo-mantenimiento -->
+
+    <!-- CONTENEDOR MODULAR: MÓDULO 2 - ALMACÉN Y REMISIONES DE SALIDA -->
+    <div id="seccion-modulo-almacen" class="space-y-6 hidden">
+
+      <!-- BANNER Y ACCIONES DE ALMACÉN -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-amber-950/40 border border-amber-500/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-xl flex-shrink-0 shadow-lg shadow-amber-500/10">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base sm:text-lg font-black text-white tracking-wide">Módulo de Almacén & Remisiones de Salida</h2>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/40 uppercase">Institucional</span>
+            </div>
+            <p class="text-xs text-slate-300 mt-0.5">Control de piezas, repuestos y equipos enviados a talleres externos (Torno, Embobinado, Maquinado) y registro estricto de retorno a planta.</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end flex-shrink-0">
+          <button id="btn-crear-remision-almacen" onclick="abrirModalNuevaRemision()" class="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 active:scale-95 text-white text-xs sm:text-sm font-bold rounded-xl shadow-lg shadow-amber-600/30 flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-plus text-base"></i>
+            <span>Nueva Remisión de Salida</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TARJETAS DE INDICADORES / KPI ALMACÉN -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <!-- Total Remisiones -->
+        <div class="bg-slate-800/80 border border-slate-700/70 rounded-xl p-4 flex flex-col justify-between shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Total Remisiones</span>
+            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-file-invoice"></i>
+            </div>
+          </div>
+          <div class="mt-3">
+            <span id="kpi-almacen-total" class="text-2xl sm:text-3xl font-black text-white">0</span>
+            <span class="text-xs text-slate-400 block mt-0.5">Salidas registradas</span>
+          </div>
+        </div>
+
+        <!-- Fuera de Planta -->
+        <div class="bg-slate-800/80 border border-amber-500/40 rounded-xl p-4 flex flex-col justify-between shadow-lg shadow-amber-950/20 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-amber-500/5 rounded-full blur-xl pointer-events-none"></div>
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold text-amber-300 uppercase tracking-wider">Fuera de Planta / Taller</span>
+            <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-truck-ramp-box"></i>
+            </div>
+          </div>
+          <div class="mt-3">
+            <span id="kpi-almacen-fuera" class="text-2xl sm:text-3xl font-black text-amber-400 animate-pulse">0</span>
+            <span class="text-xs text-amber-300/80 block mt-0.5">Pendientes de retornar a planta</span>
+          </div>
+        </div>
+
+        <!-- Retornados a Planta -->
+        <div class="bg-slate-800/80 border border-emerald-500/30 rounded-xl p-4 flex flex-col justify-between shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-emerald-400 uppercase tracking-wider">Retornados a Planta</span>
+            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-circle-check"></i>
+            </div>
+          </div>
+          <div class="mt-3">
+            <span id="kpi-almacen-retornadas" class="text-2xl sm:text-3xl font-black text-emerald-400">0</span>
+            <span class="text-xs text-slate-400 block mt-0.5">Finalizados conforme</span>
+          </div>
+        </div>
+
+        <!-- Piezas / Repuestos Fuera -->
+        <div class="bg-slate-800/80 border border-purple-500/30 rounded-xl p-4 flex flex-col justify-between shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-medium text-purple-400 uppercase tracking-wider">Piezas en Reparación</span>
+            <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-sm">
+              <i class="fa-solid fa-gears"></i>
+            </div>
+          </div>
+          <div class="mt-3">
+            <span id="kpi-almacen-piezas" class="text-2xl sm:text-3xl font-black text-purple-300">0</span>
+            <span class="text-xs text-slate-400 block mt-0.5">Ítems físicos en taller</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLA Y CONTROL DE REMISIONES -->
+      <div class="bg-slate-800/80 border border-slate-700/70 rounded-2xl overflow-hidden shadow-xl">
+        <!-- Toolbar de Filtros y Búsqueda -->
+        <div class="p-3 sm:p-4 border-b border-slate-700 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          <!-- Pestañas de Estado -->
+          <div class="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0">
+            <button onclick="filtrarEstadoRemision('todos', this)" class="tab-btn-remision px-3 py-1.5 rounded-lg text-xs font-bold transition bg-amber-600 text-white shadow">
+              Todos
+            </button>
+            <button onclick="filtrarEstadoRemision('fuera_planta', this)" class="tab-btn-remision px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              <span>Fuera de Planta</span>
+            </button>
+            <button onclick="filtrarEstadoRemision('retornado', this)" class="tab-btn-remision px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span>Retornados a Planta</span>
+            </button>
+          </div>
+
+          <!-- Filtro Área + Búsqueda + Recarga -->
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Filtro Área -->
+            <select onchange="filtrarAreaRemision(this.value)" class="bg-slate-900 border border-slate-700 text-slate-300 rounded-lg px-2.5 py-1.5 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none">
+              <option value="todos">Todas las Áreas</option>
+              <option value="operativa">Área Operativa</option>
+              <option value="administrativa">Área Administrativa</option>
+            </select>
+
+            <!-- Input Búsqueda -->
+            <div class="relative flex-1 sm:w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+              <input type="text" oninput="filtrarBusquedaRemision(this.value)" placeholder="Buscar por pieza, taller, chofer, N°..." class="w-full bg-slate-900 border border-slate-700 text-white rounded-lg pl-8 pr-3 py-1.5 text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none placeholder:text-slate-500">
+            </div>
+
+            <!-- Contador -->
+            <span id="count-remisiones-listadas" class="text-xs text-slate-400 font-mono hidden sm:inline px-2">0 remisiones</span>
+
+            <!-- Botón Recargar -->
+            <button onclick="cargarRemisiones()" title="Recargar remisiones" class="p-2 bg-slate-700/80 hover:bg-slate-600 text-slate-300 rounded-lg text-xs transition">
+              <i class="fa-solid fa-arrows-rotate" id="icon-recarga-almacen"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabla de Remisiones -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm text-slate-300">
+            <thead class="bg-slate-900/80 text-slate-400 text-[11px] font-semibold uppercase tracking-wider border-b border-slate-700">
+              <tr>
+                <th scope="col" class="py-3.5 px-3.5">N° Remisión / Área</th>
+                <th scope="col" class="py-3.5 px-3">Fecha & Salida</th>
+                <th scope="col" class="py-3.5 px-3">Materiales & Repuestos</th>
+                <th scope="col" class="py-3.5 px-3">Destino / Taller & Chofer</th>
+                <th scope="col" class="py-3.5 px-3">Remitido Por</th>
+                <th scope="col" class="py-3.5 px-3">Retorno a Planta</th>
+                <th scope="col" class="py-3.5 px-3 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-remisiones-body" class="divide-y divide-slate-700/60">
+              <tr>
+                <td colspan="7" class="py-12 text-center text-slate-400">
+                  <i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-amber-400"></i>
+                  <p>Cargando registros de almacén y remisiones...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div> <!-- Fin seccion-modulo-almacen -->
 
   </main>
 
@@ -1348,6 +1530,7 @@
                   <option value="mecanico">🔧 Mecánico (Reparaciones mecánicas)</option>
                   <option value="electrico">⚡ Eléctrico (Sistemas eléctricos, motores)</option>
                   <option value="maquinista">🚜 Maquinista (Operación y maquinaria)</option>
+                  <option value="almacenista">📦 Almacenista (Gestión de Almacén y Remisiones)</option>
                   <option value="supervisor">👷 Supervisor de Mantenimiento / Planta (Crea y asigna tareas)</option>
                   <option value="sst">🦺 SST - Seguridad y Salud en el Trabajo (Crea y asigna tareas)</option>
                   <option value="director">🏢 Director de Planta (Supervisión y asignación)</option>
@@ -1513,6 +1696,7 @@
                     <th class="py-3 px-2 text-center text-cyan-300 min-w-[70px]">🔧 Mecánico</th>
                     <th class="py-3 px-2 text-center text-amber-300 min-w-[70px]">⚡ Eléctrico</th>
                     <th class="py-3 px-2 text-center text-orange-300 min-w-[75px]">🚜 Maquinista</th>
+                    <th class="py-3 px-2 text-center text-amber-300 min-w-[75px]">📦 Almacén</th>
                     <th class="py-3 px-2 text-center text-sky-300 min-w-[75px]">👷 Supervisor</th>
                     <th class="py-3 px-2 text-center text-emerald-300 min-w-[60px]">🦺 SST</th>
                     <th class="py-3 px-2 text-center text-indigo-300 min-w-[65px]">🏢 Director</th>
@@ -1641,7 +1825,363 @@
     <span id="toast-msg">Mensaje</span>
   </div>
 
-  <!-- SCRIPTS DASHBOARD -->
+  <!-- ==================== MODALES DE ALMACÉN ==================== -->
+
+  <!-- 1. MODAL CREAR / EDITAR REMISIÓN DE SALIDA -->
+  <div id="modal-remision-form" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[94vh] flex flex-col overflow-hidden shadow-2xl my-auto">
+      
+      <!-- Header -->
+      <div class="flex-shrink-0 bg-slate-900/90 px-5 sm:px-6 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+            <i class="fa-solid fa-file-export"></i>
+          </div>
+          <div>
+            <h3 id="remision-modal-titulo" class="font-bold text-white text-base">Nueva Remisión de Salida de Material</h3>
+            <p class="text-xs text-slate-400">Control oficial de piezas enviadas a taller externo o reparación</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalRemisionForm()" class="text-slate-400 hover:text-white transition p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Formulario con scroll interno -->
+      <form id="form-remision" onsubmit="guardarRemision(event)" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+        
+        <!-- Consecutivo y Clasificación de Área -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/60 rounded-xl border border-slate-700/80">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1">
+              N° Consecutivo / Remisión <span class="text-rose-400">*</span>
+            </label>
+            <input type="text" id="rem-consecutivo" required placeholder="Ej: 060826-01" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono font-bold text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none uppercase">
+            <span class="text-[10px] text-slate-400 mt-1 block">Generado automáticamente según fecha o editable</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+              Área de Salida <span class="text-rose-400">*</span>
+            </label>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="cursor-pointer border border-slate-700 rounded-xl px-3 py-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-950/60">
+                <input type="radio" name="rem_area" value="operativa" class="sr-only" checked>
+                <i class="fa-solid fa-gears text-amber-400 text-xs"></i>
+                <span class="text-xs font-bold text-white">Operativa</span>
+              </label>
+              <label class="cursor-pointer border border-slate-700 rounded-xl px-3 py-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-950/60">
+                <input type="radio" name="rem_area" value="administrativa" class="sr-only">
+                <i class="fa-solid fa-briefcase text-blue-400 text-xs"></i>
+                <span class="text-xs font-bold text-white">Administrativa</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fecha, Hora y Remitente -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha de Remisión *</label>
+            <input type="date" id="rem-fecha" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Hora de Salida *</label>
+            <input type="text" id="rem-hora" required placeholder="08:00 a.m." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Dependencia *</label>
+            <input type="text" id="rem-dependencia" value="Operativa" placeholder="Ej: Operativa, Mantenimiento..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Remitido Por (Responsable Salida) *</label>
+            <input type="text" id="rem-remitido-por" required placeholder="Nombre de quien autoriza o entrega" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Cargo del Remitente *</label>
+            <input type="text" id="rem-cargo" required placeholder="Ej: Almacenista, Supernumerario..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Transportador -->
+        <div class="p-3 bg-slate-950/40 rounded-xl border border-slate-700 space-y-2">
+          <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5 uppercase">
+            <i class="fa-solid fa-truck text-xs"></i> Datos del Transportador / Conductor
+          </span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div>
+              <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Nombre del Conductor</label>
+              <input type="text" id="rem-transp-nombre" placeholder="Nombre completo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Cédula / NIT</label>
+              <input type="text" id="rem-transp-cc" placeholder="C.C. / NIT" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Vehículo / Placa</label>
+              <input type="text" id="rem-transp-vehiculo" placeholder="Ej: HHX-216" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 focus:outline-none uppercase">
+            </div>
+          </div>
+        </div>
+
+        <!-- Destino / Proveedor -->
+        <div class="p-3 bg-slate-950/40 rounded-xl border border-slate-700 space-y-2">
+          <span class="text-xs font-bold text-amber-300 flex items-center gap-1.5 uppercase">
+            <i class="fa-solid fa-industry text-xs"></i> Destino / Taller Externo / Proveedor
+          </span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div>
+              <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Empresa / Taller *</label>
+              <input type="text" id="rem-dest-empresa" required placeholder="Ej: MIPCE, Torno Gómez..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Contacto / Recibe en Taller</label>
+              <input type="text" id="rem-dest-contacto" placeholder="Nombre de contacto" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-400 font-semibold mb-0.5">Teléfono / Celular</label>
+              <input type="text" id="rem-dest-telefono" placeholder="Número telefónico" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white focus:ring-1 focus:ring-amber-500 focus:outline-none">
+            </div>
+          </div>
+        </div>
+
+        <!-- Ítems / Materiales (Dinámico) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
+              Detalle de Materiales / Repuestos a Salir <span class="text-rose-400">*</span>
+            </label>
+            <button type="button" onclick="agregarFilaItem(1, 'Und', '', '')" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold hover:bg-amber-500/30 transition flex items-center gap-1">
+              <i class="fa-solid fa-plus text-[10px]"></i>
+              <span>Agregar Ítem</span>
+            </button>
+          </div>
+          
+          <div id="rem-items-container" class="space-y-2">
+            <!-- Filas dinámicas generadas por JS -->
+          </div>
+        </div>
+
+        <!-- Observaciones Generales -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Observaciones Generales / Instrucciones</label>
+          <textarea id="rem-obs-generales" rows="2" placeholder="Notas adicionales, motivo de salida, condiciones especiales de entrega..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+        </div>
+
+        <!-- Foto Comprobante de Salida -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Foto Comprobante de Salida (Opcional)</label>
+          <div class="flex items-center gap-3">
+            <label class="cursor-pointer px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-amber-500 text-slate-300 text-xs font-semibold flex items-center gap-2 transition">
+              <i class="fa-solid fa-camera text-amber-400"></i>
+              <span>Seleccionar Foto</span>
+              <input type="file" id="rem-foto-input" accept="image/*" class="sr-only" onchange="manejarCambioFotoSalida(event)">
+            </label>
+            <div id="rem-foto-preview-box" class="hidden flex items-center gap-2">
+              <img id="rem-foto-preview-img" src="" alt="Previa" class="w-12 h-12 rounded-lg object-cover border border-amber-500/50 shadow">
+              <button type="button" onclick="limpiarFotoSalidaPreview()" class="text-rose-400 hover:text-rose-300 text-xs p-1">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-700">
+          <button type="button" onclick="cerrarModalRemisionForm()" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-guardar-remision" class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white text-xs font-bold shadow-lg shadow-amber-600/30 flex items-center gap-1.5 transition active:scale-95">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Guardar Remisión</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. MODAL FINALIZAR REMISIÓN (LLEGADA DE MATERIAL A PLANTA) -->
+  <div id="modal-finalizar-remision" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl my-auto">
+      
+      <!-- Header -->
+      <div class="flex-shrink-0 bg-slate-900/90 px-5 sm:px-6 py-3.5 border-b border-slate-700 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+            <i class="fa-solid fa-box-archive"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-base">Registrar Llegada de Material a Planta</h3>
+            <p class="text-xs text-slate-400">Finalice la remisión confirmando la recepción física de la pieza</p>
+          </div>
+        </div>
+        <button type="button" onclick="cerrarModalFinalizarRemision()" class="text-slate-400 hover:text-white transition p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Resumen y Formulario -->
+      <form id="form-finalizar-remision" onsubmit="confirmarFinalizarRemision(event)" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+        
+        <!-- Info Resumen de lo que salió -->
+        <div id="ret-remision-resumen-box" class="p-3.5 rounded-xl bg-slate-950/70 border border-amber-500/40">
+          <!-- Renderizado dinámico -->
+        </div>
+
+        <!-- Fecha, Hora y Receptor -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Fecha de Recepción en Planta *</label>
+            <input type="date" id="ret-fecha" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Hora de Recepción *</label>
+            <input type="text" id="ret-hora" required placeholder="03:30 p.m." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Recibido en Planta Por *</label>
+            <input type="text" id="ret-recibido-por" required placeholder="Nombre de quien recibe" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Cargo Receptor *</label>
+            <input type="text" id="ret-cargo-receptor" required placeholder="Ej: Almacenista" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Dependencia Receptora</label>
+            <input type="text" id="ret-dependencia-receptora" value="Almacén / Mantenimiento" placeholder="Dependencia" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Estado del Material al llegar -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Estado / Condición del Material Recibido *</label>
+          <select id="ret-estado-material" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none font-semibold">
+            <option value="Reparado - Conforme y Operativo">🟢 Reparado - Conforme y Operativo</option>
+            <option value="Reparado - Con Observaciones">🟡 Reparado - Con Observaciones</option>
+            <option value="No Reparado - Devolución de Taller">🔴 No Reparado - Devolución de Taller</option>
+            <option value="Reemplazo / Pieza Nueva">🔵 Reemplazo / Pieza Nueva</option>
+            <option value="Garantía / Reproceso">🟠 Garantía / En Reproceso</option>
+            <option value="Otro">⚪ Otro</option>
+          </select>
+        </div>
+
+        <!-- Novedades u observaciones del retorno -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Observaciones / Novedades de Recepción</label>
+          <textarea id="ret-observaciones" rows="2" placeholder="Detalles de la reparación realizada por el taller, pruebas efectuadas o pendientes..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"></textarea>
+        </div>
+
+        <!-- Foto Comprobante de Llegada -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Foto Evidencia de Llegada / Pieza Recibida (Opcional)</label>
+          <div class="flex items-center gap-3">
+            <label class="cursor-pointer px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500 text-slate-300 text-xs font-semibold flex items-center gap-2 transition">
+              <i class="fa-solid fa-camera text-emerald-400"></i>
+              <span>Foto de la Pieza en Planta</span>
+              <input type="file" id="ret-foto-input" accept="image/*" class="sr-only" onchange="manejarCambioFotoRetorno(event)">
+            </label>
+            <div id="ret-foto-preview-box" class="hidden flex items-center gap-2">
+              <img id="ret-foto-preview-img" src="" alt="Previa" class="w-12 h-12 rounded-lg object-cover border border-emerald-500/50 shadow">
+              <button type="button" onclick="limpiarFotoRetornoPreview()" class="text-rose-400 hover:text-rose-300 text-xs p-1">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones de Acción -->
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-700">
+          <button type="button" onclick="cerrarModalFinalizarRemision()" class="px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-slate-300 text-xs font-semibold transition">
+            Cancelar
+          </button>
+          <button type="submit" id="btn-confirmar-retorno" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 flex items-center gap-1.5 transition active:scale-95">
+            <i class="fa-solid fa-circle-check"></i>
+            <span>Confirmar Llegada a Planta</span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. MODAL VISUALIZADOR DE FORMATO INSTITUCIONAL IMPRIMIBLE -->
+  <div id="modal-visualizador-formato" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl max-h-[95vh] flex flex-col overflow-hidden shadow-2xl my-auto">
+      
+      <!-- Header del visor (no imprimible) -->
+      <div class="no-print flex-shrink-0 bg-slate-950 px-5 sm:px-6 py-3 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+            <i class="fa-solid fa-print"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm">Vista Previa de Formato Institucional</h3>
+            <p class="text-[11px] text-slate-400">Fiel al documento oficial "F-Remisión de Salida"</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="window.print()" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow transition">
+            <i class="fa-solid fa-print"></i>
+            <span>Imprimir / PDF</span>
+          </button>
+          <button type="button" onclick="cerrarVisualizadorFormatoRemision()" class="text-slate-400 hover:text-white transition p-1">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Hoja de documento con scroll -->
+      <div class="flex-1 overflow-y-auto p-4 sm:p-6 bg-slate-950/80 flex justify-center">
+        <div id="contenedor-documento-remision" class="w-full max-w-3xl bg-white shadow-2xl p-4 sm:p-6">
+          <!-- Renderizado institucional dinámico -->
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <style>
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #modal-visualizador-formato,
+      #modal-visualizador-formato *,
+      #contenedor-documento-remision,
+      #contenedor-documento-remision * {
+        visibility: visible !important;
+      }
+      #modal-visualizador-formato {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #contenedor-documento-remision {
+        max-width: 100% !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+    }
+  </style>
+
+  <!-- SCRIPTS DASHBOARD & ALMACÉN -->
   <script src="/js/dashboard.js"></script>
+  <script src="/js/almacen.js"></script>
 </body>
 </html>

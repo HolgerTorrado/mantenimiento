@@ -74,8 +74,11 @@ function usuarioTienePermisoMovil(permiso) {
     if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista'].includes(rol);
     if (permiso === 'reabrir_tareas') return ['admin', 'supervisor', 'director'].includes(rol);
     if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
-    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
-    if (permiso === 'acceso_movil') return true;
+    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador', 'almacenista'].includes(rol);
+    if (permiso === 'acceso_movil') return rol !== 'almacenista';
+    if (permiso === 'ver_almacen') return ['admin', 'almacenista', 'supervisor', 'director'].includes(rol);
+    if (permiso === 'crear_remisiones') return ['admin', 'almacenista'].includes(rol);
+    if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista'].includes(rol);
     return false;
   } catch (e) {
     return false;
@@ -198,6 +201,17 @@ function aplicarPermisosMovil() {
         btnCrear.classList.remove('hidden');
       } else {
         btnCrear.classList.add('hidden');
+      }
+    }
+
+    // 3. Botón Almacén en Header Móvil
+    const puedeVerAlmacen = esAdmin || usuarioTienePermisoMovil('ver_almacen');
+    const btnAlmacenHeader = document.getElementById('btn-ir-almacen-movil');
+    if (btnAlmacenHeader) {
+      if (puedeVerAlmacen) {
+        btnAlmacenHeader.classList.remove('hidden');
+      } else {
+        btnAlmacenHeader.classList.add('hidden');
       }
     }
   } catch (e) {
