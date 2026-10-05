@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1087",
+    "equipo": "Baño cocina",
+    "titulo": "Cerradura defectuosa",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Oficinas",
+    "descripcion": "Se requiere reparar o cambiar cerradura en mal estado, puerta no asegura",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-05T11:22",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791217341/siman/iniciales/ini_TSK-1087_1791217340651.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-05T16:22:21.606Z"
+  },
+  {
     "id": "TSK-1086",
     "equipo": "Tractor Kubota",
     "titulo": "Tractor colmado de suciedad",
