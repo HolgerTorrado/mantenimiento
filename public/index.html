@@ -46,8 +46,8 @@
         var esTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
         var esMovil = esMobileUA || (esPantallaChica && esTouch);
 
-        // Si es dispositivo móvil y NO ha seleccionado expresamente ver PC/Dashboard:
-        if (esMovil && !forzarPC) {
+        // Si es dispositivo móvil y NO ha seleccionado expresamente ver PC/Dashboard (Almacenista siempre usa Almacén):
+        if (esMovil && !forzarPC && rol !== 'almacenista') {
           window.location.replace('/mecanico');
           return;
         }
