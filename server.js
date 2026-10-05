@@ -21,9 +21,8 @@ const UPLOADS_DIR = path.join(__dirname, 'uploads');
 const TASKS_FILE = path.join(DATA_DIR, 'tasks.json');
 const MECANICOS_FILE = path.join(DATA_DIR, 'mecanicos.json');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
-const COMPRAS_FILE = path.join(DATA_DIR, 'compras.json');
-const COMPRAS_PERMISOS_FILE = path.join(DATA_DIR, 'compras_permisos.json');
 const PERMISOS_FILE = path.join(DATA_DIR, 'permisos.json');
+const REMISIONES_FILE = path.join(DATA_DIR, 'remisiones.json');
 
 // Asegurar directorios y persistencia permanente
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -32,6 +31,9 @@ if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 // Inicializar archivos locales por defecto si no existen
 if (!fs.existsSync(TASKS_FILE)) {
   fs.writeFileSync(TASKS_FILE, JSON.stringify([], null, 2), 'utf-8');
+}
+if (!fs.existsSync(REMISIONES_FILE)) {
+  fs.writeFileSync(REMISIONES_FILE, JSON.stringify([], null, 2), 'utf-8');
 }
 if (!fs.existsSync(MECANICOS_FILE)) {
   fs.writeFileSync(MECANICOS_FILE, JSON.stringify([], null, 2), 'utf-8');
@@ -73,6 +75,7 @@ const TIPOS_VALIDOS = [
   'otro'          // Apoyo auxiliar / General
 ];
 
+// Middlewares
 // Middlewares (Límite optimizado a 10MB para prevenir desbordes de memoria en Render)
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -128,17 +131,15 @@ const upload = multer({
 let cacheTareas = null;
 let cacheMecanicos = null;
 let cacheUsuarios = null;
-let cacheCompras = null;
-let cachePermisosCompras = null;
 let cachePermisos = null;
+let cacheRemisiones = null;
 
 function invalidarTodosLosCaches() {
   cacheTareas = null;
   cacheMecanicos = null;
   cacheUsuarios = null;
-  cacheCompras = null;
-  cachePermisosCompras = null;
   cachePermisos = null;
+  cacheRemisiones = null;
   if (global.gc) {
     try { global.gc(); } catch(e) {}
   }
@@ -301,6 +302,50 @@ function hashPassword(pass) {
   return crypto.createHash('sha256').update(String(pass)).digest('hex');
 }
 
+function leerRemisiones() {
+  if (cacheRemisiones) return cacheRemisiones;
+  try {
+    if (!fs.existsSync(REMISIONES_FILE)) {
+      cacheRemisiones = [];
+      return cacheRemisiones;
+    }
+    const raw = fs.readFileSync(REMISIONES_FILE, 'utf-8');
+    cacheRemisiones = cloudStorage.sanitizarObjeto(JSON.parse(raw));
+    return cacheRemisiones;
+  } catch (err) {
+    console.error('Error al leer remisiones.json:', err);
+    return cacheRemisiones || [];
+  }
+}
+
+function guardarRemisiones(remisiones) {
+  const remisionesLimpias = cloudStorage.sanitizarObjeto(remisiones);
+  cacheRemisiones = remisionesLimpias;
+  try {
+    const str = JSON.stringify(remisionesLimpias, null, 2);
+    fs.writeFileSync(REMISIONES_FILE, str, 'utf-8');
+    cloudStorage.subirALaNube('data/remisiones.json', str).catch(() => {});
+    return true;
+  } catch (err) {
+    console.error('Error al guardar remisiones.json:', err);
+    return false;
+  }
+}
+
+function generarConsecutivoRemision() {
+  const remisiones = leerRemisiones();
+  const hoy = new Date();
+  const yy = String(hoy.getFullYear()).slice(-2);
+  const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dd = String(hoy.getDate()).padStart(2, '0');
+  const prefijoDia = `${dd}${mm}${yy}`;
+  
+  const remisionesHoy = remisiones.filter(r => (r.consecutivo || '').startsWith(prefijoDia));
+  const num = remisionesHoy.length + 1;
+  const numStr = String(num).padStart(2, '0');
+  return `${prefijoDia}-${numStr}`;
+}
+
 // ================= MATRIZ DINÁMICA DE PERMISOS POR ROL EN SIMAN =================
 const PERMISOS_DEFAULT = {
   mecanico: {
@@ -317,7 +362,11 @@ const PERMISOS_DEFAULT = {
     crear_compras: false,
     ver_dashboard: false,
     acceso_pc: false,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: false,
+    finalizar_remisiones: false,
+    eliminar_remisiones: false
   },
   electrico: {
     crear_tareas: false,
@@ -333,7 +382,11 @@ const PERMISOS_DEFAULT = {
     crear_compras: false,
     ver_dashboard: false,
     acceso_pc: false,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: false,
+    finalizar_remisiones: false,
+    eliminar_remisiones: false
   },
   maquinista: {
     crear_tareas: false,
@@ -349,7 +402,31 @@ const PERMISOS_DEFAULT = {
     crear_compras: false,
     ver_dashboard: false,
     acceso_pc: false,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: false,
+    finalizar_remisiones: false,
+    eliminar_remisiones: false
+  },
+  almacenista: {
+    crear_tareas: false,
+    cerrar_tareas: false,
+    cambiar_horas: false,
+    cambiar_foto: true,
+    asignable_tareas: false,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: false,
+    ver_compras: true,
+    crear_compras: false,
+    ver_dashboard: false,
+    acceso_pc: true,
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: true,
+    finalizar_remisiones: true,
+    eliminar_remisiones: false
   },
   supervisor: {
     crear_tareas: true,
@@ -365,14 +442,18 @@ const PERMISOS_DEFAULT = {
     crear_compras: true,
     ver_dashboard: true,
     acceso_pc: true,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: true,
+    finalizar_remisiones: true,
+    eliminar_remisiones: false
   },
   sst: {
     crear_tareas: true,
     cerrar_tareas: true,
     cambiar_horas: true,
     cambiar_foto: true,
-    asignable_tareas: false,
+    asignable_tareas: true,
     ver_contrasenas: false,
     cambiar_contrasenas: false,
     eliminar_tareas: false,
@@ -381,7 +462,11 @@ const PERMISOS_DEFAULT = {
     crear_compras: true,
     ver_dashboard: true,
     acceso_pc: true,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: false,
+    finalizar_remisiones: false,
+    eliminar_remisiones: false
   },
   director: {
     crear_tareas: true,
@@ -397,7 +482,11 @@ const PERMISOS_DEFAULT = {
     crear_compras: true,
     ver_dashboard: true,
     acceso_pc: true,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: true,
+    finalizar_remisiones: true,
+    eliminar_remisiones: true
   },
   compras: {
     crear_tareas: false,
@@ -413,7 +502,11 @@ const PERMISOS_DEFAULT = {
     crear_compras: true,
     ver_dashboard: false,
     acceso_pc: true,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: false,
+    finalizar_remisiones: false,
+    eliminar_remisiones: false
   },
   visualizador: {
     crear_tareas: false,
@@ -429,7 +522,11 @@ const PERMISOS_DEFAULT = {
     crear_compras: false,
     ver_dashboard: true,
     acceso_pc: true,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: false,
+    finalizar_remisiones: false,
+    eliminar_remisiones: false
   },
   admin: {
     crear_tareas: true,
@@ -445,7 +542,31 @@ const PERMISOS_DEFAULT = {
     crear_compras: true,
     ver_dashboard: true,
     acceso_pc: true,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: true,
+    finalizar_remisiones: true,
+    eliminar_remisiones: true
+  },
+  almacenista: {
+    crear_tareas: false,
+    cerrar_tareas: false,
+    cambiar_horas: false,
+    cambiar_foto: false,
+    asignable_tareas: false,
+    ver_contrasenas: false,
+    cambiar_contrasenas: false,
+    eliminar_tareas: false,
+    reabrir_tareas: false,
+    ver_compras: true,
+    crear_compras: true,
+    ver_dashboard: false,
+    acceso_pc: true,
+    acceso_movil: false,
+    ver_almacen: true,
+    crear_remisiones: true,
+    finalizar_remisiones: true,
+    eliminar_remisiones: false
   }
 };
 
@@ -478,7 +599,11 @@ function leerPermisos() {
       crear_compras: true,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: true,
+      finalizar_remisiones: true,
+      eliminar_remisiones: true
     };
     cachePermisos = merged;
     return cachePermisos;
@@ -912,7 +1037,7 @@ const ROLES_APOYO = ['auxiliar', 'operario', 'supernumerario'];
 const ROLES_TECNICOS = [...ROLES_TECNICOS_MOVIL, ...ROLES_APOYO];
 
 // Todos los roles admisibles con cuenta de usuario
-const ROLES_TODOS = ['admin', 'supervisor', 'sst', 'director', 'compras', 'mecanico', 'electrico', 'maquinista', 'visualizador'];
+const ROLES_TODOS = ['admin', 'supervisor', 'sst', 'director', 'almacenista', 'mecanico', 'electrico', 'maquinista', 'visualizador', 'compras'];
 
 function getEspecialidadPorRol(rol) {
   switch (rol) {
@@ -921,6 +1046,8 @@ function getEspecialidadPorRol(rol) {
     case 'supervisor': return 'Supervisor de Mantenimiento / Planta';
     case 'sst': return 'Seguridad y Salud en el Trabajo (SST)';
     case 'director': return 'Director de Planta';
+    case 'almacenista': return 'Almacenista / Gestión de Almacén';
+    case 'compras': return 'Compras y Adquisiciones';
     case 'electrico': return 'Técnico Electricista';
     case 'maquinista': return 'Operador de Maquinaria';
     case 'auxiliar': return 'Auxiliar Mecánico';
@@ -1779,6 +1906,7 @@ app.put('/api/tasks/:id', async (req, res) => {
   if (titulo !== undefined) tareas[idx].titulo = titulo.trim();
   if (tipo !== undefined) tareas[idx].tipo = tipo.toLowerCase();
   if (prioridad !== undefined) tareas[idx].prioridad = prioridad;
+  
   // Soporte explícito para Reabrir Tarea
   const puedeReabrir = esAdmin || tienePermiso(userRol, 'reabrir_tareas');
   const quiereReabrir = tareas[idx].estado === 'completado' && (req.body.reabrir === true || (estado !== undefined && estado !== 'completado'));
@@ -1805,7 +1933,7 @@ app.put('/api/tasks/:id', async (req, res) => {
 
   // Soporte explícito para Quitar / Eliminar Foto Comprobante de Finalización
   const puedeCambiarFoto = esAdmin || tienePermiso(userRol, 'cambiar_foto');
-  if (req.body.eliminar_foto_comprobante === true || foto_comprobante === null || req.body.foto_comprobante === null) {
+  if (req.body.eliminar_foto_comprobante === true || foto_comprobante === null) {
     if (!puedeCambiarFoto) {
       return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para eliminar fotografías de comprobante.' });
     }
@@ -1815,7 +1943,7 @@ app.put('/api/tasks/:id', async (req, res) => {
   }
 
   // Soporte explícito para Quitar / Eliminar Foto Inicial
-  if (req.body.eliminar_foto_inicial === true || foto_inicial === null || req.body.foto_inicial === null) {
+  if (req.body.eliminar_foto_inicial === true || foto_inicial === null) {
     if (!puedeCambiarFoto) {
       return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para eliminar fotografías iniciales.' });
     }
@@ -2118,6 +2246,348 @@ app.delete('/api/tasks/:id/avances/:avanceId', (req, res) => {
   }
 
   res.json({ mensaje: 'Avance eliminado correctamente', avances: tareas[idx].avances || [] });
+});
+
+// ==========================================
+// MÓDULO ALMACÉN & REMISIONES DE SALIDA
+// ==========================================
+
+// 1. Listar Remisiones
+app.get('/api/remisiones', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin' && !tienePermiso(userRol, 'ver_almacen')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para acceder al módulo de Almacén.' });
+  }
+
+  let remisiones = leerRemisiones();
+  const { estado, q, area } = req.query;
+
+  if (estado && estado !== 'todos') {
+    remisiones = remisiones.filter(r => r.estado === estado);
+  }
+  if (area && area !== 'todos') {
+    remisiones = remisiones.filter(r => (r.area || '').toLowerCase() === area.toLowerCase());
+  }
+  if (q && q.trim()) {
+    const term = q.trim().toLowerCase();
+    remisiones = remisiones.filter(r => {
+      const itemsTxt = Array.isArray(r.items) ? r.items.map(it => `${it.descripcion || ''} ${it.observaciones || ''}`).join(' ') : '';
+      const haystack = `${r.consecutivo || ''} ${r.id || ''} ${r.remitido_por || ''} ${r.cargo_remitente || ''} ${r.dependencia || ''} ${(r.transportador && r.transportador.nombre) || ''} ${(r.transportador && r.transportador.vehiculo_placa) || ''} ${(r.destino && r.destino.empresa_proveedor) || ''} ${itemsTxt} ${r.observaciones_generales || ''}`.toLowerCase();
+      return haystack.includes(term);
+    });
+  }
+
+  remisiones.sort((a, b) => new Date(b.creado_en || 0) - new Date(a.creado_en || 0));
+  res.json(remisiones);
+});
+
+// 2. Resumen y KPIs de Almacén
+app.get('/api/remisiones/stats', (req, res) => {
+  const remisiones = leerRemisiones();
+  const fuera = remisiones.filter(r => r.estado === 'fuera_planta');
+  const retornadas = remisiones.filter(r => r.estado === 'retornado');
+  
+  let totalItemsFuera = 0;
+  fuera.forEach(r => {
+    if (Array.isArray(r.items)) {
+      r.items.forEach(it => {
+        totalItemsFuera += (parseFloat(it.cantidad) || 1);
+      });
+    } else {
+      totalItemsFuera += 1;
+    }
+  });
+
+  const destinosUnicos = new Set(fuera.map(r => (r.destino && r.destino.empresa_proveedor) || 'Desconocido').filter(Boolean));
+
+  res.json({
+    total_remisiones: remisiones.length,
+    fuera_de_planta: fuera.length,
+    retornadas: retornadas.length,
+    total_piezas_fuera: totalItemsFuera,
+    destinos_activos: Array.from(destinosUnicos),
+    consecutivo_siguiente: generarConsecutivoRemision()
+  });
+});
+
+// 3. Detalle de Remisión por ID o Consecutivo
+app.get('/api/remisiones/:id', (req, res) => {
+  const remisiones = leerRemisiones();
+  const rem = remisiones.find(r => r.id === req.params.id || r.consecutivo === req.params.id);
+  if (!rem) return res.status(404).json({ error: 'Remisión no encontrada' });
+  res.json(rem);
+});
+
+// 4. Crear Nueva Remisión de Salida
+app.post('/api/remisiones', async (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const userName = req.headers['x-user-name'] || req.headers['x-user-username'] || 'Usuario';
+  if (userRol !== 'admin' && !tienePermiso(userRol, 'crear_remisiones')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para generar remisiones de salida.' });
+  }
+
+  const {
+    consecutivo,
+    area,
+    fecha_remision,
+    hora_salida,
+    remitido_por,
+    cargo_remitente,
+    dependencia,
+    transportador,
+    destino,
+    items,
+    observaciones_generales,
+    foto_salida_base64
+  } = req.body;
+
+  if (!fecha_remision) {
+    return res.status(400).json({ error: 'La fecha de remisión es obligatoria.' });
+  }
+
+  const remisiones = leerRemisiones();
+  const consecutivoFinal = (consecutivo && consecutivo.trim()) ? consecutivo.trim() : generarConsecutivoRemision();
+  const idUnico = `REM-${Date.now()}`;
+
+  let fotoUrl = null;
+  if (foto_salida_base64 && foto_salida_base64.startsWith('data:image/')) {
+    try {
+      fotoUrl = await imageStorage.subirImagenNube(foto_salida_base64, `salida_${idUnico}`, 'remisiones');
+    } catch(err) {
+      console.warn('Error subiendo foto de salida:', err.message);
+    }
+  }
+
+  let itemsFinales = [];
+  if (Array.isArray(items) && items.length > 0) {
+    itemsFinales = items.map((it, idx) => ({
+      item_num: idx + 1,
+      cantidad: parseFloat(it.cantidad) || 1,
+      unidad: (it.unidad || 'Und').trim(),
+      descripcion: (it.descripcion || '').trim(),
+      observaciones: (it.observaciones || '').trim()
+    })).filter(it => it.descripcion);
+  }
+  if (itemsFinales.length === 0) {
+    itemsFinales = [{
+      item_num: 1,
+      cantidad: 1,
+      unidad: 'Und',
+      descripcion: req.body.descripcion_material || 'Material enviado a taller',
+      observaciones: observaciones_generales || ''
+    }];
+  }
+
+  const nuevaRemision = {
+    id: idUnico,
+    consecutivo: consecutivoFinal,
+    area: (area || 'operativa').toLowerCase().trim(),
+    fecha_remision: fecha_remision.trim(),
+    hora_salida: (hora_salida || '08:00 a.m.').trim(),
+    remitido_por: (remitido_por || userName).trim(),
+    cargo_remitente: (cargo_remitente || 'Almacenista').trim(),
+    dependencia: (dependencia || 'Operativa').trim(),
+    transportador: {
+      nombre: (transportador && transportador.nombre ? transportador.nombre : '').trim(),
+      cc_nit: (transportador && transportador.cc_nit ? transportador.cc_nit : '').trim(),
+      vehiculo_placa: (transportador && transportador.vehiculo_placa ? transportador.vehiculo_placa : '').trim()
+    },
+    destino: {
+      empresa_proveedor: (destino && destino.empresa_proveedor ? destino.empresa_proveedor : 'Taller Externo').trim(),
+      contacto: (destino && destino.contacto ? destino.contacto : '').trim(),
+      telefono: (destino && destino.telefono ? destino.telefono : '').trim(),
+      direccion: (destino && destino.direccion ? destino.direccion : '').trim()
+    },
+    items: itemsFinales,
+    observaciones_generales: (observaciones_generales || '').trim(),
+    foto_salida: fotoUrl,
+    estado: 'fuera_planta',
+    creado_por: req.headers['x-user-username'] || userName,
+    creado_por_nombre: userName,
+    creado_por_rol: userRol,
+    creado_en: new Date().toISOString(),
+    retorno: null
+  };
+
+  remisiones.push(nuevaRemision);
+  guardarRemisiones(remisiones);
+  generarRespaldoAutomatico('crear_remision');
+
+  res.json({
+    ok: true,
+    mensaje: `Remisión de Salida N° ${consecutivoFinal} generada exitosamente.`,
+    remision: nuevaRemision
+  });
+});
+
+// 5. Modificar Remisión de Salida
+app.put('/api/remisiones/:id', async (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin' && !tienePermiso(userRol, 'crear_remisiones')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar remisiones.' });
+  }
+
+  let remisiones = leerRemisiones();
+  const idx = remisiones.findIndex(r => r.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Remisión no encontrada' });
+
+  const {
+    consecutivo,
+    area,
+    fecha_remision,
+    hora_salida,
+    remitido_por,
+    cargo_remitente,
+    dependencia,
+    transportador,
+    destino,
+    items,
+    observaciones_generales,
+    foto_salida_base64
+  } = req.body;
+
+  if (consecutivo !== undefined) remisiones[idx].consecutivo = consecutivo.trim();
+  if (area !== undefined) remisiones[idx].area = area.toLowerCase().trim();
+  if (fecha_remision !== undefined) remisiones[idx].fecha_remision = fecha_remision.trim();
+  if (hora_salida !== undefined) remisiones[idx].hora_salida = hora_salida.trim();
+  if (remitido_por !== undefined) remisiones[idx].remitido_por = remitido_por.trim();
+  if (cargo_remitente !== undefined) remisiones[idx].cargo_remitente = cargo_remitente.trim();
+  if (dependencia !== undefined) remisiones[idx].dependencia = dependencia.trim();
+  if (transportador !== undefined) remisiones[idx].transportador = { ...remisiones[idx].transportador, ...transportador };
+  if (destino !== undefined) remisiones[idx].destino = { ...remisiones[idx].destino, ...destino };
+  if (observaciones_generales !== undefined) remisiones[idx].observaciones_generales = observaciones_generales.trim();
+
+  if (Array.isArray(items)) {
+    remisiones[idx].items = items.map((it, i) => ({
+      item_num: i + 1,
+      cantidad: parseFloat(it.cantidad) || 1,
+      unidad: (it.unidad || 'Und').trim(),
+      descripcion: (it.descripcion || '').trim(),
+      observaciones: (it.observaciones || '').trim()
+    })).filter(it => it.descripcion);
+  }
+
+  if (foto_salida_base64 && foto_salida_base64.startsWith('data:image/')) {
+    remisiones[idx].foto_salida = await imageStorage.subirImagenNube(foto_salida_base64, `salida_${remisiones[idx].id}`, 'remisiones');
+  }
+
+  remisiones[idx].modificado_en = new Date().toISOString();
+  remisiones[idx].modificado_por = req.headers['x-user-username'] || userRol;
+
+  guardarRemisiones(remisiones);
+  res.json({
+    ok: true,
+    mensaje: `Remisión N° ${remisiones[idx].consecutivo} actualizada correctamente.`,
+    remision: remisiones[idx]
+  });
+});
+
+// 6. FINALIZAR REMISIÓN: Registrar Llegada / Retorno del Material a Planta
+app.post('/api/remisiones/:id/finalizar', async (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const userName = req.headers['x-user-name'] || req.headers['x-user-username'] || 'Almacenista';
+  if (userRol !== 'admin' && !tienePermiso(userRol, 'finalizar_remisiones')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para finalizar remisiones de salida.' });
+  }
+
+  let remisiones = leerRemisiones();
+  const idx = remisiones.findIndex(r => r.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Remisión no encontrada' });
+
+  const {
+    fecha_recibido,
+    hora_recibido,
+    recibido_por,
+    cargo_receptor,
+    dependencia_receptora,
+    estado_material,
+    observaciones_retorno,
+    foto_retorno_base64
+  } = req.body;
+
+  let fotoUrl = null;
+  if (foto_retorno_base64 && foto_retorno_base64.startsWith('data:image/')) {
+    try {
+      fotoUrl = await imageStorage.subirImagenNube(foto_retorno_base64, `ret_${remisiones[idx].id}`, 'remisiones_retorno');
+    } catch(e) {
+      console.warn('Error subiendo foto de retorno:', e.message);
+    }
+  }
+
+  const hoy = new Date();
+  const hoyStr = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}-${String(hoy.getDate()).padStart(2, '0')}`;
+  const horaActualStr = hoy.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+  remisiones[idx].estado = 'retornado';
+  remisiones[idx].retorno = {
+    fecha_recibido: (fecha_recibido || hoyStr).trim(),
+    hora_recibido: (hora_recibido || horaActualStr).trim(),
+    recibido_por: (recibido_por || userName).trim(),
+    cargo_receptor: (cargo_receptor || 'Almacenista').trim(),
+    dependencia_receptora: (dependencia_receptora || 'Almacén Planta').trim(),
+    estado_material: (estado_material || 'Reparado / Conforme').trim(),
+    observaciones_retorno: (observaciones_retorno || 'Material recibido y verificado en planta.').trim(),
+    foto_retorno: fotoUrl,
+    finalizado_por: req.headers['x-user-username'] || userName,
+    finalizado_por_nombre: userName,
+    finalizado_por_rol: userRol,
+    finalizado_en: new Date().toISOString()
+  };
+
+  guardarRemisiones(remisiones);
+  generarRespaldoAutomatico('retorno_material_planta');
+
+  console.log(`[SIMAN] 📦 Remisión ${remisiones[idx].consecutivo} finalizada con éxito. Material retornado a planta.`);
+  res.json({
+    ok: true,
+    mensaje: `¡Excelente! Material de la remisión N° ${remisiones[idx].consecutivo} registrado en planta. La remisión ha quedado FINALIZADA.`,
+    remision: remisiones[idx]
+  });
+});
+
+// 7. Reabrir Remisión
+app.post('/api/remisiones/:id/reabrir', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin' && !tienePermiso(userRol, 'finalizar_remisiones')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para reabrir remisiones.' });
+  }
+
+  let remisiones = leerRemisiones();
+  const idx = remisiones.findIndex(r => r.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Remisión no encontrada' });
+
+  remisiones[idx].estado = 'fuera_planta';
+  remisiones[idx].reabierta = true;
+  remisiones[idx].reabierta_en = new Date().toISOString();
+  remisiones[idx].reabierta_por = userRol;
+
+  guardarRemisiones(remisiones);
+  res.json({
+    ok: true,
+    mensaje: `Remisión N° ${remisiones[idx].consecutivo} reabierta a estado 'Fuera de Planta'.`,
+    remision: remisiones[idx]
+  });
+});
+
+// 8. Eliminar Remisión
+app.delete('/api/remisiones/:id', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin' && !tienePermiso(userRol, 'eliminar_remisiones')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para eliminar remisiones.' });
+  }
+
+  let remisiones = leerRemisiones();
+  const rem = remisiones.find(r => r.id === req.params.id);
+  if (!rem) return res.status(404).json({ error: 'Remisión no encontrada' });
+
+  remisiones = remisiones.filter(r => r.id !== req.params.id);
+  guardarRemisiones(remisiones);
+  generarRespaldoAutomatico('eliminar_remision');
+
+  res.json({
+    ok: true,
+    mensaje: `Remisión eliminada exitosamente.`
+  });
 });
 
 // Variable y función de migración en segundo plano de fotos históricas a Cloudinary
@@ -2753,9 +3223,8 @@ function generarRespaldoAutomatico(motivo = 'sistema') {
       users: leerUsuarios(),
       tasks: leerTareas(),
       mecanicos: leerMecanicos(),
-      compras: leerCompras(),
-      compras_permisos: leerPermisosCompras(),
-      permisos: leerPermisos()
+      permisos: leerPermisos(),
+      remisiones: leerRemisiones()
     };
 
     const payload = JSON.stringify(backupData, null, 2);
@@ -2882,9 +3351,8 @@ app.get('/api/backup/export', (req, res) => {
     users: leerUsuarios(),
     tasks: leerTareas(),
     mecanicos: leerMecanicos(),
-    compras: leerCompras(),
-    compras_permisos: leerPermisosCompras(),
-    permisos: leerPermisos()
+    permisos: leerPermisos(),
+    remisiones: leerRemisiones()
   });
 });
 
@@ -2900,9 +3368,8 @@ app.get('/api/backup', (req, res) => {
     users: leerUsuarios(),
     tasks: leerTareas(),
     mecanicos: leerMecanicos(),
-    compras: leerCompras(),
-    compras_permisos: leerPermisosCompras(),
-    permisos: leerPermisos()
+    permisos: leerPermisos(),
+    remisiones: leerRemisiones()
   });
 });
 
@@ -2947,7 +3414,7 @@ app.post('/api/restore', (req, res) => {
     return res.status(403).json({ error: 'Permiso denegado: Solo el Administrador Holger puede restaurar respaldos.' });
   }
 
-  const { users, tasks, mecanicos, compras, compras_permisos, permisos } = req.body;
+  const { users, tasks, mecanicos, permisos, remisiones } = req.body;
   let restaurados = [];
   if (Array.isArray(users) && users.length > 0) {
     guardarUsuarios(users);
@@ -2961,17 +3428,13 @@ app.post('/api/restore', (req, res) => {
     guardarMecanicos(mecanicos);
     restaurados.push(`${mecanicos.length} mecánicos`);
   }
-  if (Array.isArray(compras)) {
-    guardarCompras(compras);
-    restaurados.push(`${compras.length} compras`);
-  }
-  if (compras_permisos) {
-    guardarPermisosCompras(compras_permisos);
-    restaurados.push('permisos de compras');
-  }
   if (permisos && typeof permisos === 'object') {
     guardarPermisos(permisos);
     restaurados.push('matriz de permisos');
+  }
+  if (Array.isArray(remisiones)) {
+    guardarRemisiones(remisiones);
+    restaurados.push(`${remisiones.length} remisiones`);
   }
 
   generarRespaldoAutomatico('post_restauracion');
@@ -3007,8 +3470,7 @@ async function iniciarServidor() {
       cloudStorage.sincronizarArchivoAlIniciar('users.json', USERS_FILE),
       cloudStorage.sincronizarArchivoAlIniciar('tasks.json', TASKS_FILE),
       cloudStorage.sincronizarArchivoAlIniciar('mecanicos.json', MECANICOS_FILE),
-      cloudStorage.sincronizarArchivoAlIniciar('compras.json', COMPRAS_FILE),
-      cloudStorage.sincronizarArchivoAlIniciar('compras_permisos.json', COMPRAS_PERMISOS_FILE)
+      cloudStorage.sincronizarArchivoAlIniciar('remisiones.json', REMISIONES_FILE)
     ]);
     console.log('[SIMAN] Sincronización blindada inicial completada con éxito.');
 
@@ -3016,8 +3478,7 @@ async function iniciarServidor() {
     cacheUsuarios = leerUsuarios();
     cacheTareas = leerTareas();
     cacheMecanicos = leerMecanicos();
-    cacheCompras = leerCompras();
-    cachePermisosCompras = leerPermisosCompras();
+    cacheRemisiones = leerRemisiones();
     if (global.gc) {
       try { global.gc(); } catch(e) {}
     }

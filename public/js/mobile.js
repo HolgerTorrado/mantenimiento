@@ -76,8 +76,11 @@ function usuarioTienePermisoMovil(permiso) {
     if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista'].includes(rol);
     if (permiso === 'reabrir_tareas') return ['admin', 'supervisor', 'director'].includes(rol);
     if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
-    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
-    if (permiso === 'acceso_movil') return true;
+    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador', 'almacenista'].includes(rol);
+    if (permiso === 'acceso_movil') return rol !== 'almacenista';
+    if (permiso === 'ver_almacen') return ['admin', 'almacenista', 'supervisor', 'director'].includes(rol);
+    if (permiso === 'crear_remisiones') return ['admin', 'almacenista'].includes(rol);
+    if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista'].includes(rol);
     return false;
   } catch (e) {
     return false;
@@ -202,6 +205,17 @@ function aplicarPermisosMovil() {
         btnCrear.classList.add('hidden');
       }
     }
+
+    // 3. Botón Almacén en Header Móvil
+    const puedeVerAlmacen = esAdmin || usuarioTienePermisoMovil('ver_almacen');
+    const btnAlmacenHeader = document.getElementById('btn-ir-almacen-movil');
+    if (btnAlmacenHeader) {
+      if (puedeVerAlmacen) {
+        btnAlmacenHeader.classList.remove('hidden');
+      } else {
+        btnAlmacenHeader.classList.add('hidden');
+      }
+    }
   } catch (e) {
     console.error('Error aplicando permisos en móvil:', e);
   }
@@ -213,29 +227,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!user) return; // Detener ejecución si no hay sesión activa
 
   await cargarPermisosMovil();
-
-  // Si es perfil de compras, aislar exclusivamente a compras y NO cargar mantenimiento
-  if (user.rol === 'compras') {
-    if (typeof cambiarSeccionMovil === 'function') {
-      cambiarSeccionMovil('compras');
-    }
-    if (typeof verificarAccesoModuloCompras === 'function') {
-      verificarAccesoModuloCompras();
-    }
-    if (typeof cargarCompras === 'function') {
-      cargarCompras();
-    }
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
-    }
-    setInterval(() => {
-      if (document.hidden) return;
-      if (typeof cargarCompras === 'function') {
-        cargarCompras();
-      }
-    }, 20000);
-    return;
-  }
   cargarTareasMovil();
   cargarMecanicosMovil();
 
@@ -257,14 +248,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }, 20000);
 
-  // Al volver a la app o desbloquear el celular, refrescar inmediatamente
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
-      if (seccionMovilActiva === 'compras' && typeof cargarCompras === 'function') {
-        cargarCompras();
-      } else {
-        cargarTareasMovil(false);
-      }
+      cargarTareasMovil(false);
     }
   });
 });
@@ -317,46 +303,8 @@ function verificarSesionMovil() {
       label.innerHTML = `${icon} <span class="font-bold text-white">${escaparHTMLMovil(user.nombre || user.username)}</span> ${rolBadge}`;
     }
 
-    const esGestion = ['admin', 'supervisor', 'sst', 'director', 'compras'].includes(user.rol);
-
     // Habilitar controles según matriz de permisos
     aplicarPermisosMovil();
-
-    // Botón Contextual Móvil (Crear Tarea / Solicitar Compra / Recargar)
-    const btnContextual = document.getElementById('btn-accion-movil-contextual');
-    if (btnContextual) {
-      if (esGestion) {
-        btnContextual.classList.remove('hidden');
-      } else {
-        btnContextual.classList.add('hidden');
-      }
-    }
-
-    // Si el usuario es de Compras, aislar estrictamente ocultando módulos de mantenimiento
-    if (user.rol === 'compras') {
-      const btnSecTareas = document.getElementById('btn-sec-tareas');
-      const btnSecDashboard = document.getElementById('btn-sec-dashboard');
-      const tabsMovil = document.getElementById('mobile-tabs');
-      const navSec = document.getElementById('nav-secciones-movil');
-      const secTareas = document.getElementById('contenedor-tareas-movil');
-      const secDashboard = document.getElementById('contenedor-dashboard-movil');
-      const secCompras = document.getElementById('contenedor-compras-movil');
-
-      if (btnSecTareas) { btnSecTareas.style.setProperty('display', 'none', 'important'); btnSecTareas.classList.add('hidden'); }
-      if (btnSecDashboard) { btnSecDashboard.style.setProperty('display', 'none', 'important'); btnSecDashboard.classList.add('hidden'); }
-      if (tabsMovil) { tabsMovil.style.setProperty('display', 'none', 'important'); tabsMovil.classList.add('hidden'); }
-      if (navSec) { navSec.style.setProperty('display', 'none', 'important'); navSec.classList.add('hidden'); }
-      if (secTareas) { secTareas.style.setProperty('display', 'none', 'important'); secTareas.classList.add('hidden'); }
-      if (secDashboard) { secDashboard.style.setProperty('display', 'none', 'important'); secDashboard.classList.add('hidden'); }
-      if (secCompras) { secCompras.style.setProperty('display', 'block', 'important'); secCompras.classList.remove('hidden'); }
-
-      const pie = document.getElementById('txt-mecanico-actual-pie');
-      if (pie) pie.innerText = 'Compras en línea';
-
-      if (typeof cambiarSeccionMovil === 'function') {
-        cambiarSeccionMovil('compras');
-      }
-    }
 
     return user;
   } catch (e) {

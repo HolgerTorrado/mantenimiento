@@ -8,6 +8,285 @@ let chartTiempos = null;
 let chartRolesTiempos = null;
 let nuevaFotoDetalleBase64 = null;
 let fotoDetalleOriginal = null;
+let eliminarFotoDetallePendiente = false;
+let eliminarFotoInicialDetallePendiente = false;
+
+// Matriz dinámica de permisos RBAC
+let simanPermisosCache = null;
+
+async function cargarPermisosSistema() {
+  try {
+    const res = await fetch('/api/permisos');
+    if (res.ok) {
+      simanPermisosCache = await res.json();
+      window.SIMAN_PERMISOS = simanPermisosCache;
+      aplicarPermisosEnUI();
+    }
+  } catch (err) {
+    console.warn('No se pudo sincronizar matriz de permisos:', err);
+  }
+}
+
+function usuarioTienePermiso(permiso) {
+  const userJson = localStorage.getItem('siman_user');
+  if (!userJson) return false;
+  try {
+    const user = JSON.parse(userJson);
+    const rol = (user.rol || '').toLowerCase().trim();
+    if (rol === 'admin') return true; // Administrador Holger siempre tiene acceso total
+    if (simanPermisosCache && simanPermisosCache[rol] && simanPermisosCache[rol][permiso] !== undefined) {
+      return Boolean(simanPermisosCache[rol][permiso]);
+    }
+    // Fallbacks inteligentes antes de recibir la red
+    if (permiso === 'crear_tareas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
+    if (permiso === 'cerrar_tareas') return ['admin', 'mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
+    if (permiso === 'cambiar_foto') return true;
+    if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista'].includes(rol);
+    if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
+    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador', 'almacenista'].includes(rol);
+    if (permiso === 'reabrir_tareas') return ['admin', 'supervisor', 'director'].includes(rol);
+    if (permiso === 'cambiar_horas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
+    if (permiso === 'ver_almacen') return ['admin', 'almacenista', 'supervisor', 'director'].includes(rol);
+    if (permiso === 'crear_remisiones') return ['admin', 'almacenista'].includes(rol);
+    if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista'].includes(rol);
+    if (permiso === 'eliminar_remisiones') return ['admin'].includes(rol);
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Configuración visual y descriptiva de todos los roles asignables
+const CONFIG_ROLES_ASIGNABLES = {
+  mecanico: { label: 'Mecánica', icon: 'fa-wrench', emoji: '🔧', colorClass: 'border-emerald-500 bg-emerald-950/40 text-emerald-300', badgeClass: 'bg-emerald-950 text-emerald-300 border-emerald-800/80' },
+  electrico: { label: 'Eléctrica', icon: 'fa-bolt', emoji: '⚡', colorClass: 'border-amber-500 bg-amber-950/40 text-amber-300', badgeClass: 'bg-amber-950 text-amber-300 border-amber-800/80' },
+  maquinista: { label: 'Maquinaria', icon: 'fa-tractor', emoji: '🚜', colorClass: 'border-orange-500 bg-orange-950/40 text-orange-300', badgeClass: 'bg-orange-950 text-orange-300 border-orange-800/80' },
+  supervisor: { label: 'Supervisión', icon: 'fa-user-tie', emoji: '👷', colorClass: 'border-sky-500 bg-sky-950/40 text-sky-300', badgeClass: 'bg-sky-950 text-sky-300 border-sky-800/80' },
+  sst: { label: 'SST', icon: 'fa-shield-heart', emoji: '🦺', colorClass: 'border-teal-500 bg-teal-950/40 text-teal-300', badgeClass: 'bg-teal-950 text-teal-300 border-teal-800/80' },
+  director: { label: 'Dirección', icon: 'fa-building', emoji: '🏢', colorClass: 'border-indigo-500 bg-indigo-950/40 text-indigo-300', badgeClass: 'bg-indigo-950 text-indigo-300 border-indigo-800/80' },
+  visualizador: { label: 'Visualizador', icon: 'fa-eye', emoji: '👁️', colorClass: 'border-purple-500 bg-purple-950/40 text-purple-300', badgeClass: 'bg-purple-950 text-purple-300 border-purple-800/80' },
+  admin: { label: 'Administración', icon: 'fa-crown', emoji: '👑', colorClass: 'border-amber-500 bg-amber-950/40 text-amber-300', badgeClass: 'bg-amber-950 text-amber-300 border-amber-800/80' }
+};
+
+function getBadgeRolDashboard(r) {
+  const rolKey = String(r || '').toLowerCase().trim();
+  const cfg = CONFIG_ROLES_ASIGNABLES[rolKey] || { label: r, icon: 'fa-user', emoji: '👤', badgeClass: 'bg-slate-800 text-slate-300 border-slate-700' };
+  return `<span class="text-[9px] ${cfg.badgeClass} border px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1"><i class="fa-solid ${cfg.icon}"></i> ${cfg.label}</span>`;
+}
+
+function obtenerRolesAsignablesActivos(rolesAdicionales = []) {
+  const roles = new Set();
+  // 1. Roles con asignable_tareas activado en la matriz de permisos
+  if (simanPermisosCache) {
+    for (const [rol, p] of Object.entries(simanPermisosCache)) {
+      if (p && p.asignable_tareas) roles.add(rol);
+    }
+  }
+  // 2. Fallbacks si aún no ha cargado la red
+  if (roles.size === 0) {
+    roles.add('mecanico');
+    roles.add('electrico');
+    roles.add('maquinista');
+  }
+  // 3. Incluir roles ya presentes en la tarea para no desasociarlos
+  if (Array.isArray(rolesAdicionales)) {
+    rolesAdicionales.forEach(r => { if (r) roles.add(String(r).toLowerCase().trim()); });
+  }
+  return Array.from(roles);
+}
+
+function renderCheckboxesRolesCrear() {
+  const container = document.getElementById('contenedor-roles-asignados-crear');
+  if (!container) return;
+  const rolesActivos = obtenerRolesAsignablesActivos();
+  const lista = rolesActivos.length > 0 ? rolesActivos : ['mecanico', 'electrico', 'maquinista'];
+  container.innerHTML = lista.map(rol => {
+    const cfg = CONFIG_ROLES_ASIGNABLES[rol] || { label: rol, emoji: '👤', colorClass: 'border-slate-700 bg-slate-900 text-slate-200' };
+    const checked = (rol === 'mecanico') ? 'checked' : '';
+    const parts = cfg.colorClass.split(' ');
+    const borderClass = parts[0] || 'border-slate-700';
+    const bgClass = parts[1] || 'bg-slate-900';
+    const textClass = parts[2] || 'text-slate-200';
+    return `
+      <label class="cursor-pointer border border-slate-700 rounded-lg p-2.5 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:${borderClass} has-[:checked]:${bgClass}">
+        <input type="checkbox" name="roles_asignados" value="${rol}" ${checked} onchange="actualizarEstadoTrabajoConjunto()" class="rounded border-slate-700 text-emerald-600 focus:ring-0">
+        <span class="text-xs font-bold ${textClass}">${cfg.emoji} ${cfg.label}</span>
+      </label>
+    `;
+  }).join('');
+  actualizarEstadoTrabajoConjunto();
+}
+
+function renderCheckboxesRolesDetalle(t, puedeEditar) {
+  const container = document.getElementById('contenedor-roles-asignados-detalle');
+  if (!container) return;
+  const rolesTarea = Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0 
+    ? t.roles_asignados.map(r => String(r).toLowerCase().trim()) 
+    : ['mecanico'];
+  const rolesActivos = obtenerRolesAsignablesActivos(rolesTarea);
+  container.innerHTML = rolesActivos.map(rol => {
+    const cfg = CONFIG_ROLES_ASIGNABLES[rol] || { label: rol, emoji: '👤', colorClass: 'border-slate-700 bg-slate-900 text-slate-200' };
+    const checked = rolesTarea.includes(rol) ? 'checked' : '';
+    const disabled = !puedeEditar ? 'disabled' : '';
+    const parts = cfg.colorClass.split(' ');
+    const borderClass = parts[0] || 'border-slate-700';
+    const bgClass = parts[1] || 'bg-slate-900';
+    const textClass = parts[2] || 'text-slate-200';
+    return `
+      <label class="cursor-pointer border border-slate-700 rounded-lg p-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:${borderClass} has-[:checked]:${bgClass}">
+        <input type="checkbox" name="edit_det_roles_asignados" value="${rol}" ${checked} ${disabled} onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-emerald-600 focus:ring-0">
+        <span class="text-xs font-bold ${textClass}">${cfg.emoji} ${cfg.label}</span>
+      </label>
+    `;
+  }).join('');
+  actualizarEstadoConjuntaDetalle();
+}
+
+// Cómputo inteligente de tiempos por rol en cliente PC
+function resolverTiemposRolesCliente(t) {
+  if (!t) return { mecanico: 0, electrico: 0, maquinista: 0 };
+  let tpr = t.tiempos_por_rol ? { ...t.tiempos_por_rol } : { mecanico: 0, electrico: 0, maquinista: 0 };
+  const m = parseInt(tpr.mecanico) || 0;
+  const e = parseInt(tpr.electrico) || 0;
+  const q = parseInt(tpr.maquinista) || 0;
+  if ((m + e + q) > 0) return { mecanico: m, electrico: e, maquinista: q };
+
+  const tActivo = Math.max(0, parseInt(t.tiempo_trabajo_activo_minutos) || (parseInt(t.tiempo_arreglo_minutos) - parseInt(t.tiempo_espera_minutos || 0)) || parseInt(t.tiempo_arreglo_minutos) || 0);
+  if (tActivo === 0) return { mecanico: 0, electrico: 0, maquinista: 0 };
+
+  let avTpr = { mecanico: 0, electrico: 0, maquinista: 0 };
+  let sumAv = 0;
+  if (Array.isArray(t.avances)) {
+    t.avances.forEach(a => {
+      const aRol = (a.tecnico_rol === 'electrico' || a.tecnico_rol === 'electrica') ? 'electrico' : (a.tecnico_rol === 'maquinista' || a.tecnico_rol === 'maquinaria') ? 'maquinista' : 'mecanico';
+      const aMin = parseInt(a.minutos_dedicados) || Math.round((parseFloat(a.horas_dedicadas) || 0) * 60) || 0;
+      if (aMin > 0) { avTpr[aRol] += aMin; sumAv += aMin; }
+    });
+  }
+  if (sumAv >= tActivo) return avTpr;
+  const rest = tActivo - sumAv;
+
+  let roles = [];
+  if (Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0) {
+    roles = t.roles_asignados.map(r => (r === 'electrico' || r === 'electrica') ? 'electrico' : (r === 'maquinista' || r === 'maquinaria') ? 'maquinista' : 'mecanico');
+  }
+  const rolesUnicos = [...new Set(roles)];
+  const rolFin = (t.completado_por_rol === 'electrico' || t.completado_por_rol === 'electrica') ? 'electrico' : (t.completado_por_rol === 'maquinista' || t.completado_por_rol === 'maquinaria') ? 'maquinista' : (rolesUnicos[0] || 'mecanico');
+
+  if (rolesUnicos.length > 1) {
+    const porRol = Math.round(rest / rolesUnicos.length);
+    rolesUnicos.forEach(r => { avTpr[r] = (avTpr[r] || 0) + porRol; });
+    return avTpr;
+  }
+  const rDest = rolesUnicos.length === 1 ? rolesUnicos[0] : rolFin;
+  avTpr[rDest] = (avTpr[rDest] || 0) + rest;
+  return avTpr;
+}
+
+function aplicarPermisosEnUI() {
+  const userJson = localStorage.getItem('siman_user');
+  if (!userJson) return;
+  try {
+    const user = JSON.parse(userJson);
+    const rol = (user.rol || '').toLowerCase().trim();
+    const esAdmin = rol === 'admin';
+
+    // 0. Verificar si el usuario tiene permiso para estar en el Dashboard / Modo PC
+    const puedePC = esAdmin || usuarioTienePermiso('acceso_pc') || usuarioTienePermiso('ver_dashboard');
+    if (!puedePC) {
+      alert('Tu rol no tiene acceso al Dashboard de PC. Redirigiendo a tu vista móvil...');
+      window.location.replace('/mecanico');
+      return;
+    }
+
+    // 1. Botón Nueva Tarea en el Dashboard
+    const btnCrear = document.getElementById('btn-crear-tarea-dashboard');
+    if (btnCrear) {
+      if (usuarioTienePermiso('crear_tareas')) {
+        btnCrear.classList.remove('hidden');
+      } else {
+        btnCrear.classList.add('hidden');
+      }
+    }
+
+    // 2. Botón Gestión de Usuarios / Colaboradores / Permisos
+    const btnUsers = document.getElementById('btn-admin-usuarios');
+    if (btnUsers) {
+      const puedeGestionarUsuarios = esAdmin || usuarioTienePermiso('ver_contrasenas') || usuarioTienePermiso('cambiar_contrasenas');
+      if (puedeGestionarUsuarios) {
+        btnUsers.classList.remove('hidden');
+      } else {
+        btnUsers.classList.add('hidden');
+      }
+    }
+
+    // 3. Pestaña de Matriz de Permisos en el modal (Solo Administrador)
+    const tabBtnPermisos = document.getElementById('tab-btn-permisos');
+    if (tabBtnPermisos) {
+      if (esAdmin) {
+        tabBtnPermisos.classList.remove('hidden');
+      } else {
+        tabBtnPermisos.classList.add('hidden');
+      }
+    }
+
+    // 4. Botón Backup (Exclusivo Administrador)
+    const btnBackup = document.getElementById('btn-admin-backup');
+    if (btnBackup) {
+      if (esAdmin) btnBackup.classList.remove('hidden');
+      else btnBackup.classList.add('hidden');
+    }
+
+    // 5. Botón Volver a Modo Móvil
+    const btnIrMovil = document.getElementById('btn-ir-modo-movil');
+    if (btnIrMovil) {
+      const puedeMovil = esAdmin || usuarioTienePermiso('acceso_movil');
+      if (puedeMovil) {
+        btnIrMovil.classList.remove('hidden');
+      } else {
+        btnIrMovil.classList.add('hidden');
+      }
+    }
+
+    // 6. Sección de Métricas y Gráficas del Dashboard (ver_dashboard)
+    const seccionMetricas = document.getElementById('seccion-dashboard-metricas-graficas');
+    if (seccionMetricas) {
+      const puedeVerDash = esAdmin || usuarioTienePermiso('ver_dashboard');
+      if (puedeVerDash) {
+        seccionMetricas.classList.remove('hidden');
+      } else {
+        seccionMetricas.classList.add('hidden');
+      }
+    }
+
+    // 7. Refrescar checkboxes de roles asignables para el modal de crear tarea
+    renderCheckboxesRolesCrear();
+
+    // 8. Pestaña de Módulo Almacén & Remisiones
+    const tabAlmacen = document.getElementById('tab-nav-almacen');
+    if (tabAlmacen) {
+      const puedeAlmacen = esAdmin || usuarioTienePermiso('ver_almacen');
+      if (puedeAlmacen) {
+        tabAlmacen.classList.remove('hidden');
+      } else {
+        tabAlmacen.classList.add('hidden');
+      }
+    }
+
+    // 9. Botón Nueva Remisión en Almacén
+    const btnCrearRem = document.getElementById('btn-crear-remision-almacen');
+    if (btnCrearRem) {
+      const puedeCrearRem = esAdmin || usuarioTienePermiso('crear_remisiones');
+      if (puedeCrearRem) {
+        btnCrearRem.classList.remove('hidden');
+      } else {
+        btnCrearRem.classList.add('hidden');
+      }
+    }
+  } catch (e) {
+    console.error('Error al aplicar permisos en UI:', e);
+  }
+}
 
 // Matriz dinámica de permisos RBAC
 let simanPermisosCache = null;
@@ -361,16 +640,32 @@ document.addEventListener('DOMContentLoaded', async () => {
   cargarTareas();
   fijarOcurrenciaAhora();
 
+  // Soporte para módulo de Almacén & Remisiones
+  if (typeof cargarRemisiones === 'function') {
+    cargarRemisiones(false);
+  }
+  const rolUser = (user.rol || '').toLowerCase().trim();
+  if (rolUser === 'almacenista' || window.location.hash === '#almacen') {
+    if (typeof cambiarModuloPrincipal === 'function') {
+      cambiarModuloPrincipal('almacen');
+    }
+  }
+
   // Auto-refresco inteligente cada 30 segundos (solo si la pestaña está activa)
   setInterval(() => {
-    if (document.hidden) return; // Pausar peticiones si la pestaña está en segundo plano
+    if (document.hidden) return;
     cargarTareas(false);
+    if (typeof cargarRemisiones === 'function') {
+      cargarRemisiones(false);
+    }
   }, 30000);
 
-  // Refrescar al regresar a la pestaña
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
       cargarTareas(false);
+      if (typeof cargarRemisiones === 'function') {
+        cargarRemisiones(false);
+      }
     }
   });
 });
@@ -405,21 +700,6 @@ function verificarSesionDashboard() {
     if (rolEl) rolEl.innerText = user.rol.toUpperCase();
 
     aplicarPermisosEnUI();
-
-    // Si el usuario es de Compras, aislar estrictamente vista compras
-    if (user.rol === 'compras') {
-      const btnNavMant = document.getElementById('btn-nav-mantenimiento');
-      const vMant = document.getElementById('vista-mantenimiento');
-      const vComp = document.getElementById('vista-compras');
-      const btnComp = document.getElementById('btn-nav-compras');
-      if (btnNavMant) { btnNavMant.style.setProperty('display', 'none', 'important'); btnNavMant.classList.add('hidden'); }
-      if (vMant) { vMant.style.setProperty('display', 'none', 'important'); vMant.classList.add('hidden'); }
-      if (vComp) { vComp.style.setProperty('display', 'block', 'important'); vComp.classList.remove('hidden'); }
-      if (btnComp) { btnComp.style.setProperty('display', 'flex', 'important'); btnComp.classList.remove('hidden'); }
-      if (typeof cambiarVistaPrincipal === 'function') {
-        cambiarVistaPrincipal('compras');
-      }
-    }
     return user;
   } catch (e) {
     window.location.href = '/login';
@@ -1859,9 +2139,6 @@ function abrirFotoInicialDetalleActual() {
   }
 }
 
-let eliminarFotoDetallePendiente = false;
-let eliminarFotoInicialDetallePendiente = false;
-
 function alCambiarEstadoDetalleModal(nuevoEstado) {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
   const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
@@ -2174,6 +2451,7 @@ const ROLES_MATRIZ = [
   { key: 'mecanico', label: 'Mecánico', icon: '🔧', colorClass: 'text-cyan-400' },
   { key: 'electrico', label: 'Eléctrico', icon: '⚡', colorClass: 'text-amber-400' },
   { key: 'maquinista', label: 'Maquinista', icon: '🚜', colorClass: 'text-orange-400' },
+  { key: 'almacenista', label: 'Almacén', icon: '📦', colorClass: 'text-amber-300' },
   { key: 'supervisor', label: 'Supervisor', icon: '👷', colorClass: 'text-sky-400' },
   { key: 'sst', label: 'SST', icon: '🦺', colorClass: 'text-emerald-400' },
   { key: 'director', label: 'Director', icon: '🏢', colorClass: 'text-indigo-400' },
@@ -2244,6 +2522,27 @@ const PERMISOS_CONFIG_UI = [
     desc: 'Borrar definitivamente órdenes o registros de fallas',
     icono: 'fa-trash-can',
     color: 'text-red-400'
+  },
+  {
+    key: 'ver_almacen',
+    nombre: 'Ver Módulo de Almacén',
+    desc: 'Acceso a la sección de almacén y consulta de remisiones',
+    icono: 'fa-warehouse',
+    color: 'text-amber-400'
+  },
+  {
+    key: 'crear_remisiones',
+    nombre: 'Crear Remisión de Salida',
+    desc: 'Generar formatos de salida de poleas, repuestos o materiales',
+    icono: 'fa-file-export',
+    color: 'text-cyan-400'
+  },
+  {
+    key: 'finalizar_remisiones',
+    nombre: 'Finalizar Remisión (Retorno)',
+    desc: 'Registrar la llegada del material a planta y cerrar la remisión',
+    icono: 'fa-box-archive',
+    color: 'text-emerald-400'
   },
   {
     key: 'ver_compras',
@@ -2398,7 +2697,11 @@ async function guardarMatrizPermisos() {
     crear_compras: true,
     ver_dashboard: true,
     acceso_pc: true,
-    acceso_movil: true
+    acceso_movil: true,
+    ver_almacen: true,
+    crear_remisiones: true,
+    finalizar_remisiones: true,
+    eliminar_remisiones: true
   };
 
   const userActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
@@ -2450,7 +2753,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: false,
       ver_dashboard: false,
       acceso_pc: false,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
     },
     electrico: {
       crear_tareas: false,
@@ -2466,7 +2773,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: false,
       ver_dashboard: false,
       acceso_pc: false,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
     },
     maquinista: {
       crear_tareas: false,
@@ -2482,7 +2793,31 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: false,
       ver_dashboard: false,
       acceso_pc: false,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
+    },
+    almacenista: {
+      crear_tareas: false,
+      cerrar_tareas: false,
+      cambiar_horas: false,
+      cambiar_foto: true,
+      asignable_tareas: false,
+      ver_contrasenas: false,
+      cambiar_contrasenas: false,
+      eliminar_tareas: false,
+      reabrir_tareas: false,
+      ver_compras: true,
+      crear_compras: false,
+      ver_dashboard: false,
+      acceso_pc: true,
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: true,
+      finalizar_remisiones: true,
+      eliminar_remisiones: false
     },
     supervisor: {
       crear_tareas: true,
@@ -2498,23 +2833,31 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: true,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: true,
+      finalizar_remisiones: true,
+      eliminar_remisiones: false
     },
     sst: {
       crear_tareas: true,
-      cerrar_tareas: false,
-      cambiar_horas: false,
+      cerrar_tareas: true,
+      cambiar_horas: true,
       cambiar_foto: true,
-      asignable_tareas: false,
+      asignable_tareas: true,
       ver_contrasenas: false,
       cambiar_contrasenas: false,
       eliminar_tareas: false,
       reabrir_tareas: false,
-      ver_compras: false,
-      crear_compras: false,
+      ver_compras: true,
+      crear_compras: true,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
     },
     director: {
       crear_tareas: true,
@@ -2530,7 +2873,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: true,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: true,
+      finalizar_remisiones: true,
+      eliminar_remisiones: true
     },
     visualizador: {
       crear_tareas: false,
@@ -2546,7 +2893,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: false,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: false,
+      finalizar_remisiones: false,
+      eliminar_remisiones: false
     },
     admin: {
       crear_tareas: true,
@@ -2562,7 +2913,11 @@ async function restaurarPermisosPorDefecto() {
       crear_compras: true,
       ver_dashboard: true,
       acceso_pc: true,
-      acceso_movil: true
+      acceso_movil: true,
+      ver_almacen: true,
+      crear_remisiones: true,
+      finalizar_remisiones: true,
+      eliminar_remisiones: true
     }
   };
 
