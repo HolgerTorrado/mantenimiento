@@ -22,16 +22,33 @@
         var parsed = JSON.parse(u);
         var rol = (parsed.rol || '').toLowerCase().trim();
 
-        // Si no es admin, verificar si tiene prohibido el acceso móvil y solo tiene acceso PC o Almacén
-        var permisosStr = localStorage.getItem('siman_permisos');
-        if (permisosStr && rol !== 'admin') {
-          try {
-            var perms = JSON.parse(permisosStr);
-            if (perms[rol] && perms[rol].acceso_movil === false && (perms[rol].acceso_pc || perms[rol].ver_dashboard || perms[rol].ver_almacen)) {
+        // Si no es admin, verificar si tiene acceso móvil asignado según la matriz
+        if (rol !== 'admin') {
+          var permisosStr = localStorage.getItem('siman_permisos');
+          var tieneAccesoMovil = true;
+          var tieneAccesoPC = false;
+          if (permisosStr) {
+            try {
+              var perms = JSON.parse(permisosStr);
+              if (perms[rol]) {
+                tieneAccesoMovil = perms[rol].acceso_movil !== false;
+                tieneAccesoPC = Boolean(perms[rol].acceso_pc || perms[rol].ver_dashboard || perms[rol].ver_almacen);
+              }
+            } catch(e) {}
+          } else {
+            tieneAccesoMovil = rol !== 'almacenista';
+            tieneAccesoPC = ['supervisor', 'sst', 'director', 'almacenista', 'visualizador'].includes(rol);
+          }
+
+          if (!tieneAccesoMovil) {
+            if (tieneAccesoPC) {
               window.location.replace('/dashboard' + (rol === 'almacenista' ? '#almacen' : ''));
-              return;
+            } else {
+              alert('Tu rol no tiene acceso móvil asignado.');
+              window.location.replace('/login');
             }
-          } catch(e) {}
+            return;
+          }
         }
         if (rol === 'almacenista') {
           window.location.replace('/dashboard#almacen');

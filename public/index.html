@@ -16,20 +16,21 @@
         var parsed = JSON.parse(u);
         var rol = (parsed.rol || '').toLowerCase().trim();
 
-        // Roles con acceso potencial a PC / Dashboard
-        var rolesPC = ['admin', 'supervisor', 'sst', 'director', 'almacenista', 'visualizador'];
         if (rol !== 'admin') {
           var permisosStr = localStorage.getItem('siman_permisos');
           var tienePermisoPC = false;
           if (permisosStr) {
             try {
               var perms = JSON.parse(permisosStr);
-              if (perms[rol] && (perms[rol].acceso_pc || perms[rol].ver_dashboard)) {
-                tienePermisoPC = true;
+              if (perms[rol]) {
+                tienePermisoPC = Boolean(perms[rol].acceso_pc || perms[rol].ver_dashboard || perms[rol].ver_almacen);
               }
             } catch(e) {}
+          } else {
+            var rolesDefaultPC = ['admin', 'supervisor', 'sst', 'director', 'almacenista', 'visualizador'];
+            tienePermisoPC = rolesDefaultPC.includes(rol);
           }
-          if (!rolesPC.includes(rol) && !tienePermisoPC) {
+          if (!tienePermisoPC) {
             window.location.replace('/mecanico');
             return;
           }
@@ -1421,7 +1422,7 @@
                   <i class="fa-solid fa-trash-can"></i> Quitar
                 </button>
                 <input type="file" id="input-cambiar-foto-inicial-detalle" accept="image/*" class="hidden" onchange="procesarNuevaFotoInicialDetalle(event)">
-                <button type="button" onclick="document.getElementById('input-cambiar-foto-inicial-detalle').click()" class="px-2.5 py-1 bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
+                <button type="button" id="btn-subir-foto-inicial-detalle" onclick="document.getElementById('input-cambiar-foto-inicial-detalle').click()" class="px-2.5 py-1 bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
                   <i class="fa-solid fa-camera-rotate"></i> Cambiar Inicial
                 </button>
               </div>
@@ -1470,7 +1471,7 @@
                   <i class="fa-solid fa-trash-can"></i> Quitar Foto
                 </button>
                 <input type="file" id="input-cambiar-foto-detalle" accept="image/*" class="hidden" onchange="procesarNuevaFotoDetalle(event)">
-                <button type="button" onclick="document.getElementById('input-cambiar-foto-detalle').click()" class="px-2.5 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
+                <button type="button" id="btn-subir-foto-detalle" onclick="document.getElementById('input-cambiar-foto-detalle').click()" class="px-2.5 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-500/40 rounded-lg font-bold text-xs transition flex items-center gap-1 shadow">
                   <i class="fa-solid fa-camera-rotate"></i> Cambiar Final
                 </button>
               </div>

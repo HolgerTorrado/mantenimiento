@@ -38,22 +38,48 @@
           var user = JSON.parse(userStr);
           if (user) {
             var rol = (user.rol || '').toLowerCase().trim();
-            var vistaPref = localStorage.getItem('siman_vista_preferida');
+            var permsStr = localStorage.getItem('siman_permisos');
+            var perms = {};
+            if (permsStr) { try { perms = JSON.parse(permsStr); } catch(e) {} }
+            var rolPerms = perms[rol] || {};
+            var esAdmin = rol === 'admin';
+            var puedePC = esAdmin || Boolean(rolPerms.acceso_pc || rolPerms.ver_dashboard || rolPerms.ver_almacen);
+            var puedeMovil = esAdmin || (rolPerms.acceso_movil !== false);
 
-            if (vistaPref === 'pc') {
+            if (rol === 'almacenista') {
+              sessionStorage.setItem('siman_forzar_pc', 'true');
+              localStorage.setItem('siman_forzar_pc', 'true');
+              window.location.replace('/dashboard#almacen');
+              return;
+            }
+
+            if (puedePC && !puedeMovil) {
               sessionStorage.setItem('siman_forzar_pc', 'true');
               localStorage.setItem('siman_forzar_pc', 'true');
               window.location.replace('/dashboard');
               return;
-            } else if (vistaPref === 'movil') {
+            }
+
+            if (puedeMovil && !puedePC) {
+              window.location.replace('/mecanico');
+              return;
+            }
+
+            var vistaPref = localStorage.getItem('siman_vista_preferida');
+            if (vistaPref === 'pc' && puedePC) {
+              sessionStorage.setItem('siman_forzar_pc', 'true');
+              localStorage.setItem('siman_forzar_pc', 'true');
+              window.location.replace('/dashboard');
+              return;
+            } else if (vistaPref === 'movil' && puedeMovil) {
               window.location.replace('/mecanico');
               return;
             }
 
             // Detección automática: Si es celular/tablet, enviar a la interfaz móvil
-            if (esDispositivoMovil()) {
+            if (esDispositivoMovil() && puedeMovil) {
               window.location.replace('/mecanico');
-            } else if (['admin', 'supervisor', 'sst', 'director', 'almacenista', 'visualizador'].includes(rol)) {
+            } else if (puedePC) {
               window.location.replace('/dashboard');
             } else {
               window.location.replace('/mecanico');
@@ -436,10 +462,13 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Credenciales inválidas');
 
-        // Guardar sesión
+        // Guardar sesión y matriz de permisos dinámica RBAC
         localStorage.setItem('siman_token', data.token);
         localStorage.setItem('siman_user', JSON.stringify(data.user));
         localStorage.setItem('siman_mecanico_activo', data.user.nombre);
+        if (data.permisos) {
+          localStorage.setItem('siman_permisos', JSON.stringify(data.permisos));
+        }
 
         // Detección inteligente de dispositivo (Móvil vs PC)
         const ua = navigator.userAgent || '';
@@ -448,6 +477,11 @@
         const esTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
         const esMovil = esMobileUA || (esPantallaChica && esTouch);
         const rol = (data.user.rol || '').toLowerCase().trim();
+        const perms = data.permisos || {};
+        const rolPerms = perms[rol] || {};
+        const esAdmin = rol === 'admin';
+        const puedePC = esAdmin || Boolean(rolPerms.acceso_pc || rolPerms.ver_dashboard || rolPerms.ver_almacen);
+        const puedeMovil = esAdmin || (rolPerms.acceso_movil !== false);
 
         if (rol === 'almacenista') {
           sessionStorage.setItem('siman_forzar_pc', 'true');
@@ -456,21 +490,32 @@
           return;
         }
 
-        const vistaPref = localStorage.getItem('siman_vista_preferida');
-        if (vistaPref === 'pc') {
+        // Si solo tiene acceso PC y no móvil:
+        if (puedePC && !puedeMovil) {
           sessionStorage.setItem('siman_forzar_pc', 'true');
           localStorage.setItem('siman_forzar_pc', 'true');
           window.location.replace('/dashboard');
-        } else if (vistaPref === 'movil') {
+          return;
+        }
+
+        // Si solo tiene acceso móvil y no PC:
+        if (puedeMovil && !puedePC) {
           window.location.replace('/mecanico');
-        } else if (esMovil) {
-          // Si el usuario ingresa desde teléfono celular o tablet -> Versión Móvil adaptada
+          return;
+        }
+
+        const vistaPref = localStorage.getItem('siman_vista_preferida');
+        if (vistaPref === 'pc' && puedePC) {
+          sessionStorage.setItem('siman_forzar_pc', 'true');
+          localStorage.setItem('siman_forzar_pc', 'true');
+          window.location.replace('/dashboard');
+        } else if (vistaPref === 'movil' && puedeMovil) {
           window.location.replace('/mecanico');
-        } else if (['admin', 'supervisor', 'sst', 'director', 'almacenista', 'visualizador'].includes(rol)) {
-          // Si el usuario ingresa desde PC de escritorio o laptop -> Dashboard Completo
+        } else if (esMovil && puedeMovil) {
+          window.location.replace('/mecanico');
+        } else if (puedePC) {
           window.location.replace('/dashboard');
         } else {
-          // Técnicos siempre van a interfaz móvil
           window.location.replace('/mecanico');
         }
       } catch (err) {

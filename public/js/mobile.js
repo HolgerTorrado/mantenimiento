@@ -31,6 +31,10 @@ function getBadgeTipoMovil(tipo) {
 
 // Matriz dinámica de permisos RBAC en Móvil
 let simanPermisosCacheMovil = null;
+try {
+  const localPerms = localStorage.getItem('siman_permisos');
+  if (localPerms) simanPermisosCacheMovil = JSON.parse(localPerms);
+} catch (e) {}
 
 async function cargarPermisosMovil() {
   try {
@@ -73,14 +77,15 @@ function usuarioTienePermisoMovil(permiso) {
     if (permiso === 'crear_tareas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
     if (permiso === 'cerrar_tareas') return ['admin', 'mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
     if (permiso === 'cambiar_foto') return true;
-    if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista'].includes(rol);
+    if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
     if (permiso === 'reabrir_tareas') return ['admin', 'supervisor', 'director'].includes(rol);
     if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
     if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador', 'almacenista'].includes(rol);
     if (permiso === 'acceso_movil') return rol !== 'almacenista';
     if (permiso === 'ver_almacen') return ['admin', 'almacenista', 'supervisor', 'director'].includes(rol);
-    if (permiso === 'crear_remisiones') return ['admin', 'almacenista'].includes(rol);
-    if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista'].includes(rol);
+    if (permiso === 'crear_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol);
+    if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol);
+    if (permiso === 'eliminar_remisiones') return ['admin', 'director'].includes(rol);
     return false;
   } catch (e) {
     return false;
@@ -96,6 +101,7 @@ const CONFIG_ROLES_ASIGNABLES_MOVIL = {
   sst: { label: 'SST', icon: 'fa-shield-heart', emoji: '🦺', textClass: 'text-teal-300' },
   director: { label: 'Dirección', icon: 'fa-building', emoji: '🏢', textClass: 'text-indigo-300' },
   visualizador: { label: 'Visualizador', icon: 'fa-eye', emoji: '👁️', textClass: 'text-purple-300' },
+  almacenista: { label: 'Almacén', icon: 'fa-warehouse', emoji: '📦', textClass: 'text-amber-300' },
   admin: { label: 'Administración', icon: 'fa-crown', emoji: '👑', textClass: 'text-amber-300' }
 };
 
