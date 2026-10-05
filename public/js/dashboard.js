@@ -283,6 +283,38 @@ function aplicarPermisosEnUI() {
         btnCrearRem.classList.add('hidden');
       }
     }
+
+    // 10. Control de Acceso y Visibilidad del Módulo de Mantenimiento vs Almacén
+    const tabMantenimiento = document.getElementById('tab-nav-mantenimiento');
+    const secMantenimiento = document.getElementById('seccion-modulo-mantenimiento');
+    const secAlmacen = document.getElementById('seccion-modulo-almacen');
+
+    const puedeVerMantenimiento = esAdmin || (rol !== 'almacenista' && (
+      usuarioTienePermiso('ver_dashboard') ||
+      usuarioTienePermiso('crear_tareas') ||
+      usuarioTienePermiso('cerrar_tareas') ||
+      usuarioTienePermiso('asignable_tareas')
+    ));
+
+    if (tabMantenimiento) {
+      if (puedeVerMantenimiento) {
+        tabMantenimiento.classList.remove('hidden');
+      } else {
+        tabMantenimiento.classList.add('hidden');
+      }
+    }
+
+    // Si el usuario es Almacenista o no tiene permisos de mantenimiento, ocultar mantenimiento y abrir exclusivamente Almacén
+    if (!puedeVerMantenimiento) {
+      if (secMantenimiento) secMantenimiento.classList.add('hidden');
+      if (secAlmacen) secAlmacen.classList.remove('hidden');
+      if (tabAlmacen) {
+        tabAlmacen.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition bg-amber-600 text-white shadow-md shadow-amber-900/30';
+      }
+      if (typeof cargarRemisiones === 'function') {
+        cargarRemisiones(false);
+      }
+    }
   } catch (e) {
     console.error('Error al aplicar permisos en UI:', e);
   }
@@ -378,16 +410,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!user) return; // Detener ejecución si no hay sesión activa
   iniciarReloj();
   await cargarPermisosSistema();
-  cargarMecanicosSelect();
-  cargarTareas();
-  fijarOcurrenciaAhora();
+  const rolUser = (user.rol || '').toLowerCase().trim();
+  const esAdmin = rolUser === 'admin';
+  const puedeVerMantenimiento = esAdmin || (rolUser !== 'almacenista' && (
+    usuarioTienePermiso('ver_dashboard') ||
+    usuarioTienePermiso('crear_tareas') ||
+    usuarioTienePermiso('cerrar_tareas') ||
+    usuarioTienePermiso('asignable_tareas')
+  ));
+
+  if (puedeVerMantenimiento) {
+    cargarMecanicosSelect();
+    cargarTareas();
+    fijarOcurrenciaAhora();
+  }
 
   // Soporte para módulo de Almacén & Remisiones
   if (typeof cargarRemisiones === 'function') {
     cargarRemisiones(false);
   }
-  const rolUser = (user.rol || '').toLowerCase().trim();
-  if (rolUser === 'almacenista' || window.location.hash === '#almacen') {
+  if (!puedeVerMantenimiento || rolUser === 'almacenista' || window.location.hash === '#almacen') {
     if (typeof cambiarModuloPrincipal === 'function') {
       cambiarModuloPrincipal('almacen');
     }
@@ -396,7 +438,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Auto-refresco inteligente cada 30 segundos (solo si la pestaña está activa)
   setInterval(() => {
     if (document.hidden) return;
-    cargarTareas(false);
+    if (puedeVerMantenimiento) {
+      cargarTareas(false);
+    }
     if (typeof cargarRemisiones === 'function') {
       cargarRemisiones(false);
     }
@@ -404,7 +448,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
-      cargarTareas(false);
+      if (puedeVerMantenimiento) {
+        cargarTareas(false);
+      }
       if (typeof cargarRemisiones === 'function') {
         cargarRemisiones(false);
       }
@@ -606,6 +652,24 @@ function actualizarEstadoTrabajoConjunto() {
 
 // Cargar Tareas y Métricas
 async function cargarTareas(animarRecarga = true) {
+  const userJson = localStorage.getItem('siman_user');
+  let rolUsuario = '';
+  let esAdmin = false;
+  try {
+    const u = JSON.parse(userJson || '{}');
+    rolUsuario = (u.rol || '').toLowerCase().trim();
+    esAdmin = rolUsuario === 'admin';
+  } catch(e) {}
+
+  const puedeVerMantenimiento = esAdmin || (rolUsuario !== 'almacenista' && (
+    usuarioTienePermiso('ver_dashboard') ||
+    usuarioTienePermiso('crear_tareas') ||
+    usuarioTienePermiso('cerrar_tareas') ||
+    usuarioTienePermiso('asignable_tareas')
+  ));
+
+  if (!puedeVerMantenimiento) return;
+
   const icon = document.getElementById('icon-recarga');
   if (animarRecarga && icon) icon.classList.add('fa-spin');
 
@@ -2704,6 +2768,7 @@ async function cargarListaUsuariosAdmin() {
       else if (u.rol === 'supervisor') badgeRol = '<span class="bg-sky-950 text-sky-300 border border-sky-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-helmet-safety mr-1"></i>SUPERVISOR</span>';
       else if (u.rol === 'sst') badgeRol = '<span class="bg-emerald-950 text-emerald-300 border border-emerald-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-shield-halved mr-1"></i>SST</span>';
       else if (u.rol === 'director') badgeRol = '<span class="bg-indigo-950 text-indigo-300 border border-indigo-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-building mr-1"></i>DIRECTOR</span>';
+      else if (u.rol === 'almacenista') badgeRol = '<span class="bg-amber-950 text-amber-300 border border-amber-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-boxes-stacked mr-1"></i>ALMACENISTA</span>';
       else if (u.rol === 'electrico') badgeRol = '<span class="bg-amber-950 text-amber-300 border border-amber-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-bolt mr-1"></i>ELÉCTRICO</span>';
       else if (u.rol === 'maquinista') badgeRol = '<span class="bg-orange-950 text-orange-300 border border-orange-600/50 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-tractor mr-1"></i>MAQUINISTA</span>';
       else if (u.rol === 'visualizador') badgeRol = '<span class="bg-purple-900/60 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded text-[10px] font-bold"><i class="fa-solid fa-eye mr-1"></i>SOLO VER</span>';
@@ -2727,6 +2792,7 @@ async function cargarListaUsuariosAdmin() {
               <option value="mecanico" ${u.rol === 'mecanico' ? 'selected' : ''}>🔧 Mecánico</option>
               <option value="electrico" ${u.rol === 'electrico' ? 'selected' : ''}>⚡ Eléctrico</option>
               <option value="maquinista" ${u.rol === 'maquinista' ? 'selected' : ''}>🚜 Maquinista</option>
+              <option value="almacenista" ${u.rol === 'almacenista' ? 'selected' : ''}>📦 Almacenista</option>
               <option value="supervisor" ${u.rol === 'supervisor' ? 'selected' : ''}>👷 Supervisor</option>
               <option value="sst" ${u.rol === 'sst' ? 'selected' : ''}>🦺 SST</option>
               <option value="director" ${u.rol === 'director' ? 'selected' : ''}>🏢 Director</option>

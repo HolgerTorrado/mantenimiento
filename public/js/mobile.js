@@ -283,6 +283,7 @@ function verificarSesionMovil() {
       let rolBadge = '<span class="text-[9px] text-emerald-300 opacity-80">(Mecánico)</span>';
       if (user.rol === 'electrico') { icon = '⚡'; rolBadge = '<span class="text-[9px] text-amber-300 opacity-80">(Eléctrico)</span>'; }
       else if (user.rol === 'maquinista') { icon = '🚜'; rolBadge = '<span class="text-[9px] text-orange-300 opacity-80">(Maquinista)</span>'; }
+      else if (user.rol === 'almacenista') { icon = '📦'; rolBadge = '<span class="text-[9px] font-bold text-amber-300 bg-amber-950/80 px-1.5 py-0.5 rounded border border-amber-500/40">ALMACENISTA</span>'; }
       else if (user.rol === 'supervisor') { icon = '👷'; rolBadge = '<span class="text-[9px] font-bold text-sky-300 bg-sky-950/80 px-1.5 py-0.5 rounded border border-sky-500/40">SUPERVISOR</span>'; }
       else if (user.rol === 'sst') { icon = '🦺'; rolBadge = '<span class="text-[9px] font-bold text-emerald-300 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/40">SST</span>'; }
       else if (user.rol === 'director') { icon = '🏢'; rolBadge = '<span class="text-[9px] font-bold text-indigo-300 bg-indigo-950/80 px-1.5 py-0.5 rounded border border-indigo-500/40">DIRECTOR</span>'; }

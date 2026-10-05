@@ -14,6 +14,29 @@ let remisionParaFinalizarId = null;
 // ==========================================
 
 function cambiarModuloPrincipal(modulo) {
+  const userJson = localStorage.getItem('siman_user');
+  let rol = '';
+  let esAdmin = false;
+  try {
+    const u = JSON.parse(userJson || '{}');
+    rol = (u.rol || '').toLowerCase().trim();
+    esAdmin = rol === 'admin';
+  } catch(e) {}
+
+  const puedeVerMantenimiento = esAdmin || (rol !== 'almacenista' && (
+    (typeof usuarioTienePermiso === 'function' && (
+      usuarioTienePermiso('ver_dashboard') ||
+      usuarioTienePermiso('crear_tareas') ||
+      usuarioTienePermiso('cerrar_tareas') ||
+      usuarioTienePermiso('asignable_tareas')
+    ))
+  ));
+
+  if (modulo === 'mantenimiento' && !puedeVerMantenimiento) {
+    alert('Tu rol de Almacenista está asignado exclusivamente al módulo de Almacén y Remisiones.');
+    return;
+  }
+
   const secMant = document.getElementById('seccion-modulo-mantenimiento');
   const secAlm = document.getElementById('seccion-modulo-almacen');
   const tabMant = document.getElementById('tab-nav-mantenimiento');
@@ -25,7 +48,12 @@ function cambiarModuloPrincipal(modulo) {
     if (secAlm) secAlm.classList.remove('hidden');
 
     if (tabMant) {
-      tabMant.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700/60';
+      if (puedeVerMantenimiento) {
+        tabMant.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700/60';
+        tabMant.classList.remove('hidden');
+      } else {
+        tabMant.classList.add('hidden');
+      }
     }
     if (tabAlm) {
       tabAlm.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition bg-amber-600 text-white shadow-md shadow-amber-900/30';
@@ -1008,10 +1036,8 @@ function formatearFechaCorta(str) {
 // Inicialización de Almacén al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  if (user && user.rol === 'almacenista') {
-    // Si ingresa un usuario con rol Almacenista, abrir directamente el módulo de almacén
-    setTimeout(() => {
-      cambiarModuloPrincipal('almacen');
-    }, 200);
+  const rol = (user.rol || '').toLowerCase().trim();
+  if (rol === 'almacenista' || window.location.hash === '#almacen') {
+    cambiarModuloPrincipal('almacen');
   }
 });
