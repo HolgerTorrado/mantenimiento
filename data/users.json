@@ -34,7 +34,8 @@
     "nombre": "Marwin Castillejo",
     "rol": "mecanico",
     "especialidad": "Mecánico de Planta",
-    "creado_en": "2026-09-27T04:09:55.769Z"
+    "creado_en": "2026-09-27T04:09:55.769Z",
+    "password_plana": "Mcastillejo"
   },
   {
     "id": "USR-05",
