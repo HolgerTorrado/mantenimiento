@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1085",
+    "equipo": "Puestos de trabajo",
+    "titulo": "Recoger y retirar basura de puestos de trabajo",
+    "tipo": "5s",
+    "prioridad": "alta",
+    "ubicacion": "Nave de proceso",
+    "descripcion": "Se requiere recoger y retirar residuos por puestos de trabajo",
+    "roles_asignados": [
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Supervisión",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-05T10:44",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791215086/siman/iniciales/ini_TSK-1085_1791215085806.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-05T15:44:47.075Z"
+  },
+  {
     "id": "TSK-1084",
     "equipo": "Bomba de lodos del pre",
     "titulo": "Fuga en tubo de lubricación al sello mecánico",
