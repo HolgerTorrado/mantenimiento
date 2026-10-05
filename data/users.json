@@ -138,5 +138,15 @@
     "rol": "maquinista",
     "especialidad": "Operador de Maquinaria",
     "creado_en": "2026-10-02T17:25:44.979Z"
+  },
+  {
+    "id": "USR-16",
+    "username": "nurbina",
+    "password_hash": "7e831593833c68e3f2f6323a7d176d98fe2dd518e6847f813f528a513679333d",
+    "password_plana": "0306",
+    "nombre": "Nestor Urbina",
+    "rol": "sst",
+    "especialidad": "Seguridad y Salud en el Trabajo (SST)",
+    "creado_en": "2026-10-05T22:04:38.809Z"
   }
 ]
