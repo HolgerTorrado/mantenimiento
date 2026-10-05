@@ -148,5 +148,15 @@
     "rol": "sst",
     "especialidad": "Seguridad y Salud en el Trabajo (SST)",
     "creado_en": "2026-10-05T22:04:38.809Z"
+  },
+  {
+    "id": "USR-17",
+    "username": "acamperos",
+    "password_hash": "4eeb394b9d901b6dfd15e310d4138c86ec960c6aa9e4d91230406a869d2ec825",
+    "password_plana": "011026",
+    "nombre": "Alexander Camperos",
+    "rol": "almacenista",
+    "especialidad": "Almacenista / Gestión de Almacén",
+    "creado_en": "2026-10-05T22:19:18.889Z"
   }
 ]
