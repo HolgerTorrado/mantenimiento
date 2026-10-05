@@ -40,14 +40,15 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-03T19:36",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791209934/siman/iniciales/ini_TSK-1078_1791209934294.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Richard Patiño",
     "creado_por_rol": "sst",
-    "creado_en": "2026-10-04T00:36:20.016Z"
+    "creado_en": "2026-10-04T00:36:20.016Z",
+    "actualizado_en": "2026-10-05T14:29:11.551Z"
   },
   {
     "id": "TSK-1082",
