@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1084",
+    "equipo": "Bomba de lodos del pre",
+    "titulo": "Fuga en tubo de lubricación al sello mecánico",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Clarificación",
+    "descripcion": "Retirar tubo y mandarlo a reparar y/o cambiarlo",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-05T10:06",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791212767/siman/iniciales/ini_TSK-1084_1791212766848.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-05T15:06:08.868Z"
+  },
+  {
     "id": "TSK-1083",
     "equipo": "Manómetro de presión",
     "titulo": "Falla medición de presión",
