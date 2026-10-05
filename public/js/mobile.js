@@ -71,6 +71,8 @@ function usuarioTienePermisoMovil(permiso) {
     if (permiso === 'crear_tareas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
     if (permiso === 'cerrar_tareas') return ['admin', 'mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
     if (permiso === 'cambiar_foto') return true;
+    if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista'].includes(rol);
+    if (permiso === 'reabrir_tareas') return ['admin', 'supervisor', 'director'].includes(rol);
     if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
     if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
     if (permiso === 'acceso_movil') return true;
@@ -78,6 +80,80 @@ function usuarioTienePermisoMovil(permiso) {
   } catch (e) {
     return false;
   }
+}
+
+// Configuración y badges para roles asignables en móvil
+const CONFIG_ROLES_ASIGNABLES_MOVIL = {
+  mecanico: { label: 'Mecánica', icon: 'fa-wrench', emoji: '🔧', textClass: 'text-emerald-300' },
+  electrico: { label: 'Eléctrica', icon: 'fa-bolt', emoji: '⚡', textClass: 'text-amber-300' },
+  maquinista: { label: 'Maquinaria', icon: 'fa-tractor', emoji: '🚜', textClass: 'text-orange-300' },
+  supervisor: { label: 'Supervisión', icon: 'fa-user-tie', emoji: '👷', textClass: 'text-sky-300' },
+  sst: { label: 'SST', icon: 'fa-shield-heart', emoji: '🦺', textClass: 'text-teal-300' },
+  director: { label: 'Dirección', icon: 'fa-building', emoji: '🏢', textClass: 'text-indigo-300' },
+  visualizador: { label: 'Visualizador', icon: 'fa-eye', emoji: '👁️', textClass: 'text-purple-300' },
+  admin: { label: 'Administración', icon: 'fa-crown', emoji: '👑', textClass: 'text-amber-300' }
+};
+
+function getBadgeRolMovil(r) {
+  const rol = String(r || '').toLowerCase().trim();
+  if (rol === 'electrico') return '<span class="bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-bolt text-[9px]"></i> ELÉCTRICA</span>';
+  if (rol === 'maquinista') return '<span class="bg-orange-500/10 text-orange-300 border border-orange-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-tractor text-[9px]"></i> MAQUINARIA</span>';
+  if (rol === 'supervisor') return '<span class="bg-sky-500/10 text-sky-300 border border-sky-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-user-tie text-[9px]"></i> SUPERVISIÓN</span>';
+  if (rol === 'sst') return '<span class="bg-teal-500/10 text-teal-300 border border-teal-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-shield-heart text-[9px]"></i> SST</span>';
+  if (rol === 'director') return '<span class="bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-building text-[9px]"></i> DIRECCIÓN</span>';
+  if (rol === 'visualizador') return '<span class="bg-purple-500/10 text-purple-300 border border-purple-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-eye text-[9px]"></i> VISUALIZADOR</span>';
+  return '<span class="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-wrench text-[9px]"></i> MECÁNICA</span>';
+}
+
+function getBadgeDetalleMovil(r) {
+  const rol = String(r || '').toLowerCase().trim();
+  if (rol === 'electrico') return '<span class="bg-amber-950 text-amber-300 border border-amber-600 px-2 py-0.5 rounded text-[10px] font-bold">⚡ Eléctrica</span>';
+  if (rol === 'maquinista') return '<span class="bg-orange-950 text-orange-300 border border-orange-600 px-2 py-0.5 rounded text-[10px] font-bold">🚜 Maquinaria</span>';
+  if (rol === 'supervisor') return '<span class="bg-sky-950 text-sky-300 border border-sky-600 px-2 py-0.5 rounded text-[10px] font-bold">👷 Supervisión</span>';
+  if (rol === 'sst') return '<span class="bg-teal-950 text-teal-300 border border-teal-600 px-2 py-0.5 rounded text-[10px] font-bold">🦺 SST</span>';
+  if (rol === 'director') return '<span class="bg-indigo-950 text-indigo-300 border border-indigo-600 px-2 py-0.5 rounded text-[10px] font-bold">🏢 Dirección</span>';
+  if (rol === 'visualizador') return '<span class="bg-purple-950 text-purple-300 border border-purple-600 px-2 py-0.5 rounded text-[10px] font-bold">👁️ Visualizador</span>';
+  return '<span class="bg-emerald-950 text-emerald-300 border border-emerald-600 px-2 py-0.5 rounded text-[10px] font-bold">🔧 Mecánica</span>';
+}
+
+function obtenerRolesAsignablesMovil() {
+  const roles = new Set();
+  if (simanPermisosCacheMovil) {
+    for (const [rol, p] of Object.entries(simanPermisosCacheMovil)) {
+      if (p && p.asignable_tareas) roles.add(rol);
+    }
+  }
+  if (roles.size === 0) {
+    try {
+      const c = JSON.parse(localStorage.getItem('siman_permisos') || '{}');
+      for (const [rol, p] of Object.entries(c)) {
+        if (p && p.asignable_tareas) roles.add(rol);
+      }
+    } catch(e) {}
+  }
+  if (roles.size === 0) {
+    roles.add('mecanico');
+    roles.add('electrico');
+    roles.add('maquinista');
+  }
+  return Array.from(roles);
+}
+
+function renderCheckboxesRolesMovil() {
+  const container = document.getElementById('contenedor-roles-asignados-movil');
+  if (!container) return;
+  const rolesActivos = obtenerRolesAsignablesMovil();
+  const lista = rolesActivos.length > 0 ? rolesActivos : ['mecanico', 'electrico', 'maquinista'];
+  container.innerHTML = lista.map(rol => {
+    const cfg = CONFIG_ROLES_ASIGNABLES_MOVIL[rol] || { label: rol, emoji: '👤', textClass: 'text-slate-200' };
+    const checked = (rol === 'mecanico') ? 'checked' : '';
+    return `
+      <label class="border border-slate-700 rounded-lg p-2 flex items-center gap-1.5 bg-slate-950 cursor-pointer">
+        <input type="checkbox" name="mob_roles" value="${rol}" ${checked} class="rounded border-slate-700 text-emerald-600">
+        <span class="text-[11px] ${cfg.textClass} font-bold">${cfg.emoji} ${cfg.label}</span>
+      </label>
+    `;
+  }).join('');
 }
 
 function aplicarPermisosMovil() {
@@ -104,8 +180,8 @@ function aplicarPermisosMovil() {
       }
     }
 
-    // 1. Botón Dashboard en Header Superior
-    const puedeVerDashboard = esAdmin || usuarioTienePermisoMovil('ver_dashboard') || usuarioTienePermisoMovil('acceso_pc');
+    // 1. Botón Dashboard en Header Superior (Exclusivo roles con ver_dashboard)
+    const puedeVerDashboard = esAdmin || usuarioTienePermisoMovil('ver_dashboard');
     const btnPCHeader = document.getElementById('btn-ir-pc-dashboard');
     if (btnPCHeader) {
       if (puedeVerDashboard) {
@@ -275,6 +351,7 @@ function abrirModalCrearMovil() {
     mostrarToastMovil('❌ Acceso Restringido: Tu rol no tiene permisos para crear tareas.');
     return;
   }
+  renderCheckboxesRolesMovil();
   const modal = document.getElementById('modal-crear-movil');
   if (modal) modal.classList.remove('hidden');
 }
@@ -614,13 +691,22 @@ function renderTareasMovil() {
 
     // Botones de acción según el estado y rol
     const usuarioActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
-    const esVisualizador = usuarioActual.rol === 'visualizador';
+    const rolActual = (usuarioActual.rol || '').toLowerCase().trim();
+    const esAdmin = rolActual === 'admin';
+    const esVisualizador = rolActual === 'visualizador';
+    const puedeCerrar = esAdmin || usuarioTienePermisoMovil('cerrar_tareas');
+    const puedeCambiarFoto = esAdmin || usuarioTienePermisoMovil('cambiar_foto');
 
     let botonesAccion = '';
-    if (esVisualizador) {
+    if (!puedeCerrar) {
       botonesAccion = `
         <div class="mt-3 pt-2 text-center border-t border-slate-700/60 text-xs text-purple-300 font-medium bg-purple-950/40 p-2 rounded-xl">
-          <i class="fa-solid fa-eye mr-1"></i> Modo Solo Consulta (Visualizador)
+          <i class="fa-solid fa-eye mr-1"></i> Modo Solo Consulta ${esVisualizador ? '(Visualizador)' : ''}
+        </div>
+        <div class="mt-2">
+          <button onclick="abrirDetalleTareaMovil('${t.id}')" class="w-full py-2 px-2.5 bg-slate-800/80 hover:bg-slate-700 active:scale-[0.98] text-slate-300 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-circle-info text-slate-400"></i> Ver Detalles
+          </button>
         </div>
       `;
     } else if (t.estado === 'pendiente') {
@@ -727,7 +813,7 @@ function renderTareasMovil() {
         `;
       }
 
-      const botonCambiarFoto = !esVisualizador ? `
+      const botonCambiarFoto = (puedeCambiarFoto && !esVisualizador) ? `
         <button onclick="iniciarCambioFotoMovil('${t.id}')" class="w-full mt-2 py-2 px-3 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-indigo-300 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
           <i class="fa-solid fa-camera-rotate"></i> Cambiar / Mejorar Foto
         </button>
@@ -756,11 +842,7 @@ function renderTareasMovil() {
     }
 
     // Badges de roles y trabajo conjunto
-    const rolesBadges = (t.roles_asignados || ['mecanico']).map(r => {
-      if (r === 'electrico') return '<span class="bg-amber-500/10 text-amber-300 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-bolt text-[9px]"></i> ELÉCTRICA</span>';
-      if (r === 'maquinista') return '<span class="bg-orange-500/10 text-orange-300 border border-orange-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-tractor text-[9px]"></i> MAQUINARIA</span>';
-      return '<span class="bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fa-solid fa-wrench text-[9px]"></i> MECÁNICA</span>';
-    }).join(' ');
+    const rolesBadges = (t.roles_asignados || ['mecanico']).map(r => getBadgeRolMovil(r)).join(' ');
 
     const esConjunta = t.es_conjunta || (t.roles_asignados && t.roles_asignados.length > 1) || (t.tecnicos_asignados && t.tecnicos_asignados.length > 1);
     const badgeConjunta = esConjunta 
@@ -859,17 +941,28 @@ function renderTareasMovil() {
 
 // Acción Iniciar Tarea
 async function iniciarTareaMovil(id) {
+  if (!usuarioTienePermisoMovil('cerrar_tareas')) {
+    mostrarToastMovil('❌ Acceso Restringido: Tu rol no tiene permisos para iniciar tareas.');
+    return;
+  }
   try {
     const sel = document.getElementById('select-mecanico-activo');
     const mecanicoNombre = (sel && sel.value !== 'todos') ? sel.value : null;
+    const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
 
     const res = await fetch(`/api/tasks/${id}/iniciar`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'mecanico',
+        'x-user-username': user.username || 'tecnico',
+        'x-user-name': user.nombre || 'Técnico'
+      },
       body: JSON.stringify({ mecanico_nombre: mecanicoNombre })
     });
 
-    if (!res.ok) throw new Error('Error al iniciar tarea');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al iniciar tarea');
 
     mostrarToastMovil('¡Tarea iniciada! Puesta en progreso');
     if (navigator.vibrate) navigator.vibrate(80);
@@ -1459,11 +1552,7 @@ async function abrirDetalleTareaMovil(id) {
   const contRoles = document.getElementById('mob-det-roles');
   if (contRoles) {
     const roles = Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0 ? t.roles_asignados : ['mecanico'];
-    contRoles.innerHTML = roles.map(r => {
-      if (r === 'electrico') return '<span class="bg-amber-950 text-amber-300 border border-amber-600 px-2 py-0.5 rounded text-[10px] font-bold">⚡ Eléctrica</span>';
-      if (r === 'maquinista') return '<span class="bg-orange-950 text-orange-300 border border-orange-600 px-2 py-0.5 rounded text-[10px] font-bold">🚜 Maquinaria</span>';
-      return '<span class="bg-emerald-950 text-emerald-300 border border-emerald-600 px-2 py-0.5 rounded text-[10px] font-bold">🔧 Mecánica</span>';
-    }).join(' ');
+    contRoles.innerHTML = roles.map(r => getBadgeDetalleMovil(r)).join(' ');
   }
 
   const elTecs = document.getElementById('mob-det-tecnicos');
@@ -1493,17 +1582,19 @@ async function abrirDetalleTareaMovil(id) {
   const elNotas = document.getElementById('mob-det-notas');
   if (elNotas) elNotas.innerText = t.notas_mecanico ? `"${t.notas_mecanico}"` : 'Sin observaciones adicionales registradas';
 
-  // Acciones administrativas en móvil (Reabrir tarea y Quitar foto - Exclusivo Perfil Admin)
+  // Acciones en móvil (Reabrir tarea y Quitar foto según matriz de permisos)
   const user = JSON.parse(localStorage.getItem('siman_mecanico') || localStorage.getItem('siman_user') || '{}');
   const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  const puedeReabrir = esAdmin || usuarioTienePermisoMovil('reabrir_tareas');
+  const puedeCambiarFoto = esAdmin || usuarioTienePermisoMovil('cambiar_foto');
   const boxAdmin = document.getElementById('mob-det-admin-actions');
   const btnQuitar = document.getElementById('mob-btn-quitar-foto');
 
   if (boxAdmin) {
-    if (esAdmin && t.estado === 'completado') {
+    if ((puedeReabrir || puedeCambiarFoto) && t.estado === 'completado') {
       boxAdmin.classList.remove('hidden');
       if (btnQuitar) {
-        if (t.foto_comprobante) btnQuitar.classList.remove('hidden');
+        if (puedeCambiarFoto && t.foto_comprobante) btnQuitar.classList.remove('hidden');
         else btnQuitar.classList.add('hidden');
       }
     } else {
@@ -1518,8 +1609,9 @@ async function abrirDetalleTareaMovil(id) {
 async function reabrirTareaMovil() {
   if (!tareaDetalleMovilActual) return;
   const user = JSON.parse(localStorage.getItem('siman_mecanico') || localStorage.getItem('siman_user') || '{}');
-  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
-    alert('Acceso Restringido: Solo el Administrador puede reabrir tareas.');
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  if (!esAdmin && !usuarioTienePermisoMovil('reabrir_tareas')) {
+    alert('Acceso Restringido: Tu rol no tiene autorización para reabrir tareas.');
     return;
   }
   if (!confirm(`¿Está seguro de reabrir la tarea ${tareaDetalleMovilActual.id} y pasarla a "En Proceso"?`)) return;
@@ -1552,8 +1644,9 @@ async function reabrirTareaMovil() {
 async function quitarFotoMovil() {
   if (!tareaDetalleMovilActual) return;
   const user = JSON.parse(localStorage.getItem('siman_mecanico') || localStorage.getItem('siman_user') || '{}');
-  if ((user.rol || '').toLowerCase().trim() !== 'admin') {
-    alert('Acceso Restringido: Solo el Administrador puede eliminar fotografías.');
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  if (!esAdmin && !usuarioTienePermisoMovil('cambiar_foto')) {
+    alert('Acceso Restringido: Tu rol no tiene autorización para eliminar fotografías.');
     return;
   }
   if (!confirm(`¿Está seguro de eliminar la fotografía de comprobante de ${tareaDetalleMovilActual.id}?`)) return;

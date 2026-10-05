@@ -1348,17 +1348,23 @@ app.post('/api/tasks', async (req, res) => {
     ? tipo.toLowerCase().trim()
     : (tipo ? tipo.toLowerCase().trim() : 'correctivo');
 
-  // Normalizar roles requeridos para la tarea (Permite tareas conjuntas)
+  // Normalizar roles requeridos para la tarea (Permite tareas conjuntas y roles asignables de la matriz de permisos)
+  function rolValidoAsignable(r) {
+    if (!r) return false;
+    const rol = String(r).toLowerCase().trim();
+    return tienePermiso(rol, 'asignable_tareas') || ROLES_TECNICOS.includes(rol) || ROLES_TODOS.includes(rol);
+  }
+
   let rolesFinal = ['mecanico'];
   if (Array.isArray(roles_asignados) && roles_asignados.length > 0) {
-    rolesFinal = roles_asignados.filter(r => ROLES_TECNICOS.includes(r));
+    rolesFinal = roles_asignados.map(r => String(r).toLowerCase().trim()).filter(rolValidoAsignable);
     if (rolesFinal.length === 0) rolesFinal = ['mecanico'];
   } else if (typeof roles_asignados === 'string' && roles_asignados.trim()) {
     try {
       const p = JSON.parse(roles_asignados);
-      if (Array.isArray(p)) rolesFinal = p.filter(r => ROLES_TECNICOS.includes(r));
+      if (Array.isArray(p)) rolesFinal = p.map(r => String(r).toLowerCase().trim()).filter(rolValidoAsignable);
     } catch(e) {
-      rolesFinal = roles_asignados.split(',').map(s => s.trim()).filter(r => ROLES_TECNICOS.includes(r));
+      rolesFinal = roles_asignados.split(',').map(s => s.trim().toLowerCase()).filter(rolValidoAsignable);
     }
     if (rolesFinal.length === 0) rolesFinal = ['mecanico'];
   }
@@ -1379,7 +1385,12 @@ app.post('/api/tasks', async (req, res) => {
   const MAP_NOMBRES_ROLES = {
     mecanico: 'Mecánica',
     electrico: 'Eléctrica',
-    maquinista: 'Maquinaria'
+    maquinista: 'Maquinaria',
+    supervisor: 'Supervisión',
+    sst: 'SST',
+    director: 'Dirección',
+    visualizador: 'Visualizador',
+    admin: 'Administración'
   };
   const especialidadesDefecto = rolesFinal.map(r => MAP_NOMBRES_ROLES[r] || r).join(', ');
 
@@ -1435,6 +1446,11 @@ app.post('/api/tasks', async (req, res) => {
 
 // 6. Iniciar tarea (Poner en progreso por el técnico)
 app.post('/api/tasks/:id/iniciar', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol && !tienePermiso(userRol, 'cerrar_tareas')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Tu rol no tiene permisos para iniciar o atender tareas.' });
+  }
+
   const tareas = leerTareas();
   const idx = tareas.findIndex(t => t.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
@@ -1567,13 +1583,17 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
 // 7.1. Actualizar y Modificar Tarea Completa
 app.put('/api/tasks/:id', async (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (!tienePermiso(userRol, 'cambiar_horas') && !tienePermiso(userRol, 'crear_tareas')) {
+  const esAdmin = userRol === 'admin';
+  const puedeEditar = esAdmin || tienePermiso(userRol, 'cambiar_horas') || tienePermiso(userRol, 'crear_tareas') || tienePermiso(userRol, 'reabrir_tareas') || tienePermiso(userRol, 'cambiar_foto');
+  if (!puedeEditar) {
     return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para editar tareas ni modificar fechas u horas.' });
   }
 
   let tareas = leerTareas();
   const idx = tareas.findIndex(t => t.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  const puedeCambiarHoras = esAdmin || tienePermiso(userRol, 'cambiar_horas');
 
   const {
     fecha_ocurrencia,
@@ -1598,8 +1618,8 @@ app.put('/api/tasks/:id', async (req, res) => {
     estado
   } = req.body;
 
-  if (fecha_ocurrencia !== undefined) tareas[idx].fecha_ocurrencia = fecha_ocurrencia;
-  if (fecha_arreglo !== undefined) tareas[idx].fecha_arreglo = fecha_arreglo || null;
+  if (fecha_ocurrencia !== undefined && puedeCambiarHoras) tareas[idx].fecha_ocurrencia = fecha_ocurrencia;
+  if (fecha_arreglo !== undefined && puedeCambiarHoras) tareas[idx].fecha_arreglo = fecha_arreglo || null;
   if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
 
   // Actualizar fotografía comprobante si se envía nueva (Subir a Cloudinary si está activo)
@@ -1618,10 +1638,10 @@ app.put('/api/tasks/:id', async (req, res) => {
     tareas[idx].foto_inicial = foto_inicial;
   }
   
-  // Modificar roles asignados (permite añadir eléctrico o maquinista si se agravó el daño)
+  // Modificar roles asignados
   if (roles_asignados !== undefined) {
     let rFinal = Array.isArray(roles_asignados) ? roles_asignados : [roles_asignados];
-    rFinal = rFinal.filter(r => ROLES_TECNICOS.includes(r));
+    rFinal = rFinal.map(r => String(r).toLowerCase().trim()).filter(r => tienePermiso(r, 'asignable_tareas') || ROLES_TECNICOS.includes(r) || ROLES_TODOS.includes(r));
     if (rFinal.length === 0) rFinal = ['mecanico'];
     tareas[idx].roles_asignados = rFinal;
   }
@@ -1648,13 +1668,13 @@ app.put('/api/tasks/:id', async (req, res) => {
     motivo_fuera_planta
   } = req.body;
 
-  if (tiempo_espera_repuestos_minutos !== undefined) {
+  if (tiempo_espera_repuestos_minutos !== undefined && puedeCambiarHoras) {
     tareas[idx].tiempo_espera_repuestos_minutos = Math.max(0, parseInt(tiempo_espera_repuestos_minutos) || 0);
   }
   if (motivo_espera_repuestos !== undefined) {
     tareas[idx].motivo_espera_repuestos = String(motivo_espera_repuestos || '').trim();
   }
-  if (tiempo_fuera_planta_minutos !== undefined) {
+  if (tiempo_fuera_planta_minutos !== undefined && puedeCambiarHoras) {
     tareas[idx].tiempo_fuera_planta_minutos = Math.max(0, parseInt(tiempo_fuera_planta_minutos) || 0);
   }
   if (motivo_fuera_planta !== undefined) {
@@ -1662,7 +1682,7 @@ app.put('/api/tasks/:id', async (req, res) => {
   }
 
   // Retrocompatibilidad con tiempo_espera_minutos y motivo_espera
-  if (tiempo_espera_minutos !== undefined) {
+  if (tiempo_espera_minutos !== undefined && puedeCambiarHoras) {
     tareas[idx].tiempo_espera_minutos = Math.max(0, parseInt(tiempo_espera_minutos) || 0);
   } else if (tareas[idx].tiempo_espera_repuestos_minutos !== undefined || tareas[idx].tiempo_fuera_planta_minutos !== undefined) {
     tareas[idx].tiempo_espera_minutos = (tareas[idx].tiempo_espera_repuestos_minutos || 0) + (tareas[idx].tiempo_fuera_planta_minutos || 0);
@@ -1679,11 +1699,13 @@ app.put('/api/tasks/:id', async (req, res) => {
   if (titulo !== undefined) tareas[idx].titulo = titulo.trim();
   if (tipo !== undefined) tareas[idx].tipo = tipo.toLowerCase();
   if (prioridad !== undefined) tareas[idx].prioridad = prioridad;
-  // Soporte explícito para Reabrir Tarea (Exclusivo Perfil Admin)
+  
+  // Soporte explícito para Reabrir Tarea
+  const puedeReabrir = esAdmin || tienePermiso(userRol, 'reabrir_tareas');
   const quiereReabrir = tareas[idx].estado === 'completado' && (req.body.reabrir === true || (estado !== undefined && estado !== 'completado'));
   if (quiereReabrir) {
-    if (userRol !== 'admin') {
-      return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene autorización para reabrir una tarea finalizada.' });
+    if (!puedeReabrir) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para reabrir una tarea finalizada.' });
     }
     tareas[idx].estado = (estado && estado !== 'completado') ? estado : 'en_proceso';
     tareas[idx].completado_en = null;
@@ -1696,26 +1718,27 @@ app.put('/api/tasks/:id', async (req, res) => {
     tareas[idx].reabierta_en = new Date().toISOString();
     tareas[idx].reabierta_por = userRol;
   } else if (estado !== undefined) {
-    if (tareas[idx].estado === 'completado' && estado !== 'completado' && userRol !== 'admin') {
-      return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene autorización para modificar el estado de una tarea finalizada.' });
+    if (tareas[idx].estado === 'completado' && estado !== 'completado' && !puedeReabrir) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar el estado de una tarea finalizada.' });
     }
     tareas[idx].estado = estado;
   }
 
-  // Soporte explícito para Quitar / Eliminar Foto Comprobante de Finalización (Exclusivo Perfil Admin)
+  // Soporte explícito para Quitar / Eliminar Foto Comprobante de Finalización
+  const puedeCambiarFoto = esAdmin || tienePermiso(userRol, 'cambiar_foto');
   if (req.body.eliminar_foto_comprobante === true || foto_comprobante === null) {
-    if (userRol !== 'admin') {
-      return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene autorización para eliminar fotografías de comprobante.' });
+    if (!puedeCambiarFoto) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para eliminar fotografías de comprobante.' });
     }
     tareas[idx].foto_comprobante = null;
     tareas[idx].foto_comprobante_eliminada = true;
     tareas[idx].foto_actualizada_en = new Date().toISOString();
   }
 
-  // Soporte explícito para Quitar / Eliminar Foto Inicial (Exclusivo Perfil Admin)
+  // Soporte explícito para Quitar / Eliminar Foto Inicial
   if (req.body.eliminar_foto_inicial === true || foto_inicial === null) {
-    if (userRol !== 'admin') {
-      return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene autorización para eliminar fotografías iniciales.' });
+    if (!puedeCambiarFoto) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para eliminar fotografías iniciales.' });
     }
     tareas[idx].foto_inicial = null;
     tareas[idx].foto_inicial_eliminada = true;
@@ -1801,11 +1824,11 @@ app.post('/api/tasks/:id/reabrir', (req, res) => {
   res.json({ ok: true, mensaje: `Tarea ${tareas[idx].id} reabierta exitosamente.`, tarea: tareas[idx] });
 });
 
-// Endpoint directo: Quitar Foto Comprobante de Finalización (Exclusivo Perfil Admin)
+// Endpoint directo: Quitar Foto Comprobante de Finalización
 app.delete('/api/tasks/:id/foto', (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (userRol !== 'admin') {
-    return res.status(403).json({ error: 'Acceso Restringido: Solo el perfil de Administrador tiene permiso para eliminar fotografías de comprobante.' });
+  if (userRol !== 'admin' && !tienePermiso(userRol, 'cambiar_foto')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene permiso para eliminar fotografías de comprobante.' });
   }
 
   let tareas = leerTareas();

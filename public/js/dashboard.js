@@ -42,10 +42,100 @@ function usuarioTienePermiso(permiso) {
     if (permiso === 'cerrar_tareas') return ['admin', 'mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
     if (permiso === 'cambiar_foto') return true;
     if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista'].includes(rol);
+    if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
+    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
+    if (permiso === 'reabrir_tareas') return ['admin', 'supervisor', 'director'].includes(rol);
+    if (permiso === 'cambiar_horas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
     return false;
   } catch (e) {
     return false;
   }
+}
+
+// Configuración visual y descriptiva de todos los roles asignables
+const CONFIG_ROLES_ASIGNABLES = {
+  mecanico: { label: 'Mecánica', icon: 'fa-wrench', emoji: '🔧', colorClass: 'border-emerald-500 bg-emerald-950/40 text-emerald-300', badgeClass: 'bg-emerald-950 text-emerald-300 border-emerald-800/80' },
+  electrico: { label: 'Eléctrica', icon: 'fa-bolt', emoji: '⚡', colorClass: 'border-amber-500 bg-amber-950/40 text-amber-300', badgeClass: 'bg-amber-950 text-amber-300 border-amber-800/80' },
+  maquinista: { label: 'Maquinaria', icon: 'fa-tractor', emoji: '🚜', colorClass: 'border-orange-500 bg-orange-950/40 text-orange-300', badgeClass: 'bg-orange-950 text-orange-300 border-orange-800/80' },
+  supervisor: { label: 'Supervisión', icon: 'fa-user-tie', emoji: '👷', colorClass: 'border-sky-500 bg-sky-950/40 text-sky-300', badgeClass: 'bg-sky-950 text-sky-300 border-sky-800/80' },
+  sst: { label: 'SST', icon: 'fa-shield-heart', emoji: '🦺', colorClass: 'border-teal-500 bg-teal-950/40 text-teal-300', badgeClass: 'bg-teal-950 text-teal-300 border-teal-800/80' },
+  director: { label: 'Dirección', icon: 'fa-building', emoji: '🏢', colorClass: 'border-indigo-500 bg-indigo-950/40 text-indigo-300', badgeClass: 'bg-indigo-950 text-indigo-300 border-indigo-800/80' },
+  visualizador: { label: 'Visualizador', icon: 'fa-eye', emoji: '👁️', colorClass: 'border-purple-500 bg-purple-950/40 text-purple-300', badgeClass: 'bg-purple-950 text-purple-300 border-purple-800/80' },
+  admin: { label: 'Administración', icon: 'fa-crown', emoji: '👑', colorClass: 'border-amber-500 bg-amber-950/40 text-amber-300', badgeClass: 'bg-amber-950 text-amber-300 border-amber-800/80' }
+};
+
+function getBadgeRolDashboard(r) {
+  const rolKey = String(r || '').toLowerCase().trim();
+  const cfg = CONFIG_ROLES_ASIGNABLES[rolKey] || { label: r, icon: 'fa-user', emoji: '👤', badgeClass: 'bg-slate-800 text-slate-300 border-slate-700' };
+  return `<span class="text-[9px] ${cfg.badgeClass} border px-1.5 py-0.5 rounded font-bold inline-flex items-center gap-1"><i class="fa-solid ${cfg.icon}"></i> ${cfg.label}</span>`;
+}
+
+function obtenerRolesAsignablesActivos(rolesAdicionales = []) {
+  const roles = new Set();
+  // 1. Roles con asignable_tareas activado en la matriz de permisos
+  if (simanPermisosCache) {
+    for (const [rol, p] of Object.entries(simanPermisosCache)) {
+      if (p && p.asignable_tareas) roles.add(rol);
+    }
+  }
+  // 2. Fallbacks si aún no ha cargado la red
+  if (roles.size === 0) {
+    roles.add('mecanico');
+    roles.add('electrico');
+    roles.add('maquinista');
+  }
+  // 3. Incluir roles ya presentes en la tarea para no desasociarlos
+  if (Array.isArray(rolesAdicionales)) {
+    rolesAdicionales.forEach(r => { if (r) roles.add(String(r).toLowerCase().trim()); });
+  }
+  return Array.from(roles);
+}
+
+function renderCheckboxesRolesCrear() {
+  const container = document.getElementById('contenedor-roles-asignados-crear');
+  if (!container) return;
+  const rolesActivos = obtenerRolesAsignablesActivos();
+  const lista = rolesActivos.length > 0 ? rolesActivos : ['mecanico', 'electrico', 'maquinista'];
+  container.innerHTML = lista.map(rol => {
+    const cfg = CONFIG_ROLES_ASIGNABLES[rol] || { label: rol, emoji: '👤', colorClass: 'border-slate-700 bg-slate-900 text-slate-200' };
+    const checked = (rol === 'mecanico') ? 'checked' : '';
+    const parts = cfg.colorClass.split(' ');
+    const borderClass = parts[0] || 'border-slate-700';
+    const bgClass = parts[1] || 'bg-slate-900';
+    const textClass = parts[2] || 'text-slate-200';
+    return `
+      <label class="cursor-pointer border border-slate-700 rounded-lg p-2.5 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:${borderClass} has-[:checked]:${bgClass}">
+        <input type="checkbox" name="roles_asignados" value="${rol}" ${checked} onchange="actualizarEstadoTrabajoConjunto()" class="rounded border-slate-700 text-emerald-600 focus:ring-0">
+        <span class="text-xs font-bold ${textClass}">${cfg.emoji} ${cfg.label}</span>
+      </label>
+    `;
+  }).join('');
+  actualizarEstadoTrabajoConjunto();
+}
+
+function renderCheckboxesRolesDetalle(t, puedeEditar) {
+  const container = document.getElementById('contenedor-roles-asignados-detalle');
+  if (!container) return;
+  const rolesTarea = Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0 
+    ? t.roles_asignados.map(r => String(r).toLowerCase().trim()) 
+    : ['mecanico'];
+  const rolesActivos = obtenerRolesAsignablesActivos(rolesTarea);
+  container.innerHTML = rolesActivos.map(rol => {
+    const cfg = CONFIG_ROLES_ASIGNABLES[rol] || { label: rol, emoji: '👤', colorClass: 'border-slate-700 bg-slate-900 text-slate-200' };
+    const checked = rolesTarea.includes(rol) ? 'checked' : '';
+    const disabled = !puedeEditar ? 'disabled' : '';
+    const parts = cfg.colorClass.split(' ');
+    const borderClass = parts[0] || 'border-slate-700';
+    const bgClass = parts[1] || 'bg-slate-900';
+    const textClass = parts[2] || 'text-slate-200';
+    return `
+      <label class="cursor-pointer border border-slate-700 rounded-lg p-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:${borderClass} has-[:checked]:${bgClass}">
+        <input type="checkbox" name="edit_det_roles_asignados" value="${rol}" ${checked} ${disabled} onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-emerald-600 focus:ring-0">
+        <span class="text-xs font-bold ${textClass}">${cfg.emoji} ${cfg.label}</span>
+      </label>
+    `;
+  }).join('');
+  actualizarEstadoConjuntaDetalle();
 }
 
 // Cómputo inteligente de tiempos por rol en cliente PC
@@ -118,7 +208,7 @@ function aplicarPermisosEnUI() {
     // 2. Botón Gestión de Usuarios / Colaboradores / Permisos
     const btnUsers = document.getElementById('btn-admin-usuarios');
     if (btnUsers) {
-      const puedeGestionarUsuarios = esAdmin || usuarioTienePermiso('ver_contrasenas') || usuarioTienePermiso('cambiar_contrasenas') || ['supervisor', 'sst', 'director'].includes(rol);
+      const puedeGestionarUsuarios = esAdmin || usuarioTienePermiso('ver_contrasenas') || usuarioTienePermiso('cambiar_contrasenas');
       if (puedeGestionarUsuarios) {
         btnUsers.classList.remove('hidden');
       } else {
@@ -153,7 +243,23 @@ function aplicarPermisosEnUI() {
         btnIrMovil.classList.add('hidden');
       }
     }
-  } catch (e) {}
+
+    // 6. Sección de Métricas y Gráficas del Dashboard (ver_dashboard)
+    const seccionMetricas = document.getElementById('seccion-dashboard-metricas-graficas');
+    if (seccionMetricas) {
+      const puedeVerDash = esAdmin || usuarioTienePermiso('ver_dashboard');
+      if (puedeVerDash) {
+        seccionMetricas.classList.remove('hidden');
+      } else {
+        seccionMetricas.classList.add('hidden');
+      }
+    }
+
+    // 7. Refrescar checkboxes de roles asignables para el modal de crear tarea
+    renderCheckboxesRolesCrear();
+  } catch (e) {
+    console.error('Error al aplicar permisos en UI:', e);
+  }
 }
 
 // Configuración completa de tipos de actividades de planta y mantenimiento
@@ -367,26 +473,47 @@ async function cargarMecanicosSelect() {
 }
 
 function getInfoRolColaborador(t) {
+  const r = (t.rol || '').toLowerCase().trim();
   let iconRol = 'fa-wrench text-emerald-400';
   let badgeRol = 'bg-emerald-950 text-emerald-300 border-emerald-800';
   let rolTxt = 'Mecánico';
-  if (t.rol === 'electrico') {
+  if (r === 'electrico') {
     iconRol = 'fa-bolt text-amber-400';
     badgeRol = 'bg-amber-950 text-amber-300 border-amber-800';
     rolTxt = 'Eléctrico';
-  } else if (t.rol === 'maquinista') {
+  } else if (r === 'maquinista') {
     iconRol = 'fa-tractor text-orange-400';
     badgeRol = 'bg-orange-950 text-orange-300 border-orange-800';
     rolTxt = 'Maquinista';
-  } else if (t.rol === 'auxiliar') {
+  } else if (r === 'supervisor') {
+    iconRol = 'fa-user-tie text-purple-400';
+    badgeRol = 'bg-purple-950 text-purple-300 border-purple-800';
+    rolTxt = 'Supervisor';
+  } else if (r === 'sst') {
+    iconRol = 'fa-shield-halved text-rose-400';
+    badgeRol = 'bg-rose-950 text-rose-300 border-rose-800';
+    rolTxt = 'SST';
+  } else if (r === 'director') {
+    iconRol = 'fa-user-gear text-blue-400';
+    badgeRol = 'bg-blue-950 text-blue-300 border-blue-800';
+    rolTxt = 'Director';
+  } else if (r === 'visualizador') {
+    iconRol = 'fa-eye text-cyan-400';
+    badgeRol = 'bg-cyan-950 text-cyan-300 border-cyan-800';
+    rolTxt = 'Visualizador';
+  } else if (r === 'admin') {
+    iconRol = 'fa-crown text-amber-400';
+    badgeRol = 'bg-amber-950 text-amber-300 border-amber-800';
+    rolTxt = 'Admin';
+  } else if (r === 'auxiliar') {
     iconRol = 'fa-screwdriver-wrench text-teal-400';
     badgeRol = 'bg-teal-950 text-teal-300 border-teal-800';
     rolTxt = 'Aux. Mecánico';
-  } else if (t.rol === 'operario') {
+  } else if (r === 'operario') {
     iconRol = 'fa-helmet-safety text-cyan-400';
     badgeRol = 'bg-cyan-950 text-cyan-300 border-cyan-800';
     rolTxt = 'Operario';
-  } else if (t.rol === 'supernumerario') {
+  } else if (r === 'supernumerario') {
     iconRol = 'fa-user-clock text-sky-400';
     badgeRol = 'bg-sky-950 text-sky-300 border-sky-800';
     rolTxt = 'Supernumerario';
@@ -913,11 +1040,7 @@ function renderTablaTareas(tareas) {
         <td class="py-3 px-4">
           <div class="space-y-1">
             <div class="flex items-center gap-1 flex-wrap">
-              ${(t.roles_asignados || ['mecanico']).map(r => {
-                if (r === 'electrico') return '<span class="text-[9px] bg-amber-950 text-amber-300 border border-amber-800/80 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-bolt"></i> Eléctrica</span>';
-                if (r === 'maquinista') return '<span class="text-[9px] bg-orange-950 text-orange-300 border border-orange-800/80 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-tractor"></i> Maquinaria</span>';
-                return '<span class="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-800/80 px-1.5 py-0.5 rounded font-bold"><i class="fa-solid fa-wrench"></i> Mecánica</span>';
-              }).join(' ')}
+              ${(t.roles_asignados || ['mecanico']).map(r => getBadgeRolDashboard(r)).join(' ')}
               ${(t.es_conjunta || (t.roles_asignados && t.roles_asignados.length > 1)) ? '<span class="text-[9px] bg-purple-900/80 text-purple-200 border border-purple-600 px-1.5 py-0.5 rounded font-bold">👥 Conjunta</span>' : ''}
             </div>
             ${t.completado_por_nombre ? `<div class="text-[11px] text-slate-400 font-medium truncate max-w-[200px]" title="Finalizado por ${escaparHTML(t.completado_por_nombre)}"><i class="fa-solid fa-user-check text-emerald-400 mr-1"></i>${escaparHTML(t.completado_por_nombre)}</div>` : ''}
@@ -1056,6 +1179,13 @@ function eliminarFotoInicialCrear() {
 }
 
 function abrirModalCrear() {
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  if (!esAdmin && !usuarioTienePermiso('crear_tareas')) {
+    alert('Acceso Restringido: Tu rol no tiene autorización para crear órdenes de trabajo.');
+    return;
+  }
+  renderCheckboxesRolesCrear();
   fijarOcurrenciaAhora();
   eliminarFotoInicialCrear();
   document.getElementById('modal-crear').classList.remove('hidden');
@@ -1081,17 +1211,16 @@ async function guardarNuevaTarea(e) {
   const form = e.target;
   const formData = new FormData(form);
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  const ROLES_GESTION = ['admin', 'supervisor', 'sst', 'director'];
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
 
-  if (!ROLES_GESTION.includes(user.rol)) {
-    alert('Acceso Restringido: Solo el Administrador, Supervisor, SST o Director de Planta tienen autorización para crear tareas.');
+  if (!esAdmin && !usuarioTienePermiso('crear_tareas')) {
+    alert('Acceso Restringido: Tu rol no tiene autorización para crear órdenes de trabajo.');
     return;
   }
 
-  const roles = Array.from(form.querySelectorAll('input[name="roles_asignados"]:checked')).map(cb => cb.value);
-  const NOMBRES_ESP = { mecanico: 'Mecánica', electrico: 'Eléctrica', maquinista: 'Maquinaria' };
+  const roles = Array.from(document.querySelectorAll('#contenedor-roles-asignados-crear input[name="roles_asignados"]:checked')).map(cb => cb.value);
   const rolesFinales = roles.length > 0 ? roles : ['mecanico'];
-  const especialidadesStr = rolesFinales.map(r => NOMBRES_ESP[r] || r).join(', ');
+  const especialidadesStr = rolesFinales.map(r => CONFIG_ROLES_ASIGNABLES[r]?.label || r).join(', ');
 
   const payload = {
     tipo: formData.get('tipo'),
@@ -1175,7 +1304,12 @@ async function abrirModalDetalle(id) {
 
   tareaSeleccionadaId = id;
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  const esAdmin = user.rol === 'admin';
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  const puedeCambiarHoras = esAdmin || usuarioTienePermiso('cambiar_horas');
+  const puedeReabrir = esAdmin || usuarioTienePermiso('reabrir_tareas');
+  const puedeCambiarFoto = esAdmin || usuarioTienePermiso('cambiar_foto');
+  const puedeEliminar = esAdmin || usuarioTienePermiso('eliminar_tareas');
+  const puedeEditar = puedeCambiarHoras || puedeReabrir || puedeCambiarFoto;
 
   // Guardar estado original de foto comprobante
   fotoDetalleOriginal = t.foto_comprobante || null;
@@ -1204,7 +1338,7 @@ async function abrirModalDetalle(id) {
   const selTipo = document.getElementById('edit-det-tipo');
   if (selTipo) {
     selTipo.value = t.tipo || 'correctivo';
-    selTipo.disabled = !esAdmin;
+    selTipo.disabled = !puedeEditar;
   }
   cambiarTipoDetalleModal(t.tipo || 'correctivo');
 
@@ -1213,10 +1347,10 @@ async function abrirModalDetalle(id) {
   const btnReabrir = document.getElementById('btn-reabrir-tarea-detalle');
   if (selEstado) {
     selEstado.value = t.estado || 'pendiente';
-    selEstado.disabled = !esAdmin;
+    selEstado.disabled = !puedeReabrir;
   }
   if (btnReabrir) {
-    if (esAdmin && t.estado === 'completado') {
+    if (puedeReabrir && t.estado === 'completado') {
       btnReabrir.classList.remove('hidden');
     } else {
       btnReabrir.classList.add('hidden');
@@ -1227,11 +1361,11 @@ async function abrirModalDetalle(id) {
   const btnQuitarFoto = document.getElementById('btn-quitar-foto-detalle');
   const btnQuitarFotoIni = document.getElementById('btn-quitar-foto-inicial-detalle');
   if (btnQuitarFoto) {
-    if (esAdmin && t.foto_comprobante) btnQuitarFoto.classList.remove('hidden');
+    if (puedeCambiarFoto && t.foto_comprobante) btnQuitarFoto.classList.remove('hidden');
     else btnQuitarFoto.classList.add('hidden');
   }
   if (btnQuitarFotoIni) {
-    if (esAdmin && t.foto_inicial) btnQuitarFotoIni.classList.remove('hidden');
+    if (puedeCambiarFoto && t.foto_inicial) btnQuitarFotoIni.classList.remove('hidden');
     else btnQuitarFotoIni.classList.add('hidden');
   }
 
@@ -1243,11 +1377,11 @@ async function abrirModalDetalle(id) {
 
   if (inOcurrio) {
     inOcurrio.value = t.fecha_ocurrencia ? t.fecha_ocurrencia.slice(0, 16) : '';
-    inOcurrio.disabled = !esAdmin;
+    inOcurrio.disabled = !puedeCambiarHoras;
   }
   if (inArreglo) {
     inArreglo.value = t.fecha_arreglo ? t.fecha_arreglo.slice(0, 16) : '';
-    inArreglo.disabled = !esAdmin;
+    inArreglo.disabled = !puedeCambiarHoras;
   }
   if (txtOcurrio) txtOcurrio.innerText = formatearFechaHora(t.fecha_ocurrencia);
   if (txtArreglo) txtArreglo.innerText = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : 'Pendiente de registrar';
@@ -1272,16 +1406,16 @@ async function abrirModalDetalle(id) {
   const inEsperaH = document.getElementById('edit-det-espera-horas');
   const inEsperaM = document.getElementById('edit-det-espera-minutos');
   const inMotivoEsp = document.getElementById('edit-det-motivo-espera');
-  if (inEsperaH) { inEsperaH.value = Math.floor(tRep / 60); inEsperaH.disabled = !esAdmin; }
-  if (inEsperaM) { inEsperaM.value = tRep % 60; inEsperaM.disabled = !esAdmin; }
-  if (inMotivoEsp) { inMotivoEsp.value = motRep; inMotivoEsp.disabled = !esAdmin; }
+  if (inEsperaH) { inEsperaH.value = Math.floor(tRep / 60); inEsperaH.disabled = !puedeCambiarHoras; }
+  if (inEsperaM) { inEsperaM.value = tRep % 60; inEsperaM.disabled = !puedeCambiarHoras; }
+  if (inMotivoEsp) { inMotivoEsp.value = motRep; inMotivoEsp.disabled = !puedeCambiarHoras; }
 
   const inFueraH = document.getElementById('edit-det-fuera-horas');
   const inFueraM = document.getElementById('edit-det-fuera-minutos');
   const inMotivoFuera = document.getElementById('edit-det-fuera-motivo');
-  if (inFueraH) { inFueraH.value = Math.floor(tExt / 60); inFueraH.disabled = !esAdmin; }
-  if (inFueraM) { inFueraM.value = tExt % 60; inFueraM.disabled = !esAdmin; }
-  if (inMotivoFuera) { inMotivoFuera.value = motExt; inMotivoFuera.disabled = !esAdmin; }
+  if (inFueraH) { inFueraH.value = Math.floor(tExt / 60); inFueraH.disabled = !puedeCambiarHoras; }
+  if (inFueraM) { inFueraM.value = tExt % 60; inFueraM.disabled = !puedeCambiarHoras; }
+  if (inMotivoFuera) { inMotivoFuera.value = motExt; inMotivoFuera.disabled = !puedeCambiarHoras; }
 
   // Horas por especialidad / rol
   const tpr = resolverTiemposRolesCliente(t);
@@ -1290,15 +1424,15 @@ async function abrirModalDetalle(id) {
   const inHorasMaq = document.getElementById('edit-horas-maquinista');
   if (inHorasMec) {
     inHorasMec.value = tpr.mecanico ? (tpr.mecanico / 60).toFixed(1).replace('.0', '') : '';
-    inHorasMec.disabled = !esAdmin;
+    inHorasMec.disabled = !puedeCambiarHoras;
   }
   if (inHorasElec) {
     inHorasElec.value = tpr.electrico ? (tpr.electrico / 60).toFixed(1).replace('.0', '') : '';
-    inHorasElec.disabled = !esAdmin;
+    inHorasElec.disabled = !puedeCambiarHoras;
   }
   if (inHorasMaq) {
     inHorasMaq.value = tpr.maquinista ? (tpr.maquinista / 60).toFixed(1).replace('.0', '') : '';
-    inHorasMaq.disabled = !esAdmin;
+    inHorasMaq.disabled = !puedeCambiarHoras;
   }
 
   // Recalcular indicadores de tiempo activo y parada
@@ -1310,24 +1444,18 @@ async function abrirModalDetalle(id) {
   document.getElementById('det-prioridad').innerText = t.prioridad || 'Media';
   document.getElementById('det-descripcion').innerText = t.descripcion || 'Sin descripción';
 
-  // Checkboxes de roles dinámicos (mecanico, electrico, maquinista)
-  const roles = (Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0) ? t.roles_asignados : ['mecanico'];
-  const cbMec = document.getElementById('edit-det-rol-mecanico');
-  const cbElec = document.getElementById('edit-det-rol-electrico');
-  const cbMaq = document.getElementById('edit-det-rol-maquinista');
-  if (cbMec) { cbMec.checked = roles.includes('mecanico'); cbMec.disabled = !esAdmin; }
-  if (cbElec) { cbElec.checked = roles.includes('electrico'); cbElec.disabled = !esAdmin; }
-  if (cbMaq) { cbMaq.checked = roles.includes('maquinista'); cbMaq.disabled = !esAdmin; }
+  // Checkboxes de roles dinámicos renderizados según la matriz de permisos
+  renderCheckboxesRolesDetalle(t, puedeEditar);
 
   // Checkboxes dinámicos de técnicos participantes
-  poblarCheckboxesTecnicosDetalle(t, esAdmin);
+  poblarCheckboxesTecnicosDetalle(t, puedeEditar);
   actualizarEstadoConjuntaDetalle();
 
   // Notas editables
   const inNotas = document.getElementById('edit-det-notas-mecanico');
   if (inNotas) {
     inNotas.value = t.notas_mecanico || '';
-    inNotas.disabled = !esAdmin;
+    inNotas.disabled = !puedeEditar;
   }
 
   // Badge de quién completó la tarea
@@ -1395,11 +1523,11 @@ async function abrirModalDetalle(id) {
   const btnElim = document.getElementById('btn-eliminar-tarea');
   const btnGuardar = document.getElementById('btn-guardar-edicion-tarea');
   if (btnElim) {
-    if (esAdmin) btnElim.classList.remove('hidden');
+    if (puedeEliminar) btnElim.classList.remove('hidden');
     else btnElim.classList.add('hidden');
   }
   if (btnGuardar) {
-    if (esAdmin) btnGuardar.classList.remove('hidden');
+    if (puedeEditar) btnGuardar.classList.remove('hidden');
     else btnGuardar.classList.add('hidden');
   }
 
@@ -1713,9 +1841,10 @@ function abrirFotoInicialDetalleActual() {
 function alCambiarEstadoDetalleModal(nuevoEstado) {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
   const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  const puedeReabrir = esAdmin || usuarioTienePermiso('reabrir_tareas');
   const btnReabrir = document.getElementById('btn-reabrir-tarea-detalle');
   if (btnReabrir) {
-    if (esAdmin && nuevoEstado === 'completado') btnReabrir.classList.remove('hidden');
+    if (puedeReabrir && nuevoEstado === 'completado') btnReabrir.classList.remove('hidden');
     else btnReabrir.classList.add('hidden');
   }
   if (nuevoEstado !== 'completado') {
@@ -1851,7 +1980,13 @@ function cancelarEliminarFotoInicialDetalle() {
 async function guardarEdicionDetalleAdmin() {
   if (!tareaSeleccionadaId) return;
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  if (!usuarioTienePermiso('cambiar_horas') && !usuarioTienePermiso('crear_tareas')) {
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  const puedeCambiarHoras = esAdmin || usuarioTienePermiso('cambiar_horas');
+  const puedeReabrir = esAdmin || usuarioTienePermiso('reabrir_tareas');
+  const puedeCambiarFoto = esAdmin || usuarioTienePermiso('cambiar_foto');
+  const puedeEditar = puedeCambiarHoras || puedeReabrir || puedeCambiarFoto || usuarioTienePermiso('crear_tareas');
+
+  if (!puedeEditar) {
     alert('Acceso Restringido: Tu rol no tiene autorización para modificar fechas, horas o detalles de las tareas.');
     return;
   }
@@ -1866,11 +2001,8 @@ async function guardarEdicionDetalleAdmin() {
     return;
   }
 
-  // Roles seleccionados
-  const roles = [];
-  if (document.getElementById('edit-det-rol-mecanico')?.checked) roles.push('mecanico');
-  if (document.getElementById('edit-det-rol-electrico')?.checked) roles.push('electrico');
-  if (document.getElementById('edit-det-rol-maquinista')?.checked) roles.push('maquinista');
+  // Roles seleccionados desde el contenedor dinámico
+  const roles = Array.from(document.querySelectorAll('#contenedor-roles-asignados-detalle input[name="edit_det_roles_asignados"]:checked')).map(cb => cb.value);
   const rolesFinales = roles.length > 0 ? roles : ['mecanico'];
 
   // Técnicos participantes
@@ -1909,8 +2041,7 @@ async function guardarEdicionDetalleAdmin() {
     tiemposPorRol = resolverTiemposRolesCliente({ ...tareaActual, roles_asignados: rolesFinales });
   }
 
-  const NOMBRES_ESP = { mecanico: 'Mecánica', electrico: 'Eléctrica', maquinista: 'Maquinaria' };
-  const especialidadesStr = rolesFinales.map(r => NOMBRES_ESP[r] || r).join(', ');
+  const especialidadesStr = rolesFinales.map(r => CONFIG_ROLES_ASIGNABLES[r]?.label || r).join(', ');
 
   const payload = {
     tipo: tipoSeleccionado,
