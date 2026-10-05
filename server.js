@@ -338,17 +338,17 @@ const PERMISOS_DEFAULT = {
     crear_tareas: false,
     cerrar_tareas: false,
     cambiar_horas: false,
-    cambiar_foto: true,
+    cambiar_foto: false,
     asignable_tareas: false,
     ver_contrasenas: false,
     cambiar_contrasenas: false,
     eliminar_tareas: false,
     reabrir_tareas: false,
     ver_compras: true,
-    crear_compras: false,
+    crear_compras: true,
     ver_dashboard: false,
     acceso_pc: true,
-    acceso_movil: true,
+    acceso_movil: false,
     ver_almacen: true,
     crear_remisiones: true,
     finalizar_remisiones: true,
@@ -473,26 +473,6 @@ const PERMISOS_DEFAULT = {
     crear_remisiones: true,
     finalizar_remisiones: true,
     eliminar_remisiones: true
-  },
-  almacenista: {
-    crear_tareas: false,
-    cerrar_tareas: false,
-    cambiar_horas: false,
-    cambiar_foto: false,
-    asignable_tareas: false,
-    ver_contrasenas: false,
-    cambiar_contrasenas: false,
-    eliminar_tareas: false,
-    reabrir_tareas: false,
-    ver_compras: true,
-    crear_compras: true,
-    ver_dashboard: false,
-    acceso_pc: true,
-    acceso_movil: false,
-    ver_almacen: true,
-    crear_remisiones: true,
-    finalizar_remisiones: true,
-    eliminar_remisiones: false
   }
 };
 
@@ -723,7 +703,8 @@ app.post('/api/auth/login', (req, res) => {
   res.json({
     mensaje: 'Inicio de sesión exitoso',
     token,
-    user: userSeguro
+    user: userSeguro,
+    permisos: leerPermisos()
   });
 });
 
@@ -1755,18 +1736,31 @@ app.put('/api/tasks/:id', async (req, res) => {
   if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
 
   // Actualizar fotografía comprobante si se envía nueva (Subir a Cloudinary si está activo)
+  const puedeCambiarFoto = esAdmin || tienePermiso(userRol, 'cambiar_foto');
   if (foto_base64 && foto_base64.startsWith('data:image/')) {
+    if (!puedeCambiarFoto) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar fotografías.' });
+    }
     tareas[idx].foto_comprobante = await imageStorage.subirImagenNube(foto_base64, `comp_${tareas[idx].id}`, 'comprobantes');
     tareas[idx].foto_actualizada_en = new Date().toISOString();
   } else if (foto_comprobante !== undefined) {
+    if (foto_comprobante !== tareas[idx].foto_comprobante && !puedeCambiarFoto) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar fotografías.' });
+    }
     tareas[idx].foto_comprobante = foto_comprobante;
   }
 
   // Actualizar fotografía inicial del daño o reporte si se envía
   if (foto_inicial_base64 && foto_inicial_base64.startsWith('data:image/')) {
+    if (!puedeCambiarFoto) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar fotografías iniciales.' });
+    }
     tareas[idx].foto_inicial = await imageStorage.subirImagenNube(foto_inicial_base64, `ini_${tareas[idx].id}`, 'iniciales');
     tareas[idx].foto_inicial_actualizada_en = new Date().toISOString();
   } else if (foto_inicial !== undefined) {
+    if (foto_inicial !== tareas[idx].foto_inicial && !puedeCambiarFoto) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar fotografías iniciales.' });
+    }
     tareas[idx].foto_inicial = foto_inicial;
   }
   
@@ -1853,11 +1847,16 @@ app.put('/api/tasks/:id', async (req, res) => {
     if (tareas[idx].estado === 'completado' && estado !== 'completado' && !puedeReabrir) {
       return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar el estado de una tarea finalizada.' });
     }
+    if (tareas[idx].estado !== 'completado' && estado === 'completado') {
+      const puedeCerrar = esAdmin || tienePermiso(userRol, 'cerrar_tareas');
+      if (!puedeCerrar) {
+        return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para finalizar o cerrar tareas.' });
+      }
+    }
     tareas[idx].estado = estado;
   }
 
   // Soporte explícito para Quitar / Eliminar Foto Comprobante de Finalización
-  const puedeCambiarFoto = esAdmin || tienePermiso(userRol, 'cambiar_foto');
   if (req.body.eliminar_foto_comprobante === true || foto_comprobante === null) {
     if (!puedeCambiarFoto) {
       return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para eliminar fotografías de comprobante.' });
@@ -1895,6 +1894,9 @@ app.put('/api/tasks/:id', async (req, res) => {
 
   // Recalcular tiempo de trabajo activo si no fue explícito
   if (tiempo_trabajo_activo_minutos !== undefined && tiempo_trabajo_activo_minutos !== null) {
+    if (!puedeCambiarHoras) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar tiempos de trabajo.' });
+    }
     tareas[idx].tiempo_trabajo_activo_minutos = Math.max(0, parseInt(tiempo_trabajo_activo_minutos) || 0);
   } else if (tareas[idx].tiempo_arreglo_minutos !== null) {
     const espera = tareas[idx].tiempo_espera_minutos || 0;
@@ -1903,6 +1905,9 @@ app.put('/api/tasks/:id', async (req, res) => {
 
   // Desglose de horas por rol (ej: electrico 2h, mecanico 3h, o cómputo automático)
   if (tiempos_por_rol !== undefined) {
+    if (!puedeCambiarHoras) {
+      return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar tiempos por especialidad.' });
+    }
     const rawTpr = typeof tiempos_por_rol === 'string' ? JSON.parse(tiempos_por_rol || '{}') : tiempos_por_rol;
     tareas[idx].tiempos_por_rol = calcularTiemposPorRol(tareas[idx], rawTpr, tareas[idx].completado_por_rol || userRol);
   } else if (tareas[idx].estado === 'completado') {
@@ -2613,6 +2618,11 @@ app.post('/api/admin/migrar-fotos-cloudinary', async (req, res) => {
 
 // 9. Métricas y KPIs para el dashboard (con filtro de período, horas de roles y tiempos muertos)
 app.get('/api/metrics', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  if (userRol !== 'admin' && !tienePermiso(userRol, 'ver_dashboard')) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para visualizar métricas del Dashboard.' });
+  }
+
   let tareas = leerTareas();
 
   // Filtro por período basado en fecha_ocurrencia
