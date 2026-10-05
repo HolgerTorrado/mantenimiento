@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1083",
+    "equipo": "Manómetro de presión",
+    "titulo": "Falla medición de presión",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificación",
+    "descripcion": "Por favor me colaboren con el cambio del manómetro instalado en el pulmón del área de clarificación",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-05T08:04",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791205494/siman/iniciales/ini_TSK-1083_1791205494192.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jesus Barajas",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-05T13:04:55.564Z"
+  },
+  {
     "id": "TSK-1078",
     "equipo": "Tubería precalentamiento",
     "titulo": "Fuga por tubería rota",
