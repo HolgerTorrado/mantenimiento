@@ -235,6 +235,9 @@
       </div>
     </div>
 
+    <!-- SECCIÓN DE MÉTRICAS Y GRÁFICAS DEL DASHBOARD (CONTROLADA POR MATRIZ DE PERMISOS: ver_dashboard) -->
+    <div id="seccion-dashboard-metricas-graficas" class="space-y-6">
+
     <!-- TARJETAS DE INDICADORES / KPI -->
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
       
@@ -493,6 +496,7 @@
         </div>
       </div>
 
+    </div>
     </div>
 
     <!-- TABLA Y CONTROL DE TAREAS -->
@@ -1098,19 +1102,8 @@
             </span>
           </div>
           <p class="text-[11px] text-slate-400">Seleccione los roles que participarán. Si selecciona más de uno, la tarea será compartida en conjunto:</p>
-          <div class="grid grid-cols-3 gap-2">
-            <label class="cursor-pointer border border-slate-700 rounded-lg p-2.5 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-950/40">
-              <input type="checkbox" name="roles_asignados" value="mecanico" checked onchange="actualizarEstadoTrabajoConjunto()" class="rounded border-slate-700 text-emerald-600 focus:ring-0">
-              <span class="text-xs font-bold text-emerald-300">🔧 Mecánica</span>
-            </label>
-            <label class="cursor-pointer border border-slate-700 rounded-lg p-2.5 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-950/40">
-              <input type="checkbox" name="roles_asignados" value="electrico" onchange="actualizarEstadoTrabajoConjunto()" class="rounded border-slate-700 text-amber-600 focus:ring-0">
-              <span class="text-xs font-bold text-amber-300">⚡ Eléctrica</span>
-            </label>
-            <label class="cursor-pointer border border-slate-700 rounded-lg p-2.5 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-950/40">
-              <input type="checkbox" name="roles_asignados" value="maquinista" onchange="actualizarEstadoTrabajoConjunto()" class="rounded border-slate-700 text-orange-600 focus:ring-0">
-              <span class="text-xs font-bold text-orange-300">🚜 Maquinaria</span>
-            </label>
+          <div id="contenedor-roles-asignados-crear" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <!-- Checkboxes generados dinámicamente según la matriz de permisos (asignable_tareas) -->
           </div>
         </div>
 
@@ -1573,19 +1566,8 @@
               </span>
             </div>
             <p class="text-[11px] text-slate-400">Si el daño se agravó o requirió apoyo eléctrico/mecánico/maquinista, marque los roles correspondientes:</p>
-            <div class="grid grid-cols-3 gap-2">
-              <label class="cursor-pointer border border-slate-700 rounded-lg p-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-950/40">
-                <input type="checkbox" id="edit-det-rol-mecanico" value="mecanico" onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-emerald-600 focus:ring-0">
-                <span class="text-xs font-bold text-emerald-300">🔧 Mecánica</span>
-              </label>
-              <label class="cursor-pointer border border-slate-700 rounded-lg p-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-950/40">
-                <input type="checkbox" id="edit-det-rol-electrico" value="electrico" onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-amber-600 focus:ring-0">
-                <span class="text-xs font-bold text-amber-300">⚡ Eléctrica</span>
-              </label>
-              <label class="cursor-pointer border border-slate-700 rounded-lg p-2 flex items-center gap-2 transition hover:bg-slate-800 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-950/40">
-                <input type="checkbox" id="edit-det-rol-maquinista" value="maquinista" onchange="actualizarEstadoConjuntaDetalle()" class="rounded border-slate-700 text-orange-600 focus:ring-0">
-                <span class="text-xs font-bold text-orange-300">🚜 Maquinaria</span>
-              </label>
+            <div id="contenedor-roles-asignados-detalle" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <!-- Checkboxes generados dinámicamente según la matriz de permisos (asignable_tareas) -->
             </div>
           </div>
 

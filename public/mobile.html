@@ -1044,19 +1044,8 @@
 
         <div>
           <label class="block text-slate-300 font-bold mb-1">Especialidades Requeridas</label>
-          <div class="grid grid-cols-3 gap-1.5">
-            <label class="border border-slate-700 rounded-lg p-2 flex items-center gap-1.5 bg-slate-950">
-              <input type="checkbox" name="mob_roles" value="mecanico" checked class="rounded border-slate-700 text-emerald-600">
-              <span class="text-[11px] text-emerald-300 font-bold">🔧 Mecánica</span>
-            </label>
-            <label class="border border-slate-700 rounded-lg p-2 flex items-center gap-1.5 bg-slate-950">
-              <input type="checkbox" name="mob_roles" value="electrico" class="rounded border-slate-700 text-amber-600">
-              <span class="text-[11px] text-amber-300 font-bold">⚡ Eléctrica</span>
-            </label>
-            <label class="border border-slate-700 rounded-lg p-2 flex items-center gap-1.5 bg-slate-950">
-              <input type="checkbox" name="mob_roles" value="maquinista" class="rounded border-slate-700 text-orange-600">
-              <span class="text-[11px] text-orange-300 font-bold">🚜 Maquinaria</span>
-            </label>
+          <div id="contenedor-roles-asignados-movil" class="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+            <!-- Checkboxes generados dinámicamente según la matriz de permisos (asignable_tareas) -->
           </div>
         </div>
 
