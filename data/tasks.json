@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1099",
+    "equipo": "Exclusa de cascarilla",
+    "titulo": "Daño del acople del motor",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Palmisteria",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-06T11:24",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791304086/siman/iniciales/ini_TSK-1099_1791304086504.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-06T16:28:07.267Z"
+  },
+  {
     "id": "TSK-1098",
     "equipo": "8 de la prensa",
     "titulo": "Ajuste de tornillos del 8 de la prensa por salida de líquido",
