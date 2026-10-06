@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1102",
+    "equipo": "Preclarificador",
+    "titulo": "Cambio de poli sombra en preclarificador",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificación",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico",
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Supervisión",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-06T17:33",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791326002/siman/iniciales/ini_TSK-1102_1791326002045.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Luis Lopez",
+    "creado_por_rol": "director",
+    "creado_en": "2026-10-06T22:33:22.999Z"
+  },
+  {
     "id": "TSK-1101",
     "equipo": "Transportador de torta",
     "titulo": "Instalación de tapas faltantes en transportador de torta",
