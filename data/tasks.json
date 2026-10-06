@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1097",
+    "equipo": "8 de la prensa",
+    "titulo": "Ajuste de tornillos del 8 de la prensa por salida de líquido",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Prensado",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-06T11:23",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791303879/siman/iniciales/ini_TSK-1097_1791303879504.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-06T16:24:41.580Z"
+  },
+  {
     "id": "TSK-1096",
     "equipo": "Tubería del digestor",
     "titulo": "Tubería tapada en la salida del digestor",
