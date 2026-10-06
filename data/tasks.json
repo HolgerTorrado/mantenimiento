@@ -232,14 +232,15 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-05T19:09",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791245377/siman/iniciales/ini_TSK-1091_1791245377312.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Nestor Urbina",
     "creado_por_rol": "sst",
-    "creado_en": "2026-10-06T00:09:38.368Z"
+    "creado_en": "2026-10-06T00:09:38.368Z",
+    "actualizado_en": "2026-10-06T18:08:38.120Z"
   },
   {
     "id": "TSK-1090",
