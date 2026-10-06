@@ -85,19 +85,33 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Ender Silva"
+    ],
+    "mecanico_asignado": "Ender Silva",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-06T11:21",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
+    "fecha_arreglo": "2026-10-06T12:41",
+    "estado": "completado",
+    "notas_mecanico": "Se destapa drenaje del dugestor ",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791303787/siman/iniciales/ini_TSK-1096_1791303787385.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791308533/siman/comprobantes/comp_TSK-1096_1791308532958.webp",
+    "tiempo_arreglo_minutos": 80,
     "creado_por_usuario": "Holger Torrado",
     "creado_por_rol": "admin",
-    "creado_en": "2026-10-06T16:23:08.709Z"
+    "creado_en": "2026-10-06T16:23:08.709Z",
+    "completado_por_usuario": "esilva",
+    "completado_por_nombre": "Ender Silva",
+    "completado_por_rol": "mecanico",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 80,
+    "tiempos_por_rol": {
+      "mecanico": 80,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "completado_en": "2026-10-06T17:42:13.957Z"
   },
   {
     "id": "TSK-1095",
