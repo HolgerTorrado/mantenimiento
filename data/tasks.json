@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1091",
+    "equipo": "Baño comedor",
+    "titulo": "Cerradura defectuosa",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Comedor",
+    "descripcion": "Se requiere cambiar o arreglar cerradura",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-05T19:09",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791245377/siman/iniciales/ini_TSK-1091_1791245377312.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-06T00:09:38.368Z"
+  },
+  {
     "id": "TSK-1090",
     "equipo": "Rejillas",
     "titulo": "Rejilla averiada por maquinaria",
