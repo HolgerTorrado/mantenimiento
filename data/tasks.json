@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1090",
+    "equipo": "Rejillas",
+    "titulo": "Rejilla averiada por maquinaria",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Palmisteria",
+    "descripcion": "Rejilla que no lleva mucho arreglada, se evidencia que esta averiada nuevamente",
+    "roles_asignados": [
+      "maquinista",
+      "admin"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Maquinaria, Administración",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-05T19:01",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791244920/siman/iniciales/ini_TSK-1090_1791244919841.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-06T00:02:00.960Z"
+  },
+  {
     "id": "TSK-1089",
     "equipo": "rejillas electricas",
     "titulo": "Limpieza de fibra en líneas de potencia",
