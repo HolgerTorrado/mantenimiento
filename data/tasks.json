@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1100",
+    "equipo": "Equipos de desfibra información",
+    "titulo": "Limpieza externa de equipos de desfibra información en nave de proceso",
+    "tipo": "preventivo",
+    "prioridad": "alta",
+    "ubicacion": "Desfibra información y moños",
+    "descripcion": "Alto volumen de fibra en zonas superiores a los equipos",
+    "roles_asignados": [
+      "mecanico",
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Supervisión",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-06T17:26",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791325581/siman/iniciales/ini_TSK-1100_1791325581298.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Luis Lopez",
+    "creado_por_rol": "director",
+    "creado_en": "2026-10-06T22:26:22.220Z"
+  },
+  {
     "id": "TSK-1099",
     "equipo": "Exclusa de cascarilla",
     "titulo": "Daño del acople del motor",
