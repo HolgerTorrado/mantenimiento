@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1095",
+    "equipo": "Instalación Electrobomba",
+    "titulo": "Instalación segunda Electrobomba lagunas nuevas",
+    "tipo": "instalacion",
+    "prioridad": "alta",
+    "ubicacion": "Lagunas nuevas",
+    "descripcion": "Se requiere instalación de una segunda electrobomba para verter agua residual hacia plantaciones",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-06T09:40",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791297615/siman/iniciales/ini_TSK-1095_1791297614894.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Juliana Rangel",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-06T14:40:15.960Z"
+  },
+  {
     "id": "TSK-1094",
     "equipo": "Motor",
     "titulo": "Limpieza del motor de prensa por comida",
