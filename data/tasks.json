@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1106",
+    "equipo": "Carretillas",
+    "titulo": "Se requiere, reparación, dar de baja y comprar carretillas",
+    "tipo": "otro",
+    "prioridad": "media",
+    "ubicacion": "No aplica",
+    "descripcion": "Se requiere revisar las carretillas que se han llevado a almacén, si se pueden reparar intervenirlas, dar de baja más que ya no sirven y comprar debido a que la mayoría están dañadas y se están requiriendo en proceso",
+    "roles_asignados": [
+      "mecanico",
+      "admin"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Administración",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-07T08:51",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791381078/siman/iniciales/ini_TSK-1106_1791381077600.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-07T13:51:18.692Z"
+  },
+  {
     "id": "TSK-1105",
     "equipo": "Escalera tanquilla de terminado",
     "titulo": "Barandal partido de escalera tanquilla de aceite terminado",
