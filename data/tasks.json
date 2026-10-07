@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1105",
+    "equipo": "Escalera tanquilla de terminado",
+    "titulo": "Barandal partido de escalera tanquilla de aceite terminado",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificación",
+    "descripcion": "Se requiere la intervención con soldadura de la escalera de la tanquilla de aceite terminado",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-07T08:05",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791378353/siman/iniciales/ini_TSK-1105_1791378352881.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-07T13:05:53.701Z"
+  },
+  {
     "id": "TSK-1104",
     "equipo": "Ciclón de cascarilla",
     "titulo": "Se presenta avería en la soldadura del motor del ciclon de cascarilla",
