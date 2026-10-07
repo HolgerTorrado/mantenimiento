@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1107",
+    "equipo": "Caldera",
+    "titulo": "Instalación de recubrimiento aislante de la caldera",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Caldera",
+    "descripcion": "Se requiere instalación del recubrimiento aislante de la caldera",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-07T09:55",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791384921/siman/iniciales/ini_TSK-1107_1791384920932.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-07T14:55:21.793Z"
+  },
+  {
     "id": "TSK-1106",
     "equipo": "Carretillas",
     "titulo": "Se requiere, reparación, dar de baja y comprar carretillas",
