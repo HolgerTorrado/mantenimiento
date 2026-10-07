@@ -57,7 +57,7 @@ function usuarioTienePermisoMovil(permiso) {
   try {
     const user = JSON.parse(userJson);
     const rol = (user.rol || '').toLowerCase().trim();
-    if (rol === 'admin') return true; // Administrador siempre tiene acceso absoluto
+    if (rol === 'admin' && permiso !== 'asignable_tareas') return true; // Administrador siempre tiene acceso absoluto salvo si no es asignable
 
     // 1. Memoria activa
     if (simanPermisosCacheMovil && simanPermisosCacheMovil[rol] && simanPermisosCacheMovil[rol][permiso] !== undefined) {
@@ -384,6 +384,7 @@ function abrirModalCrearMovil() {
     return;
   }
   renderCheckboxesRolesMovil();
+  fijarOcurrenciaAhoraMovil();
   const modal = document.getElementById('modal-crear-movil');
   if (modal) modal.classList.remove('hidden');
 }
@@ -391,6 +392,14 @@ function abrirModalCrearMovil() {
 function cerrarModalCrearMovil() {
   const modal = document.getElementById('modal-crear-movil');
   if (modal) modal.classList.add('hidden');
+}
+
+function fijarOcurrenciaAhoraMovil() {
+  const el = document.getElementById('mob-crear-fecha-ocurrencia');
+  if (!el) return;
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  el.value = (new Date(now - offset)).toISOString().slice(0, 16);
 }
 
 let fotoInicialCrearMovilBase64 = null;
@@ -445,6 +454,7 @@ async function guardarNuevaTareaMovil(e) {
   const now = new Date();
   const offset = now.getTimezoneOffset() * 60000;
   const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+  const fechaOcurrenciaInp = document.getElementById('mob-crear-fecha-ocurrencia')?.value || localISOTime;
 
   const btn = document.getElementById('btn-submit-crear-movil');
   const txtOrig = btn ? btn.innerHTML : '';
@@ -470,7 +480,7 @@ async function guardarNuevaTareaMovil(e) {
         prioridad,
         descripcion,
         roles_asignados: rolesFinales,
-        fecha_ocurrencia: localISOTime,
+        fecha_ocurrencia: fechaOcurrenciaInp,
         foto_inicial: fotoInicialCrearMovilBase64,
         tecnicos_asignados: []
       })
@@ -1097,12 +1107,23 @@ function abrirModalCompletar(id) {
     }
   }
 
+  const inOc = document.getElementById('input-fecha-ocurrencia-movil');
+  if (inOc) inOc.value = t.fecha_ocurrencia ? t.fecha_ocurrencia.slice(0, 16) : '';
+
   document.getElementById('modal-completar-movil').classList.remove('hidden');
 }
 
 function cerrarModalCompletar() {
   document.getElementById('modal-completar-movil').classList.add('hidden');
   fotoCapturadaBase64 = null;
+}
+
+function fijarOcurrenciaFinalizarMovil() {
+  const el = document.getElementById('input-fecha-ocurrencia-movil');
+  if (!el) return;
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  el.value = (new Date(now - offset)).toISOString().slice(0, 16);
 }
 
 function fijarArregloAhora() {
@@ -1221,6 +1242,8 @@ async function enviarFinalizacion(e) {
   btn.disabled = true;
   btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando comprobante permanente...`;
 
+  const fechaOcurrenciaInp = document.getElementById('input-fecha-ocurrencia-movil')?.value;
+
   try {
     let res;
     // Si tenemos foto en base64 comprimida, enviar directamente por JSON (Persistencia total e indestructible en Git)
@@ -1235,6 +1258,7 @@ async function enviarFinalizacion(e) {
         },
         body: JSON.stringify({
           foto_base64: fotoCapturadaBase64,
+          fecha_ocurrencia: fechaOcurrenciaInp,
           fecha_arreglo: fechaArreglo,
           notas_mecanico: notasMecanico,
           mecanico_nombre: usuarioNombre,
@@ -1248,6 +1272,7 @@ async function enviarFinalizacion(e) {
       // Fallback a FormData
       const formData = new FormData();
       formData.append('foto', fotoCapturadaFile);
+      if (fechaOcurrenciaInp) formData.append('fecha_ocurrencia', fechaOcurrenciaInp);
       formData.append('fecha_arreglo', fechaArreglo);
       formData.append('notas_mecanico', notasMecanico);
       formData.append('mecanico_nombre', usuarioNombre);

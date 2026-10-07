@@ -810,24 +810,47 @@
           </div>
         </div>
 
-        <!-- REQUERIMIENTO: FECHA Y HORA AL MOMENTO DE ARREGLAR -->
-        <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-3.5 space-y-2">
-          <div class="flex items-center justify-between">
-            <label class="block text-xs font-bold text-emerald-400 uppercase tracking-wide flex items-center gap-1.5">
-              <i class="fa-solid fa-clock-check"></i> Momento de Arreglar (Fecha y Hora) <span class="text-rose-400">*</span>
-            </label>
-            <button type="button" onclick="fijarArregloAhora()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-600 transition flex items-center gap-1">
-              <i class="fa-solid fa-bolt text-amber-400"></i> Ahora
-            </button>
+        <!-- HORA INICIAL (OCURRIÓ) Y MOMENTO DE ARREGLAR -->
+        <div class="space-y-3">
+          <!-- 1. HORA INICIAL / EN QUE OCURRIÓ -->
+          <div class="bg-slate-900/60 border border-amber-500/30 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-clock-rotate-left"></i> Hora Inicial (Ocurrió) <span class="text-rose-400">*</span>
+              </label>
+              <button type="button" onclick="fijarOcurrenciaFinalizarMovil()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30 transition flex items-center gap-1">
+                <i class="fa-solid fa-bolt text-amber-400"></i> Ahora
+              </button>
+            </div>
+            <input 
+              type="datetime-local" 
+              id="input-fecha-ocurrencia-movil" 
+              name="fecha_ocurrencia" 
+              required 
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-amber-300 focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono"
+            >
+            <p class="text-[10px] text-slate-400">Modifica la hora inicial si la avería comenzó antes o fue reportada previamente.</p>
           </div>
-          <input 
-            type="datetime-local" 
-            id="input-fecha-arreglo" 
-            name="fecha_arreglo" 
-            required 
-            class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono"
-          >
-          <p class="text-[10px] text-slate-400">Se pre-llena con la hora exacta actual para calcular el tiempo de reparación.</p>
+
+          <!-- 2. MOMENTO DE ARREGLAR -->
+          <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-3.5 space-y-2">
+            <div class="flex items-center justify-between">
+              <label class="block text-xs font-bold text-emerald-400 uppercase tracking-wide flex items-center gap-1.5">
+                <i class="fa-solid fa-clock-check"></i> Momento de Arreglar (Fecha y Hora) <span class="text-rose-400">*</span>
+              </label>
+              <button type="button" onclick="fijarArregloAhora()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-600 transition flex items-center gap-1">
+                <i class="fa-solid fa-bolt text-emerald-400"></i> Ahora
+              </button>
+            </div>
+            <input 
+              type="datetime-local" 
+              id="input-fecha-arreglo" 
+              name="fecha_arreglo" 
+              required 
+              class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono"
+            >
+            <p class="text-[10px] text-slate-400">Se pre-llena con la hora exacta actual para calcular el tiempo de reparación.</p>
+          </div>
         </div>
 
         <!-- NOTAS TÉCNICAS U OBSERVACIONES -->
@@ -1041,6 +1064,19 @@
               <option value="baja">Baja</option>
             </select>
           </div>
+        </div>
+
+        <!-- FECHA Y HORA INICIAL (EN QUE OCURRIÓ LA AVERÍA) -->
+        <div class="bg-slate-900/60 border border-slate-700/80 rounded-xl p-3 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <label class="block text-slate-300 font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> Fecha y Hora Inicial (Ocurrió) *
+            </label>
+            <button type="button" onclick="fijarOcurrenciaAhoraMovil()" class="text-[10px] bg-slate-800 text-amber-300 px-2 py-0.5 rounded border border-slate-700 flex items-center gap-1">
+              <i class="fa-solid fa-bolt text-amber-400"></i> Ahora
+            </button>
+          </div>
+          <input type="datetime-local" id="mob-crear-fecha-ocurrencia" required class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-xs focus:ring-1 focus:ring-emerald-500">
         </div>
 
         <div>

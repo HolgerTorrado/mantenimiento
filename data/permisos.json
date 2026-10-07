@@ -164,7 +164,7 @@
     "cerrar_tareas": true,
     "cambiar_horas": true,
     "cambiar_foto": true,
-    "asignable_tareas": true,
+    "asignable_tareas": false,
     "ver_contrasenas": true,
     "cambiar_contrasenas": true,
     "eliminar_tareas": true,

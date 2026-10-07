@@ -1222,18 +1222,18 @@
           </div>
         </div>
 
-        <!-- FECHA Y HORA EN QUE OCURRIÓ -->
+        <!-- FECHA Y HORA EN QUE OCURRIÓ (HORA INICIAL) -->
         <div class="bg-slate-900/60 border border-slate-700 rounded-xl p-3.5 space-y-2">
           <div class="flex items-center justify-between">
             <label class="block text-xs font-semibold text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
-              <i class="fa-solid fa-clock-rotate-left"></i> Fecha y Hora en que Ocurrió / Reportada <span class="text-rose-400">*</span>
+              <i class="fa-solid fa-clock-rotate-left"></i> Fecha y Hora Inicial (En que Ocurrió) <span class="text-rose-400">*</span>
             </label>
             <button type="button" onclick="fijarOcurrenciaAhora()" class="text-[11px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-600 transition flex items-center gap-1">
               <i class="fa-solid fa-bolt text-amber-400"></i> Poner Momento Actual
             </button>
           </div>
           <input type="datetime-local" id="input-fecha-ocurrencia" name="fecha_ocurrencia" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-amber-500 focus:outline-none font-mono">
-          <p class="text-[11px] text-slate-400">Esta fecha se comparará contra la fecha de arreglo del mecánico para calcular el MTTR y tiempo de inactividad.</p>
+          <p class="text-[11px] text-slate-400">Hora inicial del daño o reporte. Se compara contra el momento de arreglo para calcular el MTTR y tiempo de inactividad.</p>
         </div>
 
         <!-- Prioridad -->
@@ -1488,15 +1488,17 @@
 
         </div>
 
-        <!-- TIEMPOS REGISTRADOS (OCURRIÓ VS ARREGLO - EDITABLES POR ADMIN) -->
+        <!-- TIEMPOS REGISTRADOS (HORA INICIAL VS ARREGLO - EDITABLES) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           
           <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-3 space-y-1.5">
             <div class="flex items-center justify-between">
               <span class="text-[11px] text-amber-400 font-semibold uppercase flex items-center gap-1">
-                <i class="fa-solid fa-clock-rotate-left"></i> Ocurrió
+                <i class="fa-solid fa-clock-rotate-left"></i> Hora Inicial (Ocurrió)
               </span>
-              <span class="text-[9px] text-amber-300/80 bg-amber-950/60 px-1.5 py-0.5 rounded border border-amber-500/20 font-medium">Editable Admin</span>
+              <button type="button" onclick="fijarOcurrenciaAhoraDetalle()" class="text-[9px] bg-slate-800 hover:bg-slate-700 text-amber-300 px-1.5 py-0.5 rounded border border-amber-500/30 transition flex items-center gap-1" title="Fijar momento actual como hora inicial">
+                <i class="fa-solid fa-bolt"></i> Ahora
+              </button>
             </div>
             <input type="datetime-local" id="edit-det-fecha-ocurrio" onchange="calcularTiemposDetalle()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-amber-300 font-mono focus:ring-1 focus:ring-amber-500 focus:outline-none">
             <div id="det-fecha-ocurrio-txt" class="text-[10px] text-slate-400 truncate">--</div>
@@ -1505,9 +1507,9 @@
           <div class="bg-slate-900/80 border border-slate-700 rounded-xl p-3 space-y-1.5">
             <div class="flex items-center justify-between">
               <span class="text-[11px] text-emerald-400 font-semibold uppercase flex items-center gap-1">
-                <i class="fa-solid fa-check-double"></i> Arreglado
+                <i class="fa-solid fa-check-double"></i> Momento Arreglo
               </span>
-              <span class="text-[9px] text-emerald-300/80 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/20 font-medium">Editable Admin</span>
+              <span class="text-[9px] text-emerald-300/80 bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/20 font-medium">Editable</span>
             </div>
             <input type="datetime-local" id="edit-det-fecha-arreglo" onchange="calcularTiemposDetalle()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-xs text-emerald-300 font-mono focus:ring-1 focus:ring-emerald-500 focus:outline-none">
             <div id="det-fecha-arreglo-txt" class="text-[10px] text-slate-400 truncate">--</div>

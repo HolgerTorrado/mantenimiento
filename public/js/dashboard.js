@@ -40,7 +40,7 @@ function usuarioTienePermiso(permiso) {
   try {
     const user = JSON.parse(userJson);
     const rol = (user.rol || '').toLowerCase().trim();
-    if (rol === 'admin') return true; // Administrador Holger siempre tiene acceso total
+    if (rol === 'admin' && permiso !== 'asignable_tareas') return true; // Administrador Holger tiene acceso total salvo si no desea ser asignable
     if (simanPermisosCache && simanPermisosCache[rol] && simanPermisosCache[rol][permiso] !== undefined) {
       return Boolean(simanPermisosCache[rol][permiso]);
     }
@@ -1604,6 +1604,15 @@ function fijarOcurrenciaAhora() {
   el.value = localISOTime;
 }
 
+function fijarOcurrenciaAhoraDetalle() {
+  const inOcurrio = document.getElementById('edit-det-fecha-ocurrio');
+  if (!inOcurrio || inOcurrio.disabled) return;
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  inOcurrio.value = (new Date(now - offset)).toISOString().slice(0, 16);
+  calcularTiemposDetalle();
+}
+
 async function guardarNuevaTarea(e) {
   e.preventDefault();
   const form = e.target;
@@ -2742,12 +2751,15 @@ async function renderizarMatrizPermisos() {
 
     const celdasRoles = ROLES_MATRIZ.map(r => {
       const esAdminRol = r.key === 'admin';
-      const valor = esAdminRol ? true : (matriz[r.key] && matriz[r.key][p.key] !== undefined ? Boolean(matriz[r.key][p.key]) : false);
+      const valor = matriz[r.key] && matriz[r.key][p.key] !== undefined 
+        ? Boolean(matriz[r.key][p.key]) 
+        : (esAdminRol ? (p.key !== 'asignable_tareas') : false);
 
-      if (esAdminRol) {
+      // Si es admin y el permiso es acceso_pc o ver_dashboard, mantener activo para proteger acceso
+      if (esAdminRol && (p.key === 'acceso_pc' || p.key === 'ver_dashboard')) {
         return `
           <td class="py-2.5 px-2 text-center">
-            <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-blue-950 border border-blue-500/40 text-blue-400 text-xs shadow-inner" title="El rol Admin siempre tiene este permiso activo">
+            <span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-blue-950 border border-blue-500/40 text-blue-400 text-xs shadow-inner" title="El rol Admin siempre tiene este acceso activo para administración del sistema">
               <i class="fa-solid fa-check"></i>
             </span>
             <input type="checkbox" data-rol="${r.key}" data-permiso="${p.key}" checked disabled class="hidden">
@@ -2801,31 +2813,14 @@ async function guardarMatrizPermisos() {
     const perm = inp.getAttribute('data-permiso');
     if (rol && perm) {
       if (!nuevaMatriz[rol]) nuevaMatriz[rol] = {};
-      nuevaMatriz[rol][perm] = rol === 'admin' ? true : inp.checked;
+      nuevaMatriz[rol][perm] = inp.checked;
     }
   });
 
-  // Asegurar admin con todo en true
-  nuevaMatriz.admin = {
-    crear_tareas: true,
-    cerrar_tareas: true,
-    cambiar_horas: true,
-    cambiar_foto: true,
-    asignable_tareas: true,
-    ver_contrasenas: true,
-    cambiar_contrasenas: true,
-    eliminar_tareas: true,
-    reabrir_tareas: true,
-    ver_compras: true,
-    crear_compras: true,
-    ver_dashboard: true,
-    acceso_pc: true,
-    acceso_movil: true,
-    ver_almacen: true,
-    crear_remisiones: true,
-    finalizar_remisiones: true,
-    eliminar_remisiones: true
-  };
+  // Asegurar accesos vitales de admin para no bloquearse a sí mismo
+  if (!nuevaMatriz.admin) nuevaMatriz.admin = {};
+  nuevaMatriz.admin.acceso_pc = true;
+  nuevaMatriz.admin.ver_dashboard = true;
 
   const userActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
 

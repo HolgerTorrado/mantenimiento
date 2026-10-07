@@ -533,7 +533,7 @@ const PERMISOS_DEFAULT = {
     cerrar_tareas: true,
     cambiar_horas: true,
     cambiar_foto: true,
-    asignable_tareas: true,
+    asignable_tareas: false,
     ver_contrasenas: true,
     cambiar_contrasenas: true,
     eliminar_tareas: true,
@@ -595,9 +595,9 @@ function leerPermisos() {
 
 function guardarPermisos(permisos) {
   if (!permisos.admin) permisos.admin = {};
-  for (const k in PERMISOS_DEFAULT.admin) {
-    permisos.admin[k] = true;
-  }
+  // Garantizar acceso vital para que el administrador nunca quede bloqueado
+  permisos.admin.acceso_pc = true;
+  permisos.admin.ver_dashboard = true;
   cachePermisos = permisos;
   try {
     const str = JSON.stringify(permisos, null, 2);
@@ -613,7 +613,9 @@ function guardarPermisos(permisos) {
 function tienePermiso(userRol, permiso) {
   if (!userRol) return false;
   const rol = String(userRol).toLowerCase().trim();
-  if (rol === 'admin') return true; // Administrador siempre tiene acceso total
+  // Administrador tiene acceso total a funciones operativas del sistema,
+  // pero su asignación como técnico ejecutor de tareas (asignable_tareas) es 100% configurable
+  if (rol === 'admin' && permiso !== 'asignable_tareas') return true;
   const permisos = leerPermisos();
   if (permisos && permisos[rol] && permisos[rol][permiso] !== undefined) {
     return Boolean(permisos[rol][permiso]);
@@ -1674,6 +1676,7 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
   }
 
   const {
+    fecha_ocurrencia,
     fecha_arreglo,
     notas_mecanico,
     mecanico_nombre,
@@ -1687,6 +1690,10 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
   const usernameFinal = req.headers['x-user-username'] || usuario_username || 'tecnico';
   const nombreFinal = req.headers['x-user-name'] || mecanico_nombre || 'Técnico';
   const rolFinal = req.headers['x-user-role'] || 'mecanico';
+
+  if (fecha_ocurrencia && fecha_ocurrencia.trim()) {
+    tareas[idx].fecha_ocurrencia = fecha_ocurrencia.trim();
+  }
 
   // Fecha y hora del arreglo: si no la envía o es vacía, usar el momento exacto actual
   const fechaArregloFinal = fecha_arreglo || new Date().toISOString().slice(0, 16);
