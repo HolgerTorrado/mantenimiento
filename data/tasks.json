@@ -567,19 +567,33 @@
     "roles_asignados": [
       "supervisor"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Supervisión",
+    "tecnicos_asignados": [
+      "Jhonier Ospino"
+    ],
+    "mecanico_asignado": "Jhonier Ospino",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-05T10:44",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
+    "fecha_arreglo": "2026-10-06T19:35",
+    "estado": "completado",
+    "notas_mecanico": "Se realiza recolección de residuos y aseo del área ",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791215086/siman/iniciales/ini_TSK-1085_1791215085806.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791376670/siman/comprobantes/comp_TSK-1085_1791376669672.webp",
+    "tiempo_arreglo_minutos": 1971,
     "creado_por_usuario": "Richard Patiño",
     "creado_por_rol": "sst",
-    "creado_en": "2026-10-05T15:44:47.075Z"
+    "creado_en": "2026-10-05T15:44:47.075Z",
+    "completado_por_usuario": "jospino",
+    "completado_por_nombre": "Jhonier Ospino",
+    "completado_por_rol": "supervisor",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 1971,
+    "tiempos_por_rol": {
+      "mecanico": 1971,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "completado_en": "2026-10-07T12:37:50.578Z"
   },
   {
     "id": "TSK-1084",
