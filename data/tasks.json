@@ -1,5 +1,32 @@
 [
   {
+    "id": "TSK-1111",
+    "equipo": "Cuartos de potencia",
+    "titulo": "Ausencia de pintura en puertas de cuarto eléctrico",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Generación eléctrica",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico",
+      "electrico",
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Eléctrica, Supervisión",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-07T15:27",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Luis Lopez",
+    "creado_por_rol": "director",
+    "creado_en": "2026-10-07T20:28:22.440Z"
+  },
+  {
     "id": "TSK-1110",
     "equipo": "Espacio caldera 2",
     "titulo": "Tornillos de anclaje",
