@@ -2112,19 +2112,33 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Sin Asignar",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-29T23:51",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
+    "fecha_arreglo": "2026-10-04T02:53",
+    "estado": "completado",
+    "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791406201/siman/iniciales/ini_TSK-1048_1791406201452.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791406793/siman/comprobantes/comp_TSK-1048_1791406792946.webp",
+    "tiempo_arreglo_minutos": 5942,
     "creado_por_usuario": "Holger Torrado",
     "creado_por_rol": "admin",
-    "creado_en": "2026-09-30T04:51:47.027Z"
+    "creado_en": "2026-09-30T04:51:47.027Z",
+    "completado_por_usuario": "mcastillejo",
+    "completado_por_nombre": "Marwin Castillejo",
+    "completado_por_rol": "mecanico",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 5942,
+    "tiempos_por_rol": {
+      "mecanico": 5942,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "completado_en": "2026-10-07T20:59:53.646Z"
   },
   {
     "id": "TSK-1047",
