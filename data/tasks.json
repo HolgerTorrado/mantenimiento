@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1108",
+    "equipo": "Pantalla tablero",
+    "titulo": "Pantalla funcional pero sin datos reales de operación",
+    "tipo": "mejora",
+    "prioridad": "alta",
+    "ubicacion": "Caldera",
+    "descripcion": "Se requiere programar pantalla para que evidencie temperatura y presión de equipos en caldera",
+    "roles_asignados": [
+      "electrico",
+      "admin"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica, Administración",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-07T10:19",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791386544/siman/iniciales/ini_TSK-1108_1791386544247.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-07T15:22:25.213Z"
+  },
+  {
     "id": "TSK-1107",
     "equipo": "Caldera",
     "titulo": "Instalación de recubrimiento aislante de la caldera",
@@ -747,6 +773,45 @@
     "creado_en": "2026-10-05T13:04:55.564Z"
   },
   {
+    "id": "TSK-1078",
+    "equipo": "Tubería precalentamiento",
+    "titulo": "Fuga por tubería rota",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Esterilización",
+    "descripcion": "Se requiere intervenir para reparar o colocar isometrico",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Sin Asignar",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-03T19:36",
+    "fecha_arreglo": null,
+    "estado": "en_proceso",
+    "notas_mecanico": "",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791209934/siman/iniciales/ini_TSK-1078_1791209934294.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-04T00:36:20.016Z",
+    "actualizado_en": "2026-10-05T14:29:11.551Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-10-06T14:25:19.451Z"
+  },
+  {
     "id": "TSK-1082",
     "equipo": "Tractor",
     "titulo": "Tractor inhabilitado por tubería de bomba hidráulica",
@@ -879,43 +944,49 @@
     "creado_en": "2026-10-03T22:24:03.789Z"
   },
   {
-    "id": "TSK-1078",
-    "equipo": "Tubería precalentamiento",
-    "titulo": "Fuga por tubería rota",
-    "tipo": "correctivo",
+    "id": "TSK-1076",
+    "equipo": "Prensa",
+    "titulo": "Cambio de canasta de la prensa",
+    "tipo": "preventivo",
     "prioridad": "alta",
-    "ubicacion": "Esterilización",
-    "descripcion": "Se requiere intervenir para reparar o colocar isometrico",
+    "ubicacion": "Extracccion",
+    "descripcion": "Cambio de canasta de la prensa por posible canasta fracturada",
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Sin Asignar",
+    "tecnicos_asignados": [
+      "Diego Chamorro"
+    ],
+    "mecanico_asignado": "Diego Chamorro",
     "es_conjunta": false,
-    "fecha_ocurrencia": "2026-10-03T19:36",
-    "fecha_arreglo": null,
-    "estado": "en_proceso",
-    "notas_mecanico": "",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791209934/siman/iniciales/ini_TSK-1078_1791209934294.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
-    "creado_por_usuario": "Richard Patiño",
-    "creado_por_rol": "sst",
-    "creado_en": "2026-10-04T00:36:20.016Z",
-    "actualizado_en": "2026-10-05T14:29:11.551Z",
+    "fecha_ocurrencia": "2026-10-02T06:00",
+    "fecha_arreglo": "2026-10-02T10:38",
+    "estado": "completado",
+    "notas_mecanico": "De le cambia la casta de prensa",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129734/siman/iniciales/ini_TSK-1076_1791129734343.webp",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129733/siman/comprobantes/comp_TSK-1076_1791129733581.webp",
+    "tiempo_arreglo_minutos": 278,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-02T15:33:56.011Z",
+    "completado_por_usuario": "dchamorro",
+    "completado_por_nombre": "Diego Chamorro",
+    "completado_por_rol": "mecanico",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 278,
+    "completado_en": "2026-10-02T15:38:36.114Z",
     "tiempo_espera_repuestos_minutos": 0,
     "motivo_espera_repuestos": "",
     "tiempo_fuera_planta_minutos": 0,
     "motivo_fuera_planta": "",
-    "tiempo_espera_minutos": 0,
-    "motivo_espera": "",
     "tiempos_por_rol": {
       "mecanico": 0,
       "electrico": 0,
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-10-06T14:25:19.451Z"
+    "modificado_en": "2026-10-02T16:27:50.789Z"
   },
   {
     "id": "TSK-1077",
@@ -962,51 +1033,6 @@
     },
     "modificado_por_admin": true,
     "modificado_en": "2026-10-02T16:27:26.991Z"
-  },
-  {
-    "id": "TSK-1076",
-    "equipo": "Prensa",
-    "titulo": "Cambio de canasta de la prensa",
-    "tipo": "preventivo",
-    "prioridad": "alta",
-    "ubicacion": "Extracccion",
-    "descripcion": "Cambio de canasta de la prensa por posible canasta fracturada",
-    "roles_asignados": [
-      "mecanico"
-    ],
-    "tecnicos_asignados": [
-      "Diego Chamorro"
-    ],
-    "mecanico_asignado": "Diego Chamorro",
-    "es_conjunta": false,
-    "fecha_ocurrencia": "2026-10-02T06:00",
-    "fecha_arreglo": "2026-10-02T10:38",
-    "estado": "completado",
-    "notas_mecanico": "De le cambia la casta de prensa",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129734/siman/iniciales/ini_TSK-1076_1791129734343.webp",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129733/siman/comprobantes/comp_TSK-1076_1791129733581.webp",
-    "tiempo_arreglo_minutos": 278,
-    "creado_por_usuario": "Jhonier Ospino",
-    "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-02T15:33:56.011Z",
-    "completado_por_usuario": "dchamorro",
-    "completado_por_nombre": "Diego Chamorro",
-    "completado_por_rol": "mecanico",
-    "tiempo_espera_minutos": 0,
-    "motivo_espera": "",
-    "tiempo_trabajo_activo_minutos": 278,
-    "completado_en": "2026-10-02T15:38:36.114Z",
-    "tiempo_espera_repuestos_minutos": 0,
-    "motivo_espera_repuestos": "",
-    "tiempo_fuera_planta_minutos": 0,
-    "motivo_fuera_planta": "",
-    "tiempos_por_rol": {
-      "mecanico": 0,
-      "electrico": 0,
-      "maquinista": 0
-    },
-    "modificado_por_admin": true,
-    "modificado_en": "2026-10-02T16:27:50.789Z"
   },
   {
     "id": "TSK-1075",
@@ -1344,54 +1370,6 @@
     "modificado_en": "2026-10-01T02:24:11.545Z"
   },
   {
-    "id": "TSK-1067",
-    "equipo": "Foso",
-    "titulo": "Taponamiento de cacheria",
-    "tipo": "otro",
-    "prioridad": "media",
-    "ubicacion": "Administrativo",
-    "descripcion": "",
-    "roles_asignados": [
-      "mecanico"
-    ],
-    "tecnicos_asignados": [
-      "Ender Silva"
-    ],
-    "mecanico_asignado": "Ender Silva",
-    "es_conjunta": false,
-    "fecha_ocurrencia": "2026-09-28T07:00",
-    "fecha_arreglo": "2026-09-30T17:10",
-    "estado": "completado",
-    "notas_mecanico": "Se destapa calleria de oficina ",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129755/siman/iniciales/ini_TSK-1067_1791129755504.webp",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129754/siman/comprobantes/comp_TSK-1067_1791129754459.webp",
-    "tiempo_arreglo_minutos": 3490,
-    "creado_por_usuario": "Holger Torrado",
-    "creado_por_rol": "admin",
-    "creado_en": "2026-09-30T22:03:08.996Z",
-    "actualizado_en": "2026-09-30T22:18:22.388Z",
-    "completado_por_usuario": "esilva",
-    "completado_por_nombre": "Ender Silva",
-    "completado_por_rol": "mecanico",
-    "tiempo_espera_minutos": 0,
-    "motivo_espera": "",
-    "tiempo_trabajo_activo_minutos": 3490,
-    "completado_en": "2026-09-30T22:21:32.788Z",
-    "foto_actualizada_en": "2026-09-30T22:22:15.587Z",
-    "foto_actualizada_por": "Ender Silva",
-    "tiempo_espera_repuestos_minutos": 0,
-    "motivo_espera_repuestos": "",
-    "tiempo_fuera_planta_minutos": 0,
-    "motivo_fuera_planta": "",
-    "tiempos_por_rol": {
-      "mecanico": 0,
-      "electrico": 0,
-      "maquinista": 0
-    },
-    "modificado_por_admin": true,
-    "modificado_en": "2026-09-30T22:27:59.291Z"
-  },
-  {
     "id": "TSK-1066",
     "equipo": "Plataforma de rompedor de nueces",
     "titulo": "Tubería eléctrica se encuentra descolgada y amarrada con cabulla",
@@ -1474,45 +1452,6 @@
     "completado_por_rol": "mecanico",
     "tiempo_trabajo_activo_minutos": 31,
     "completado_en": "2026-09-30T20:51:46.948Z"
-  },
-  {
-    "id": "TSK-1064",
-    "equipo": "Conector",
-    "titulo": "Daño en conector de despacho",
-    "tipo": "correctivo",
-    "prioridad": "media",
-    "ubicacion": "Despacho",
-    "descripcion": "",
-    "roles_asignados": [
-      "electrico"
-    ],
-    "tecnicos_asignados": [
-      "Anderson Jaimes"
-    ],
-    "mecanico_asignado": "Anderson Jaimes",
-    "es_conjunta": false,
-    "fecha_ocurrencia": "2026-09-30T09:30",
-    "fecha_arreglo": "2026-09-30T09:40",
-    "estado": "completado",
-    "notas_mecanico": "",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385030/siman/iniciales/ini_TSK-1064_1791385029790.webp",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385029/siman/comprobantes/comp_TSK-1064_1791385028786.webp",
-    "tiempo_arreglo_minutos": 10,
-    "creado_por_usuario": "Holger Torrado",
-    "creado_por_rol": "admin",
-    "creado_en": "2026-09-30T20:03:22.321Z",
-    "completado_por_usuario": "ajaimes",
-    "completado_por_nombre": "Anderson Jaimes",
-    "completado_por_rol": "electrico",
-    "tiempo_espera_minutos": 0,
-    "motivo_espera": "",
-    "tiempo_trabajo_activo_minutos": 10,
-    "completado_en": "2026-09-30T20:06:30.138Z",
-    "tiempos_por_rol": {
-      "mecanico": 0,
-      "electrico": 10,
-      "maquinista": 0
-    }
   },
   {
     "id": "TSK-1063",
@@ -1874,6 +1813,45 @@
     "creado_en": "2026-09-30T14:55:39.663Z"
   },
   {
+    "id": "TSK-1064",
+    "equipo": "Conector",
+    "titulo": "Daño en conector de despacho",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Despacho",
+    "descripcion": "",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [
+      "Anderson Jaimes"
+    ],
+    "mecanico_asignado": "Anderson Jaimes",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-09-30T09:30",
+    "fecha_arreglo": "2026-09-30T09:40",
+    "estado": "completado",
+    "notas_mecanico": "",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385030/siman/iniciales/ini_TSK-1064_1791385029790.webp",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385029/siman/comprobantes/comp_TSK-1064_1791385028786.webp",
+    "tiempo_arreglo_minutos": 10,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-09-30T20:03:22.321Z",
+    "completado_por_usuario": "ajaimes",
+    "completado_por_nombre": "Anderson Jaimes",
+    "completado_por_rol": "electrico",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 10,
+    "completado_en": "2026-09-30T20:06:30.138Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 10,
+      "maquinista": 0
+    }
+  },
+  {
     "id": "TSK-1052",
     "equipo": "Esterilizador",
     "titulo": "Fuga de agua y lodos en el esterilizador",
@@ -2086,6 +2064,70 @@
     }
   },
   {
+    "id": "TSK-1044",
+    "equipo": "Estantes de almacenamiento",
+    "titulo": "Estantes torcidos, sin asegurar",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Área de almacén, container rojo",
+    "descripcion": "Se evidencia estantes con probabilidad de colapso debido al peso de los mismos, importante asegurar desde su zona trasera al mismo container, colaboración de mecánicos",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Sin Asignar",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-09-29T18:58",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385052/siman/iniciales/ini_TSK-1044_1791385052355.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-09-29T23:58:10.620Z"
+  },
+  {
+    "id": "TSK-1042",
+    "equipo": "Cable de extensión",
+    "titulo": "Cable de extensión para sopladora en mal estado",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Área de caldera",
+    "descripcion": "Se evidencia extensión en mal estado, con cable expuesto generando riesgo eléctrico con personal en caldera, presenta fallos también en la sopladora",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [
+      "Anderson Jaimes"
+    ],
+    "mecanico_asignado": "Anderson Jaimes",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-09-29T18:52",
+    "fecha_arreglo": "2026-09-30T08:00",
+    "estado": "completado",
+    "notas_mecanico": "",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385057/siman/iniciales/ini_TSK-1042_1791385056810.webp",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385056/siman/comprobantes/comp_TSK-1042_1791385055960.webp",
+    "tiempo_arreglo_minutos": 788,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-09-29T23:52:06.316Z",
+    "completado_por_usuario": "ajaimes",
+    "completado_por_nombre": "Anderson Jaimes",
+    "completado_por_rol": "electrico",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 788,
+    "completado_en": "2026-09-30T21:13:11.139Z",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 788,
+      "maquinista": 0
+    }
+  },
+  {
     "id": "TSK-1045",
     "equipo": "Reductor",
     "titulo": "Tornillos flojos en reductor de fracturadora",
@@ -2131,29 +2173,43 @@
     "completado_en": "2026-09-30T00:04:12.425Z"
   },
   {
-    "id": "TSK-1044",
-    "equipo": "Estantes de almacenamiento",
-    "titulo": "Estantes torcidos, sin asegurar",
-    "tipo": "preventivo",
+    "id": "TSK-1041",
+    "equipo": "Área de caldera",
+    "titulo": "Desorden y basura en el área",
+    "tipo": "5s",
     "prioridad": "media",
-    "ubicacion": "Área de almacén, container rojo",
-    "descripcion": "Se evidencia estantes con probabilidad de colapso debido al peso de los mismos, importante asegurar desde su zona trasera al mismo container, colaboración de mecánicos",
+    "ubicacion": "Filtro de agua",
+    "descripcion": "Problema dirigido a supervisores de proceso y calidad, operarios no tiran la basura en canecas respectivas",
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Sin Asignar",
+    "tecnicos_asignados": [
+      "Jesus Barajas"
+    ],
+    "mecanico_asignado": "Jesus Barajas",
     "es_conjunta": false,
-    "fecha_ocurrencia": "2026-09-29T18:58",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385052/siman/iniciales/ini_TSK-1044_1791385052355.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "fecha_ocurrencia": "2026-09-29T18:43",
+    "fecha_arreglo": "2026-09-29T20:01",
+    "estado": "completado",
+    "notas_mecanico": "",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385058/siman/iniciales/ini_TSK-1041_1791385058222.webp",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385057/siman/comprobantes/comp_TSK-1041_1791385057599.webp",
+    "tiempo_arreglo_minutos": 78,
     "creado_por_usuario": "Richard Patiño",
     "creado_por_rol": "sst",
-    "creado_en": "2026-09-29T23:58:10.620Z"
+    "creado_en": "2026-09-29T23:43:57.418Z",
+    "completado_por_usuario": "jbarajas",
+    "completado_por_nombre": "Jesus Barajas",
+    "completado_por_rol": "supervisor",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 78,
+    "completado_en": "2026-09-30T01:02:18.017Z",
+    "tiempos_por_rol": {
+      "mecanico": 78,
+      "electrico": 0,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1043",
@@ -2200,84 +2256,6 @@
     "completado_por_nombre": "Anderson Jaimes",
     "completado_por_rol": "electrico",
     "completado_en": "2026-09-29T23:54:27.822Z"
-  },
-  {
-    "id": "TSK-1042",
-    "equipo": "Cable de extensión",
-    "titulo": "Cable de extensión para sopladora en mal estado",
-    "tipo": "correctivo",
-    "prioridad": "media",
-    "ubicacion": "Área de caldera",
-    "descripcion": "Se evidencia extensión en mal estado, con cable expuesto generando riesgo eléctrico con personal en caldera, presenta fallos también en la sopladora",
-    "roles_asignados": [
-      "electrico"
-    ],
-    "tecnicos_asignados": [
-      "Anderson Jaimes"
-    ],
-    "mecanico_asignado": "Anderson Jaimes",
-    "es_conjunta": false,
-    "fecha_ocurrencia": "2026-09-29T18:52",
-    "fecha_arreglo": "2026-09-30T08:00",
-    "estado": "completado",
-    "notas_mecanico": "",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385057/siman/iniciales/ini_TSK-1042_1791385056810.webp",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385056/siman/comprobantes/comp_TSK-1042_1791385055960.webp",
-    "tiempo_arreglo_minutos": 788,
-    "creado_por_usuario": "Richard Patiño",
-    "creado_por_rol": "sst",
-    "creado_en": "2026-09-29T23:52:06.316Z",
-    "completado_por_usuario": "ajaimes",
-    "completado_por_nombre": "Anderson Jaimes",
-    "completado_por_rol": "electrico",
-    "tiempo_espera_minutos": 0,
-    "motivo_espera": "",
-    "tiempo_trabajo_activo_minutos": 788,
-    "completado_en": "2026-09-30T21:13:11.139Z",
-    "tiempos_por_rol": {
-      "mecanico": 0,
-      "electrico": 788,
-      "maquinista": 0
-    }
-  },
-  {
-    "id": "TSK-1041",
-    "equipo": "Área de caldera",
-    "titulo": "Desorden y basura en el área",
-    "tipo": "5s",
-    "prioridad": "media",
-    "ubicacion": "Filtro de agua",
-    "descripcion": "Problema dirigido a supervisores de proceso y calidad, operarios no tiran la basura en canecas respectivas",
-    "roles_asignados": [
-      "mecanico"
-    ],
-    "tecnicos_asignados": [
-      "Jesus Barajas"
-    ],
-    "mecanico_asignado": "Jesus Barajas",
-    "es_conjunta": false,
-    "fecha_ocurrencia": "2026-09-29T18:43",
-    "fecha_arreglo": "2026-09-29T20:01",
-    "estado": "completado",
-    "notas_mecanico": "",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385058/siman/iniciales/ini_TSK-1041_1791385058222.webp",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385057/siman/comprobantes/comp_TSK-1041_1791385057599.webp",
-    "tiempo_arreglo_minutos": 78,
-    "creado_por_usuario": "Richard Patiño",
-    "creado_por_rol": "sst",
-    "creado_en": "2026-09-29T23:43:57.418Z",
-    "completado_por_usuario": "jbarajas",
-    "completado_por_nombre": "Jesus Barajas",
-    "completado_por_rol": "supervisor",
-    "tiempo_espera_minutos": 0,
-    "motivo_espera": "",
-    "tiempo_trabajo_activo_minutos": 78,
-    "completado_en": "2026-09-30T01:02:18.017Z",
-    "tiempos_por_rol": {
-      "mecanico": 78,
-      "electrico": 0,
-      "maquinista": 0
-    }
   },
   {
     "id": "TSK-1040",
@@ -2550,31 +2528,6 @@
     }
   },
   {
-    "id": "TSK-1034",
-    "equipo": "Control de giro invertido en tableros de control",
-    "titulo": "Agregar giro invertido a variadores que no tienen en tableros de planta, pasando por los patos de emergencia",
-    "tipo": "mejora",
-    "prioridad": "media",
-    "ubicacion": "Cuarto de control",
-    "descripcion": "",
-    "roles_asignados": [
-      "electrico"
-    ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Sin Asignar",
-    "es_conjunta": false,
-    "fecha_ocurrencia": "2026-09-29T14:17",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385069/siman/iniciales/ini_TSK-1034_1791385068989.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
-    "creado_por_usuario": "Holger Torrado",
-    "creado_por_rol": "admin",
-    "creado_en": "2026-09-29T19:19:08.270Z"
-  },
-  {
     "id": "TSK-1033",
     "equipo": "N/A",
     "titulo": "Janja en patio",
@@ -2611,6 +2564,31 @@
     },
     "modificado_por_admin": true,
     "modificado_en": "2026-09-29T20:23:37.765Z"
+  },
+  {
+    "id": "TSK-1034",
+    "equipo": "Control de giro invertido en tableros de control",
+    "titulo": "Agregar giro invertido a variadores que no tienen en tableros de planta, pasando por los patos de emergencia",
+    "tipo": "mejora",
+    "prioridad": "media",
+    "ubicacion": "Cuarto de control",
+    "descripcion": "",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Sin Asignar",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-09-29T14:17",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385069/siman/iniciales/ini_TSK-1034_1791385068989.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-09-29T19:19:08.270Z"
   },
   {
     "id": "TSK-1032",
@@ -3138,45 +3116,6 @@
     "completado_en": "2026-09-29T03:40:51.832Z"
   },
   {
-    "id": "TSK-1015",
-    "equipo": "Transportador inclinado",
-    "titulo": "Instalación de tapas del relder inclinado",
-    "tipo": "otro",
-    "prioridad": "media",
-    "ubicacion": "Desfibracion",
-    "descripcion": "",
-    "roles_asignados": [
-      "mecanico"
-    ],
-    "tecnicos_asignados": [
-      "Diego Chamorro"
-    ],
-    "mecanico_asignado": "Diego Chamorro",
-    "es_conjunta": false,
-    "fecha_ocurrencia": "2026-09-28T06:00",
-    "fecha_arreglo": "2026-09-28T11:35",
-    "estado": "completado",
-    "notas_mecanico": "",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385091/siman/iniciales/ini_TSK-1015_1791385091450.webp",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385091/siman/comprobantes/comp_TSK-1015_1791385090881.webp",
-    "tiempo_arreglo_minutos": 335,
-    "creado_por_usuario": "Holger Torrado",
-    "creado_por_rol": "admin",
-    "creado_en": "2026-09-29T02:34:35.083Z",
-    "completado_por_usuario": "dchamorro",
-    "completado_por_nombre": "Diego Chamorro",
-    "completado_por_rol": "mecanico",
-    "tiempo_espera_minutos": 0,
-    "motivo_espera": "",
-    "tiempo_trabajo_activo_minutos": 335,
-    "completado_en": "2026-09-29T02:35:34.444Z",
-    "tiempos_por_rol": {
-      "mecanico": 335,
-      "electrico": 0,
-      "maquinista": 0
-    }
-  },
-  {
     "id": "TSK-1014",
     "equipo": "Garrucha de palanca",
     "titulo": "Gancho o grillete abierto",
@@ -3399,6 +3338,93 @@
     "completado_en": "2026-09-28T14:21:46.848Z"
   },
   {
+    "id": "TSK-1067",
+    "equipo": "Foso",
+    "titulo": "Taponamiento de cacheria",
+    "tipo": "otro",
+    "prioridad": "media",
+    "ubicacion": "Administrativo",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [
+      "Ender Silva"
+    ],
+    "mecanico_asignado": "Ender Silva",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-09-28T07:00",
+    "fecha_arreglo": "2026-09-30T17:10",
+    "estado": "completado",
+    "notas_mecanico": "Se destapa calleria de oficina ",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129755/siman/iniciales/ini_TSK-1067_1791129755504.webp",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129754/siman/comprobantes/comp_TSK-1067_1791129754459.webp",
+    "tiempo_arreglo_minutos": 3490,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-09-30T22:03:08.996Z",
+    "actualizado_en": "2026-09-30T22:18:22.388Z",
+    "completado_por_usuario": "esilva",
+    "completado_por_nombre": "Ender Silva",
+    "completado_por_rol": "mecanico",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 3490,
+    "completado_en": "2026-09-30T22:21:32.788Z",
+    "foto_actualizada_en": "2026-09-30T22:22:15.587Z",
+    "foto_actualizada_por": "Ender Silva",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-09-30T22:27:59.291Z"
+  },
+  {
+    "id": "TSK-1015",
+    "equipo": "Transportador inclinado",
+    "titulo": "Instalación de tapas del relder inclinado",
+    "tipo": "otro",
+    "prioridad": "media",
+    "ubicacion": "Desfibracion",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [
+      "Diego Chamorro"
+    ],
+    "mecanico_asignado": "Diego Chamorro",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-09-28T06:00",
+    "fecha_arreglo": "2026-09-28T11:35",
+    "estado": "completado",
+    "notas_mecanico": "",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385091/siman/iniciales/ini_TSK-1015_1791385091450.webp",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791385091/siman/comprobantes/comp_TSK-1015_1791385090881.webp",
+    "tiempo_arreglo_minutos": 335,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-09-29T02:34:35.083Z",
+    "completado_por_usuario": "dchamorro",
+    "completado_por_nombre": "Diego Chamorro",
+    "completado_por_rol": "mecanico",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 335,
+    "completado_en": "2026-09-29T02:35:34.444Z",
+    "tiempos_por_rol": {
+      "mecanico": 335,
+      "electrico": 0,
+      "maquinista": 0
+    }
+  },
+  {
     "id": "TSK-1009",
     "equipo": "Rompedor",
     "titulo": "Vibracion anormal del rompedor",
@@ -3582,6 +3608,141 @@
     "foto_actualizada_por": "Holger Torrado"
   },
   {
+    "id": "TSK-1003",
+    "equipo": "Taquilla de efluente",
+    "titulo": "Fuga en tuberia de taquilla efluente",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificacion",
+    "descripcion": "Se debe realizar isométrico para cambiar desde la salida de efluente a la bomba.",
+    "mecanico_asignado": "Diego Chamorro, Ender Silva",
+    "fecha_ocurrencia": "2026-09-26T21:00",
+    "fecha_arreglo": "2026-09-28T08:30",
+    "estado": "completado",
+    "notas_mecanico": "",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129857/siman/comprobantes/comp_TSK-1003_1791129857272.webp",
+    "tiempo_arreglo_minutos": 2130,
+    "creado_en": "2026-09-27T03:58:51.728Z",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [
+      "Diego Chamorro",
+      "Ender Silva"
+    ],
+    "es_conjunta": true,
+    "actualizado_en": "2026-09-27T21:13:07.522Z",
+    "completado_por_usuario": "dchamorro",
+    "completado_por_nombre": "Diego Chamorro",
+    "completado_por_rol": "mecanico",
+    "tiempo_espera_minutos": 720,
+    "motivo_espera": "Por finalizacion de jornada",
+    "tiempo_trabajo_activo_minutos": 1410,
+    "completado_en": "2026-09-28T17:41:37.577Z",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129858/siman/iniciales/ini_TSK-1003_1791129858454.webp",
+    "foto_inicial_actualizada_en": "2026-09-28T18:03:00.206Z",
+    "tiempo_espera_repuestos_minutos": 720,
+    "motivo_espera_repuestos": "Por finalizacion de jornada",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempos_por_rol": {
+      "mecanico": 240,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-09-28T18:04:57.947Z"
+  },
+  {
+    "id": "TSK-1001",
+    "equipo": "Bomba de aceite recuperado",
+    "titulo": "Daño en caracol",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Australiano",
+    "descripcion": "Daño en los tornillos del caracol",
+    "mecanico_asignado": "Diego Chamorro",
+    "fecha_ocurrencia": "2026-09-26T17:40",
+    "fecha_arreglo": "2026-09-26T19:40",
+    "estado": "completado",
+    "notas_mecanico": "Se cambiaron los tornillos ",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129860/siman/comprobantes/comp_TSK-1001_1791129859921.webp",
+    "tiempo_arreglo_minutos": 120,
+    "creado_en": "2026-09-27T03:45:57.373Z",
+    "actualizado_en": "2026-09-27T03:47:04.576Z",
+    "completado_por_usuario": "dchamorro",
+    "completado_por_nombre": "Diego Chamorro",
+    "completado_en": "2026-09-27T03:48:18.347Z",
+    "modificado_por_admin": true,
+    "modificado_en": "2026-09-28T03:42:28.349Z",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [
+      "Diego Chamorro"
+    ],
+    "es_conjunta": false,
+    "foto_actualizada_en": "2026-09-27T21:19:06.115Z",
+    "foto_actualizada_por": "Holger Torrado",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129860/siman/iniciales/ini_TSK-1001_1791129860523.webp",
+    "foto_inicial_actualizada_en": "2026-09-28T03:42:16.096Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 120,
+    "tiempos_por_rol": {
+      "mecanico": 120,
+      "electrico": 0,
+      "maquinista": 0
+    }
+  },
+  {
+    "id": "TSK-1002",
+    "equipo": "Tubería hacia efluente",
+    "titulo": "Tubería con fuga",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Australiano",
+    "descripcion": "Tubería con posible fuga en brida o en la soldadura de unión entre tubo y la brida",
+    "mecanico_asignado": "Ender Silva",
+    "fecha_ocurrencia": "2026-09-26T10:00",
+    "fecha_arreglo": "2026-09-29T17:44",
+    "estado": "completado",
+    "notas_mecanico": "Se solda isométrico el salida del ustraliano asía la bomba",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129859/siman/comprobantes/comp_TSK-1002_1791129859152.webp",
+    "tiempo_arreglo_minutos": 4784,
+    "creado_en": "2026-09-27T03:55:12.609Z",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [
+      "Ender Silva"
+    ],
+    "es_conjunta": false,
+    "actualizado_en": "2026-09-29T01:49:42.754Z",
+    "completado_por_usuario": "esilva",
+    "completado_por_nombre": "Ender Silva",
+    "completado_por_rol": "mecanico",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 4784,
+    "completado_en": "2026-09-29T22:45:23.215Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempos_por_rol": {
+      "mecanico": 120,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-09-29T23:20:33.223Z"
+  },
+  {
     "id": "TSK-1005",
     "equipo": "Ciclón cascarilla",
     "titulo": "Daño de motor",
@@ -3715,140 +3876,5 @@
     "completado_por_rol": "mecanico",
     "tiempo_trabajo_activo_minutos": 60581,
     "completado_en": "2026-10-01T16:42:12.469Z"
-  },
-  {
-    "id": "TSK-1003",
-    "equipo": "Taquilla de efluente",
-    "titulo": "Fuga en tuberia de taquilla efluente",
-    "tipo": "correctivo",
-    "prioridad": "media",
-    "ubicacion": "Clarificacion",
-    "descripcion": "Se debe realizar isométrico para cambiar desde la salida de efluente a la bomba.",
-    "mecanico_asignado": "Diego Chamorro, Ender Silva",
-    "fecha_ocurrencia": "2026-09-26T21:00",
-    "fecha_arreglo": "2026-09-28T08:30",
-    "estado": "completado",
-    "notas_mecanico": "",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129857/siman/comprobantes/comp_TSK-1003_1791129857272.webp",
-    "tiempo_arreglo_minutos": 2130,
-    "creado_en": "2026-09-27T03:58:51.728Z",
-    "roles_asignados": [
-      "mecanico"
-    ],
-    "tecnicos_asignados": [
-      "Diego Chamorro",
-      "Ender Silva"
-    ],
-    "es_conjunta": true,
-    "actualizado_en": "2026-09-27T21:13:07.522Z",
-    "completado_por_usuario": "dchamorro",
-    "completado_por_nombre": "Diego Chamorro",
-    "completado_por_rol": "mecanico",
-    "tiempo_espera_minutos": 720,
-    "motivo_espera": "Por finalizacion de jornada",
-    "tiempo_trabajo_activo_minutos": 1410,
-    "completado_en": "2026-09-28T17:41:37.577Z",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129858/siman/iniciales/ini_TSK-1003_1791129858454.webp",
-    "foto_inicial_actualizada_en": "2026-09-28T18:03:00.206Z",
-    "tiempo_espera_repuestos_minutos": 720,
-    "motivo_espera_repuestos": "Por finalizacion de jornada",
-    "tiempo_fuera_planta_minutos": 0,
-    "motivo_fuera_planta": "",
-    "tiempos_por_rol": {
-      "mecanico": 240,
-      "electrico": 0,
-      "maquinista": 0
-    },
-    "modificado_por_admin": true,
-    "modificado_en": "2026-09-28T18:04:57.947Z"
-  },
-  {
-    "id": "TSK-1002",
-    "equipo": "Tubería hacia efluente",
-    "titulo": "Tubería con fuga",
-    "tipo": "correctivo",
-    "prioridad": "media",
-    "ubicacion": "Australiano",
-    "descripcion": "Tubería con posible fuga en brida o en la soldadura de unión entre tubo y la brida",
-    "mecanico_asignado": "Ender Silva",
-    "fecha_ocurrencia": "2026-09-26T10:00",
-    "fecha_arreglo": "2026-09-29T17:44",
-    "estado": "completado",
-    "notas_mecanico": "Se solda isométrico el salida del ustraliano asía la bomba",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129859/siman/comprobantes/comp_TSK-1002_1791129859152.webp",
-    "tiempo_arreglo_minutos": 4784,
-    "creado_en": "2026-09-27T03:55:12.609Z",
-    "roles_asignados": [
-      "mecanico"
-    ],
-    "tecnicos_asignados": [
-      "Ender Silva"
-    ],
-    "es_conjunta": false,
-    "actualizado_en": "2026-09-29T01:49:42.754Z",
-    "completado_por_usuario": "esilva",
-    "completado_por_nombre": "Ender Silva",
-    "completado_por_rol": "mecanico",
-    "tiempo_espera_minutos": 0,
-    "motivo_espera": "",
-    "tiempo_trabajo_activo_minutos": 4784,
-    "completado_en": "2026-09-29T22:45:23.215Z",
-    "tiempo_espera_repuestos_minutos": 0,
-    "motivo_espera_repuestos": "",
-    "tiempo_fuera_planta_minutos": 0,
-    "motivo_fuera_planta": "",
-    "tiempos_por_rol": {
-      "mecanico": 120,
-      "electrico": 0,
-      "maquinista": 0
-    },
-    "modificado_por_admin": true,
-    "modificado_en": "2026-09-29T23:20:33.223Z"
-  },
-  {
-    "id": "TSK-1001",
-    "equipo": "Bomba de aceite recuperado",
-    "titulo": "Daño en caracol",
-    "tipo": "correctivo",
-    "prioridad": "media",
-    "ubicacion": "Australiano",
-    "descripcion": "Daño en los tornillos del caracol",
-    "mecanico_asignado": "Diego Chamorro",
-    "fecha_ocurrencia": "2026-09-26T17:40",
-    "fecha_arreglo": "2026-09-26T19:40",
-    "estado": "completado",
-    "notas_mecanico": "Se cambiaron los tornillos ",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129860/siman/comprobantes/comp_TSK-1001_1791129859921.webp",
-    "tiempo_arreglo_minutos": 120,
-    "creado_en": "2026-09-27T03:45:57.373Z",
-    "actualizado_en": "2026-09-27T03:47:04.576Z",
-    "completado_por_usuario": "dchamorro",
-    "completado_por_nombre": "Diego Chamorro",
-    "completado_en": "2026-09-27T03:48:18.347Z",
-    "modificado_por_admin": true,
-    "modificado_en": "2026-09-28T03:42:28.349Z",
-    "roles_asignados": [
-      "mecanico"
-    ],
-    "tecnicos_asignados": [
-      "Diego Chamorro"
-    ],
-    "es_conjunta": false,
-    "foto_actualizada_en": "2026-09-27T21:19:06.115Z",
-    "foto_actualizada_por": "Holger Torrado",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791129860/siman/iniciales/ini_TSK-1001_1791129860523.webp",
-    "foto_inicial_actualizada_en": "2026-09-28T03:42:16.096Z",
-    "tiempo_espera_repuestos_minutos": 0,
-    "motivo_espera_repuestos": "",
-    "tiempo_fuera_planta_minutos": 0,
-    "motivo_fuera_planta": "",
-    "tiempo_espera_minutos": 0,
-    "motivo_espera": "",
-    "tiempo_trabajo_activo_minutos": 120,
-    "tiempos_por_rol": {
-      "mecanico": 120,
-      "electrico": 0,
-      "maquinista": 0
-    }
   }
 ]
