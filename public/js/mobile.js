@@ -55,7 +55,9 @@ function usuarioTienePermisoMovil(permiso) {
   try {
     const user = JSON.parse(userJson);
     const rol = (user.rol || '').toLowerCase().trim();
-    if (rol === 'admin' && permiso !== 'asignable_tareas') return true; // Administrador siempre tiene acceso absoluto salvo si no es asignable
+    const username = (user.nombre || user.username || '').toLowerCase().trim();
+    const esAdmin = rol === 'admin' || username === 'holger';
+    if (esAdmin && permiso !== 'asignable_tareas') return true; // Administrador siempre tiene acceso absoluto salvo si no es asignable
 
     // 1. Memoria activa
     if (simanPermisosCacheMovil && simanPermisosCacheMovil[rol] && simanPermisosCacheMovil[rol][permiso] !== undefined) {
@@ -72,18 +74,20 @@ function usuarioTienePermisoMovil(permiso) {
       } catch (e) {}
     }
     // Fallbacks inteligentes según el estándar SIMAN
-    if (permiso === 'crear_tareas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol);
-    if (permiso === 'cerrar_tareas') return ['admin', 'mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
+    if (permiso === 'crear_tareas') return ['admin', 'supervisor', 'sst', 'director'].includes(rol) || esAdmin;
+    if (permiso === 'cerrar_tareas') return ['admin', 'mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol) || esAdmin;
+    if (permiso === 'aprobar_tareas') return ['admin', 'supervisor', 'director'].includes(rol) || esAdmin;
+    if (permiso === 'modificar_fechas') return ['admin', 'supervisor', 'director'].includes(rol) || esAdmin;
     if (permiso === 'cambiar_foto') return true;
-    if (permiso === 'asignable_tareas') return ['mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
-    if (permiso === 'reabrir_tareas') return ['admin', 'supervisor', 'director'].includes(rol);
-    if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol);
-    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador', 'almacenista'].includes(rol);
-    if (permiso === 'acceso_movil') return rol !== 'almacenista';
-    if (permiso === 'ver_almacen') return ['admin', 'almacenista', 'supervisor', 'director'].includes(rol);
-    if (permiso === 'crear_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol);
-    if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol);
-    if (permiso === 'eliminar_remisiones') return ['admin', 'director'].includes(rol);
+    if (permiso === 'asignable_tareas') return !esAdmin && ['mecanico', 'electrico', 'maquinista', 'supervisor', 'sst'].includes(rol);
+    if (permiso === 'reabrir_tareas') return ['admin', 'supervisor', 'director'].includes(rol) || esAdmin;
+    if (permiso === 'ver_dashboard') return ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(rol) || esAdmin;
+    if (permiso === 'acceso_pc') return ['admin', 'supervisor', 'sst', 'director', 'visualizador', 'almacenista'].includes(rol) || esAdmin;
+    if (permiso === 'acceso_movil') return rol !== 'almacenista' || esAdmin;
+    if (permiso === 'ver_almacen') return ['admin', 'almacenista', 'supervisor', 'director'].includes(rol) || esAdmin;
+    if (permiso === 'crear_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol) || esAdmin;
+    if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol) || esAdmin;
+    if (permiso === 'eliminar_remisiones') return ['admin', 'director'].includes(rol) || esAdmin;
     return false;
   } catch (e) {
     return false;
@@ -171,7 +175,8 @@ function aplicarPermisosMovil() {
   try {
     const user = JSON.parse(userJson);
     const rol = (user.rol || '').toLowerCase().trim();
-    const esAdmin = rol === 'admin';
+    const username = (user.nombre || user.username || '').toLowerCase().trim();
+    const esAdmin = rol === 'admin' || username === 'holger';
 
     // 0. Si el usuario NO tiene acceso_movil y tiene acceso_pc o ver_dashboard, redirigir al Dashboard
     if (!esAdmin && !usuarioTienePermisoMovil('acceso_movil')) {
@@ -576,6 +581,12 @@ function cambiarTabMovil(tab, btn) {
   document.querySelectorAll('#mobile-tabs .tab-movil').forEach(b => {
     b.className = 'tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white';
   });
+  if (!btn) {
+    if (tab === 'pendientes') btn = document.querySelectorAll('#mobile-tabs .tab-movil')[0];
+    else if (tab === 'en_progreso') btn = document.querySelectorAll('#mobile-tabs .tab-movil')[1];
+    else if (tab === 'por_aprobar') btn = document.getElementById('btn-tab-por-aprobar-movil');
+    else if (tab === 'completadas') btn = document.querySelectorAll('#mobile-tabs .tab-movil')[3];
+  }
   if (btn) {
     btn.className = 'tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold text-center transition bg-emerald-600 text-white shadow';
   }
@@ -594,7 +605,11 @@ function getUsuarioActivo() {
 // Filtrar tareas según el rol del usuario conectado y tareas en conjunto
 function filtrarTareasPorUsuario(tareas) {
   const user = getUsuarioActivo();
-  if (!user || ['admin', 'supervisor', 'sst', 'director', 'visualizador'].includes(user.rol)) {
+  const rol = (user.rol || '').toLowerCase().trim();
+  const username = (user.nombre || user.username || '').toLowerCase().trim();
+  const esAdmin = rol === 'admin' || username === 'holger';
+
+  if (!user || esAdmin || ['supervisor', 'sst', 'director', 'visualizador'].includes(rol)) {
     return tareas;
   }
 
@@ -639,15 +654,18 @@ function actualizarContadoresMovil() {
 
   const p = filtradasPorMecanico.filter(t => t.estado === 'pendiente').length;
   const prog = filtradasPorMecanico.filter(t => t.estado === 'en_progreso').length;
+  const porApr = filtradasPorMecanico.filter(t => t.estado === 'por_aprobar').length;
   const c = filtradasPorMecanico.filter(t => t.estado === 'completado').length;
 
   const elP = document.getElementById('mob-count-pendientes');
   const elProg = document.getElementById('mob-count-progreso');
+  const elPorApr = document.getElementById('mob-count-por-aprobar');
   const elC = document.getElementById('mob-count-completadas');
   const elT = document.getElementById('mob-count-todas');
 
   if (elP) elP.innerText = p;
   if (elProg) elProg.innerText = prog;
+  if (elPorApr) elPorApr.innerText = porApr;
   if (elC) elC.innerText = c;
   if (elT) elT.innerText = filtradasPorMecanico.length;
 }
@@ -665,6 +683,8 @@ function renderTareasMovil() {
     lista = lista.filter(t => t.estado === 'pendiente');
   } else if (tabActual === 'en_progreso') {
     lista = lista.filter(t => t.estado === 'en_progreso');
+  } else if (tabActual === 'por_aprobar') {
+    lista = lista.filter(t => t.estado === 'por_aprobar');
   } else if (tabActual === 'completadas') {
     const todasComp = lista.filter(t => t.estado === 'completado');
     const limiteActual = window.limiteHistorialCompletadas || 30;
@@ -684,6 +704,9 @@ function renderTareasMovil() {
     if (tabActual === 'en_progreso') {
       tituloVacio = 'No tienes tareas en curso';
       subtituloVacio = 'Ve a la pestaña "Pendientes" y presiona "Iniciar Trabajo" para comenzar.';
+    } else if (tabActual === 'por_aprobar') {
+      tituloVacio = 'No hay órdenes por aprobar';
+      subtituloVacio = 'Cuando un técnico termine una labor con comprobante fotográfico, pasará aquí para revisión y visto bueno.';
     } else if (tabActual === 'completadas') {
       tituloVacio = 'Aún no hay tareas finalizadas';
       subtituloVacio = 'Tus órdenes terminadas con fotografía de comprobante y hora de arreglo se guardarán aquí.';
@@ -715,6 +738,9 @@ function renderTareasMovil() {
     } else if (t.prioridad === 'alta') {
       badgePrioridad = `<span class="text-[10px] bg-amber-950 text-amber-300 border border-amber-700 font-bold px-2 py-0.5 rounded">ALTA</span>`;
     }
+    if (t.estado === 'por_aprobar') {
+      badgePrioridad += ` <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold px-2 py-0.5 rounded-full animate-pulse">⏳ POR APROBAR</span>`;
+    }
 
     // Fechas y formato
     const fechaOcurrioStr = formatearFechaCorta(t.fecha_ocurrencia);
@@ -723,13 +749,15 @@ function renderTareasMovil() {
     // Botones de acción según el estado y rol
     const usuarioActual = JSON.parse(localStorage.getItem('siman_user') || '{}');
     const rolActual = (usuarioActual.rol || '').toLowerCase().trim();
-    const esAdmin = rolActual === 'admin';
+    const usernameActual = (usuarioActual.nombre || usuarioActual.username || '').toLowerCase().trim();
+    const esAdmin = rolActual === 'admin' || usernameActual === 'holger';
     const esVisualizador = rolActual === 'visualizador';
     const puedeCerrar = esAdmin || usuarioTienePermisoMovil('cerrar_tareas');
     const puedeCambiarFoto = esAdmin || usuarioTienePermisoMovil('cambiar_foto');
+    const puedeAprobar = esAdmin || usuarioTienePermisoMovil('aprobar_tareas');
 
     let botonesAccion = '';
-    if (!puedeCerrar) {
+    if (!puedeCerrar && t.estado !== 'por_aprobar') {
       botonesAccion = `
         <div class="mt-3 pt-2 text-center border-t border-slate-700/60 text-xs text-purple-300 font-medium bg-purple-950/40 p-2 rounded-xl">
           <i class="fa-solid fa-eye mr-1"></i> Modo Solo Consulta ${esVisualizador ? '(Visualizador)' : ''}
@@ -774,6 +802,52 @@ function renderTareasMovil() {
               <i class="fa-solid fa-circle-info text-slate-400"></i> Ver Detalles
             </button>
           </div>
+        </div>
+      `;
+    } else if (t.estado === 'por_aprobar') {
+      const tieneFotoComprobante = Boolean(t.foto_comprobante || t.tiene_foto_comprobante);
+      const fotoHtml = tieneFotoComprobante 
+        ? `<div class="mt-2 flex items-center justify-between text-[11px] text-amber-300 bg-amber-950/40 border border-amber-500/30 px-2.5 py-1.5 rounded-lg">
+             <span class="flex items-center gap-1.5 font-semibold"><i class="fa-solid fa-camera"></i> Foto de comprobante registrada</span>
+             <span class="text-[10px] text-slate-400 italic">Ver en detalles</span>
+           </div>`
+        : '';
+
+      let botonesAprobacion = '';
+      if (puedeAprobar) {
+        botonesAprobacion = `
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <button onclick="aprobarTareaRapidoMovil('${t.id}')" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 active:scale-[0.98]">
+              <i class="fa-solid fa-check text-[11px]"></i> Aprobar Cierre
+            </button>
+            <button onclick="rechazarTareaRapidoMovil('${t.id}')" class="py-2.5 px-3 bg-rose-700 hover:bg-rose-600 text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-rose-700/20 active:scale-[0.98]">
+              <i class="fa-solid fa-xmark text-[11px]"></i> Rechazar
+            </button>
+          </div>
+        `;
+      } else {
+        botonesAprobacion = `
+          <div class="mt-2 p-2 rounded-xl bg-amber-950/40 border border-amber-500/30 text-center text-amber-300 text-xs font-medium">
+            <i class="fa-solid fa-hourglass-half mr-1"></i> Enviada a revisión. Pendiente de aprobación por Dirección.
+          </div>
+        `;
+      }
+
+      botonesAccion = `
+        <div class="mt-2.5 pt-2.5 border-t border-slate-700/60 text-xs text-slate-400 space-y-1.5">
+          <div class="flex items-center justify-between text-amber-400 font-medium">
+            <span class="flex items-center gap-1"><i class="fa-solid fa-hourglass-half animate-pulse"></i> Terminado por técnico:</span>
+            <span class="font-mono">${formatearFechaCorta(t.fecha_arreglo || t.enviado_a_aprobacion_en)}</span>
+          </div>
+          <div class="flex items-center justify-between text-slate-300">
+            <span>Duración estimada:</span>
+            <span class="font-mono font-bold text-purple-300">${formatMinutosMovil(t.tiempo_arreglo_minutos)}</span>
+          </div>
+          ${fotoHtml}
+          ${botonesAprobacion}
+          <button onclick="abrirDetalleTareaMovil('${t.id}')" class="w-full mt-2 py-2 px-3 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-200 border border-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow">
+            <i class="fa-solid fa-circle-info text-amber-400"></i> Ver Todos los Detalles
+          </button>
         </div>
       `;
     } else {
@@ -1275,9 +1349,16 @@ async function enviarFinalizacion(e) {
     if (!res.ok) throw new Error(data.error || 'Error al enviar registro');
 
     if (navigator.vibrate) navigator.vibrate([100, 50, 200]);
-    mostrarToastMovil(`¡Excelente! Trabajo finalizado y foto registrada por ${usuarioNombre}`);
-    cerrarModalCompletar();
-    cambiarTabMovil('completadas', document.querySelectorAll('#mobile-tabs .tab-movil')[2]);
+    if (data.requiere_aprobacion || data.estado === 'por_aprobar') {
+      mostrarToastMovil(`✅ ¡Labor terminada! Enviada para verificación y aprobación previa.`);
+      cerrarModalCompletar();
+      const tabBtn = document.getElementById('btn-tab-por-aprobar-movil');
+      cambiarTabMovil('por_aprobar', tabBtn);
+    } else {
+      mostrarToastMovil(`¡Excelente! Trabajo finalizado y foto registrada por ${usuarioNombre}`);
+      cerrarModalCompletar();
+      cambiarTabMovil('completadas', document.querySelectorAll('#mobile-tabs .tab-movil')[3]);
+    }
     cargarTareasMovil();
   } catch (err) {
     alert(err.message || 'Error al registrar tarea');
@@ -1521,19 +1602,60 @@ async function abrirDetalleTareaMovil(id) {
     let estTxt = 'Pendiente';
     let estColor = 'text-amber-400';
     if (t.estado === 'en_progreso') { estTxt = 'En Progreso'; estColor = 'text-blue-400'; }
+    else if (t.estado === 'por_aprobar') { estTxt = '⏳ Por Aprobar'; estColor = 'text-amber-300'; }
     else if (t.estado === 'completado') { estTxt = 'Completado'; estColor = 'text-emerald-400'; }
     elEst.innerText = estTxt;
     elEst.className = `font-bold ${estColor} text-xs block`;
   }
   if (elPrio) elPrio.innerText = `Prioridad: ${t.prioridad || 'Media'}`;
 
+  // Permisos para acciones de auditoría y edición
+  const userActivoDet = getUsuarioActivo();
+  const rolActivoDet = (userActivoDet.rol || '').toLowerCase().trim();
+  const usernameActivoDet = (userActivoDet.nombre || userActivoDet.username || '').toLowerCase().trim();
+  const esAdminDet = rolActivoDet === 'admin' || usernameActivoDet === 'holger';
+  const puedeAprobarDet = esAdminDet || usuarioTienePermisoMovil('aprobar_tareas');
+  const puedeModificarFechasDet = esAdminDet || usuarioTienePermisoMovil('modificar_fechas');
+
+  // Banner Por Aprobar
+  const bannerPorAprobar = document.getElementById('mob-det-banner-por-aprobar');
+  const btnsAprobacion = document.getElementById('mob-det-botones-aprobacion');
+  if (bannerPorAprobar) {
+    if (t.estado === 'por_aprobar') {
+      bannerPorAprobar.classList.remove('hidden');
+      if (btnsAprobacion) {
+        if (puedeAprobarDet) {
+          btnsAprobacion.classList.remove('hidden');
+        } else {
+          btnsAprobacion.classList.add('hidden');
+        }
+      }
+    } else {
+      bannerPorAprobar.classList.add('hidden');
+    }
+  }
+
   // Fechas y Tiempos
   const elOc = document.getElementById('mob-det-ocurrio');
   const elArr = document.getElementById('mob-det-arreglo');
   const elDur = document.getElementById('mob-det-duracion');
   if (elOc) elOc.innerText = formatearFechaCorta(t.fecha_ocurrencia);
-  if (elArr) elArr.innerText = t.fecha_arreglo ? formatearFechaCorta(t.fecha_arreglo) : 'En proceso / Pendiente';
+  if (elArr) elArr.innerText = t.fecha_arreglo ? formatearFechaCorta(t.fecha_arreglo) : (t.estado === 'por_aprobar' ? 'Trabajo terminado (por aprobar)' : 'En proceso / Pendiente');
   if (elDur) elDur.innerText = formatMinutosMovil(t.tiempo_arreglo_minutos);
+
+  // Bloque edición fechas admin
+  const bloqueFechas = document.getElementById('mob-det-bloque-edicion-fechas');
+  const inOcurrio = document.getElementById('mob-det-input-ocurrio');
+  const inArreglo = document.getElementById('mob-det-input-arreglo');
+  if (bloqueFechas) {
+    if (puedeModificarFechasDet) {
+      bloqueFechas.classList.remove('hidden');
+      if (inOcurrio) inOcurrio.value = aFormatoDatetimeLocal(t.fecha_ocurrencia);
+      if (inArreglo) inArreglo.value = aFormatoDatetimeLocal(t.fecha_arreglo);
+    } else {
+      bloqueFechas.classList.add('hidden');
+    }
+  }
 
   // Desglose de espera por repuestos y fuera de planta / torno
   const boxEsp = document.getElementById('mob-det-box-espera');
@@ -1613,7 +1735,12 @@ async function abrirDetalleTareaMovil(id) {
   if (elComp) {
     if (t.estado === 'completado') {
       const nom = t.completado_por_nombre || t.mecanico_asignado || 'Técnico';
-      elComp.innerText = `✅ Finalizado por: ${nom}`;
+      const apr = t.aprobado_por ? ` (Aprobado por: ${t.aprobado_por})` : '';
+      elComp.innerText = `✅ Finalizado por: ${nom}${apr}`;
+      elComp.classList.remove('hidden');
+    } else if (t.estado === 'por_aprobar') {
+      const nom = t.completado_por_nombre || t.mecanico_asignado || 'Técnico';
+      elComp.innerText = `⏳ Enviado a aprobación por: ${nom}`;
       elComp.classList.remove('hidden');
     } else {
       elComp.classList.add('hidden');
@@ -1730,6 +1857,175 @@ function abrirFotoDetalleMovilActual() {
 function abrirFotoInicialDetalleMovilActual() {
   if (tareaDetalleMovilActual && tareaDetalleMovilActual.foto_inicial) {
     abrirVisorFoto(tareaDetalleMovilActual.foto_inicial, `Foto Inicial - ${tareaDetalleMovilActual.id} - ${tareaDetalleMovilActual.equipo}`);
+  }
+}
+
+// ================= EDICIÓN DE FECHAS Y APROBACIÓN (MÓVIL) =================
+function aFormatoDatetimeLocal(str) {
+  if (!str) return '';
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  const y = d.getFullYear();
+  const m = pad(d.getMonth() + 1);
+  const dia = pad(d.getDate());
+  const h = pad(d.getHours());
+  const min = pad(d.getMinutes());
+  return `${y}-${m}-${dia}T${h}:${min}`;
+}
+
+function fijarOcurrenciaAhoraDetalleMovil() {
+  const inp = document.getElementById('mob-det-input-ocurrio');
+  if (inp) {
+    const ahora = new Date();
+    inp.value = aFormatoDatetimeLocal(ahora.toISOString());
+  }
+}
+
+function fijarArregloAhoraDetalleMovil() {
+  const inp = document.getElementById('mob-det-input-arreglo');
+  if (inp) {
+    const ahora = new Date();
+    inp.value = aFormatoDatetimeLocal(ahora.toISOString());
+  }
+}
+
+async function guardarEdicionFechasMovil() {
+  if (!tareaDetalleMovilActual) return;
+  const inOcurrio = document.getElementById('mob-det-input-ocurrio');
+  const inArreglo = document.getElementById('mob-det-input-arreglo');
+  if (!inOcurrio || !inOcurrio.value) {
+    alert('Por favor especifica la fecha y hora inicial (ocurrió).');
+    return;
+  }
+
+  const fOcurrencia = new Date(inOcurrio.value).toISOString();
+  let fArreglo = inArreglo && inArreglo.value ? new Date(inArreglo.value).toISOString() : null;
+
+  if (fArreglo && new Date(fArreglo) < new Date(fOcurrencia)) {
+    alert('La fecha de arreglo no puede ser anterior a la fecha en que ocurrió la falla.');
+    return;
+  }
+
+  const user = getUsuarioActivo();
+  const btn = document.getElementById('btn-guardar-fechas-movil');
+  const txtOriginal = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+  }
+
+  try {
+    const res = await fetch(`/api/tasks/${tareaDetalleMovilActual.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'admin',
+        'x-user-name': user.nombre || 'Administrador'
+      },
+      body: JSON.stringify({
+        fecha_ocurrencia: fOcurrencia,
+        fecha_arreglo: fArreglo
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al actualizar fechas');
+
+    mostrarToastMovil('✅ Fechas actualizadas y tiempos recalculados');
+    Object.assign(tareaDetalleMovilActual, data);
+    const idx = tareasMovil.findIndex(x => x.id === tareaDetalleMovilActual.id);
+    if (idx !== -1) tareasMovil[idx] = data;
+
+    const elOc = document.getElementById('mob-det-ocurrio');
+    const elArr = document.getElementById('mob-det-arreglo');
+    const elDur = document.getElementById('mob-det-duracion');
+    if (elOc) elOc.innerText = formatearFechaCorta(data.fecha_ocurrencia);
+    if (elArr) elArr.innerText = data.fecha_arreglo ? formatearFechaCorta(data.fecha_arreglo) : 'En proceso / Pendiente';
+    if (elDur) elDur.innerText = formatMinutosMovil(data.tiempo_arreglo_minutos);
+
+    renderTareasMovil();
+  } catch(err) {
+    alert('Error: ' + err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = txtOriginal;
+    }
+  }
+}
+
+async function aprobarTareaActualDetalleMovil() {
+  if (!tareaDetalleMovilActual) return;
+  await ejecutarAprobacionTareaMovil(tareaDetalleMovilActual.id);
+}
+
+async function rechazarTareaActualDetalleMovil() {
+  if (!tareaDetalleMovilActual) return;
+  await ejecutarRechazoTareaMovil(tareaDetalleMovilActual.id);
+}
+
+async function aprobarTareaRapidoMovil(id) {
+  await ejecutarAprobacionTareaMovil(id);
+}
+
+async function rechazarTareaRapidoMovil(id) {
+  await ejecutarRechazoTareaMovil(id);
+}
+
+async function ejecutarAprobacionTareaMovil(id) {
+  if (!confirm(`¿Confirmas la APROBACIÓN de la orden ${id}? Pasará oficialmente a completada.`)) return;
+  const user = getUsuarioActivo();
+
+  try {
+    const res = await fetch(`/api/tasks/${id}/aprobar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'admin',
+        'x-user-name': user.nombre || 'Administrador'
+      }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al aprobar tarea');
+
+    mostrarToastMovil(`✅ ¡Tarea ${id} aprobada y cerrada oficialmente!`);
+    cerrarDetalleTareaMovil();
+    cargarTareasMovil(false);
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function ejecutarRechazoTareaMovil(id) {
+  const motivo = prompt(`Ingresa el motivo del rechazo para la orden ${id} (el técnico lo verá para corregirlo):`, 'Fotografía poco clara o trabajo incompleto');
+  if (motivo === null) return;
+  if (!motivo.trim()) {
+    alert('Debes indicar un motivo de rechazo.');
+    return;
+  }
+
+  const user = getUsuarioActivo();
+  try {
+    const res = await fetch(`/api/tasks/${id}/rechazar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'admin',
+        'x-user-name': user.nombre || 'Administrador'
+      },
+      body: JSON.stringify({ motivo: motivo.trim() })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al rechazar tarea');
+
+    mostrarToastMovil(`⚠️ Tarea ${id} devuelta a "En Progreso" con observaciones.`);
+    cerrarDetalleTareaMovil();
+    cargarTareasMovil(false);
+  } catch (err) {
+    alert('Error: ' + err.message);
   }
 }
 

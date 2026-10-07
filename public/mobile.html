@@ -137,6 +137,9 @@
       <button onclick="cambiarTabMovil('en_progreso', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
         En Curso (<span id="mob-count-progreso">0</span>)
       </button>
+      <button id="btn-tab-por-aprobar-movil" onclick="cambiarTabMovil('por_aprobar', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
+        Por Aprobar (<span id="mob-count-por-aprobar">0</span>)
+      </button>
       <button onclick="cambiarTabMovil('completadas', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
         Listas (<span id="mob-count-completadas">0</span>)
       </button>
@@ -751,6 +754,25 @@
 
       <!-- Cuerpo scrolleable -->
       <div class="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs pb-safe">
+
+        <!-- BANNER DE TAREA POR APROBAR (AUDITORÍA / HOLGER) -->
+        <div id="mob-det-banner-por-aprobar" class="hidden bg-amber-950/70 border border-amber-500/60 rounded-2xl p-3 space-y-2.5 text-xs">
+          <div class="flex items-center gap-2 text-amber-300 font-bold">
+            <i class="fa-solid fa-hourglass-half text-lg animate-pulse text-amber-400"></i>
+            <div>
+              <div class="text-xs">Trabajo Finalizado por Técnico</div>
+              <div class="text-[10px] text-amber-200/80 font-normal">Enviado a revisión. Requiere visto bueno de Dirección para cierre oficial.</div>
+            </div>
+          </div>
+          <div id="mob-det-botones-aprobacion" class="grid grid-cols-2 gap-2 pt-1">
+            <button type="button" onclick="aprobarTareaActualDetalleMovil()" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 shadow">
+              <i class="fa-solid fa-check"></i> Aprobar Cierre
+            </button>
+            <button type="button" onclick="rechazarTareaActualDetalleMovil()" class="py-2.5 px-3 bg-rose-700 hover:bg-rose-600 active:scale-95 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 shadow">
+              <i class="fa-solid fa-xmark"></i> Rechazar
+            </button>
+          </div>
+        </div>
         
         <!-- FOTOGRAFÍAS: INICIAL (PROBLEMA ANTES) Y FINAL (COMPROBANTE DESPUÉS) -->
         <div class="space-y-2.5">
@@ -813,6 +835,42 @@
             <span>Duración Parada:</span>
             <span id="mob-det-duracion" class="font-mono text-purple-300">--</span>
           </div>
+        </div>
+
+        <!-- EDICIÓN DIRECTA DE FECHAS Y HORAS (ADMINISTRADOR / HOLGER) -->
+        <div id="mob-det-bloque-edicion-fechas" class="hidden bg-slate-900/90 border border-indigo-500/40 rounded-xl p-3 space-y-2.5 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-indigo-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-pen-to-square text-amber-400"></i> Modificar Fechas & Horas
+            </span>
+            <span class="text-[10px] text-amber-300 bg-amber-950/70 px-2 py-0.5 rounded border border-amber-600/40 font-semibold">Admin / Holger</span>
+          </div>
+          
+          <div class="space-y-2">
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[11px] text-slate-400">Fecha y Hora Inicial (Ocurrió):</label>
+                <button type="button" onclick="fijarOcurrenciaAhoraDetalleMovil()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-amber-300 px-1.5 py-0.5 rounded border border-slate-700 flex items-center gap-1">
+                  <i class="fa-solid fa-bolt text-amber-400"></i> Ahora
+                </button>
+              </div>
+              <input type="datetime-local" id="mob-det-input-ocurrio" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs focus:ring-1 focus:ring-amber-500">
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[11px] text-slate-400">Fecha y Hora Arreglo (Final):</label>
+                <button type="button" onclick="fijarArregloAhoraDetalleMovil()" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-emerald-300 px-1.5 py-0.5 rounded border border-slate-700 flex items-center gap-1">
+                  <i class="fa-solid fa-bolt text-emerald-400"></i> Ahora
+                </button>
+              </div>
+              <input type="datetime-local" id="mob-det-input-arreglo" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono text-xs focus:ring-1 focus:ring-emerald-500">
+            </div>
+          </div>
+
+          <button type="button" id="btn-guardar-fechas-movil" onclick="guardarEdicionFechasMovil()" class="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 active:scale-95 text-white font-bold rounded-lg transition flex items-center justify-center gap-2 shadow text-xs">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Nuevas Fechas y Recalcular
+          </button>
         </div>
 
         <!-- Desglose de espera por repuestos y fuera de planta -->
