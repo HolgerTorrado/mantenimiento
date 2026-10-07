@@ -565,12 +565,13 @@ function leerPermisos() {
       Object.assign(merged[rol], data[rol]);
     }
     // El Administrador Holger siempre conserva todos los permisos
+    const adminAsignable = (data.admin && data.admin.asignable_tareas !== undefined) ? Boolean(data.admin.asignable_tareas) : false;
     merged.admin = {
       crear_tareas: true,
       cerrar_tareas: true,
       cambiar_horas: true,
       cambiar_foto: true,
-      asignable_tareas: true,
+      asignable_tareas: adminAsignable,
       ver_contrasenas: true,
       cambiar_contrasenas: true,
       eliminar_tareas: true,
@@ -1660,10 +1661,86 @@ app.post('/api/tasks/:id/iniciar', (req, res) => {
   res.json(tareas[idx]);
 });
 
-// 7. Completar tarea con guardado permanente de foto (Cloudinary / Nube)
+// ================= SISTEMA ANTI-FRAUDE: HASH Y COMPARACIÓN DE FOTOGRAFÍAS =================
+function calcularHashDeDatosImagen(dataOrBuffer) {
+  if (!dataOrBuffer) return null;
+  try {
+    let buffer;
+    if (Buffer.isBuffer(dataOrBuffer)) {
+      buffer = dataOrBuffer;
+    } else if (typeof dataOrBuffer === 'string') {
+      if (dataOrBuffer.startsWith('data:image/')) {
+        const b64 = dataOrBuffer.split(',')[1] || '';
+        buffer = Buffer.from(b64, 'base64');
+      } else if (dataOrBuffer.startsWith('http://') || dataOrBuffer.startsWith('https://')) {
+        return crypto.createHash('sha256').update(dataOrBuffer.trim()).digest('hex');
+      } else {
+        buffer = Buffer.from(dataOrBuffer, 'utf-8');
+      }
+    }
+    if (!buffer || buffer.length === 0) return null;
+    return crypto.createHash('sha256').update(buffer).digest('hex');
+  } catch (e) {
+    console.error('Error calculando hash de imagen:', e);
+    return null;
+  }
+}
+
+// Detectar si la fotografía ya fue utilizada en otra tarea o si es idéntica a la inicial
+function validarFotografiaDuplicada(hashEntrante, tareaActualId, tareasLista) {
+  if (!hashEntrante) return null;
+  const tareaActual = tareasLista.find(t => t.id === tareaActualId);
+
+  // 1. Validar contra la foto inicial del reporte de la misma tarea
+  if (tareaActual && tareaActual.foto_inicial) {
+    const hashIni = tareaActual.foto_inicial_hash || calcularHashDeDatosImagen(tareaActual.foto_inicial);
+    if (hashIni && hashIni === hashEntrante) {
+      return {
+        tipo: 'inicial_misma_tarea',
+        mensaje: `⚠️ Fotografía Rechazada: La foto enviada es idéntica a la foto inicial del reporte de avería (${tareaActual.id}). Debe capturar una fotografía real del trabajo y la reparación finalizada.`
+      };
+    }
+  }
+
+  // 2. Validar contra fotos de otras tareas registradas
+  for (const t of tareasLista) {
+    if (t.id === tareaActualId) continue;
+    // Comprobar contra foto comprobante de otra tarea
+    if (t.foto_comprobante) {
+      const hashComp = t.foto_comprobante_hash || calcularHashDeDatosImagen(t.foto_comprobante);
+      if (hashComp && hashComp === hashEntrante) {
+        return {
+          tipo: 'duplicada_otra_tarea',
+          tareaId: t.id,
+          equipo: t.equipo,
+          mensaje: `⚠️ Fotografía Duplicada Detectada: Esta misma imagen ya fue utilizada para finalizar la tarea ${t.id} (${t.equipo}). Por control de calidad y veracidad en planta, cada orden de trabajo debe registrar una fotografía original tomada durante el arreglo actual.`
+        };
+      }
+    }
+    // Comprobar también contra foto inicial de otra tarea
+    if (t.foto_inicial) {
+      const hashIniOtra = t.foto_inicial_hash || calcularHashDeDatosImagen(t.foto_inicial);
+      if (hashIniOtra && hashIniOtra === hashEntrante) {
+        return {
+          tipo: 'duplicada_otra_tarea',
+          tareaId: t.id,
+          equipo: t.equipo,
+          mensaje: `⚠️ Fotografía Duplicada: Esta imagen coincide con el reporte de la tarea ${t.id} (${t.equipo}). Debe capturar una fotografía original del arreglo actual.`
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+// 7. Completar tarea con validación anti-fraude y flujo de aprobación
 app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (!tienePermiso(userRol, 'cerrar_tareas')) {
+  const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
+  const esAdmin = userRol === 'admin' || userName === 'holger';
+
+  if (!esAdmin && !tienePermiso(userRol, 'cerrar_tareas')) {
     if (req.file) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
     return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para finalizar o cerrar tareas.' });
   }
@@ -1691,8 +1768,8 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
   const nombreFinal = req.headers['x-user-name'] || mecanico_nombre || 'Técnico';
   const rolFinal = req.headers['x-user-role'] || 'mecanico';
 
-  if (fecha_ocurrencia && fecha_ocurrencia.trim()) {
-    tareas[idx].fecha_ocurrencia = fecha_ocurrencia.trim();
+  if (fecha_ocurrencia && String(fecha_ocurrencia).trim()) {
+    tareas[idx].fecha_ocurrencia = String(fecha_ocurrencia).trim();
   }
 
   // Fecha y hora del arreglo: si no la envía o es vacía, usar el momento exacto actual
@@ -1713,6 +1790,25 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
     console.error('Error calculando tiempo:', e);
   }
 
+  // VALIDACIÓN ANTI-FRAUDE: HASH Y COMPROBACIÓN DE IMAGEN DUPLICADA
+  let hashFoto = null;
+  if (req.body && req.body.foto_base64 && req.body.foto_base64.startsWith('data:image/')) {
+    hashFoto = calcularHashDeDatosImagen(req.body.foto_base64);
+  } else if (req.file) {
+    try {
+      const fileBuf = fs.readFileSync(req.file.path);
+      hashFoto = calcularHashDeDatosImagen(fileBuf);
+    } catch (e) {}
+  }
+
+  if (hashFoto) {
+    const errorDuplicada = validarFotografiaDuplicada(hashFoto, req.params.id, tareas);
+    if (errorDuplicada) {
+      if (req.file) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
+      return res.status(400).json({ error: errorDuplicada.mensaje });
+    }
+  }
+
   // Foto comprobante: Subir a Cloudinary (CDN) o Base64/local como fallback seguro
   let rutaFoto = tareas[idx].foto_comprobante;
   if (req.body && req.body.foto_base64 && req.body.foto_base64.startsWith('data:image/')) {
@@ -1731,12 +1827,30 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
     }
   }
 
-  tareas[idx].estado = 'completado';
+  // FLUJO DE APROBACIÓN:
+  // Si finaliza Holger/Admin directamente, se aprueba y completa de inmediato.
+  // Si finaliza un técnico operativo, entra a "por_aprobar" para que Holger verifique la foto y el trabajo.
+  const esAprobador = esAdmin || tienePermiso(userRol, 'reabrir_tareas');
+  const requiereAprobacion = !esAprobador;
+  const nuevoEstado = requiereAprobacion ? 'por_aprobar' : 'completado';
+
+  tareas[idx].estado = nuevoEstado;
   tareas[idx].fecha_arreglo = fechaArregloFinal;
   tareas[idx].tiempo_arreglo_minutos = tiempoMinutos;
   tareas[idx].completado_por_usuario = usernameFinal;
   tareas[idx].completado_por_nombre = nombreFinal;
   tareas[idx].completado_por_rol = rolFinal;
+  tareas[idx].completado_en = new Date().toISOString();
+  if (hashFoto) tareas[idx].foto_comprobante_hash = hashFoto;
+
+  if (requiereAprobacion) {
+    tareas[idx].requiere_aprobacion = true;
+    tareas[idx].enviado_a_aprobacion_en = new Date().toISOString();
+  } else {
+    tareas[idx].requiere_aprobacion = false;
+    tareas[idx].aprobado_por = nombreFinal;
+    tareas[idx].aprobado_en = new Date().toISOString();
+  }
 
   // Desglose de tiempos de espera vs trabajo activo del personal
   const esperaNum = parseInt(tiempo_espera_minutos) || 0;
@@ -1766,11 +1880,124 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
 
   if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
   if (rutaFoto) tareas[idx].foto_comprobante = rutaFoto;
-  tareas[idx].completado_en = new Date().toISOString();
 
-  guardarTareas(tareas);
+  // Registrar en bitácora
+  if (!Array.isArray(tareas[idx].avances)) tareas[idx].avances = [];
+  if (requiereAprobacion) {
+    tareas[idx].avances.push({
+      id: `AV-${Date.now()}`,
+      fecha: new Date().toISOString(),
+      tecnico: nombreFinal,
+      rol: rolFinal,
+      horas: Math.round(((tiempoMinutos || 0) / 60) * 10) / 10,
+      descripcion: `📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger.`
+    });
+  }
+
+  guardarTareas(tareas, true);
+
+  const mensajeRes = requiereAprobacion
+    ? '✅ Tarea registrada y enviada para verificación. Quedará completada tras la aprobación del Administrador Holger.'
+    : '✅ Tarea completada y aprobada exitosamente con fotografía y tiempos registrados.';
+
   res.json({
-    mensaje: 'Tarea completada exitosamente con fotografía y tiempos registrados',
+    mensaje: mensajeRes,
+    requiere_aprobacion: requiereAprobacion,
+    tarea: tareas[idx]
+  });
+});
+
+// 7.4. Aprobar tarea finalizada (Exclusivo Administrador Holger y Supervisores)
+app.post('/api/tasks/:id/aprobar', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
+  const esAdmin = userRol === 'admin' || userName === 'holger';
+  const puedeAprobar = esAdmin || tienePermiso(userRol, 'reabrir_tareas');
+  if (!puedeAprobar) {
+    return res.status(403).json({ error: 'Acceso Restringido: Solo el Administrador y Supervisores autorizados pueden aprobar la finalización de tareas.' });
+  }
+
+  const tareas = leerTareas();
+  const idx = tareas.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  const aprobadorNombre = req.headers['x-user-name'] || (esAdmin ? 'Holger Torrado' : 'Supervisor');
+  const aprobadorUsername = req.headers['x-user-username'] || 'holger';
+
+  tareas[idx].estado = 'completado';
+  tareas[idx].aprobado_por = aprobadorNombre;
+  tareas[idx].aprobado_por_username = aprobadorUsername;
+  tareas[idx].aprobado_en = new Date().toISOString();
+  tareas[idx].requiere_aprobacion = false;
+
+  // Recalcular MTTR exacto con las fechas registradas
+  if (tareas[idx].fecha_ocurrencia && tareas[idx].fecha_arreglo) {
+    try {
+      const fO = new Date(tareas[idx].fecha_ocurrencia).getTime();
+      const fA = new Date(tareas[idx].fecha_arreglo).getTime();
+      const diffMs = fA - fO;
+      if (!isNaN(diffMs) && diffMs >= 0) {
+        tareas[idx].tiempo_arreglo_minutos = Math.round(diffMs / 60000);
+      }
+    } catch(e) {}
+  }
+
+  if (!Array.isArray(tareas[idx].avances)) tareas[idx].avances = [];
+  tareas[idx].avances.push({
+    id: `AV-${Date.now()}`,
+    fecha: new Date().toISOString(),
+    tecnico: aprobadorNombre,
+    rol: userRol || 'admin',
+    horas: 0,
+    descripcion: `✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente.`
+  });
+
+  guardarTareas(tareas, true);
+  res.json({
+    ok: true,
+    mensaje: `✅ Tarea ${tareas[idx].id} aprobada y cerrada satisfactoriamente por ${aprobadorNombre}`,
+    tarea: tareas[idx]
+  });
+});
+
+// 7.5. Rechazar finalización de tarea (Devolver a En Progreso con observación)
+app.post('/api/tasks/:id/rechazar', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
+  const esAdmin = userRol === 'admin' || userName === 'holger';
+  const puedeRechazar = esAdmin || tienePermiso(userRol, 'reabrir_tareas');
+  if (!puedeRechazar) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para rechazar la finalización de tareas.' });
+  }
+
+  const tareas = leerTareas();
+  const idx = tareas.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  const { motivo } = req.body || {};
+  const motivoRechazo = String(motivo || 'Fotografía no corresponde o trabajo incompleto').trim();
+  const rechazoPor = req.headers['x-user-name'] || (esAdmin ? 'Holger Torrado' : 'Supervisor');
+
+  tareas[idx].estado = 'en_progreso';
+  tareas[idx].requiere_aprobacion = false;
+  tareas[idx].rechazado_en = new Date().toISOString();
+  tareas[idx].rechazado_por = rechazoPor;
+  tareas[idx].motivo_rechazo = motivoRechazo;
+
+  if (!Array.isArray(tareas[idx].avances)) tareas[idx].avances = [];
+  tareas[idx].avances.push({
+    id: `AV-${Date.now()}`,
+    fecha: new Date().toISOString(),
+    tecnico: rechazoPor,
+    rol: userRol || 'admin',
+    horas: 0,
+    descripcion: `❌ FINALIZACIÓN RECHAZADA: ${motivoRechazo}. La tarea regresa a estado "En Progreso" para corrección por el técnico.`
+  });
+
+  guardarTareas(tareas, true);
+  res.json({
+    ok: true,
+    mensaje: `Tarea ${tareas[idx].id} devuelta a "En Progreso" con observación registrada.`,
     tarea: tareas[idx]
   });
 });
@@ -1778,8 +2005,10 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
 // 7.1. Actualizar y Modificar Tarea Completa
 app.put('/api/tasks/:id', async (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  const esAdmin = userRol === 'admin';
-  const puedeEditar = esAdmin || tienePermiso(userRol, 'cambiar_horas') || tienePermiso(userRol, 'crear_tareas') || tienePermiso(userRol, 'reabrir_tareas') || tienePermiso(userRol, 'cambiar_foto');
+  const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
+  const esAdmin = userRol === 'admin' || userName === 'holger';
+  const puedeCambiarHoras = esAdmin || tienePermiso(userRol, 'cambiar_horas');
+  const puedeEditar = esAdmin || puedeCambiarHoras || tienePermiso(userRol, 'crear_tareas') || tienePermiso(userRol, 'reabrir_tareas') || tienePermiso(userRol, 'cambiar_foto');
   if (!puedeEditar) {
     return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para editar tareas ni modificar fechas u horas.' });
   }
@@ -1787,8 +2016,6 @@ app.put('/api/tasks/:id', async (req, res) => {
   let tareas = leerTareas();
   const idx = tareas.findIndex(t => t.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
-
-  const puedeCambiarHoras = esAdmin || tienePermiso(userRol, 'cambiar_horas');
 
   const {
     fecha_ocurrencia,
@@ -1959,7 +2186,7 @@ app.put('/api/tasks/:id', async (req, res) => {
   }
 
   // Recalcular tiempo de parada (MTTR) con las fechas modificadas
-  if (tareas[idx].fecha_ocurrencia && tareas[idx].fecha_arreglo && tareas[idx].estado === 'completado') {
+  if (tareas[idx].fecha_ocurrencia && tareas[idx].fecha_arreglo && (tareas[idx].estado === 'completado' || tareas[idx].estado === 'por_aprobar')) {
     try {
       const fO = new Date(tareas[idx].fecha_ocurrencia).getTime();
       const fA = new Date(tareas[idx].fecha_arreglo).getTime();
@@ -1970,7 +2197,7 @@ app.put('/api/tasks/:id', async (req, res) => {
         tareas[idx].tiempo_arreglo_minutos = 0;
       }
     } catch(e) {}
-  } else if (!tareas[idx].fecha_arreglo || tareas[idx].estado !== 'completado') {
+  } else if (!tareas[idx].fecha_arreglo || (tareas[idx].estado !== 'completado' && tareas[idx].estado !== 'por_aprobar')) {
     tareas[idx].tiempo_arreglo_minutos = null;
   }
 
@@ -2745,6 +2972,7 @@ app.get('/api/metrics', (req, res) => {
   const total = tareas.length;
   const pendientes = tareas.filter(t => t.estado === 'pendiente').length;
   const en_progreso = tareas.filter(t => t.estado === 'en_progreso').length;
+  const por_aprobar = tareas.filter(t => t.estado === 'por_aprobar').length;
   const completadas = tareas.filter(t => t.estado === 'completado').length;
 
   // Conteo por tipo dinámico
@@ -2826,6 +3054,7 @@ app.get('/api/metrics', (req, res) => {
     total,
     pendientes,
     en_progreso,
+    por_aprobar,
     completadas,
     por_tipo,
     mttr_global_minutos,

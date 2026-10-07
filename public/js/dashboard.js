@@ -40,7 +40,9 @@ function usuarioTienePermiso(permiso) {
   try {
     const user = JSON.parse(userJson);
     const rol = (user.rol || '').toLowerCase().trim();
-    if (rol === 'admin' && permiso !== 'asignable_tareas') return true; // Administrador Holger tiene acceso total salvo si no desea ser asignable
+    const username = (user.username || '').toLowerCase().trim();
+    const esAdmin = rol === 'admin' || username === 'holger';
+    if (esAdmin && permiso !== 'asignable_tareas') return true; // Administrador Holger tiene acceso total salvo si no desea ser asignable
     if (simanPermisosCache && simanPermisosCache[rol] && simanPermisosCache[rol][permiso] !== undefined) {
       return Boolean(simanPermisosCache[rol][permiso]);
     }
@@ -1010,10 +1012,12 @@ function actualizarKPIs(m) {
   const cTot = document.getElementById('count-todos');
   const cPend = document.getElementById('count-tab-pendientes');
   const cProg = document.getElementById('count-tab-progreso');
+  const cAprob = document.getElementById('count-tab-por-aprobar');
   const cComp = document.getElementById('count-tab-completadas');
   if (cTot) cTot.innerText = m.total ?? 0;
   if (cPend) cPend.innerText = m.pendientes ?? 0;
   if (cProg) cProg.innerText = m.en_progreso ?? 0;
+  if (cAprob) cAprob.innerText = m.por_aprobar ?? 0;
   if (cComp) cComp.innerText = m.completadas ?? 0;
 
   // Estadísticas por tipo
@@ -1315,6 +1319,10 @@ function renderTablaTareas(tareas) {
       badgeEstado = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-blue-500/10 text-blue-300 border border-blue-500/30">
         <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span> En Progreso
       </span>`;
+    } else if (t.estado === 'por_aprobar') {
+      badgeEstado = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-sm animate-pulse" title="Tarea finalizada por técnico esperando tu verificación">
+        <i class="fa-solid fa-hourglass-half text-[10px]"></i> Por Aprobar
+      </span>`;
     } else {
       badgeEstado = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
         <i class="fa-solid fa-check text-[10px]"></i> Completado
@@ -1474,11 +1482,15 @@ function renderTablaTareas(tareas) {
         <!-- Acciones -->
         <td class="py-3 px-4 text-right whitespace-nowrap">
           <div class="flex items-center justify-end space-x-1.5">
-            <button onclick="abrirModalDetalle('${t.id}')" title="Ver detalle y fotos" class="p-1.5 bg-slate-700/80 hover:bg-slate-600 text-slate-200 rounded-lg transition text-xs">
-              <i class="fa-solid fa-eye"></i>
+            ${t.estado === 'por_aprobar' ? `
+            <button onclick="aprobarTareaRapido('${t.id}'); event.stopPropagation();" title="Aprobar y cerrar tarea oficialmente" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition text-xs font-bold flex items-center gap-1 shadow shadow-emerald-600/30">
+              <i class="fa-solid fa-check-double text-[10px]"></i> Aprobar
+            </button>` : ''}
+            <button onclick="abrirModalDetalle('${t.id}')" title="Modificar fechas, horas o ver detalle completo" class="p-1.5 bg-slate-700/80 hover:bg-slate-600 text-slate-200 rounded-lg transition text-xs">
+              <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            ${(JSON.parse(localStorage.getItem('siman_user') || '{}').rol === 'admin') ? `
-            <button onclick="eliminarTarea('${t.id}')" title="Eliminar tarea (Admin)" class="p-1.5 bg-slate-700/80 hover:bg-rose-900/60 text-slate-400 hover:text-rose-300 rounded-lg transition text-xs">
+            ${((JSON.parse(localStorage.getItem('siman_user') || '{}').rol === 'admin') || (JSON.parse(localStorage.getItem('siman_user') || '{}').username === 'Holger')) ? `
+            <button onclick="eliminarTarea('${t.id}'); event.stopPropagation();" title="Eliminar tarea (Admin)" class="p-1.5 bg-slate-700/80 hover:bg-rose-900/60 text-slate-400 hover:text-rose-300 rounded-lg transition text-xs">
               <i class="fa-solid fa-trash-can"></i>
             </button>` : ''}
           </div>
@@ -1711,7 +1723,7 @@ async function abrirModalDetalle(id) {
 
   tareaSeleccionadaId = id;
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin' || (user.username || '').toLowerCase().trim() === 'holger';
   const puedeCambiarHoras = esAdmin || usuarioTienePermiso('cambiar_horas');
   const puedeReabrir = esAdmin || usuarioTienePermiso('reabrir_tareas');
   const puedeCambiarFoto = esAdmin || usuarioTienePermiso('cambiar_foto');
@@ -1811,6 +1823,22 @@ async function abrirModalDetalle(id) {
   }
   if (txtOcurrio) txtOcurrio.innerText = formatearFechaHora(t.fecha_ocurrencia);
   if (txtArreglo) txtArreglo.innerText = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : 'Pendiente de registrar';
+
+  // Banner Informativo si la tarea requiere aprobación
+  const bannerPorAprobar = document.getElementById('banner-por-aprobar-detalle');
+  const txtInfoPorAprobar = document.getElementById('txt-info-por-aprobar');
+  if (bannerPorAprobar) {
+    if (t.estado === 'por_aprobar') {
+      bannerPorAprobar.classList.remove('hidden');
+      const nombreTec = t.completado_por_nombre || t.mecanico_asignado || 'Técnico';
+      const fechaArr = t.fecha_arreglo ? formatearFechaHora(t.fecha_arreglo) : 'Recientemente';
+      if (txtInfoPorAprobar) {
+        txtInfoPorAprobar.innerHTML = `Intervención finalizada por <strong>${escaparHTML(nombreTec)}</strong> el <strong>${escaparHTML(fechaArr)}</strong>. Revisa la fotografía comprobante abajo y confirma el cierre oficial.`;
+      }
+    } else {
+      bannerPorAprobar.classList.add('hidden');
+    }
+  }
 
   // Tiempos de espera por repuestos vs trabajos fuera de planta
   let tRep = parseInt(t.tiempo_espera_repuestos_minutos) || 0;
@@ -2266,19 +2294,19 @@ function abrirFotoInicialDetalleActual() {
 
 function alCambiarEstadoDetalleModal(nuevoEstado) {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin' || (user.username || '').toLowerCase().trim() === 'holger';
   const puedeReabrir = esAdmin || usuarioTienePermiso('reabrir_tareas');
   const btnReabrir = document.getElementById('btn-reabrir-tarea-detalle');
   if (btnReabrir) {
-    if (puedeReabrir && nuevoEstado === 'completado') btnReabrir.classList.remove('hidden');
+    if (puedeReabrir && (nuevoEstado === 'completado' || nuevoEstado === 'por_aprobar')) btnReabrir.classList.remove('hidden');
     else btnReabrir.classList.add('hidden');
   }
-  if (nuevoEstado !== 'completado') {
+  if (nuevoEstado === 'pendiente' || nuevoEstado === 'en_proceso') {
     const inArreglo = document.getElementById('edit-det-fecha-arreglo');
-    if (inArreglo) inArreglo.value = '';
     const txtArreglo = document.getElementById('det-fecha-arreglo-txt');
-    if (txtArreglo) txtArreglo.innerText = 'Pendiente de registrar';
-    calcularTiemposDetalle();
+    if (inArreglo && !inArreglo.value) {
+      if (txtArreglo) txtArreglo.innerText = 'Pendiente de registrar';
+    }
   }
 }
 
@@ -2508,7 +2536,8 @@ async function guardarEdicionDetalleAdmin() {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'x-user-role': user.rol
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger'
       },
       body: JSON.stringify(payload)
     });
@@ -2531,9 +2560,168 @@ async function guardarEdicionDetalleAdmin() {
   }
 }
 
+// Actualizar visualización legible al cambiar fechas en el modal
+function alCambiarFechaDetalle() {
+  const inOcurrio = document.getElementById('edit-det-fecha-ocurrio');
+  const inArreglo = document.getElementById('edit-det-fecha-arreglo');
+  const txtOcurrio = document.getElementById('det-fecha-ocurrio-txt');
+  const txtArreglo = document.getElementById('det-fecha-arreglo-txt');
+  if (txtOcurrio && inOcurrio?.value) txtOcurrio.innerText = formatearFechaHora(inOcurrio.value);
+  if (txtArreglo && inArreglo) {
+    txtArreglo.innerText = inArreglo.value ? formatearFechaHora(inArreglo.value) : 'Pendiente de registrar';
+  }
+  calcularTiemposDetalle();
+}
+
+function fijarArregloAhoraDetalle() {
+  const inArreglo = document.getElementById('edit-det-fecha-arreglo');
+  if (!inArreglo || inArreglo.disabled) return;
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  inArreglo.value = (new Date(now - offset)).toISOString().slice(0, 16);
+  alCambiarFechaDetalle();
+}
+
+// Guardar exclusivamente fechas y horas de manera directa e instantánea
+async function guardarFechasDetalleAdmin() {
+  if (!tareaSeleccionadaId) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin' || (user.username || '').toLowerCase().trim() === 'holger';
+  if (!esAdmin && !usuarioTienePermiso('cambiar_horas')) {
+    alert('Acceso Restringido: Tu rol no tiene autorización para modificar fechas u horas.');
+    return;
+  }
+
+  const fOcurrio = document.getElementById('edit-det-fecha-ocurrio')?.value;
+  const fArreglo = document.getElementById('edit-det-fecha-arreglo')?.value;
+
+  if (!fOcurrio) {
+    alert('La fecha y hora inicial (en que ocurrió la avería) no puede estar vacía.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-guardar-fechas-rapido');
+  const origHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Guardando...`;
+  }
+
+  try {
+    const res = await fetch(`/api/tasks/${tareaSeleccionadaId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger'
+      },
+      body: JSON.stringify({
+        fecha_ocurrencia: fOcurrio,
+        fecha_arreglo: fArreglo || null
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al guardar fechas');
+
+    mostrarToast('✅ Fechas y horas actualizadas con éxito. Tiempo de parada recalculado.');
+    await cargarTareas(false);
+    abrirModalDetalle(tareaSeleccionadaId);
+  } catch(err) {
+    alert(err.message);
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = origHtml;
+    }
+  }
+}
+
+// Aprobar tarea directamente desde el modal de detalle
+async function aprobarTareaActualDetalle() {
+  if (!tareaSeleccionadaId) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  if (!confirm('¿Confirma que ha verificado el trabajo y la fotografía, y APRUEBA el cierre oficial de esta orden de trabajo?')) return;
+
+  try {
+    const res = await fetch(`/api/tasks/${tareaSeleccionadaId}/aprobar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger',
+        'x-user-name': user.nombre || 'Holger Torrado'
+      }
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al aprobar tarea');
+
+    mostrarToast(data.mensaje || '✅ Tarea aprobada y cerrada satisfactoriamente');
+    cerrarModalDetalle();
+    cargarTareas(false);
+  } catch(err) {
+    alert(err.message);
+  }
+}
+
+// Rechazar finalización y devolver tarea a En Progreso
+async function rechazarTareaActualDetalle() {
+  if (!tareaSeleccionadaId) return;
+  const motivo = prompt('Ingrese el motivo del rechazo (se notificará al técnico en la bitácora):', 'Fotografía no corresponde al equipo o trabajo incompleto');
+  if (motivo === null) return;
+  const motivoLimpio = String(motivo || '').trim() || 'Trabajo no verificado o fotografía no coincide';
+
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch(`/api/tasks/${tareaSeleccionadaId}/rechazar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger',
+        'x-user-name': user.nombre || 'Holger Torrado'
+      },
+      body: JSON.stringify({ motivo: motivoLimpio })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al rechazar tarea');
+
+    mostrarToast('❌ Tarea devuelta a "En Progreso" para corrección por el técnico');
+    cerrarModalDetalle();
+    cargarTareas(false);
+  } catch(err) {
+    alert(err.message);
+  }
+}
+
+// Aprobar tarea rápido desde la tabla
+async function aprobarTareaRapido(id) {
+  if (!confirm('¿Aprobar el cierre oficial de esta tarea finalizada por el técnico?')) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch(`/api/tasks/${id}/aprobar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger',
+        'x-user-name': user.nombre || 'Holger Torrado'
+      }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al aprobar tarea');
+    mostrarToast(data.mensaje || '✅ Tarea aprobada y cerrada');
+    cargarTareas(false);
+  } catch(err) {
+    alert(err.message);
+  }
+}
+
 // Alias por compatibilidad
 function guardarEdicionFechasAdmin() {
-  return guardarEdicionDetalleAdmin();
+  return guardarFechasDetalleAdmin();
 }
 
 async function eliminarTarea(id) {
@@ -3026,7 +3214,7 @@ async function restaurarPermisosPorDefecto() {
       cerrar_tareas: true,
       cambiar_horas: true,
       cambiar_foto: true,
-      asignable_tareas: true,
+      asignable_tareas: false,
       ver_contrasenas: true,
       cambiar_contrasenas: true,
       eliminar_tareas: true,
