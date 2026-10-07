@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1104",
+    "equipo": "Ciclón de cascarilla",
+    "titulo": "Se presenta avería en la soldadura del motor del ciclon de cascarilla",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Palmistería",
+    "descripcion": "Se requiere intervenir nuevamente la soldadura del ciclón de cascarilla",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-07T07:41",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791376907/siman/iniciales/ini_TSK-1104_1791376906996.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-07T12:41:47.837Z"
+  },
+  {
     "id": "TSK-1103",
     "equipo": "Plataforma superior de redler 3",
     "titulo": "Limpieza de plataforma",
