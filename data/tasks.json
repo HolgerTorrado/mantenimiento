@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1109",
+    "equipo": "Pantalla led digital",
+    "titulo": "Led quemados en pantalla led de báscula",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Bascula",
+    "descripcion": "Se requiere reparación de LED quemados del tablero digital de báscula o en su defecto comprar uno nuevo",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-07T10:37",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791390902/siman/iniciales/ini_TSK-1109_1791390902253.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-07T16:35:03.517Z"
+  },
+  {
     "id": "TSK-1108",
     "equipo": "Pantalla tablero",
     "titulo": "Pantalla funcional pero sin datos reales de operación",
