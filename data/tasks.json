@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1113",
+    "equipo": "Prensa",
+    "titulo": "Instalación de conos de la prensa",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Extracción",
+    "descripcion": "Se requiere instalación de los conos de la prensa",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-07T17:33",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791412476/siman/iniciales/ini_TSK-1113_1791412476582.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-07T22:34:37.343Z"
+  },
+  {
     "id": "TSK-1112",
     "equipo": "Caldera",
     "titulo": "Fuga de agua en el interior del hogar",
