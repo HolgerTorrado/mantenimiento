@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1110",
+    "equipo": "Espacio caldera 2",
+    "titulo": "Tornillos de anclaje",
+    "tipo": "preventivo",
+    "prioridad": "alta",
+    "ubicacion": "Calderas",
+    "descripcion": "Se requiere eliminar tornillos sobresalientes de soportes que tenía la caldera 2, estos han causado incidentes con el personal",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-07T12:13",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791393335/siman/iniciales/ini_TSK-1110_1791393335322.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-07T17:15:36.503Z"
+  },
+  {
     "id": "TSK-1109",
     "equipo": "Pantalla led digital",
     "titulo": "Led quemados en pantalla led de báscula",
