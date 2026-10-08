@@ -11,18 +11,31 @@
       "electrico"
     ],
     "tecnicos_asignados": [],
-    "mecanico_asignado": "Eléctrica",
+    "mecanico_asignado": "Sin Asignar",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-08T07:19",
     "fecha_arreglo": null,
     "estado": "pendiente",
-    "notas_mecanico": null,
+    "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791462141/siman/iniciales/ini_TSK-1114_1791462141344.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-08T12:22:22.278Z"
+    "creado_en": "2026-10-08T12:22:22.278Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-10-08T12:40:05.981Z"
   },
   {
     "id": "TSK-1113",
