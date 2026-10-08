@@ -522,6 +522,9 @@
           <button onclick="filtrarEstado('completado', this)" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700/60">
             Completadas (<span id="count-tab-completadas">0</span>)
           </button>
+          <button id="tab-btn-eliminadas" onclick="filtrarEstado('eliminado', this)" class="tab-btn hidden px-3 py-1.5 rounded-lg text-xs font-semibold transition text-rose-300 hover:text-white hover:bg-rose-950/70 border border-rose-500/40">
+            🗑️ Eliminadas (<span id="count-tab-eliminadas">0</span>)
+          </button>
         </div>
 
         <!-- Filtros secundarios: Tipo y Búsqueda -->
@@ -1507,12 +1510,41 @@
                 <p id="txt-info-por-aprobar" class="text-xs text-amber-200/90">Revisa la fotografía comprobante del trabajo y los repuestos antes de dar el visto bueno oficial.</p>
               </div>
             </div>
-            <div id="acciones-aprobar-detalle" class="flex items-center gap-2 flex-shrink-0">
-              <button type="button" onclick="rechazarTareaActualDetalle()" class="px-3.5 py-2 bg-rose-900/90 hover:bg-rose-800 text-rose-200 border border-rose-500/50 text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow">
-                <i class="fa-solid fa-xmark"></i> Rechazar
+            <div id="acciones-aprobar-detalle" class="flex items-center gap-2 flex-shrink-0 flex-wrap">
+              <button type="button" onclick="descartarTareaActualAuditoria()" class="px-3 py-2 bg-slate-900/90 hover:bg-rose-950 text-rose-300 border border-rose-500/40 text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow" title="Descartar y enviar al archivo de eliminadas sin sumar en totales">
+                <i class="fa-solid fa-trash-can"></i> Descartar / Duplicada
+              </button>
+              <button type="button" onclick="rechazarTareaActualDetalle()" class="px-3.5 py-2 bg-rose-900/90 hover:bg-rose-800 text-rose-200 border border-rose-500/50 text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow" title="Devolver tarea a En Progreso para que el técnico corrija">
+                <i class="fa-solid fa-rotate-left"></i> Devolver a Técnico
               </button>
               <button type="button" onclick="aprobarTareaActualDetalle()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black rounded-lg transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/30">
                 <i class="fa-solid fa-check-double"></i> Aprobar y Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- BANNER DE TAREA ELIMINADA / DESCARTADA (NO SUMA A TOTALES) -->
+        <div id="banner-eliminada-detalle" class="hidden bg-gradient-to-r from-rose-950/90 via-slate-900/90 to-slate-900/90 border border-rose-500/60 rounded-xl p-4 shadow-lg space-y-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 border border-rose-500/40 flex items-center justify-center text-lg flex-shrink-0">
+                <i class="fa-solid fa-trash-can"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-white text-sm flex items-center gap-2">
+                  <span>Tarea Archivada / Eliminada</span>
+                  <span class="text-[10px] bg-rose-600 text-white px-2 py-0.5 rounded-full font-black">DESCARTADA</span>
+                </h4>
+                <p id="txt-motivo-eliminada" class="text-xs text-rose-200/90">Esta tarea está archivada y excluida de todos los totales y KPIs de la planta.</p>
+              </div>
+            </div>
+            <div id="acciones-eliminada-detalle" class="flex items-center gap-2 flex-shrink-0">
+              <button type="button" onclick="restaurarTareaActualDetalle()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow">
+                <i class="fa-solid fa-trash-arrow-up"></i> Restaurar al Flujo Activo
+              </button>
+              <button type="button" onclick="eliminarTareaActualDefinitiva()" class="px-3 py-2 bg-slate-900 hover:bg-rose-900 text-rose-300 border border-rose-600/50 text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow" title="Borrar físicamente del servidor">
+                <i class="fa-solid fa-fire"></i> Borrar Definitivo
               </button>
             </div>
           </div>
