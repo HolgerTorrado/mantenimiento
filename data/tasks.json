@@ -55,7 +55,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-07T17:31",
     "fecha_arreglo": "2026-10-07T23:20",
-    "estado": "por_aprobar",
+    "estado": "en_progreso",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791412381/siman/iniciales/ini_TSK-1112_1791412380785.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791459413/siman/comprobantes/comp_TSK-1112_1791459412430.webp",
@@ -68,7 +68,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-08T11:36:54.182Z",
     "foto_comprobante_hash": "6beea7470f3f27c54a31d16e3c9c16d992aacbb242af8a22759d1632123e174d",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-08T11:36:54.182Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -86,8 +86,19 @@
         "rol": "mecanico",
         "horas": 5.8,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1791463700016",
+        "fecha": "2026-10-08T12:48:20.016Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "❌ FINALIZACIÓN RECHAZADA: Trabajo duplicado. La tarea regresa a estado \"En Progreso\" para corrección por el técnico."
       }
-    ]
+    ],
+    "rechazado_en": "2026-10-08T12:48:20.016Z",
+    "rechazado_por": "Holger Torrado",
+    "motivo_rechazo": "Trabajo duplicado"
   },
   {
     "id": "TSK-1111",
@@ -193,49 +204,6 @@
     "creado_en": "2026-10-07T15:22:25.213Z"
   },
   {
-    "id": "TSK-1107",
-    "equipo": "Caldera",
-    "titulo": "Instalación de recubrimiento aislante de la caldera",
-    "tipo": "correctivo",
-    "prioridad": "media",
-    "ubicacion": "Caldera",
-    "descripcion": "Se requiere instalación del recubrimiento aislante de la caldera",
-    "roles_asignados": [
-      "mecanico"
-    ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Sin Asignar",
-    "es_conjunta": false,
-    "fecha_ocurrencia": "2026-10-07T06:00",
-    "fecha_arreglo": "2026-10-07T12:03",
-    "estado": "completado",
-    "notas_mecanico": "Se soldan fugas de pirotubo y tubería del hogar",
-    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791384921/siman/iniciales/ini_TSK-1107_1791384920932.webp",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791392674/siman/comprobantes/comp_TSK-1107_1791392674588.webp",
-    "tiempo_arreglo_minutos": 363,
-    "creado_por_usuario": "Jhonier Ospino",
-    "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-07T14:55:21.793Z",
-    "completado_por_usuario": "esilva",
-    "completado_por_nombre": "Ender Silva",
-    "completado_por_rol": "mecanico",
-    "tiempo_espera_minutos": 243,
-    "motivo_espera": "Espera de bajar la temperatura para realizar la actividad",
-    "tiempo_trabajo_activo_minutos": 120,
-    "tiempos_por_rol": {
-      "mecanico": 120,
-      "electrico": 0,
-      "maquinista": 0
-    },
-    "completado_en": "2026-10-07T17:04:35.527Z",
-    "tiempo_espera_repuestos_minutos": 243,
-    "motivo_espera_repuestos": "Espera de bajar la temperatura para realizar la actividad",
-    "tiempo_fuera_planta_minutos": 0,
-    "motivo_fuera_planta": "",
-    "modificado_por_admin": true,
-    "modificado_en": "2026-10-08T12:47:08.210Z"
-  },
-  {
     "id": "TSK-1106",
     "equipo": "Carretillas",
     "titulo": "Se requiere, reparación, dar de baja y comprar carretillas",
@@ -324,6 +292,49 @@
       "maquinista": 0
     },
     "completado_en": "2026-10-07T16:52:24.439Z"
+  },
+  {
+    "id": "TSK-1107",
+    "equipo": "Caldera",
+    "titulo": "Instalación de recubrimiento aislante de la caldera",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Caldera",
+    "descripcion": "Se requiere instalación del recubrimiento aislante de la caldera",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Sin Asignar",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-07T06:00",
+    "fecha_arreglo": "2026-10-07T12:03",
+    "estado": "completado",
+    "notas_mecanico": "Se soldan fugas de pirotubo y tubería del hogar",
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791384921/siman/iniciales/ini_TSK-1107_1791384920932.webp",
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791392674/siman/comprobantes/comp_TSK-1107_1791392674588.webp",
+    "tiempo_arreglo_minutos": 363,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-07T14:55:21.793Z",
+    "completado_por_usuario": "esilva",
+    "completado_por_nombre": "Ender Silva",
+    "completado_por_rol": "mecanico",
+    "tiempo_espera_minutos": 243,
+    "motivo_espera": "Espera de bajar la temperatura para realizar la actividad",
+    "tiempo_trabajo_activo_minutos": 120,
+    "tiempos_por_rol": {
+      "mecanico": 120,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "completado_en": "2026-10-07T17:04:35.527Z",
+    "tiempo_espera_repuestos_minutos": 243,
+    "motivo_espera_repuestos": "Espera de bajar la temperatura para realizar la actividad",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "modificado_por_admin": true,
+    "modificado_en": "2026-10-08T12:47:08.210Z"
   },
   {
     "id": "TSK-1103",
