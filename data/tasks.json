@@ -174,10 +174,8 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [
-      "Marwin Castillejo"
-    ],
-    "mecanico_asignado": "Marwin Castillejo",
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Sin Asignar",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-07T12:13",
     "fecha_arreglo": "2026-10-08T16:26",
@@ -200,7 +198,7 @@
     "motivo_espera": "",
     "tiempo_trabajo_activo_minutos": 1693,
     "tiempos_por_rol": {
-      "mecanico": 1693,
+      "mecanico": 1692,
       "electrico": 0,
       "maquinista": 0
     },
@@ -213,7 +211,13 @@
         "horas": 28.2,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
-    ]
+    ],
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "modificado_por_admin": true,
+    "modificado_en": "2026-10-08T22:27:08.456Z"
   },
   {
     "id": "TSK-1109",
