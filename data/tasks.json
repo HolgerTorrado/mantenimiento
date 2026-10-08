@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1115",
+    "equipo": "Tubería que transporta efluente",
+    "titulo": "Fuga de efluente",
+    "tipo": "mejora",
+    "prioridad": "alta",
+    "ubicacion": "Australianos",
+    "descripcion": "Se presenta fuga de efluente, lo que genera mal aspecto en área de australiano y contaminación al medio ambiente",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-08T16:26",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791494928/siman/iniciales/ini_TSK-1115_1791494928540.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jesus Barajas",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-08T21:28:49.561Z"
+  },
+  {
     "id": "TSK-1114",
     "equipo": "No aplica",
     "titulo": "Bombillo quemado",
