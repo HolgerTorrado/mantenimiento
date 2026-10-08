@@ -49,19 +49,46 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Ender Silva"
+    ],
+    "mecanico_asignado": "Ender Silva",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-07T17:31",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
+    "fecha_arreglo": "2026-10-07T23:20",
+    "estado": "por_aprobar",
+    "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791412381/siman/iniciales/ini_TSK-1112_1791412380785.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791459413/siman/comprobantes/comp_TSK-1112_1791459412430.webp",
+    "tiempo_arreglo_minutos": 349,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-07T22:33:01.580Z"
+    "creado_en": "2026-10-07T22:33:01.580Z",
+    "completado_por_usuario": "esilva",
+    "completado_por_nombre": "Ender Silva",
+    "completado_por_rol": "mecanico",
+    "completado_en": "2026-10-08T11:36:54.182Z",
+    "foto_comprobante_hash": "6beea7470f3f27c54a31d16e3c9c16d992aacbb242af8a22759d1632123e174d",
+    "requiere_aprobacion": true,
+    "enviado_a_aprobacion_en": "2026-10-08T11:36:54.182Z",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 349,
+    "tiempos_por_rol": {
+      "mecanico": 349,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "avances": [
+      {
+        "id": "AV-1791459414182",
+        "fecha": "2026-10-08T11:36:54.182Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 5.8,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      }
+    ]
   },
   {
     "id": "TSK-1111",
