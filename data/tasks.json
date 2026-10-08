@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1114",
+    "equipo": "No aplica",
+    "titulo": "Bombillo quemado",
+    "tipo": "correctivo",
+    "prioridad": "baja",
+    "ubicacion": "Porteria",
+    "descripcion": "Cambio de bombillo exterior de la caseta de portería",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-08T07:19",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791462141/siman/iniciales/ini_TSK-1114_1791462141344.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-08T12:22:22.278Z"
+  },
+  {
     "id": "TSK-1113",
     "equipo": "Prensa",
     "titulo": "Instalación de conos de la prensa",
