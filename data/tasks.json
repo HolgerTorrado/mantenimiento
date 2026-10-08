@@ -10,16 +10,18 @@
     "roles_asignados": [
       "electrico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Sin Asignar",
+    "tecnicos_asignados": [
+      "Anderson Jaimes"
+    ],
+    "mecanico_asignado": "Anderson Jaimes",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-08T07:19",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
+    "fecha_arreglo": "2026-10-08T10:54",
+    "estado": "por_aprobar",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791462141/siman/iniciales/ini_TSK-1114_1791462141344.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791475749/siman/comprobantes/comp_TSK-1114_1791475748736.webp",
+    "tiempo_arreglo_minutos": 215,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-10-08T12:22:22.278Z",
@@ -31,11 +33,29 @@
     "motivo_espera": "",
     "tiempos_por_rol": {
       "mecanico": 0,
-      "electrico": 0,
+      "electrico": 215,
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-10-08T12:40:05.981Z"
+    "modificado_en": "2026-10-08T12:40:05.981Z",
+    "completado_por_usuario": "ajaimes",
+    "completado_por_nombre": "Anderson Jaimes",
+    "completado_por_rol": "electrico",
+    "completado_en": "2026-10-08T16:09:09.729Z",
+    "foto_comprobante_hash": "2cfd9fb50e602245687b0dd308f7ff9ea12e35c1bfe82dc9cf81efc598cc4fde",
+    "requiere_aprobacion": true,
+    "enviado_a_aprobacion_en": "2026-10-08T16:09:09.729Z",
+    "tiempo_trabajo_activo_minutos": 215,
+    "avances": [
+      {
+        "id": "AV-1791475749729",
+        "fecha": "2026-10-08T16:09:09.729Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 3.6,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      }
+    ]
   },
   {
     "id": "TSK-1113",
