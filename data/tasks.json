@@ -1880,8 +1880,10 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Sin Asignar",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-30T14:23",
     "fecha_arreglo": null,
@@ -1900,7 +1902,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempos_por_rol": {
-      "mecanico": 1698,
+      "mecanico": 1878,
       "electrico": 0,
       "maquinista": 0
     },
@@ -1916,7 +1918,21 @@
     "reabierta_por": "admin",
     "foto_comprobante_eliminada": true,
     "foto_actualizada_en": "2026-10-08T12:45:28.255Z",
-    "actualizado_en": "2026-10-08T20:25:45.920Z"
+    "actualizado_en": "2026-10-08T20:27:21.251Z",
+    "avances": [
+      {
+        "id": "AV-1791491241251-59",
+        "fecha_hora": "2026-10-08T20:27",
+        "tecnico_nombre": "Marwin Castillejo",
+        "tecnico_usuario": "mcastillejo",
+        "tecnico_rol": "mecanico",
+        "descripcion": "Se desarmo bomba de aceite de clarificado",
+        "horas_dedicadas": 3,
+        "minutos_dedicados": 180,
+        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791491240/siman/avances/av_TSK-1062_1791491240123_1791491240124.webp",
+        "creado_en": "2026-10-08T20:27:21.251Z"
+      }
+    ]
   },
   {
     "id": "TSK-1060",
