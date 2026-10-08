@@ -69,6 +69,7 @@ function usuarioTienePermiso(permiso) {
     if (permiso === 'crear_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol);
     if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol);
     if (permiso === 'eliminar_remisiones') return ['admin', 'director'].includes(rol);
+    if (permiso === 'ver_eliminadas') return ['admin', 'director'].includes(rol);
     return false;
   } catch (e) {
     return false;
@@ -342,6 +343,17 @@ function aplicarPermisosEnUI() {
       }
       if (typeof cargarRemisiones === 'function') {
         cargarRemisiones(false);
+      }
+    }
+
+    // 11. Pestaña de Tareas Eliminadas / Descartadas
+    const tabEliminadas = document.getElementById('tab-btn-eliminadas');
+    if (tabEliminadas) {
+      const puedeVerEliminadas = esAdmin || usuarioTienePermiso('ver_eliminadas');
+      if (puedeVerEliminadas) {
+        tabEliminadas.classList.remove('hidden');
+      } else {
+        tabEliminadas.classList.add('hidden');
       }
     }
   } catch (e) {
@@ -703,15 +715,21 @@ async function cargarTareas(animarRecarga = true) {
   if (animarRecarga && icon) icon.classList.add('fa-spin');
 
   try {
-    // 1. Obtener tareas filtradas por período
-    const resTasks = await fetch(`/api/tasks?periodo=${periodoActual}`);
+    const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+    const headersAuth = {
+      'x-user-role': user.rol || rolUsuario,
+      'x-user-username': user.username || ''
+    };
+
+    // 1. Obtener tareas filtradas por período (excluye eliminadas por defecto)
+    const resTasks = await fetch(`/api/tasks?periodo=${periodoActual}`, { headers: headersAuth });
     todasLasTareas = await resTasks.json();
 
     // 2. Obtener métricas filtradas por período (solo si tiene permiso ver_dashboard)
     const puedeVerDash = esAdmin || usuarioTienePermiso('ver_dashboard');
     if (puedeVerDash) {
       const resMetrics = await fetch(`/api/metrics?periodo=${periodoActual}`, {
-        headers: { 'x-user-role': rolUsuario }
+        headers: headersAuth
       });
       if (resMetrics.ok) {
         const metrics = await resMetrics.json();
@@ -719,6 +737,13 @@ async function cargarTareas(animarRecarga = true) {
         actualizarGraficas(metrics);
       }
     }
+
+    // 3. Pre-cargar contador o lista de eliminadas si tiene permiso
+    const puedeVerElim = esAdmin || usuarioTienePermiso('ver_eliminadas');
+    if (puedeVerElim) {
+      await cargarTareasEliminadas();
+    }
+
     aplicarFiltros();
   } catch (err) {
     console.error('Error cargando tareas:', err);
@@ -756,11 +781,13 @@ function actualizarKPIs(m) {
   const cProg = document.getElementById('count-tab-progreso');
   const cAprob = document.getElementById('count-tab-por-aprobar');
   const cComp = document.getElementById('count-tab-completadas');
+  const cElim = document.getElementById('count-tab-eliminadas');
   if (cTot) cTot.innerText = m.total ?? 0;
   if (cPend) cPend.innerText = m.pendientes ?? 0;
   if (cProg) cProg.innerText = m.en_progreso ?? 0;
   if (cAprob) cAprob.innerText = m.por_aprobar ?? 0;
   if (cComp) cComp.innerText = m.completadas ?? 0;
+  if (cElim) cElim.innerText = m.total_eliminadas ?? 0;
 
   // Estadísticas por tipo
   const sPrev = document.getElementById('stat-preventivo');
@@ -989,7 +1016,28 @@ function actualizarGraficas(m) {
 }
 
 // Filtros y Renderizado de Tabla
-function filtrarEstado(estado, btn) {
+let tareasEliminadasCache = [];
+
+async function cargarTareasEliminadas() {
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch(`/api/tasks?estado=eliminado&periodo=${periodoActual}`, {
+      headers: {
+        'x-user-role': user.rol || '',
+        'x-user-username': user.username || ''
+      }
+    });
+    if (res.ok) {
+      tareasEliminadasCache = await res.json();
+      const elCount = document.getElementById('count-tab-eliminadas');
+      if (elCount) elCount.innerText = tareasEliminadasCache.length;
+    }
+  } catch (e) {
+    console.error('Error cargando tareas eliminadas:', e);
+  }
+}
+
+async function filtrarEstado(estado, btn) {
   filtroEstadoActual = estado;
   
   // Cambiar clases visuales en tabs
@@ -997,7 +1045,15 @@ function filtrarEstado(estado, btn) {
     b.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition text-slate-400 hover:text-white hover:bg-slate-700/60';
   });
   if (btn) {
-    btn.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-600 text-white';
+    if (estado === 'eliminado') {
+      btn.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-rose-700 text-white shadow';
+    } else {
+      btn.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-emerald-600 text-white';
+    }
+  }
+
+  if (estado === 'eliminado') {
+    await cargarTareasEliminadas();
   }
 
   aplicarFiltros();
@@ -1007,9 +1063,11 @@ function aplicarFiltros() {
   const tipo = document.getElementById('select-filtro-tipo').value;
   const busqueda = (document.getElementById('input-busqueda').value || '').toLowerCase().trim();
 
-  let filtradas = todasLasTareas.filter(t => {
+  const tareasBase = (filtroEstadoActual === 'eliminado') ? tareasEliminadasCache : todasLasTareas;
+
+  let filtradas = tareasBase.filter(t => {
     // Filtro estado
-    if (filtroEstadoActual !== 'todos' && t.estado !== filtroEstadoActual) return false;
+    if (filtroEstadoActual !== 'todos' && filtroEstadoActual !== 'eliminado' && t.estado !== filtroEstadoActual) return false;
     // Filtro tipo
     if (tipo !== 'todos' && t.tipo !== tipo) return false;
     // Búsqueda
@@ -1018,7 +1076,8 @@ function aplicarFiltros() {
                     (t.titulo && t.titulo.toLowerCase().includes(busqueda)) ||
                     (t.id && t.id.toLowerCase().includes(busqueda)) ||
                     (t.mecanico_asignado && t.mecanico_asignado.toLowerCase().includes(busqueda)) ||
-                    (t.ubicacion && t.ubicacion.toLowerCase().includes(busqueda));
+                    (t.ubicacion && t.ubicacion.toLowerCase().includes(busqueda)) ||
+                    (t.motivo_eliminacion && t.motivo_eliminacion.toLowerCase().includes(busqueda));
       if (!match) return false;
     }
     return true;
@@ -1064,6 +1123,10 @@ function renderTablaTareas(tareas) {
     } else if (t.estado === 'por_aprobar') {
       badgeEstado = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/50 shadow-sm animate-pulse" title="Tarea finalizada por técnico esperando tu verificación">
         <i class="fa-solid fa-hourglass-half text-[10px]"></i> Por Aprobar
+      </span>`;
+    } else if (t.estado === 'eliminado' || t.eliminada) {
+      badgeEstado = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/50 shadow-sm" title="${escaparHTML(t.motivo_eliminacion || 'Descartada / Eliminada')}">
+        <i class="fa-solid fa-trash-can text-[10px]"></i> Eliminada
       </span>`;
     } else {
       badgeEstado = `<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
@@ -1224,6 +1287,18 @@ function renderTablaTareas(tareas) {
         <!-- Acciones -->
         <td class="py-3 px-4 text-right whitespace-nowrap">
           <div class="flex items-center justify-end space-x-1.5">
+            ${(t.estado === 'eliminado' || t.eliminada) ? `
+            <button onclick="restaurarTarea('${t.id}'); event.stopPropagation();" title="Restaurar tarea al flujo activo" class="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg transition text-xs font-bold flex items-center gap-1 shadow">
+              <i class="fa-solid fa-trash-arrow-up text-[10px]"></i> Restaurar
+            </button>
+            <button onclick="abrirModalDetalle('${t.id}')" title="Ver detalle y motivos de descarte" class="p-1.5 bg-slate-700/80 hover:bg-slate-600 text-slate-200 rounded-lg transition text-xs">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            ${((JSON.parse(localStorage.getItem('siman_user') || '{}').rol === 'admin') || (JSON.parse(localStorage.getItem('siman_user') || '{}').username === 'Holger')) ? `
+            <button onclick="eliminarTareaDefinitiva('${t.id}'); event.stopPropagation();" title="Borrar permanentemente del servidor" class="p-1.5 bg-slate-800 hover:bg-rose-900 text-rose-400 hover:text-white rounded-lg transition text-xs">
+              <i class="fa-solid fa-fire"></i>
+            </button>` : ''}
+            ` : `
             ${t.estado === 'por_aprobar' ? `
             <button onclick="aprobarTareaRapido('${t.id}'); event.stopPropagation();" title="Aprobar y cerrar tarea oficialmente" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition text-xs font-bold flex items-center gap-1 shadow shadow-emerald-600/30">
               <i class="fa-solid fa-check-double text-[10px]"></i> Aprobar
@@ -1231,10 +1306,11 @@ function renderTablaTareas(tareas) {
             <button onclick="abrirModalDetalle('${t.id}')" title="Modificar fechas, horas o ver detalle completo" class="p-1.5 bg-slate-700/80 hover:bg-slate-600 text-slate-200 rounded-lg transition text-xs">
               <i class="fa-solid fa-pen-to-square"></i>
             </button>
-            ${((JSON.parse(localStorage.getItem('siman_user') || '{}').rol === 'admin') || (JSON.parse(localStorage.getItem('siman_user') || '{}').username === 'Holger')) ? `
-            <button onclick="eliminarTarea('${t.id}'); event.stopPropagation();" title="Eliminar tarea (Admin)" class="p-1.5 bg-slate-700/80 hover:bg-rose-900/60 text-slate-400 hover:text-rose-300 rounded-lg transition text-xs">
+            ${((JSON.parse(localStorage.getItem('siman_user') || '{}').rol === 'admin') || (JSON.parse(localStorage.getItem('siman_user') || '{}').username === 'Holger') || usuarioTienePermiso('eliminar_tareas')) ? `
+            <button onclick="eliminarTarea('${t.id}'); event.stopPropagation();" title="Descartar / Eliminar tarea" class="p-1.5 bg-slate-700/80 hover:bg-rose-900/60 text-slate-400 hover:text-rose-300 rounded-lg transition text-xs">
               <i class="fa-solid fa-trash-can"></i>
             </button>` : ''}
+            `}
           </div>
         </td>
       </tr>
@@ -1447,7 +1523,13 @@ async function cargarYVerFoto(id, tipo = 'comprobante') {
 
 // Modal Detalle
 async function abrirModalDetalle(id) {
-  let t = todasLasTareas.find(item => item.id === id);
+  let t = todasLasTareas.find(item => item.id === id) || (tareasEliminadasCache && tareasEliminadasCache.find(item => item.id === id));
+  if (!t) {
+    try {
+      const res = await fetch(`/api/tasks/${id}`);
+      if (res.ok) t = await res.json();
+    } catch(e) {}
+  }
   if (!t) return;
 
   // Si es una tarea optimizada sin fotos cargadas en memoria, cargarlas bajo demanda
@@ -1579,6 +1661,23 @@ async function abrirModalDetalle(id) {
       }
     } else {
       bannerPorAprobar.classList.add('hidden');
+    }
+  }
+
+  // Banner Informativo si la tarea está eliminada / archivada (No suma a totales)
+  const bannerEliminada = document.getElementById('banner-eliminada-detalle');
+  const txtMotivoEliminada = document.getElementById('txt-motivo-eliminada');
+  if (bannerEliminada) {
+    if (t.estado === 'eliminado' || t.eliminada) {
+      bannerEliminada.classList.remove('hidden');
+      if (txtMotivoEliminada) {
+        const porQuien = t.eliminado_por || 'Administración';
+        const fechaEl = t.eliminado_en ? formatearFechaHora(t.eliminado_en) : '';
+        const mot = t.motivo_eliminacion || 'Descartada por duplicidad o auditoría';
+        txtMotivoEliminada.innerHTML = `Descartada por <strong>${escaparHTML(porQuien)}</strong> ${fechaEl ? `el ${fechaEl}` : ''}.<br><span class="text-rose-300 font-semibold">Motivo: ${escaparHTML(mot)}</span>`;
+      }
+    } else {
+      bannerEliminada.classList.add('hidden');
     }
   }
 
@@ -2438,6 +2537,109 @@ async function rechazarTareaActualDetalle() {
   }
 }
 
+// Descartar tarea en auditoría (Enviar a Eliminadas por duplicidad o fraude)
+async function descartarTareaActualAuditoria() {
+  if (!tareaSeleccionadaId) return;
+  const motivo = prompt('Ingrese el motivo por el cual descarta esta orden de trabajo (duplicada, fotos repetidas, labor falsa):', 'Tarea / Fotografía duplicada o inválida');
+  if (motivo === null) return;
+  const motivoLimpio = String(motivo || '').trim() || 'Descartada por duplicidad en auditoría';
+
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch(`/api/tasks/${tareaSeleccionadaId}/rechazar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger',
+        'x-user-name': user.nombre || 'Holger Torrado'
+      },
+      body: JSON.stringify({ motivo: motivoLimpio, accion: 'descartar', descartar: true })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al descartar tarea');
+
+    mostrarToast('🗑️ Tarea descartada y excluida de los totales');
+    cerrarModalDetalle();
+    await cargarTareas(false);
+    if (filtroEstadoActual === 'eliminado') {
+      await cargarTareasEliminadas();
+      aplicarFiltros();
+    }
+  } catch(err) {
+    alert(err.message);
+  }
+}
+
+// Restaurar tarea eliminada al flujo activo
+async function restaurarTarea(id) {
+  if (!confirm(`¿Desea restaurar la tarea ${id} al flujo de trabajo activo? Volverá a sumar a los totales generales.`)) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch(`/api/tasks/${id}/restaurar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'Holger',
+        'x-user-name': user.nombre || 'Holger Torrado'
+      }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al restaurar tarea');
+    mostrarToast(data.mensaje || '✅ Tarea restaurada exitosamente');
+    await cargarTareas(false);
+    if (filtroEstadoActual === 'eliminado') {
+      await cargarTareasEliminadas();
+      aplicarFiltros();
+    }
+  } catch(err) {
+    alert(err.message);
+  }
+}
+
+async function restaurarTareaActualDetalle() {
+  if (!tareaSeleccionadaId) return;
+  const tid = tareaSeleccionadaId;
+  cerrarModalDetalle();
+  await restaurarTarea(tid);
+}
+
+// Eliminar definitivamente del servidor (Hard Delete)
+async function eliminarTareaDefinitiva(id) {
+  if (!confirm(`⚠️ ATENCIÓN: ¿Está absolutamente seguro de BORRAR DEFINITIVAMENTE la tarea ${id}? Esta acción eliminará permanentemente el registro del servidor y no se podrá deshacer.`)) return;
+  const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+  try {
+    const res = await fetch(`/api/tasks/${id}?definitivo=true`, {
+      method: 'DELETE',
+      headers: {
+        'x-user-role': user.rol,
+        'x-user-username': user.username
+      }
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al eliminar definitivamente');
+    mostrarToast('🔥 Tarea borrada definitivamente del servidor');
+    await cargarTareas(false);
+    if (filtroEstadoActual === 'eliminado') {
+      await cargarTareasEliminadas();
+      aplicarFiltros();
+    }
+  } catch(err) {
+    alert(err.message);
+  }
+}
+
+function eliminarTareaActualDefinitiva() {
+  if (tareaSeleccionadaId) {
+    const tid = tareaSeleccionadaId;
+    cerrarModalDetalle();
+    eliminarTareaDefinitiva(tid);
+  }
+}
+
 // Aprobar tarea rápido desde la tabla
 async function aprobarTareaRapido(id) {
   if (!confirm('¿Aprobar el cierre oficial de esta tarea finalizada por el técnico?')) return;
@@ -2466,6 +2668,7 @@ function guardarEdicionFechasAdmin() {
   return guardarFechasDetalleAdmin();
 }
 
+// Eliminar tarea (Soft-Delete por defecto para mantener trazabilidad y excluir de totales)
 async function eliminarTarea(id) {
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
   if (!usuarioTienePermiso('eliminar_tareas')) {
@@ -2473,20 +2676,30 @@ async function eliminarTarea(id) {
     return;
   }
 
-  if (!confirm(`¿Está seguro de eliminar la tarea ${id}?`)) return;
+  const motivo = prompt(`¿Motivo para descartar / eliminar la tarea ${id}? (Quedará archivada y excluida de los totales):`, 'Descartada por duplicidad o auditoría');
+  if (motivo === null) return;
+  const motivoLimpio = String(motivo || '').trim() || 'Eliminada / Descartada';
+
   try {
     const res = await fetch(`/api/tasks/${id}`, {
       method: 'DELETE',
       headers: {
+        'Content-Type': 'application/json',
         'x-user-role': user.rol,
-        'x-user-username': user.username
-      }
+        'x-user-username': user.username,
+        'x-user-name': user.nombre || 'Usuario'
+      },
+      body: JSON.stringify({ motivo: motivoLimpio })
     });
 
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error al eliminar');
-    mostrarToast('Tarea eliminada correctamente');
-    cargarTareas();
+    mostrarToast('🗑️ Tarea descartada. Se ha excluido de los totales.');
+    await cargarTareas(false);
+    if (filtroEstadoActual === 'eliminado') {
+      await cargarTareasEliminadas();
+      aplicarFiltros();
+    }
   } catch (err) {
     alert(err.message);
   }
@@ -2640,6 +2853,13 @@ const PERMISOS_CONFIG_UI = [
     desc: 'Permite ingresar a la aplicación móvil para celulares y tablets',
     icono: 'fa-mobile-screen',
     color: 'text-emerald-400'
+  },
+  {
+    key: 'ver_eliminadas',
+    nombre: 'Ver Eliminadas / Descartadas',
+    desc: 'Acceso a la pestaña exclusiva de tareas eliminadas o descartadas por auditoría',
+    icono: 'fa-trash-arrow-up',
+    color: 'text-rose-400'
   }
 ];
 

@@ -88,6 +88,7 @@ function usuarioTienePermisoMovil(permiso) {
     if (permiso === 'crear_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol) || esAdmin;
     if (permiso === 'finalizar_remisiones') return ['admin', 'almacenista', 'supervisor'].includes(rol) || esAdmin;
     if (permiso === 'eliminar_remisiones') return ['admin', 'director'].includes(rol) || esAdmin;
+    if (permiso === 'ver_eliminadas') return ['admin', 'director'].includes(rol) || esAdmin;
     return false;
   } catch (e) {
     return false;
@@ -223,6 +224,17 @@ function aplicarPermisosMovil() {
         btnAlmacenHeader.classList.remove('hidden');
       } else {
         btnAlmacenHeader.classList.add('hidden');
+      }
+    }
+
+    // 4. Pestaña Eliminadas en Móvil
+    const puedeVerEliminadas = esAdmin || usuarioTienePermisoMovil('ver_eliminadas');
+    const btnTabEliminadas = document.getElementById('btn-tab-eliminadas-movil');
+    if (btnTabEliminadas) {
+      if (puedeVerEliminadas) {
+        btnTabEliminadas.classList.remove('hidden');
+      } else {
+        btnTabEliminadas.classList.add('hidden');
       }
     }
   } catch (e) {
@@ -540,15 +552,47 @@ function actualizarTextoMecanicoPie() {
 }
 
 // Cargar Tareas desde el Servidor
+let tareasEliminadasMovil = [];
+
+async function cargarTareasEliminadasMovil() {
+  const user = getUsuarioActivo();
+  try {
+    const res = await fetch('/api/tasks?estado=eliminado', {
+      headers: {
+        'x-user-role': user.rol || '',
+        'x-user-username': user.username || user.nombre || ''
+      }
+    });
+    if (res.ok) {
+      tareasEliminadasMovil = await res.json();
+      const elCount = document.getElementById('mob-count-eliminadas');
+      if (elCount) elCount.innerText = tareasEliminadasMovil.length;
+    }
+  } catch(e) {
+    console.error('Error cargando tareas eliminadas móvil:', e);
+  }
+}
+
 async function cargarTareasMovil(mostrarSpin = true) {
   const icon = document.getElementById('mob-icon-recarga');
   if (mostrarSpin && icon) icon.classList.add('fa-spin');
 
   try {
-    const res = await fetch('/api/tasks');
+    const user = getUsuarioActivo();
+    const headersAuth = {
+      'x-user-role': user.rol || '',
+      'x-user-username': user.username || user.nombre || ''
+    };
+    const res = await fetch('/api/tasks', { headers: headersAuth });
     if (!res.ok) throw new Error('Error de conexión');
     const data = await res.json();
     tareasMovil = Array.isArray(data) ? data : [];
+
+    const puedeVerElim = user.rol === 'admin' || user.username === 'holger' || usuarioTienePermisoMovil('ver_eliminadas');
+    if (puedeVerElim) {
+      await cargarTareasEliminadasMovil();
+    }
+
     actualizarContadoresMovil();
     renderTareasMovil();
   } catch (err) {
@@ -576,7 +620,7 @@ async function cargarTareasMovil(mostrarSpin = true) {
 }
 
 // Pestañas
-function cambiarTabMovil(tab, btn) {
+async function cambiarTabMovil(tab, btn) {
   tabActual = tab;
   document.querySelectorAll('#mobile-tabs .tab-movil').forEach(b => {
     b.className = 'tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white';
@@ -586,10 +630,20 @@ function cambiarTabMovil(tab, btn) {
     else if (tab === 'en_progreso') btn = document.querySelectorAll('#mobile-tabs .tab-movil')[1];
     else if (tab === 'por_aprobar') btn = document.getElementById('btn-tab-por-aprobar-movil');
     else if (tab === 'completadas') btn = document.querySelectorAll('#mobile-tabs .tab-movil')[3];
+    else if (tab === 'eliminadas') btn = document.getElementById('btn-tab-eliminadas-movil');
   }
   if (btn) {
-    btn.className = 'tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold text-center transition bg-emerald-600 text-white shadow';
+    if (tab === 'eliminadas') {
+      btn.className = 'tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold text-center transition bg-rose-700 text-white shadow';
+    } else {
+      btn.className = 'tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold text-center transition bg-emerald-600 text-white shadow';
+    }
   }
+
+  if (tab === 'eliminadas') {
+    await cargarTareasEliminadasMovil();
+  }
+
   renderTareasMovil();
 }
 
@@ -662,12 +716,14 @@ function actualizarContadoresMovil() {
   const elPorApr = document.getElementById('mob-count-por-aprobar');
   const elC = document.getElementById('mob-count-completadas');
   const elT = document.getElementById('mob-count-todas');
+  const elElim = document.getElementById('mob-count-eliminadas');
 
   if (elP) elP.innerText = p;
   if (elProg) elProg.innerText = prog;
   if (elPorApr) elPorApr.innerText = porApr;
   if (elC) elC.innerText = c;
   if (elT) elT.innerText = filtradasPorMecanico.length;
+  if (elElim) elElim.innerText = tareasEliminadasMovil.length;
 }
 
 // Renderizado de Tarjetas Móviles
@@ -694,6 +750,8 @@ function renderTareasMovil() {
     } else {
       lista = todasComp;
     }
+  } else if (tabActual === 'eliminadas') {
+    lista = tareasEliminadasMovil;
   }
 
   actualizarContadoresMovil();
@@ -710,6 +768,9 @@ function renderTareasMovil() {
     } else if (tabActual === 'completadas') {
       tituloVacio = 'Aún no hay tareas finalizadas';
       subtituloVacio = 'Tus órdenes terminadas con fotografía de comprobante y hora de arreglo se guardarán aquí.';
+    } else if (tabActual === 'eliminadas') {
+      tituloVacio = 'No hay tareas eliminadas ni descartadas';
+      subtituloVacio = 'Las órdenes rechazadas en auditoría o eliminadas por duplicidad se guardan aquí y no suman a los totales.';
     }
 
     contenedor.innerHTML = `
@@ -740,6 +801,8 @@ function renderTareasMovil() {
     }
     if (t.estado === 'por_aprobar') {
       badgePrioridad += ` <span class="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold px-2 py-0.5 rounded-full animate-pulse">⏳ POR APROBAR</span>`;
+    } else if (t.estado === 'eliminado' || t.eliminada) {
+      badgePrioridad += ` <span class="text-[10px] bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold px-2 py-0.5 rounded-full">🗑️ ELIMINADA</span>`;
     }
 
     // Fechas y formato
@@ -757,7 +820,25 @@ function renderTareasMovil() {
     const puedeAprobar = esAdmin || usuarioTienePermisoMovil('aprobar_tareas');
 
     let botonesAccion = '';
-    if (!puedeCerrar && t.estado !== 'por_aprobar') {
+    if (t.estado === 'eliminado' || t.eliminada) {
+      botonesAccion = `
+        <div class="mt-2.5 pt-2.5 border-t border-slate-700/60 text-xs text-rose-300 space-y-2">
+          <div class="p-2.5 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-200 text-xs">
+            <span class="font-bold text-rose-400 block"><i class="fa-solid fa-trash-can mr-1"></i> Descartada de Totales:</span>
+            <span>${escaparHTML(t.motivo_eliminacion || 'Duplicada / Auditoría')}</span>
+            ${t.eliminado_por ? `<span class="block text-[10px] text-slate-400 mt-0.5">Por: ${escaparHTML(t.eliminado_por)}</span>` : ''}
+          </div>
+          <div class="grid grid-cols-2 gap-2 mt-2">
+            <button onclick="restaurarTareaMovil('${t.id}')" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shadow">
+              <i class="fa-solid fa-trash-arrow-up"></i> Restaurar
+            </button>
+            <button onclick="abrirDetalleTareaMovil('${t.id}')" class="py-2.5 px-3 bg-slate-800 hover:bg-slate-700 active:scale-[0.98] text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1.5 shadow">
+              <i class="fa-solid fa-circle-info"></i> Ver Detalles
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (!puedeCerrar && t.estado !== 'por_aprobar') {
       botonesAccion = `
         <div class="mt-3 pt-2 text-center border-t border-slate-700/60 text-xs text-purple-300 font-medium bg-purple-950/40 p-2 rounded-xl">
           <i class="fa-solid fa-eye mr-1"></i> Modo Solo Consulta ${esVisualizador ? '(Visualizador)' : ''}
@@ -1533,7 +1614,13 @@ async function cargarFotoInicialBajoDemandaMovil(id, btn) {
 let tareaDetalleMovilActual = null;
 
 async function abrirDetalleTareaMovil(id) {
-  let t = tareasMovil.find(item => item.id === id);
+  let t = tareasMovil.find(item => item.id === id) || (tareasEliminadasMovil && tareasEliminadasMovil.find(item => item.id === id));
+  if (!t) {
+    try {
+      const res = await fetch(`/api/tasks/${id}`);
+      if (res.ok) t = await res.json();
+    } catch(err) {}
+  }
   if (!t) return;
 
   // Si es una tarea completada optimizada sin fotos en memoria, traerlas bajo demanda
@@ -1632,6 +1719,23 @@ async function abrirDetalleTareaMovil(id) {
       }
     } else {
       bannerPorAprobar.classList.add('hidden');
+    }
+  }
+
+  // Banner Eliminada / Archivada
+  const bannerEliminada = document.getElementById('mob-det-banner-eliminada');
+  const txtMotivoEliminada = document.getElementById('mob-det-motivo-eliminada');
+  if (bannerEliminada) {
+    if (t.estado === 'eliminado' || t.eliminada) {
+      bannerEliminada.classList.remove('hidden');
+      if (txtMotivoEliminada) {
+        const porQuien = t.eliminado_por || 'Administración';
+        const fechaEl = t.eliminado_en ? formatearFechaCorta(t.eliminado_en) : '';
+        const mot = t.motivo_eliminacion || 'Duplicada / Auditoría';
+        txtMotivoEliminada.innerHTML = `Archivada por <strong>${escaparHTML(porQuien)}</strong> ${fechaEl ? `el ${fechaEl}` : ''}.<br><span class="text-rose-300 font-semibold">Motivo: ${escaparHTML(mot)}</span>`;
+      }
+    } else {
+      bannerEliminada.classList.add('hidden');
     }
   }
 
@@ -2027,6 +2131,75 @@ async function ejecutarRechazoTareaMovil(id) {
   } catch (err) {
     alert('Error: ' + err.message);
   }
+}
+
+async function descartarTareaActualDetalleMovil() {
+  if (!tareaDetalleMovilActual) return;
+  const id = tareaDetalleMovilActual.id;
+  const motivo = prompt(`Ingresa el motivo por el cual se descarta la orden ${id} (duplicada, fotos repetidas, no corresponde):`, 'Tarea o fotografía duplicada');
+  if (motivo === null) return;
+  const motivoLimpio = String(motivo || '').trim() || 'Descartada por duplicidad en auditoría';
+
+  const user = getUsuarioActivo();
+  try {
+    const res = await fetch(`/api/tasks/${id}/rechazar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'admin',
+        'x-user-name': user.nombre || 'Administrador'
+      },
+      body: JSON.stringify({ motivo: motivoLimpio, accion: 'descartar', descartar: true })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al descartar tarea');
+
+    mostrarToastMovil(`🗑️ Tarea ${id} descartada y excluida de los totales.`);
+    cerrarDetalleTareaMovil();
+    await cargarTareasMovil(false);
+    if (tabActual === 'eliminadas') {
+      await cargarTareasEliminadasMovil();
+      renderTareasMovil();
+    }
+  } catch(err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function restaurarTareaMovil(id) {
+  if (!confirm(`¿Deseas restaurar la orden ${id} al flujo de trabajo activo? Volverá a sumar a los totales generales.`)) return;
+  const user = getUsuarioActivo();
+  try {
+    const res = await fetch(`/api/tasks/${id}/restaurar`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': user.rol || 'admin',
+        'x-user-username': user.username || 'admin',
+        'x-user-name': user.nombre || 'Administrador'
+      }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al restaurar tarea');
+
+    mostrarToastMovil(data.mensaje || `✅ Tarea ${id} restaurada exitosamente`);
+    if (tareaDetalleMovilActual && tareaDetalleMovilActual.id === id) {
+      cerrarDetalleTareaMovil();
+    }
+    await cargarTareasMovil(false);
+    if (tabActual === 'eliminadas') {
+      await cargarTareasEliminadasMovil();
+      renderTareasMovil();
+    }
+  } catch(err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function restaurarTareaActualDetalleMovil() {
+  if (!tareaDetalleMovilActual) return;
+  await restaurarTareaMovil(tareaDetalleMovilActual.id);
 }
 
 // ================= GESTIÓN DE BITÁCORA DE AVANCES EN MÓVIL =================

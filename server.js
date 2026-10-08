@@ -292,7 +292,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: false,
     finalizar_remisiones: false,
-    eliminar_remisiones: false
+    eliminar_remisiones: false,
+    ver_eliminadas: false
   },
   electrico: {
     crear_tareas: false,
@@ -312,7 +313,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: false,
     finalizar_remisiones: false,
-    eliminar_remisiones: false
+    eliminar_remisiones: false,
+    ver_eliminadas: false
   },
   maquinista: {
     crear_tareas: false,
@@ -332,7 +334,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: false,
     finalizar_remisiones: false,
-    eliminar_remisiones: false
+    eliminar_remisiones: false,
+    ver_eliminadas: false
   },
   almacenista: {
     crear_tareas: false,
@@ -352,7 +355,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: true,
     finalizar_remisiones: true,
-    eliminar_remisiones: false
+    eliminar_remisiones: false,
+    ver_eliminadas: false
   },
   supervisor: {
     crear_tareas: true,
@@ -372,7 +376,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: true,
     finalizar_remisiones: true,
-    eliminar_remisiones: false
+    eliminar_remisiones: false,
+    ver_eliminadas: false
   },
   sst: {
     crear_tareas: true,
@@ -392,7 +397,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: false,
     finalizar_remisiones: false,
-    eliminar_remisiones: false
+    eliminar_remisiones: false,
+    ver_eliminadas: false
   },
   director: {
     crear_tareas: true,
@@ -412,7 +418,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: true,
     finalizar_remisiones: true,
-    eliminar_remisiones: true
+    eliminar_remisiones: true,
+    ver_eliminadas: true
   },
   compras: {
     crear_tareas: false,
@@ -432,7 +439,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: false,
     finalizar_remisiones: false,
-    eliminar_remisiones: false
+    eliminar_remisiones: false,
+    ver_eliminadas: false
   },
   visualizador: {
     crear_tareas: false,
@@ -452,7 +460,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: false,
     finalizar_remisiones: false,
-    eliminar_remisiones: false
+    eliminar_remisiones: false,
+    ver_eliminadas: false
   },
   admin: {
     crear_tareas: true,
@@ -472,7 +481,8 @@ const PERMISOS_DEFAULT = {
     ver_almacen: true,
     crear_remisiones: true,
     finalizar_remisiones: true,
-    eliminar_remisiones: true
+    eliminar_remisiones: true,
+    ver_eliminadas: true
   }
 };
 
@@ -510,7 +520,8 @@ function leerPermisos() {
       ver_almacen: true,
       crear_remisiones: true,
       finalizar_remisiones: true,
-      eliminar_remisiones: true
+      eliminar_remisiones: true,
+      ver_eliminadas: true
     };
     cachePermisos = merged;
     return cachePermisos;
@@ -1321,14 +1332,31 @@ app.delete('/api/personal-apoyo/:id', (req, res) => {
 // 3. Obtener tareas con filtros opcionales
 app.get('/api/tasks', (req, res) => {
   const { tipo, estado, mecanico, search, periodo } = req.query;
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
+  const esAdmin = userRol === 'admin' || userName === 'holger';
+  const puedeVerEliminadas = esAdmin || tienePermiso(userRol, 'ver_eliminadas');
+
   let tareas = leerTareas();
+
+  // GESTIÓN DE TAREAS ELIMINADAS / DESCARTADAS:
+  // Si se solicita explícitamente el estado 'eliminado' o 'eliminadas':
+  if (estado === 'eliminado' || estado === 'eliminadas') {
+    if (!puedeVerEliminadas) {
+      return res.json([]);
+    }
+    tareas = tareas.filter(t => t.estado === 'eliminado' || t.eliminada === true);
+  } else {
+    // Para cualquier otro estado o listado general ('todos', 'pendiente', etc.),
+    // NUNCA incluir tareas eliminadas/descartadas para que no aparezcan en el total ni en las listas ordinarias.
+    tareas = tareas.filter(t => t.estado !== 'eliminado' && !t.eliminada);
+    if (estado && estado !== 'todos') {
+      tareas = tareas.filter(t => t.estado?.toLowerCase() === estado.toLowerCase());
+    }
+  }
 
   if (tipo && tipo !== 'todos') {
     tareas = tareas.filter(t => t.tipo?.toLowerCase() === tipo.toLowerCase());
-  }
-
-  if (estado && estado !== 'todos') {
-    tareas = tareas.filter(t => t.estado?.toLowerCase() === estado.toLowerCase());
   }
 
   if (mecanico && mecanico !== 'todos') {
@@ -1342,7 +1370,8 @@ app.get('/api/tasks', (req, res) => {
       (t.equipo && t.equipo.toLowerCase().includes(s)) ||
       (t.titulo && t.titulo.toLowerCase().includes(s)) ||
       (t.descripcion && t.descripcion.toLowerCase().includes(s)) ||
-      (t.ubicacion && t.ubicacion.toLowerCase().includes(s))
+      (t.ubicacion && t.ubicacion.toLowerCase().includes(s)) ||
+      (t.motivo_eliminacion && t.motivo_eliminacion.toLowerCase().includes(s))
     );
   }
 
@@ -1431,6 +1460,17 @@ app.get('/api/tasks/:id', (req, res) => {
   const tareas = leerTareas();
   const tarea = tareas.find(t => t.id === req.params.id);
   if (!tarea) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  // Si la tarea fue eliminada, verificar autorización
+  if (tarea.estado === 'eliminado' || tarea.eliminada) {
+    const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+    const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
+    const esAdmin = userRol === 'admin' || userName === 'holger';
+    if (!esAdmin && !tienePermiso(userRol, 'ver_eliminadas')) {
+      return res.status(403).json({ error: 'Acceso Restringido: Esta tarea fue descartada o eliminada y su rol no tiene permiso para consultarla.' });
+    }
+  }
+
   res.json(tarea);
 });
 
@@ -1885,7 +1925,7 @@ app.post('/api/tasks/:id/aprobar', (req, res) => {
   });
 });
 
-// 7.5. Rechazar finalización de tarea (Devolver a En Progreso con observación)
+// 7.5. Rechazar finalización de tarea (Devolver a En Progreso con observación o Descartar a Eliminadas)
 app.post('/api/tasks/:id/rechazar', (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
   const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
@@ -1899,9 +1939,39 @@ app.post('/api/tasks/:id/rechazar', (req, res) => {
   const idx = tareas.findIndex(t => t.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
 
-  const { motivo } = req.body || {};
-  const motivoRechazo = String(motivo || 'Fotografía no corresponde o trabajo incompleto').trim();
+  const { motivo, accion, descartar } = req.body || {};
+  const esDescarte = accion === 'descartar' || descartar === true;
+  const motivoRechazo = String(motivo || (esDescarte ? 'Descartada por auditoría (duplicada / fraude)' : 'Fotografía no corresponde o trabajo incompleto')).trim();
   const rechazoPor = req.headers['x-user-name'] || (esAdmin ? 'Holger Torrado' : 'Supervisor');
+
+  if (!Array.isArray(tareas[idx].avances)) tareas[idx].avances = [];
+
+  if (esDescarte) {
+    tareas[idx].estado_anterior = tareas[idx].estado;
+    tareas[idx].estado = 'eliminado';
+    tareas[idx].eliminada = true;
+    tareas[idx].requiere_aprobacion = false;
+    tareas[idx].eliminado_en = new Date().toISOString();
+    tareas[idx].eliminado_por = rechazoPor;
+    tareas[idx].motivo_eliminacion = motivoRechazo;
+
+    tareas[idx].avances.push({
+      id: `AV-${Date.now()}`,
+      fecha: new Date().toISOString(),
+      tecnico: rechazoPor,
+      rol: userRol || 'admin',
+      horas: 0,
+      descripcion: `🗑️ FINALIZACIÓN RECHAZADA Y DESCARTADA: ${motivoRechazo}. Tarea enviada al archivo de eliminadas y excluida de los totales.`
+    });
+
+    guardarTareas(tareas, true);
+    return res.json({
+      ok: true,
+      descartada: true,
+      mensaje: `Tarea ${tareas[idx].id} descartada y excluida de los totales activos. Disponible en el archivo de eliminadas.`,
+      tarea: tareas[idx]
+    });
+  }
 
   tareas[idx].estado = 'en_progreso';
   tareas[idx].requiere_aprobacion = false;
@@ -1909,7 +1979,6 @@ app.post('/api/tasks/:id/rechazar', (req, res) => {
   tareas[idx].rechazado_por = rechazoPor;
   tareas[idx].motivo_rechazo = motivoRechazo;
 
-  if (!Array.isArray(tareas[idx].avances)) tareas[idx].avances = [];
   tareas[idx].avances.push({
     id: `AV-${Date.now()}`,
     fecha: new Date().toISOString(),
@@ -2273,29 +2342,111 @@ app.post('/api/tasks/:id/foto-inicial', async (req, res) => {
   });
 });
 
-// 8. Eliminar tarea
+// 8. Eliminar o descartar tarea (Soft-delete por defecto, o definitivo si se especifica)
 app.delete('/api/tasks/:id', (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (!tienePermiso(userRol, 'eliminar_tareas')) {
+  const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
+  const esAdmin = userRol === 'admin' || userName === 'holger';
+  if (!esAdmin && !tienePermiso(userRol, 'eliminar_tareas')) {
     return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para eliminar tareas.' });
   }
 
   let tareas = leerTareas();
-  const tarea = tareas.find(t => t.id === req.params.id);
-  if (!tarea) return res.status(404).json({ error: 'Tarea no encontrada' });
+  const idx = tareas.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
 
-  // Si tiene foto y no es demo, eliminar archivo
-  if (tarea.foto_comprobante && !tarea.foto_comprobante.includes('demo-') && !tarea.foto_comprobante.startsWith('data:')) {
-    const filePath = path.join(__dirname, tarea.foto_comprobante);
-    if (fs.existsSync(filePath)) {
-      try { fs.unlinkSync(filePath); } catch(e) {}
+  const tarea = tareas[idx];
+  const definitivo = req.query.definitivo === 'true' || req.body?.definitivo === true;
+
+  if (definitivo) {
+    // Si tiene foto y no es demo, eliminar archivo local si existe
+    if (tarea.foto_comprobante && !tarea.foto_comprobante.includes('demo-') && !tarea.foto_comprobante.startsWith('data:') && !tarea.foto_comprobante.startsWith('http')) {
+      const filePath = path.join(__dirname, tarea.foto_comprobante);
+      if (fs.existsSync(filePath)) {
+        try { fs.unlinkSync(filePath); } catch(e) {}
+      }
     }
+
+    tareas = tareas.filter(t => t.id !== req.params.id);
+    guardarTareas(tareas, true);
+    generarRespaldoAutomatico('eliminar_tarea_definitiva');
+    return res.json({ ok: true, mensaje: `Tarea ${req.params.id} eliminada permanentemente del sistema` });
   }
 
-  tareas = tareas.filter(t => t.id !== req.params.id);
+  // Soft Delete: Marcar como eliminada / descartada sin perder trazabilidad
+  const motivo = (req.body?.motivo || req.query?.motivo || 'Eliminada / Descartada por usuario o auditoría').trim();
+  const eliminadoPor = req.headers['x-user-name'] || (esAdmin ? 'Holger Torrado' : 'Usuario');
+
+  tarea.estado_anterior = tarea.estado;
+  tarea.estado = 'eliminado';
+  tarea.eliminada = true;
+  tarea.requiere_aprobacion = false;
+  tarea.eliminado_en = new Date().toISOString();
+  tarea.eliminado_por = eliminadoPor;
+  tarea.motivo_eliminacion = motivo;
+
+  if (!Array.isArray(tarea.avances)) tarea.avances = [];
+  tarea.avances.push({
+    id: `AV-${Date.now()}`,
+    fecha: new Date().toISOString(),
+    tecnico: eliminadoPor,
+    rol: userRol || 'admin',
+    horas: 0,
+    descripcion: `🗑️ Tarea descartada / eliminada del flujo activo. Motivo: ${motivo}`
+  });
+
   guardarTareas(tareas, true);
-  generarRespaldoAutomatico('eliminar_tarea');
-  res.json({ mensaje: 'Tarea eliminada exitosamente' });
+  generarRespaldoAutomatico('soft_delete_tarea');
+  res.json({
+    ok: true,
+    mensaje: `Tarea ${tarea.id} descartada y archivada. Excluida de los totales y KPIs.`,
+    tarea
+  });
+});
+
+// 8.0. Restaurar tarea eliminada al flujo activo
+app.post('/api/tasks/:id/restaurar', (req, res) => {
+  const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
+  const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
+  const esAdmin = userRol === 'admin' || userName === 'holger';
+  const puedeRestaurar = esAdmin || tienePermiso(userRol, 'ver_eliminadas') || tienePermiso(userRol, 'eliminar_tareas');
+  if (!puedeRestaurar) {
+    return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para restaurar tareas.' });
+  }
+
+  let tareas = leerTareas();
+  const idx = tareas.findIndex(t => t.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
+
+  const tarea = tareas[idx];
+  const restauradoPor = req.headers['x-user-name'] || (esAdmin ? 'Holger Torrado' : 'Usuario');
+
+  const nuevoEstado = (tarea.estado_anterior && tarea.estado_anterior !== 'eliminado') 
+    ? tarea.estado_anterior 
+    : (tarea.fecha_arreglo ? 'por_aprobar' : 'pendiente');
+
+  tarea.estado = nuevoEstado;
+  tarea.eliminada = false;
+  tarea.restaurado_en = new Date().toISOString();
+  tarea.restaurado_por = restauradoPor;
+
+  if (!Array.isArray(tarea.avances)) tarea.avances = [];
+  tarea.avances.push({
+    id: `AV-${Date.now()}`,
+    fecha: new Date().toISOString(),
+    tecnico: restauradoPor,
+    rol: userRol || 'admin',
+    horas: 0,
+    descripcion: `♻️ Tarea restaurada al flujo activo en estado "${nuevoEstado}" por ${restauradoPor}. Suma nuevamente a los totales.`
+  });
+
+  guardarTareas(tareas, true);
+  generarRespaldoAutomatico('restaurar_tarea');
+  res.json({
+    ok: true,
+    mensaje: `Tarea ${tarea.id} restaurada exitosamente a estado "${nuevoEstado}".`,
+    tarea
+  });
 });
 
 // 8.1. Bitácora de Avances de Tarea en Curso (Para mecánicos, eléctricos y maquinistas)
@@ -2853,11 +3004,19 @@ app.post('/api/admin/migrar-fotos-cloudinary', async (req, res) => {
 // 9. Métricas y KPIs para el dashboard (con filtro de período, horas de roles y tiempos muertos)
 app.get('/api/metrics', (req, res) => {
   const userRol = (req.headers['x-user-role'] || '').toLowerCase().trim();
-  if (userRol !== 'admin' && !tienePermiso(userRol, 'ver_dashboard')) {
+  const userName = (req.headers['x-user-username'] || '').toLowerCase().trim();
+  const esAdmin = userRol === 'admin' || userName === 'holger';
+  if (!esAdmin && !tienePermiso(userRol, 'ver_dashboard')) {
     return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para visualizar métricas del Dashboard.' });
   }
 
-  let tareas = leerTareas();
+  const todasLasTareas = leerTareas();
+  const puedeVerEliminadas = esAdmin || tienePermiso(userRol, 'ver_eliminadas');
+  const tareasEliminadas = todasLasTareas.filter(t => t.estado === 'eliminado' || t.eliminada === true);
+
+  // EXCLUSIÓN ABSOLUTA DE TAREAS ELIMINADAS / DESCARTADAS:
+  // No deben aparecer ni sumarse en el total general, pendientes, en_progreso, por_aprobar, completadas, MTTR ni horas.
+  let tareas = todasLasTareas.filter(t => t.estado !== 'eliminado' && !t.eliminada);
 
   // Filtro por período basado en fecha_ocurrencia
   const periodo = req.query.periodo || 'todo';
@@ -2981,6 +3140,8 @@ app.get('/api/metrics', (req, res) => {
     en_progreso,
     por_aprobar,
     completadas,
+    total_eliminadas: puedeVerEliminadas ? tareasEliminadas.length : 0,
+    puede_ver_eliminadas: puedeVerEliminadas,
     por_tipo,
     mttr_global_minutos,
     mttr_global_formato: formatMinutes(mttr_global_minutos),

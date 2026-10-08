@@ -143,6 +143,9 @@
       <button onclick="cambiarTabMovil('completadas', this)" class="tab-movil flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-center transition text-slate-400 hover:text-white">
         Listas (<span id="mob-count-completadas">0</span>)
       </button>
+      <button id="btn-tab-eliminadas-movil" onclick="cambiarTabMovil('eliminadas', this)" class="tab-movil hidden flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold text-center transition text-rose-300 hover:text-white border border-rose-500/30">
+        🗑️ Eliminadas (<span id="mob-count-eliminadas">0</span>)
+      </button>
     </div>
   </header>
 
@@ -764,12 +767,33 @@
               <div class="text-[10px] text-amber-200/80 font-normal">Enviado a revisión. Requiere visto bueno de Dirección para cierre oficial.</div>
             </div>
           </div>
-          <div id="mob-det-botones-aprobacion" class="grid grid-cols-2 gap-2 pt-1">
-            <button type="button" onclick="aprobarTareaActualDetalleMovil()" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 shadow">
-              <i class="fa-solid fa-check"></i> Aprobar Cierre
+          <div id="mob-det-botones-aprobacion" class="space-y-2 pt-1">
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="aprobarTareaActualDetalleMovil()" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 shadow">
+                <i class="fa-solid fa-check"></i> Aprobar Cierre
+              </button>
+              <button type="button" onclick="rechazarTareaActualDetalleMovil()" class="py-2.5 px-3 bg-rose-700 hover:bg-rose-600 active:scale-95 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 shadow">
+                <i class="fa-solid fa-rotate-left"></i> Devolver
+              </button>
+            </div>
+            <button type="button" onclick="descartarTareaActualDetalleMovil()" class="w-full py-2 px-3 bg-slate-900 hover:bg-rose-950 text-rose-300 border border-rose-500/40 active:scale-95 font-bold rounded-xl flex items-center justify-center gap-1.5 shadow text-xs">
+              <i class="fa-solid fa-trash-can"></i> Descartar / Duplicada (Excluir de Totales)
             </button>
-            <button type="button" onclick="rechazarTareaActualDetalleMovil()" class="py-2.5 px-3 bg-rose-700 hover:bg-rose-600 active:scale-95 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 shadow">
-              <i class="fa-solid fa-xmark"></i> Rechazar
+          </div>
+        </div>
+
+        <!-- BANNER DE TAREA ELIMINADA / DESCARTADA (MÓVIL) -->
+        <div id="mob-det-banner-eliminada" class="hidden bg-rose-950/70 border border-rose-500/60 rounded-2xl p-3 space-y-2 text-xs">
+          <div class="flex items-center gap-2 text-rose-300 font-bold">
+            <i class="fa-solid fa-trash-can text-lg text-rose-400"></i>
+            <div>
+              <div class="text-xs">Tarea Archivada / Descartada</div>
+              <div id="mob-det-motivo-eliminada" class="text-[10px] text-rose-200/80 font-normal">Excluida de los totales y métricas de planta.</div>
+            </div>
+          </div>
+          <div class="pt-1 flex gap-2">
+            <button type="button" onclick="restaurarTareaActualDetalleMovil()" class="flex-1 py-2 px-3 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 shadow text-xs">
+              <i class="fa-solid fa-trash-arrow-up"></i> Restaurar al Flujo Activo
             </button>
           </div>
         </div>
