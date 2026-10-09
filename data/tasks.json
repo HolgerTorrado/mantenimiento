@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1117",
+    "equipo": "Caldera 1",
+    "titulo": "Recubrimiento aislante",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Caldera",
+    "descripcion": "Se requiere reparar e instalar recubrimiento exterior aislante para evitar altas temperaturas con calderistas",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-09T09:03",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791554728/siman/iniciales/ini_TSK-1117_1791554727929.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-09T14:05:28.920Z"
+  },
+  {
     "id": "TSK-1116",
     "equipo": "Techo",
     "titulo": "Goteras en las diferentes áreas de proceso",
