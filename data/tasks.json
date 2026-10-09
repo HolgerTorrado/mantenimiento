@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1116",
+    "equipo": "Techo",
+    "titulo": "Goteras en las diferentes áreas de proceso",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Nave de proceso, esterilización, caldera, fracturado y desgranado, clarificación, desfibracion",
+    "descripcion": "Múltiples goteras en las diferentes áreas de proceso, se encuentran los techos en mal estado",
+    "roles_asignados": [
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Supervisión",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-08T20:53",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791514152/siman/iniciales/ini_TSK-1116_1791514151653.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-09T02:49:12.620Z"
+  },
+  {
     "id": "TSK-1115",
     "equipo": "Tubería que transporta efluente",
     "titulo": "Fuga de efluente",
