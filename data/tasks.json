@@ -187,8 +187,10 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-08T16:26",
     "fecha_arreglo": null,
@@ -200,7 +202,21 @@
     "creado_por_usuario": "Jesus Barajas",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-10-08T21:28:49.561Z",
-    "actualizado_en": "2026-10-09T20:52:46.321Z"
+    "actualizado_en": "2026-10-09T20:55:10.336Z",
+    "avances": [
+      {
+        "id": "AV-1791579310336-827",
+        "fecha_hora": "2026-10-09T20:55",
+        "tecnico_nombre": "Marwin Castillejo",
+        "tecnico_usuario": "mcastillejo",
+        "tecnico_rol": "mecanico",
+        "descripcion": "Se inicia fabricacion de isométrico",
+        "horas_dedicadas": 0,
+        "minutos_dedicados": 0,
+        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791579309/siman/avances/av_TSK-1115_1791579309287_1791579309287.webp",
+        "creado_en": "2026-10-09T20:55:10.336Z"
+      }
+    ]
   },
   {
     "id": "TSK-1114",
