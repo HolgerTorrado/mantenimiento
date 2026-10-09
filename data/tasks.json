@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1122",
+    "equipo": "Bomba de recuperado del foso",
+    "titulo": "Instalación de electrobomba para recuperado del foso",
+    "tipo": "instalacion",
+    "prioridad": "media",
+    "ubicacion": "Clarificación",
+    "descripcion": "Información de la instalación notificada a Anderson y Ender.",
+    "roles_asignados": [
+      "mecanico",
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Eléctrica",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-09T11:59",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791565328/siman/iniciales/ini_TSK-1122_1791565328040.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Luis Lopez",
+    "creado_por_rol": "director",
+    "creado_en": "2026-10-09T17:02:09.056Z"
+  },
+  {
     "id": "TSK-1121",
     "equipo": "Reductor del fracturador",
     "titulo": "Estibado y alistamiento para despacho de reductor de 7.5 hp en desgranadora",
