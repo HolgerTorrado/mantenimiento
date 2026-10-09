@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1119",
+    "equipo": "Tanque de aceite recuperado",
+    "titulo": "Reparación de fugas (culminación de actividad)",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Efluentes",
+    "descripcion": "Reparación de fugas en serpentín, realizar con el oxicorte un hueco para el desfogue del tanque.\n\nCoordinar con supervisor y juliana para el vaciado del aceite en la zona inferior del tanque",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-09T10:43",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791560766/siman/iniciales/ini_TSK-1119_1791560766103.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Luis Lopez",
+    "creado_por_rol": "director",
+    "creado_en": "2026-10-09T15:46:07.039Z"
+  },
+  {
     "id": "TSK-1118",
     "equipo": "Techo de caldera",
     "titulo": "Aberturas por donde ingresa agua lluvia",
