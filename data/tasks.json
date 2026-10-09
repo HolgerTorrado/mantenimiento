@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1118",
+    "equipo": "Techo de caldera",
+    "titulo": "Aberturas por donde ingresa agua lluvia",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Caldera",
+    "descripcion": "Se requiere tomar medidas para evitar que agua ingrese por espacios entre láminas del techo, tema que obliga a calderistas a suspender actividades cuando llueve",
+    "roles_asignados": [
+      "mecanico",
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Supervisión",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-09T09:05",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791554872/siman/iniciales/ini_TSK-1118_1791554872207.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-09T14:07:53.157Z"
+  },
+  {
     "id": "TSK-1117",
     "equipo": "Caldera 1",
     "titulo": "Recubrimiento aislante",
