@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1121",
+    "equipo": "Reductor del fracturador",
+    "titulo": "Estibado y alistamiento para despacho de reductor de 7.5 hp en desgranadora",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Fracturado y desgranado",
+    "descripcion": "Alistar piezas del equipo, limpiar y apoyar para el envío a reparación.",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-09T11:05",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791562080/siman/iniciales/ini_TSK-1121_1791562079946.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Luis Lopez",
+    "creado_por_rol": "director",
+    "creado_en": "2026-10-09T16:08:01.536Z"
+  },
+  {
     "id": "TSK-1120",
     "equipo": "Carretillas de proceso",
     "titulo": "Fabricación de cuerpo de carretilla en tubería de 1-1/2\" (sustitución del cuerpo en madera)",
