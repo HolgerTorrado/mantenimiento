@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1120",
+    "equipo": "Carretillas de proceso",
+    "titulo": "Fabricación de cuerpo de carretilla en tubería de 1-1/2\" (sustitución del cuerpo en madera)",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Planta",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-09T11:03",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791561899/siman/iniciales/ini_TSK-1120_1791561898721.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Luis Lopez",
+    "creado_por_rol": "director",
+    "creado_en": "2026-10-09T16:04:59.909Z"
+  },
+  {
     "id": "TSK-1119",
     "equipo": "Tanque de aceite recuperado",
     "titulo": "Reparación de fugas (culminación de actividad)",
