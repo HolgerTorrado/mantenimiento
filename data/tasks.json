@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1125",
+    "equipo": "Esterilizador #1",
+    "titulo": "Fuga",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Esterilización",
+    "descripcion": "Fuga en la compuerta del esterilizador #1",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-09T17:49",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791586259/siman/iniciales/ini_TSK-1125_1791586259422.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-09T22:51:00.316Z"
+  },
+  {
     "id": "TSK-1124",
     "equipo": "Redler #3",
     "titulo": "Fuga",
