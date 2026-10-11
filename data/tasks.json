@@ -3512,7 +3512,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-29T09:59",
     "fecha_arreglo": "2026-10-10T21:45",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791686686/siman/iniciales/ini_TSK-1027_1791686686277.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791686792/siman/comprobantes/comp_TSK-1027_1791686791866.webp",
@@ -3540,6 +3540,14 @@
         "rol": "mecanico",
         "horas": 275.8,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1791687009767",
+        "fecha": "2026-10-11T02:50:09.767Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
     ],
     "actualizado_en": "2026-10-11T02:45:45.704Z",
@@ -3548,7 +3556,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-11T02:46:32.838Z",
     "foto_comprobante_hash": "cbc98ed39d53eab5c8993941cfd2cb3a966461d6d78062cbf27bf77ae46975e3",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-11T02:46:32.838Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -3557,7 +3565,10 @@
       "mecanico": 16546,
       "electrico": 0,
       "maquinista": 0
-    }
+    },
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-10-11T02:50:09.767Z"
   },
   {
     "id": "TSK-1026",
