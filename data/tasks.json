@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1126",
+    "equipo": "Sinfin de ariche",
+    "titulo": "Tapas faltantes",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Prensado",
+    "descripcion": "Sinfin de ariche se encuentra sin sus tapas de seguridad",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-12T12:21",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791825928/siman/iniciales/ini_TSK-1126_1791825927659.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-12T17:25:28.739Z"
+  },
+  {
     "id": "TSK-1125",
     "equipo": "Esterilizador #1",
     "titulo": "Fuga",
