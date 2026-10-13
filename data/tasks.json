@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1130",
+    "equipo": "Tablero de equipos",
+    "titulo": "Nombres faltantes en el tablero de los equipos",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Desfibracion",
+    "descripcion": "Se evidencia tablero en el área de desfibracion con nombres faltantes de los equipos",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-13T09:42",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791902816/siman/iniciales/ini_TSK-1130_1791902816477.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-13T14:46:57.383Z"
+  },
+  {
     "id": "TSK-1129",
     "equipo": "Bomba de laguna lixiviado",
     "titulo": "Reparación de caracol",
