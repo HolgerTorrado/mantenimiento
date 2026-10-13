@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1127",
+    "equipo": "Redler 3",
+    "titulo": "Cadena fracturada de redler 3",
+    "tipo": "correctivo",
+    "prioridad": "critica",
+    "ubicacion": "Esterilización - prensa",
+    "descripcion": "Se parte cadena de redler 3",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-13T01:46",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791883638/siman/iniciales/ini_TSK-1127_1791883638141.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-13T09:27:18.891Z"
+  },
+  {
     "id": "TSK-1126",
     "equipo": "Sinfin de ariche",
     "titulo": "Tapas faltantes",
