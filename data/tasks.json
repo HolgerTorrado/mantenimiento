@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1128",
+    "equipo": "No aplica",
+    "titulo": "Bombillo quemado en área de compresor de planta",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Tolva/techado del compresor",
+    "descripcion": "Se quema bombillo del techado del compresor de aire al lado de tolva",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-12T18:27",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791883753/siman/iniciales/ini_TSK-1128_1791883753009.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-13T09:29:13.896Z"
+  },
+  {
     "id": "TSK-1127",
     "equipo": "Redler 3",
     "titulo": "Cadena fracturada de redler 3",
