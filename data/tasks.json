@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1132",
+    "equipo": "Prender motobomba",
+    "titulo": "No se cuenta con personal de monitoreo de lagunas para prender motobombas",
+    "tipo": "otro",
+    "prioridad": "alta",
+    "ubicacion": "Canal de lixiviados",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-13T16:40",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791933373/siman/iniciales/ini_TSK-1132_1791933372379.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Juliana Rangel",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-13T23:16:13.915Z"
+  },
+  {
     "id": "TSK-1131",
     "equipo": "Tornillo del tractor",
     "titulo": "Arreglo de los tornillos",
