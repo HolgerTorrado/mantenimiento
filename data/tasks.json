@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1129",
+    "equipo": "Bomba de laguna lixiviado",
+    "titulo": "Reparación de caracol",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Lagunas",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico",
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Eléctrica",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-13T09:17",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791901067/siman/iniciales/ini_TSK-1129_1791901066870.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-13T14:17:47.892Z"
+  },
+  {
     "id": "TSK-1128",
     "equipo": "No aplica",
     "titulo": "Bombillo quemado en área de compresor de planta",
