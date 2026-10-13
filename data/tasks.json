@@ -2674,12 +2674,12 @@
     "mecanico_asignado": "Diego Chamorro, Marwin Castillejo, Ender Silva",
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-09-30T14:19",
-    "fecha_arreglo": null,
-    "estado": "en_progreso",
+    "fecha_arreglo": "2026-10-13T16:47",
+    "estado": "por_aprobar",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791927679/siman/iniciales/ini_TSK-1060_1791927679213.webp",
-    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791923045/siman/comprobantes/comp_TSK-1060_1791923044706.webp",
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791928033/siman/comprobantes/comp_TSK-1060_1791928032845.webp",
+    "tiempo_arreglo_minutos": 18868,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-09-30T19:19:50.028Z",
@@ -2695,6 +2695,14 @@
         "minutos_dedicados": 90,
         "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791927679/siman/avances/av_TSK-1060_AV-1790815315670-3_1791927679852.webp",
         "creado_en": "2026-10-01T00:41:55.670Z"
+      },
+      {
+        "id": "AV-1791928033759",
+        "fecha": "2026-10-13T21:47:13.759Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 314.5,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "tiempos_por_rol": {
@@ -2714,11 +2722,11 @@
     "completado_por_usuario": "dchamorro",
     "completado_por_nombre": "Diego Chamorro",
     "completado_por_rol": "mecanico",
-    "completado_en": "2026-10-13T20:24:05.615Z",
+    "completado_en": "2026-10-13T21:47:13.758Z",
     "foto_comprobante_hash": "922eb23737585b16d778701441c26edd0790f0d27842cb316a7a2a264fe72310",
     "requiere_aprobacion": true,
-    "enviado_a_aprobacion_en": "2026-10-13T20:24:05.615Z",
-    "tiempo_trabajo_activo_minutos": 18784
+    "enviado_a_aprobacion_en": "2026-10-13T21:47:13.758Z",
+    "tiempo_trabajo_activo_minutos": 18868
   },
   {
     "id": "TSK-1059",
