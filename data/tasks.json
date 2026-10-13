@@ -2647,12 +2647,12 @@
     "mecanico_asignado": "Diego Chamorro, Marwin Castillejo, Ender Silva",
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-09-30T14:19",
-    "fecha_arreglo": null,
-    "estado": "en_progreso",
+    "fecha_arreglo": "2026-10-13T15:23",
+    "estado": "por_aprobar",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791918378/siman/iniciales/ini_TSK-1060_1791918378085.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791923045/siman/comprobantes/comp_TSK-1060_1791923044706.webp",
+    "tiempo_arreglo_minutos": 18784,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-09-30T19:19:50.028Z",
@@ -2668,6 +2668,14 @@
         "minutos_dedicados": 90,
         "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791918378/siman/avances/av_TSK-1060_AV-1790815315670-3_1791918378831.webp",
         "creado_en": "2026-10-01T00:41:55.670Z"
+      },
+      {
+        "id": "AV-1791923045616",
+        "fecha": "2026-10-13T20:24:05.616Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 313.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "tiempos_por_rol": {
@@ -2683,7 +2691,15 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "modificado_por_admin": true,
-    "modificado_en": "2026-10-01T03:10:49.119Z"
+    "modificado_en": "2026-10-01T03:10:49.119Z",
+    "completado_por_usuario": "dchamorro",
+    "completado_por_nombre": "Diego Chamorro",
+    "completado_por_rol": "mecanico",
+    "completado_en": "2026-10-13T20:24:05.615Z",
+    "foto_comprobante_hash": "922eb23737585b16d778701441c26edd0790f0d27842cb316a7a2a264fe72310",
+    "requiere_aprobacion": true,
+    "enviado_a_aprobacion_en": "2026-10-13T20:24:05.615Z",
+    "tiempo_trabajo_activo_minutos": 18784
   },
   {
     "id": "TSK-1059",
