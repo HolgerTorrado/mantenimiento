@@ -61,19 +61,41 @@
       "mecanico",
       "electrico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica, Eléctrica",
+    "tecnicos_asignados": [
+      "Anderson Jaimes"
+    ],
+    "mecanico_asignado": "Anderson Jaimes",
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-10-13T09:17",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791901067/siman/iniciales/ini_TSK-1129_1791901066870.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Holger Torrado",
     "creado_por_rol": "admin",
-    "creado_en": "2026-10-13T14:17:47.892Z"
+    "creado_en": "2026-10-13T14:17:47.892Z",
+    "avances": [
+      {
+        "id": "AV-1791905948103-730",
+        "fecha_hora": "2026-10-13T15:39",
+        "tecnico_nombre": "Anderson Jaimes",
+        "tecnico_usuario": "ajaimes",
+        "tecnico_rol": "electrico",
+        "descripcion": "Se instala electrobomba de 5 HP provicional",
+        "horas_dedicadas": 2,
+        "minutos_dedicados": 120,
+        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791905947/siman/avances/av_TSK-1129_1791905947028_1791905947028.webp",
+        "creado_en": "2026-10-13T15:39:08.103Z"
+      }
+    ],
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 120,
+      "maquinista": 0
+    },
+    "actualizado_en": "2026-10-13T15:39:08.103Z"
   },
   {
     "id": "TSK-1128",
