@@ -16,7 +16,8 @@
     "nombre": "Diego Chamorro",
     "rol": "mecanico",
     "especialidad": "Mecánico de Planta",
-    "creado_en": "2026-09-27T03:46:29.230Z"
+    "creado_en": "2026-09-27T03:46:29.230Z",
+    "password_plana": "Dchamorro"
   },
   {
     "id": "USR-03",
