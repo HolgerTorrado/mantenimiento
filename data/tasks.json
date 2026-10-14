@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1134",
+    "equipo": "Tolva",
+    "titulo": "Instalación de malla o barrera",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Tolva",
+    "descripcion": "Instalación de malla o barrera para evitar que racimos caigan desde patio al área de la tolva",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-13T21:13",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791944337/siman/iniciales/ini_TSK-1134_1791944337463.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-14T02:18:58.341Z"
+  },
+  {
     "id": "TSK-1133",
     "equipo": "Banda de fibra",
     "titulo": "Canaleta de fibra descolgada",
