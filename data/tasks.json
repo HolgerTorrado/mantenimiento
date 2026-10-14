@@ -15,14 +15,15 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-13T22:08",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791947391/siman/iniciales/ini_TSK-1135_1791947390871.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-14T03:09:51.872Z"
+    "creado_en": "2026-10-14T03:09:51.872Z",
+    "actualizado_en": "2026-10-14T10:41:05.654Z"
   },
   {
     "id": "TSK-1134",
