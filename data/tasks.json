@@ -1165,14 +1165,15 @@
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-10-07T08:51",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791381078/siman/iniciales/ini_TSK-1106_1791381077600.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-07T13:51:18.692Z"
+    "creado_en": "2026-10-07T13:51:18.692Z",
+    "actualizado_en": "2026-10-14T10:48:15.238Z"
   },
   {
     "id": "TSK-1105",
