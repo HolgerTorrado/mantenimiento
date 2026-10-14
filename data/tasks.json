@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1133",
+    "equipo": "Banda de fibra",
+    "titulo": "Canaleta de fibra descolgada",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Desfibración",
+    "descripcion": "canaleta de la banda de fibra suelta y el orillo está rozando con la banda los rodillos superiores",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-13T21:05",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-14T02:07:09.708Z"
+  },
+  {
     "id": "TSK-1132",
     "equipo": "Prender motobomba",
     "titulo": "No se cuenta con personal de monitoreo de lagunas para prender motobombas",
