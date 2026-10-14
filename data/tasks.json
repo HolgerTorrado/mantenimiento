@@ -13,7 +13,7 @@
     "tecnicos_asignados": [],
     "mecanico_asignado": "Mecánica",
     "es_conjunta": false,
-    "fecha_ocurrencia": "2026-10-13T21:05",
+    "fecha_ocurrencia": "2026-10-14T02:05:00.000Z",
     "fecha_arreglo": null,
     "estado": "pendiente",
     "notas_mecanico": null,
@@ -22,7 +22,9 @@
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-14T02:07:09.708Z"
+    "creado_en": "2026-10-14T02:07:09.708Z",
+    "modificado_por_admin": true,
+    "modificado_en": "2026-10-14T02:07:36.334Z"
   },
   {
     "id": "TSK-1132",
