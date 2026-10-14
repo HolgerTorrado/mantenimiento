@@ -347,14 +347,15 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-13T01:46",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791883638/siman/iniciales/ini_TSK-1127_1791883638141.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-13T09:27:18.891Z"
+    "creado_en": "2026-10-13T09:27:18.891Z",
+    "actualizado_en": "2026-10-14T10:42:26.944Z"
   },
   {
     "id": "TSK-1126",
