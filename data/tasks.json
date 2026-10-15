@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1142",
+    "equipo": "Rejillas",
+    "titulo": "Deterioro y oxidación de rejillas",
+    "tipo": "locativo",
+    "prioridad": "media",
+    "ubicacion": "Cuarto decontrol",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-15T11:50",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792083207/siman/iniciales/ini_TSK-1142_1792083206888.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-15T16:53:27.739Z"
+  },
+  {
     "id": "TSK-1141",
     "equipo": "Gato hidraulico",
     "titulo": "Fuga de hidráulico",
