@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1146",
+    "equipo": "Tubería precalentamiento esterilizador 1",
+    "titulo": "Fuga de vapor y condensados por la tubería",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Esterilización",
+    "descripcion": "Fuga por la tubería que ocasiona pérdidas de vapor y escape de aceite",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-05T20:00",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-15T17:12:15.208Z"
+  },
+  {
     "id": "TSK-1145",
     "equipo": "Desarenador INAL",
     "titulo": "Fuga por desgaste de equipo",
