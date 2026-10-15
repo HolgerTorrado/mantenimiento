@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1150",
+    "equipo": "Tubo cuadrado de 6 m",
+    "titulo": "Se requiere pintar tubo cuadrado de 6 metros e instalar cabilla para instalar un tablero",
+    "tipo": "locativo",
+    "prioridad": "alta",
+    "ubicacion": "Nave de moños",
+    "descripcion": "Se requiere gratear y pintar tubo cuadrado de 6 metros e instalar cabilla para acondicionar un tablero",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-15T14:26",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792092690/siman/iniciales/ini_TSK-1150_1792092689604.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Juliana Rangel",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-15T19:31:30.579Z"
+  },
+  {
     "id": "TSK-1149",
     "equipo": "Gato hidráulico",
     "titulo": "Fuga en manguera de gato hidráulico",
