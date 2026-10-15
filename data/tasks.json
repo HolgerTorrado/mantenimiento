@@ -114,19 +114,36 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-05T20:00",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": null,
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-15T17:12:15.208Z"
+    "creado_en": "2026-10-15T17:12:15.208Z",
+    "avances": [
+      {
+        "id": "AV-1792088255732-483",
+        "fecha_hora": "2026-10-15T18:17",
+        "tecnico_nombre": "Marwin Castillejo",
+        "tecnico_usuario": "mcastillejo",
+        "tecnico_rol": "mecanico",
+        "descripcion": "Se inicia pintado de rejillas y angulos de soporte",
+        "horas_dedicadas": 0,
+        "minutos_dedicados": 0,
+        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792088254/siman/avances/av_TSK-1146_1792088254508_1792088254508.webp",
+        "creado_en": "2026-10-15T18:17:35.732Z"
+      }
+    ],
+    "actualizado_en": "2026-10-15T18:17:35.732Z"
   },
   {
     "id": "TSK-1145",
