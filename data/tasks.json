@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1140",
+    "equipo": "Decanter",
+    "titulo": "Falla en modulo ABB del variador lado BD",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificacion",
+    "descripcion": "",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-15T10:57",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792079996/siman/iniciales/ini_TSK-1140_1792079996380.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-15T15:59:58.147Z"
+  },
+  {
     "id": "TSK-1139",
     "equipo": "Caldera",
     "titulo": "Fuga de agua en el interior de la caldera",
