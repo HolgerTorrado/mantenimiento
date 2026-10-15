@@ -246,7 +246,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-05T20:48",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792083207/siman/iniciales/ini_TSK-1142_1792083206888.webp",
     "foto_comprobante": null,
@@ -266,7 +266,8 @@
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-10-15T16:58:56.983Z"
+    "modificado_en": "2026-10-15T16:58:56.983Z",
+    "actualizado_en": "2026-10-15T18:16:15.931Z"
   },
   {
     "id": "TSK-1141",
