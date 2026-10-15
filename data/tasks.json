@@ -11,18 +11,31 @@
       "mecanico"
     ],
     "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "mecanico_asignado": "Sin Asignar",
     "es_conjunta": false,
-    "fecha_ocurrencia": "2026-10-15T09:34",
+    "fecha_ocurrencia": "2026-10-04T03:16",
     "fecha_arreglo": null,
     "estado": "pendiente",
-    "notas_mecanico": null,
+    "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792075075/siman/iniciales/ini_TSK-1138_1792075075160.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Holger Torrado",
     "creado_por_rol": "admin",
-    "creado_en": "2026-10-15T14:37:56.075Z"
+    "creado_en": "2026-10-15T14:37:56.075Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-10-15T14:39:19.719Z"
   },
   {
     "id": "TSK-1137",
