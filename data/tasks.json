@@ -42,7 +42,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-15T08:00",
     "fecha_arreglo": "2026-10-15T13:06",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792085978/siman/iniciales/ini_TSK-1148_1792085978245.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792087582/siman/comprobantes/comp_TSK-1148_1792087581824.webp",
@@ -55,7 +55,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-15T18:06:22.726Z",
     "foto_comprobante_hash": "d10714935b7e49314944bc0a53b691342bde9feff3d34e81d719348696ea2324",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-15T18:06:22.726Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -73,8 +73,19 @@
         "rol": "mecanico",
         "horas": 5.1,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1792092646017",
+        "fecha": "2026-10-15T19:30:46.017Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-10-15T19:30:46.017Z"
   },
   {
     "id": "TSK-1147",
