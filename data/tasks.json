@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1152",
+    "equipo": "Escasa iluminación",
+    "titulo": "Poca iluminacion  (riesgo físico)",
+    "tipo": "mejora",
+    "prioridad": "alta",
+    "ubicacion": "Clarificación",
+    "descripcion": "Se evidencia ausencia de iluminación , dificulta el tránsito y la intervención del sinfin de lodos, los mecánicos manifiestan dificultad para realizar su trabajo",
+    "roles_asignados": [
+      "mecanico",
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Eléctrica",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-13T20:33",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792097134/siman/iniciales/ini_TSK-1152_1792097134351.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Edgar mogollon",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-15T20:45:35.126Z"
+  },
+  {
     "id": "TSK-1151",
     "equipo": "Extender cable e instalar tablero",
     "titulo": "Extender cableado desde laguna lixiviados hasta el canal",
