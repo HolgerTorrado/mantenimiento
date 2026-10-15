@@ -1404,19 +1404,46 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-07T08:05",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
+    "fecha_arreglo": "2026-10-15T10:16",
+    "estado": "por_aprobar",
+    "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791378353/siman/iniciales/ini_TSK-1105_1791378352881.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792077391/siman/comprobantes/comp_TSK-1105_1792077391546.webp",
+    "tiempo_arreglo_minutos": 11651,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-07T13:05:53.701Z"
+    "creado_en": "2026-10-07T13:05:53.701Z",
+    "completado_por_usuario": "mcastillejo",
+    "completado_por_nombre": "Marwin Castillejo",
+    "completado_por_rol": "mecanico",
+    "completado_en": "2026-10-15T15:16:32.412Z",
+    "foto_comprobante_hash": "9ad7d5b17146bd1cab03706067fc99ea7ade474b43279d60481b0539c597bf3b",
+    "requiere_aprobacion": true,
+    "enviado_a_aprobacion_en": "2026-10-15T15:16:32.412Z",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 11651,
+    "tiempos_por_rol": {
+      "mecanico": 11651,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "avances": [
+      {
+        "id": "AV-1792077392412",
+        "fecha": "2026-10-15T15:16:32.412Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 194.2,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      }
+    ]
   },
   {
     "id": "TSK-1104",
