@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1151",
+    "equipo": "Extender cable e instalar tablero",
+    "titulo": "Extender cableado desde laguna lixiviados hasta el canal",
+    "tipo": "instalacion",
+    "prioridad": "alta",
+    "ubicacion": "Compostadero",
+    "descripcion": "Se requiere instalación de cableado desde la laguna lixiviados hasta el canal, a su vez se requiere la instalación de tablero para electrobomba",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-15T14:31",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792092949/siman/iniciales/ini_TSK-1151_1792092948358.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Juliana Rangel",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-15T19:35:50.038Z"
+  },
+  {
     "id": "TSK-1150",
     "equipo": "Tubo cuadrado de 6 m",
     "titulo": "Se requiere pintar tubo cuadrado de 6 metros e instalar cabilla para instalar un tablero",
