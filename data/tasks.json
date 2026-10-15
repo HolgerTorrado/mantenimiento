@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1138",
+    "equipo": "Tambor pulidor de nuez",
+    "titulo": "Desajuste de cadena",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "palmisteria",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-15T09:34",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792075075/siman/iniciales/ini_TSK-1138_1792075075160.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-15T14:37:56.075Z"
+  },
+  {
     "id": "TSK-1137",
     "equipo": "Homogéneizador",
     "titulo": "Falla en sensor de nivel alto de homogéneizador",
