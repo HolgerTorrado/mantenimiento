@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1149",
+    "equipo": "Gato hidráulico",
+    "titulo": "Fuga en manguera de gato hidráulico",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Prensado",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-15T14:24",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792092601/siman/iniciales/ini_TSK-1149_1792092601116.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-15T19:30:02.436Z"
+  },
+  {
     "id": "TSK-1148",
     "equipo": "Ciclón de fibra",
     "titulo": "Desgaste que ocasiona fuga de fibra",
