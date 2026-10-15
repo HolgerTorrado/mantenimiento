@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1137",
+    "equipo": "Homogéneizador",
+    "titulo": "Falla en sensor de nivel alto de homogéneizador",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificación",
+    "descripcion": "Falla sensor 3 veces y 3 veces se lava, se requiere revisión y posible cambio",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-15T05:53",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792061696/siman/iniciales/ini_TSK-1137_1792061696539.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-15T10:54:57.175Z"
+  },
+  {
     "id": "TSK-1136",
     "equipo": "Cadena piñón del relder 2",
     "titulo": "Arreglo de cadena",
