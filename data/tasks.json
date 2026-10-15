@@ -38,7 +38,7 @@
     "tecnicos_asignados": [],
     "mecanico_asignado": "Mecánica",
     "es_conjunta": false,
-    "fecha_ocurrencia": "2026-10-15T14:24",
+    "fecha_ocurrencia": "2026-10-15T11:30",
     "fecha_arreglo": null,
     "estado": "pendiente",
     "notas_mecanico": null,
@@ -47,7 +47,9 @@
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Holger Torrado",
     "creado_por_rol": "admin",
-    "creado_en": "2026-10-15T19:30:02.436Z"
+    "creado_en": "2026-10-15T19:30:02.436Z",
+    "modificado_por_admin": true,
+    "modificado_en": "2026-10-15T19:33:36.240Z"
   },
   {
     "id": "TSK-1148",
