@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1156",
+    "equipo": "Fuga en zona de eje de esterilizador 1",
+    "titulo": "Escape de aceite y vapor",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Esterilización",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-12T20:00",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-16T13:04:46.290Z"
+  },
+  {
     "id": "TSK-1155",
     "equipo": "Unidad hidráulica de prensa",
     "titulo": "Fuga por manguera hidráulica de prensa",
