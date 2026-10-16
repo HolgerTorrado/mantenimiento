@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1153",
+    "equipo": "Reflector",
+    "titulo": "Reflectores quemados",
+    "tipo": "instalacion",
+    "prioridad": "alta",
+    "ubicacion": "Clarificación",
+    "descripcion": "Se evidencia quemaduras en reflectores en zona de lodos del pre y efluente",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-15T22:06",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792120107/siman/iniciales/ini_TSK-1153_1792120106919.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jesus Barajas",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-16T03:08:27.710Z"
+  },
+  {
     "id": "TSK-1152",
     "equipo": "Escasa iluminación",
     "titulo": "Poca iluminacion  (riesgo físico)",
