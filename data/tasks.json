@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1155",
+    "equipo": "Unidad hidráulica de prensa",
+    "titulo": "Fuga por manguera hidráulica de prensa",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Prensa",
+    "descripcion": "Intervención para ajuste de manguera de hidráulico a prensa",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-15T10:43",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-16T12:45:24.811Z"
+  },
+  {
     "id": "TSK-1154",
     "equipo": "Homogéneizador",
     "titulo": "Falla de sensor de nivel alto de homogéneizador",
