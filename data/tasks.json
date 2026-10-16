@@ -60,19 +60,46 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-12T20:00",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
+    "fecha_arreglo": "2026-10-16T08:32",
+    "estado": "por_aprobar",
+    "notas_mecanico": "Se cambia cordón de prensa estopa y se ajustan ",
     "foto_inicial": null,
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792157586/siman/comprobantes/comp_TSK-1156_1792157586174.webp",
+    "tiempo_arreglo_minutos": 5072,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-16T13:04:46.290Z"
+    "creado_en": "2026-10-16T13:04:46.290Z",
+    "completado_por_usuario": "mcastillejo",
+    "completado_por_nombre": "Marwin Castillejo",
+    "completado_por_rol": "mecanico",
+    "completado_en": "2026-10-16T13:33:07.064Z",
+    "foto_comprobante_hash": "162423432fe98e6878d89bcd87678697329031b6ed2bc04571703001f6347168",
+    "requiere_aprobacion": true,
+    "enviado_a_aprobacion_en": "2026-10-16T13:33:07.064Z",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 5072,
+    "tiempos_por_rol": {
+      "mecanico": 5072,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "avances": [
+      {
+        "id": "AV-1792157587064",
+        "fecha": "2026-10-16T13:33:07.064Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 84.5,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      }
+    ]
   },
   {
     "id": "TSK-1155",
