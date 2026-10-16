@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1157",
+    "equipo": "Piso banda de fibra",
+    "titulo": "Desnivel en piso",
+    "tipo": "preventivo",
+    "prioridad": "baja",
+    "ubicacion": "Desfibración/ Cuarto de fibra",
+    "descripcion": "Desnivel en piso, requiere de inspección y corrección para evitar accidentes de personal que transmite el área",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-16T08:08",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792156413/siman/iniciales/ini_TSK-1157_1792156413559.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-16T13:13:34.553Z"
+  },
+  {
     "id": "TSK-1156",
     "equipo": "Fuga en zona de eje de esterilizador 1",
     "titulo": "Escape de aceite y vapor",
