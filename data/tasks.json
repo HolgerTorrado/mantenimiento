@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1162",
+    "equipo": "Trinche caldera",
+    "titulo": "Enderezar trinche de caldera y realizar uno nuevo",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Caldera",
+    "descripcion": "Se requiere la enderezada del trinche de caldera y realizar otro",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-17T02:52",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792223738/siman/iniciales/ini_TSK-1162_1792223738528.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-17T07:55:39.371Z"
+  },
+  {
     "id": "TSK-1161",
     "equipo": "Bomba australiano grande",
     "titulo": "Bomba inhabilitada",
