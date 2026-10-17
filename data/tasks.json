@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1164",
+    "equipo": "Sin fin de lodos",
+    "titulo": "Cambio de sin fin de lodos",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Clarificación planta baja",
+    "descripcion": "Se requiere el cambio del sin fin de lodos",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-17T03:02",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792224219/siman/iniciales/ini_TSK-1164_1792224219402.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-17T08:03:40.563Z"
+  },
+  {
     "id": "TSK-1163",
     "equipo": "Escusa de fibra",
     "titulo": "Cadena de excusa de fibra destensionada",
