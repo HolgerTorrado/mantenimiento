@@ -656,6 +656,30 @@ function getUsuarioActivo() {
   }
 }
 
+// Helper para normalizar rol a clave estándar en la vista móvil
+function normalizarRolMovil(r) {
+  const rol = String(r || '').toLowerCase().trim();
+  if (rol.includes('elec')) return 'electrico';
+  if (rol.includes('maq')) return 'maquinista';
+  if (rol.includes('alm')) return 'almacen';
+  if (rol.includes('sup')) return 'supervisor';
+  if (rol.includes('dir')) return 'director';
+  if (rol.includes('sst')) return 'sst';
+  return 'mecanico';
+}
+
+// Helper para verificar coincidencia de usuario/técnico con normalización insensible a tildes y mayúsculas
+function usuarioCoincideMovil(texto, nombreRef, usernameRef) {
+  if (!texto) return false;
+  const t = String(texto).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  const n = nombreRef ? String(nombreRef).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : '';
+  const u = usernameRef ? String(usernameRef).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim() : '';
+  
+  if (n && (t === n || t.includes(n))) return true;
+  if (u && (t === u || t.includes(u))) return true;
+  return false;
+}
+
 // Filtrar tareas según el rol del usuario conectado y tareas en conjunto
 function filtrarTareasPorUsuario(tareas) {
   const user = getUsuarioActivo();
@@ -663,42 +687,72 @@ function filtrarTareasPorUsuario(tareas) {
   const username = (user.nombre || user.username || '').toLowerCase().trim();
   const esAdmin = rol === 'admin' || username === 'holger';
 
+  // Supervisión, Dirección, SST, Visualizador y Administrador ven la totalidad de las tareas
   if (!user || esAdmin || ['supervisor', 'sst', 'director', 'visualizador'].includes(rol)) {
     return tareas;
   }
 
-  const miRol = (user.rol || 'mecanico').toLowerCase().trim();
-  const miNombre = (user.nombre || '').toLowerCase().trim();
-  const miUsername = (user.username || '').toLowerCase().trim();
+  const miRolNorm = normalizarRolMovil(user.rol || 'mecanico');
+  const miNombre = (user.nombre || '').trim();
+  const miUsername = (user.username || '').trim();
 
   return tareas.filter(t => {
-    // 1. ¿Está asignado específicamente a mi nombre o usuario?
-    const tecs = Array.isArray(t.tecnicos_asignados) ? t.tecnicos_asignados.map(x => String(x).toLowerCase().trim()) : [];
-    const asignadoTexto = (t.mecanico_asignado || '').toLowerCase().trim();
-
-    const asignadoAMiPersona = (miNombre && (tecs.includes(miNombre) || asignadoTexto.includes(miNombre))) ||
-                               (miUsername && (tecs.includes(miUsername) || asignadoTexto.includes(miUsername)));
-
-    if (asignadoAMiPersona) {
-      return true;
+    // 1. Determinar roles asignados a la tarea
+    let roles = [];
+    if (Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0) {
+      roles = t.roles_asignados.map(normalizarRolMovil);
+    } else if (typeof t.roles_asignados === 'string' && t.roles_asignados.trim()) {
+      try {
+        const parsed = JSON.parse(t.roles_asignados);
+        if (Array.isArray(parsed)) roles = parsed.map(normalizarRolMovil);
+      } catch(e) {
+        roles = [normalizarRolMovil(t.roles_asignados)];
+      }
+    }
+    if (roles.length === 0) {
+      roles = ['mecanico']; // Por defecto tareas históricas
     }
 
-    // 2. ¿La tarea incluye el rol del usuario conectado?
-    const roles = Array.isArray(t.roles_asignados) && t.roles_asignados.length > 0
-      ? t.roles_asignados.map(r => String(r).toLowerCase().trim())
-      : ['mecanico']; // Por defecto tareas anteriores son mecánicas
+    const incluyeMiRol = roles.includes(miRolNorm) || roles.includes('todos');
 
-    const incluyeMiRol = roles.includes(miRol) || roles.includes('todos');
+    // 2. ¿Asignado explícitamente a mi persona (nombre o usuario)?
+    const tecs = Array.isArray(t.tecnicos_asignados) ? t.tecnicos_asignados : [];
+    const asignadoAMiPersona = usuarioCoincideMovil(t.mecanico_asignado, miNombre, miUsername) ||
+                               tecs.some(tec => usuarioCoincideMovil(tec, miNombre, miUsername));
 
-    // 3. Si la tarea incluye mi rol y está sin asignar o disponible para el rol
-    const esDisponibleParaMiRol = incluyeMiRol && (
-      tecs.length === 0 || 
-      asignadoTexto === 'sin asignar' || 
-      asignadoTexto === 'todos' || 
-      asignadoTexto === ''
-    );
+    // 3. REGLA PARA TAREAS NO CERRADAS / ACTIVAS (pendiente, en_progreso, por_aprobar):
+    // Siempre que esté en curso, pendiente o por aprobar, le debe salir a TODAS las personas
+    // con esos roles (incluso si está asignada o fue puesta en curso por un técnico específico,
+    // ej: si Ender Silva la puso en curso, le sale también a Diego Chamorro y Marwin Castillejo).
+    // Si la tarea es conjunta (ej: mecánico y eléctrico), le sale a todos los mecánicos y a todos los eléctricos.
+    if (t.estado !== 'completado') {
+      return incluyeMiRol || asignadoAMiPersona;
+    }
 
-    return esDisponibleParaMiRol;
+    // 4. REGLA PARA TAREAS LISTAS / FINALIZADAS (Pestaña "Listas" / Historial):
+    // Una vez completada la tarea, NO le sale a todos los miembros del rol.
+    // Únicamente le debe salir a las personas que REALMENTE PARTICIPARON en ella:
+    // a) Quien completó / finalizó la labor (completado_por_nombre / completado_por_usuario).
+    // b) O quien haya registrado algún avance en la bitácora (t.avances).
+    const yoLaComplete = usuarioCoincideMovil(t.completado_por_nombre, miNombre, miUsername) ||
+                         usuarioCoincideMovil(t.completado_por_usuario, miNombre, miUsername);
+
+    let participeConAvance = false;
+    if (Array.isArray(t.avances) && t.avances.length > 0) {
+      participeConAvance = t.avances.some(a => {
+        // Ignorar notas de aprobación administrativa de auditoría
+        if (a.descripcion && a.descripcion.includes('VERIFICADOS Y APROBADOS')) {
+          return false;
+        }
+        return usuarioCoincideMovil(a.tecnico_nombre, miNombre, miUsername) ||
+               usuarioCoincideMovil(a.tecnico_usuario, miNombre, miUsername) ||
+               usuarioCoincideMovil(a.tecnico, miNombre, miUsername) ||
+               usuarioCoincideMovil(a.usuario, miNombre, miUsername) ||
+               usuarioCoincideMovil(a.registrado_por, miNombre, miUsername);
+      });
+    }
+
+    return yoLaComplete || participeConAvance;
   });
 }
 
@@ -1133,8 +1187,8 @@ async function iniciarTareaMovil(id) {
   }
   try {
     const sel = document.getElementById('select-mecanico-activo');
-    const mecanicoNombre = (sel && sel.value !== 'todos') ? sel.value : null;
     const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
+    const mecanicoNombre = (sel && sel.value !== 'todos' && sel.value) ? sel.value : (user.nombre || user.username || 'Técnico');
 
     const res = await fetch(`/api/tasks/${id}/iniciar`, {
       method: 'POST',
