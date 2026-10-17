@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1170",
+    "equipo": "Tolva",
+    "titulo": "Control de calidad de aceite",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Recepción",
+    "descripcion": "Se evidencia residual de fruta sobremadura o en estado de putrefacción",
+    "roles_asignados": [
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Supervisión",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-17T10:40",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792259028/siman/iniciales/ini_TSK-1170_1792259028237.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-17T17:43:49.265Z"
+  },
+  {
     "id": "TSK-1169",
     "equipo": "Rompedor de nuez",
     "titulo": "Atascamiento de rompedor",
