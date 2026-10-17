@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1165",
+    "equipo": "Camilla de emergencias",
+    "titulo": "Camilla sucia con correas en mal estado",
+    "tipo": "5s",
+    "prioridad": "media",
+    "ubicacion": "Clarificación planta baja",
+    "descripcion": "Se requiere la limpieza y posible cambio de las correas d ela camilla de clarificación",
+    "roles_asignados": [
+      "sst"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "SST",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-17T03:04",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792225236/siman/iniciales/ini_TSK-1165_1792225235848.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-17T08:20:36.660Z"
+  },
+  {
     "id": "TSK-1164",
     "equipo": "Sin fin de lodos",
     "titulo": "Cambio de sin fin de lodos",
