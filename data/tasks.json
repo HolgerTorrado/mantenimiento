@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1168",
+    "equipo": "Sin fin de ariche",
+    "titulo": "Intervención definitiva de sin fin de ariche",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Clarificación - Esterilización",
+    "descripcion": "Se requiere el cambio de sin fin, instalación de colgantes y pasadores del sin fin de ariche",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-17T03:26",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792225695/siman/iniciales/ini_TSK-1168_1792225695202.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-17T08:28:16.019Z"
+  },
+  {
     "id": "TSK-1167",
     "equipo": "Trampa de vapor",
     "titulo": "Instalación de trampa de vapor de redler 1",
