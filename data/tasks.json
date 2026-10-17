@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1166",
+    "equipo": "Trampa de vapor",
+    "titulo": "Enderezar tubería de Trampa de vapor",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Palmistería",
+    "descripcion": "Se requiere la enderezada de la tubería de la trampa de vapor del área de palmistería",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-17T03:21",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792225424/siman/iniciales/ini_TSK-1166_1792225424053.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-17T08:23:45.125Z"
+  },
+  {
     "id": "TSK-1165",
     "equipo": "Camilla de emergencias",
     "titulo": "Camilla sucia con correas en mal estado",
