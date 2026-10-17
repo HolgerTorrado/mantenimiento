@@ -11,19 +11,36 @@
       "mecanico",
       "electrico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica, Eléctrica",
+    "tecnicos_asignados": [
+      "Jhonier Ospino"
+    ],
+    "mecanico_asignado": "Jhonier Ospino",
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-10-17T08:35",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792258744/siman/iniciales/ini_TSK-1169_1792258743971.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-17T17:39:04.928Z"
+    "creado_en": "2026-10-17T17:39:04.928Z",
+    "avances": [
+      {
+        "id": "AV-1792258822606-873",
+        "fecha_hora": "2026-10-17T17:40",
+        "tecnico_nombre": "Jhonier Ospino",
+        "tecnico_usuario": "jospino",
+        "tecnico_rol": "supervisor",
+        "descripcion": "Se evidencia que rompedor se frenó por acumulación en el sinfín del pulidor de almendra",
+        "horas_dedicadas": 0,
+        "minutos_dedicados": 0,
+        "foto": null,
+        "creado_en": "2026-10-17T17:40:22.606Z"
+      }
+    ],
+    "actualizado_en": "2026-10-17T17:40:22.606Z"
   },
   {
     "id": "TSK-1168",
