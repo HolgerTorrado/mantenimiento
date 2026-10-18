@@ -10,19 +10,46 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-17T17:29",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
+    "fecha_arreglo": "2026-10-17T21:31",
+    "estado": "por_aprobar",
+    "notas_mecanico": "Se le cambia una correa ",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792276313/siman/iniciales/ini_TSK-1172_1792276313295.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792290737/siman/comprobantes/comp_TSK-1172_1792290737378.webp",
+    "tiempo_arreglo_minutos": 242,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-17T22:31:54.287Z"
+    "creado_en": "2026-10-17T22:31:54.287Z",
+    "completado_por_usuario": "mcastillejo",
+    "completado_por_nombre": "Marwin Castillejo",
+    "completado_por_rol": "mecanico",
+    "completado_en": "2026-10-18T02:32:18.088Z",
+    "foto_comprobante_hash": "c7e9bcb0cd6bd6e099bf791b25303167d05e4c66a7f58a94f280082025b154d4",
+    "requiere_aprobacion": true,
+    "enviado_a_aprobacion_en": "2026-10-18T02:32:18.088Z",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 242,
+    "tiempos_por_rol": {
+      "mecanico": 242,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "avances": [
+      {
+        "id": "AV-1792290738088",
+        "fecha": "2026-10-18T02:32:18.088Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      }
+    ]
   },
   {
     "id": "TSK-1171",
