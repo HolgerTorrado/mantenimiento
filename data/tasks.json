@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1175",
+    "equipo": "Trasladar 11 tubos de 3” x6 metros",
+    "titulo": "Se requiere ayuda de la máquina para trasladar 11 tubos desde nave de moños hasta almacén",
+    "tipo": "otro",
+    "prioridad": "alta",
+    "ubicacion": "Nave de moños a Almacén",
+    "descripcion": "",
+    "roles_asignados": [
+      "maquinista"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Maquinaria",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-19T10:27",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792423759/siman/iniciales/ini_TSK-1175_1792423758555.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Juliana Rangel",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-19T15:29:20.169Z"
+  },
+  {
     "id": "TSK-1174",
     "equipo": "Rompedor de nuez",
     "titulo": "Correas caidas en rompedor",
