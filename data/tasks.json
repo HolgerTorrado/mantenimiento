@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1176",
+    "equipo": "Greta era y pintar tubos",
+    "titulo": "Se requiere gratear y pintar 11 tubos de 3” x 6 metros",
+    "tipo": "locativo",
+    "prioridad": "alta",
+    "ubicacion": "Almacén",
+    "descripcion": "Se requiere pintar los 11 tubos para poder ubicarlos hacia el canal, para continuar la acometida e instalación de electrobomba",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-19T10:29",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792423929/siman/iniciales/ini_TSK-1176_1792423929118.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Juliana Rangel",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-19T15:32:10.212Z"
+  },
+  {
     "id": "TSK-1175",
     "equipo": "Trasladar 11 tubos de 3” x6 metros",
     "titulo": "Se requiere ayuda de la máquina para trasladar 11 tubos desde nave de moños hasta almacén",
