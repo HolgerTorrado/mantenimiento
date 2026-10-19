@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1179",
+    "equipo": "Manguera agua caliente",
+    "titulo": "Fuga",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Clarificación",
+    "descripcion": "Reparar fuga en manguera para prevenir quemaduras",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-19T14:08",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792437008/siman/iniciales/ini_TSK-1179_1792437008184.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-19T19:10:09.231Z"
+  },
+  {
     "id": "TSK-1178",
     "equipo": "Tablero de Esterilización",
     "titulo": "Etiquetas de tablero de esterilización borrosas",
