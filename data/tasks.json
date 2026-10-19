@@ -927,19 +927,22 @@
     "roles_asignados": [
       "electrico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Eléctrica",
+    "tecnicos_asignados": [
+      "Anderson Jaimes"
+    ],
+    "mecanico_asignado": "Anderson Jaimes",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-15T14:31",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792092949/siman/iniciales/ini_TSK-1151_1792092948358.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Juliana Rangel",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-15T19:35:50.038Z"
+    "creado_en": "2026-10-15T19:35:50.038Z",
+    "actualizado_en": "2026-10-19T12:38:32.682Z"
   },
   {
     "id": "TSK-1150",
