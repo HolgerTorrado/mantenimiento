@@ -64,7 +64,8 @@
     "nombre": "Leidy Amado",
     "rol": "director",
     "especialidad": "Director de Planta",
-    "creado_en": "2026-09-28T14:56:58.547Z"
+    "creado_en": "2026-09-28T14:56:58.547Z",
+    "password_plana": "Babu2026"
   },
   {
     "id": "USR-08",
