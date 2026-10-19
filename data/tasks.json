@@ -485,19 +485,22 @@
     "roles_asignados": [
       "sst"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "SST",
+    "tecnicos_asignados": [
+      "Richard Patiño"
+    ],
+    "mecanico_asignado": "Richard Patiño",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-17T03:04",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792225236/siman/iniciales/ini_TSK-1165_1792225235848.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-17T08:20:36.660Z"
+    "creado_en": "2026-10-17T08:20:36.660Z",
+    "actualizado_en": "2026-10-19T21:11:33.364Z"
   },
   {
     "id": "TSK-1164",
