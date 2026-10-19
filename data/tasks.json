@@ -942,7 +942,26 @@
     "creado_por_usuario": "Juliana Rangel",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-10-15T19:35:50.038Z",
-    "actualizado_en": "2026-10-19T12:38:32.682Z"
+    "actualizado_en": "2026-10-19T12:40:43.844Z",
+    "avances": [
+      {
+        "id": "AV-1792413643843-924",
+        "fecha_hora": "2026-10-19T12:40",
+        "tecnico_nombre": "Anderson Jaimes",
+        "tecnico_usuario": "ajaimes",
+        "tecnico_rol": "electrico",
+        "descripcion": "Se instala tablero",
+        "horas_dedicadas": 4,
+        "minutos_dedicados": 240,
+        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792413643/siman/avances/av_TSK-1151_1792413642958_1792413642958.webp",
+        "creado_en": "2026-10-19T12:40:43.843Z"
+      }
+    ],
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 240,
+      "maquinista": 0
+    }
   },
   {
     "id": "TSK-1150",
