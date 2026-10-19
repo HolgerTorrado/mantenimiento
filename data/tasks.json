@@ -1031,7 +1031,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-15T14:26",
     "fecha_arreglo": "2026-10-15T17:15",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792092690/siman/iniciales/ini_TSK-1150_1792092689604.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792102519/siman/comprobantes/comp_TSK-1150_1792102518840.webp",
@@ -1044,7 +1044,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-15T22:15:19.518Z",
     "foto_comprobante_hash": "88b2d6a8f3f7e0bf3b259b190551c59cc7c5f3253dbd1a55ab1da97ab1401502",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-15T22:15:19.518Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -1062,8 +1062,19 @@
         "rol": "mecanico",
         "horas": 2.8,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1792423994849",
+        "fecha": "2026-10-19T15:33:14.849Z",
+        "tecnico": "Juliana Rangel",
+        "rol": "supervisor",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Juliana Rangel",
+    "aprobado_por_username": "jrangel",
+    "aprobado_en": "2026-10-19T15:33:14.848Z"
   },
   {
     "id": "TSK-1149",
