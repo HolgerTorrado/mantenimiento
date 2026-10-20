@@ -2183,7 +2183,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-07T13:35",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "eliminado",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792082429/siman/iniciales/ini_TSK-1141_1792082429063.webp",
     "foto_comprobante": null,
@@ -2203,7 +2203,23 @@
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-10-15T16:48:36.566Z"
+    "modificado_en": "2026-10-15T16:48:36.566Z",
+    "estado_anterior": "pendiente",
+    "eliminada": true,
+    "requiere_aprobacion": false,
+    "eliminado_en": "2026-10-20T15:14:34.461Z",
+    "eliminado_por": "Holger Torrado",
+    "motivo_eliminacion": "Descartada por duplicidad o auditoría",
+    "avances": [
+      {
+        "id": "AV-1792509274461",
+        "fecha": "2026-10-20T15:14:34.461Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "🗑️ Tarea descartada / eliminada del flujo activo. Motivo: Descartada por duplicidad o auditoría"
+      }
+    ]
   },
   {
     "id": "TSK-1140",
