@@ -346,7 +346,7 @@
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-10-17T22:40",
     "fecha_arreglo": "2026-10-17T22:51",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "Se salda el tornillo del tractor de la manguera de iraulico ",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792294891/siman/iniciales/ini_TSK-1173_1792294891448.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792295510/siman/comprobantes/comp_TSK-1173_1792295509933.webp",
@@ -359,7 +359,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-18T03:51:50.847Z",
     "foto_comprobante_hash": "5a7d6187b094f8a190ecb90816d071848d6765d8bc5c6a7a31338b11fb400fcb",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-18T03:51:50.847Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -377,8 +377,19 @@
         "rol": "mecanico",
         "horas": 0.2,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1792501916871",
+        "fecha": "2026-10-20T13:11:56.871Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-10-20T13:11:56.871Z"
   },
   {
     "id": "TSK-1172",
