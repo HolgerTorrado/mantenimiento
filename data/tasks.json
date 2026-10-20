@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1190",
+    "equipo": "compuerta de caldera",
+    "titulo": "arreglo de manija de la compuerta de la caldera",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "caldera",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-20T09:00",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792509531/siman/iniciales/ini_TSK-1190_1792509531459.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-20T15:18:52.870Z"
+  },
+  {
     "id": "TSK-1189",
     "equipo": "Ciclón de desfibración",
     "titulo": "Fuga de fibra en el ducto",
