@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1187",
+    "equipo": "Sin fin de lodos",
+    "titulo": "Partidura del sin fin de lodos",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificación",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-20T09:07",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792505331/siman/iniciales/ini_TSK-1187_1792505330894.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-20T14:08:51.704Z"
+  },
+  {
     "id": "TSK-1186",
     "equipo": "ROMPEDOR",
     "titulo": "Desgaste de platina",
