@@ -4842,11 +4842,11 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-30T17:49",
     "fecha_arreglo": "2026-10-17T13:30",
-    "estado": "pendiente",
+    "estado": "por_aprobar",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792501262/siman/iniciales/ini_TSK-1068_1792501262095.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792441318/siman/comprobantes/comp_TSK-1068_1792441318371.webp",
-    "tiempo_arreglo_minutos": null,
+    "tiempo_arreglo_minutos": 24221,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-09-30T22:49:47.840Z",
@@ -4862,7 +4862,7 @@
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-10-20T13:05:58.392Z",
+    "modificado_en": "2026-10-20T13:07:41.407Z",
     "completado_por_usuario": "ajaimes",
     "completado_por_nombre": "Anderson Jaimes",
     "completado_por_rol": "electrico",
@@ -4870,7 +4870,7 @@
     "foto_comprobante_hash": "7d0130d89fb2718709a7de507e2aebde115c65a71dd22cb725beae795107e963",
     "requiere_aprobacion": true,
     "enviado_a_aprobacion_en": "2026-10-19T20:21:59.326Z",
-    "tiempo_trabajo_activo_minutos": 24236,
+    "tiempo_trabajo_activo_minutos": 24221,
     "avances": [
       {
         "id": "AV-1792441319326",
