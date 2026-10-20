@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1186",
+    "equipo": "ROMPEDOR",
+    "titulo": "Desgaste de platina",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "PALMISTERIA",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-20T08:46",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-20T13:47:44.790Z"
+  },
+  {
     "id": "TSK-1185",
     "equipo": "Trinche de caldera",
     "titulo": "Daño de trinche de caldera",
