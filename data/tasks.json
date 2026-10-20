@@ -13,7 +13,7 @@
     "tecnicos_asignados": [],
     "mecanico_asignado": "Sin Asignar",
     "es_conjunta": false,
-    "fecha_ocurrencia": "2026-11-11T21:43",
+    "fecha_ocurrencia": "2026-10-13T21:43",
     "fecha_arreglo": null,
     "estado": "pendiente",
     "notas_mecanico": "",
@@ -35,7 +35,7 @@
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-10-20T14:11:00.285Z"
+    "modificado_en": "2026-10-20T14:11:20.936Z"
   },
   {
     "id": "TSK-1186",
