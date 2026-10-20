@@ -522,7 +522,21 @@
     "creado_por_usuario": "Juliana Rangel",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-10-19T15:32:10.212Z",
-    "actualizado_en": "2026-10-20T16:56:48.409Z"
+    "actualizado_en": "2026-10-20T16:57:57.308Z",
+    "avances": [
+      {
+        "id": "AV-1792515477308-808",
+        "fecha_hora": "2026-10-20T16:57",
+        "tecnico_nombre": "Diego Chamorro",
+        "tecnico_usuario": "dchamorro",
+        "tecnico_rol": "mecanico",
+        "descripcion": "Se tralada los tubos de nave de moños para el taller para la gratiada y pintada",
+        "horas_dedicadas": 0,
+        "minutos_dedicados": 0,
+        "foto": null,
+        "creado_en": "2026-10-20T16:57:57.308Z"
+      }
+    ]
   },
   {
     "id": "TSK-1175",
