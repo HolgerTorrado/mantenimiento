@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1181",
+    "equipo": "Bomba Australiano grande",
+    "titulo": "Sonido y fuga en bomba de australiano grande",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Australianos",
+    "descripcion": "Sonido y fuga de efluentes en bomba de australiano grande",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-20T00:22",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-20T08:23:13.883Z"
+  },
+  {
     "id": "TSK-1180",
     "equipo": "Escalera",
     "titulo": "Escaleras lisas por suciedad",
