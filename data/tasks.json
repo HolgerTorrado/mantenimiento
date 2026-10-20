@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1191",
+    "equipo": "Decanter",
+    "titulo": "Falla del decanter",
+    "tipo": "correctivo",
+    "prioridad": "critica",
+    "ubicacion": "Clarificación plataforma decanter",
+    "descripcion": "Decanter reporta falla de velocidad del bowl",
+    "roles_asignados": [
+      "mecanico",
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Eléctrica",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-20T18:25",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792538847/siman/iniciales/ini_TSK-1191_1792538847196.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-20T23:27:27.979Z"
+  },
+  {
     "id": "TSK-1190",
     "equipo": "compuerta de caldera",
     "titulo": "arreglo de manija de la compuerta de la caldera",
