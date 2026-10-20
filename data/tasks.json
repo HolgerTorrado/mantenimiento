@@ -10,19 +10,46 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Diego Chamorro"
+    ],
+    "mecanico_asignado": "Diego Chamorro",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-20T09:00",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
-    "notas_mecanico": null,
+    "fecha_arreglo": "2026-10-20T10:19",
+    "estado": "por_aprobar",
+    "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792509531/siman/iniciales/ini_TSK-1190_1792509531459.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792509572/siman/comprobantes/comp_TSK-1190_1792509572274.webp",
+    "tiempo_arreglo_minutos": 79,
     "creado_por_usuario": "Holger Torrado",
     "creado_por_rol": "admin",
-    "creado_en": "2026-10-20T15:18:52.870Z"
+    "creado_en": "2026-10-20T15:18:52.870Z",
+    "completado_por_usuario": "dchamorro",
+    "completado_por_nombre": "Diego Chamorro",
+    "completado_por_rol": "mecanico",
+    "completado_en": "2026-10-20T15:19:33.047Z",
+    "foto_comprobante_hash": "180e88e7c5361c560611c9106e77cf8a2dd56cbd57fc026bf94707a1d332809e",
+    "requiere_aprobacion": true,
+    "enviado_a_aprobacion_en": "2026-10-20T15:19:33.047Z",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempo_trabajo_activo_minutos": 79,
+    "tiempos_por_rol": {
+      "mecanico": 79,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "avances": [
+      {
+        "id": "AV-1792509573047",
+        "fecha": "2026-10-20T15:19:33.047Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 1.3,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      }
+    ]
   },
   {
     "id": "TSK-1189",
