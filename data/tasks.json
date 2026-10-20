@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1182",
+    "equipo": "Redler de fibra",
+    "titulo": "Redler de fibra desencadenado",
+    "tipo": "correctivo",
+    "prioridad": "critica",
+    "ubicacion": "Desfibración/Caldera",
+    "descripcion": "Se desencadena redler de fibra",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-20T00:52",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792484719/siman/iniciales/ini_TSK-1182_1792484719282.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-20T08:25:20.431Z"
+  },
+  {
     "id": "TSK-1181",
     "equipo": "Bomba Australiano grande",
     "titulo": "Sonido y fuga en bomba de australiano grande",
