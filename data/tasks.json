@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1183",
+    "equipo": "Unidad de prensa",
+    "titulo": "Fuga de hidráulico en gato",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Prensa",
+    "descripcion": "Fuga de hidráulico, nivel bajo en unidad",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-20T05:34",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792492526/siman/iniciales/ini_TSK-1183_1792492525925.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-20T10:35:27.044Z"
+  },
+  {
     "id": "TSK-1182",
     "equipo": "Redler de fibra",
     "titulo": "Redler de fibra desencadenado",
