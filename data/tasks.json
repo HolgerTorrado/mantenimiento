@@ -824,7 +824,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-16T21:14",
     "fecha_arreglo": "2026-10-17T19:39",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "Se le cambia los acoples y se deja aliniado",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792218253/siman/iniciales/ini_TSK-1161_1792218253429.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792284105/siman/comprobantes/comp_TSK-1161_1792284105182.webp",
@@ -838,7 +838,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-18T00:41:46.014Z",
     "foto_comprobante_hash": "9da53850d2bd416e3996145cdb9674dae89d12f5ac32d9b527d7e67fb0db6f1e",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-18T00:41:46.014Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -856,8 +856,19 @@
         "rol": "mecanico",
         "horas": 22.4,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1792501738317",
+        "fecha": "2026-10-20T13:08:58.317Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-10-20T13:08:58.317Z"
   },
   {
     "id": "TSK-1160",
