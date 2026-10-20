@@ -183,22 +183,35 @@
     "ubicacion": "Esterilización",
     "descripcion": "Marcaciones del tablero de esterilización borrosas o en mal estado lo cual impide visualizar los nombres de los botones para los opeparios en etapa de aprendizaje",
     "roles_asignados": [
-      "mecanico",
+      "electrico",
       "supervisor"
     ],
     "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica, Supervisión",
+    "mecanico_asignado": "Sin Asignar",
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-10-19T12:13",
     "fecha_arreglo": null,
     "estado": "pendiente",
-    "notas_mecanico": null,
+    "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792430196/siman/iniciales/ini_TSK-1178_1792430195700.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Leidy Amado",
     "creado_por_rol": "director",
-    "creado_en": "2026-10-19T17:16:36.553Z"
+    "creado_en": "2026-10-19T17:16:36.553Z",
+    "tiempo_espera_repuestos_minutos": 0,
+    "motivo_espera_repuestos": "",
+    "tiempo_fuera_planta_minutos": 0,
+    "motivo_fuera_planta": "",
+    "tiempo_espera_minutos": 0,
+    "motivo_espera": "",
+    "tiempos_por_rol": {
+      "mecanico": 0,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "modificado_por_admin": true,
+    "modificado_en": "2026-10-20T13:12:40.011Z"
   },
   {
     "id": "TSK-1177",
