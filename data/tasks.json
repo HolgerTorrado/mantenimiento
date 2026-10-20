@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1184",
+    "equipo": "Homogéneizador",
+    "titulo": "Tapa suelta",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificación",
+    "descripcion": "Tapa suelta, riesgo de caída al interior de homogéneizador",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-20T05:51",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792493517/siman/iniciales/ini_TSK-1184_1792493517475.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-20T10:51:58.673Z"
+  },
+  {
     "id": "TSK-1183",
     "equipo": "Unidad de prensa",
     "titulo": "Fuga de hidráulico en gato",
