@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1189",
+    "equipo": "Ciclón de desfibración",
+    "titulo": "Fuga de fibra en el ducto",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Desfibración",
+    "descripcion": "",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-20T09:31",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792506819/siman/iniciales/ini_TSK-1189_1792506818969.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Holger Torrado",
+    "creado_por_rol": "admin",
+    "creado_en": "2026-10-20T14:33:40.148Z"
+  },
+  {
     "id": "TSK-1188",
     "equipo": "Palanca hidráulica",
     "titulo": "Se partió de la base",
