@@ -4873,14 +4873,6 @@
     "tiempo_trabajo_activo_minutos": 24236,
     "avances": [
       {
-        "id": "AV-1792413464701",
-        "fecha": "2026-10-19T12:37:44.701Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 404,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792441319326",
         "fecha": "2026-10-19T20:21:59.326Z",
         "tecnico": "Anderson Jaimes",
