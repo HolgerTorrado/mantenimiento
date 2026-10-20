@@ -4332,7 +4332,7 @@
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-10-03T17:24",
     "fecha_arreglo": "2026-10-17T19:43",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "Se desplasa canasta asia nave de moños",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791918354/siman/iniciales/ini_TSK-1079_1791918354324.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792284245/siman/comprobantes/comp_TSK-1079_1792284245014.webp",
@@ -4345,7 +4345,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-18T00:44:05.840Z",
     "foto_comprobante_hash": "e8a5dec1b17a477a881d5de7e9e55e9e5171e74b9f249581aced1066d85a0fa9",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-18T00:44:05.840Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -4379,11 +4379,22 @@
         "rol": "mecanico",
         "horas": 338.3,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1792501689896",
+        "fecha": "2026-10-20T13:08:09.896Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
     ],
     "rechazado_en": "2026-10-15T12:23:29.953Z",
     "rechazado_por": "Holger Torrado",
-    "motivo_rechazo": "Fotografía no corresponde al equipo o trabajo incompleto"
+    "motivo_rechazo": "Fotografía no corresponde al equipo o trabajo incompleto",
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-10-20T13:08:09.896Z"
   },
   {
     "id": "TSK-1078",
