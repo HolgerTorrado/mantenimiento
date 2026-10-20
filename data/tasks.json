@@ -293,7 +293,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-17T22:41",
     "fecha_arreglo": "2026-10-19T06:26",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "Se le instala correas nuevas",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792295062/siman/iniciales/ini_TSK-1174_1792295062287.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792409201/siman/comprobantes/comp_TSK-1174_1792409201535.webp",
@@ -306,7 +306,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-19T11:26:42.326Z",
     "foto_comprobante_hash": "26e2b191da557e00f0f93a8df66438c5c8d17a30d519531581c14689e19af225",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-19T11:26:42.326Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -324,8 +324,19 @@
         "rol": "mecanico",
         "horas": 31.8,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1792501919546",
+        "fecha": "2026-10-20T13:11:59.546Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-10-20T13:11:59.546Z"
   },
   {
     "id": "TSK-1173",
