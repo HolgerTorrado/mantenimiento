@@ -91,7 +91,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-13T21:43",
     "fecha_arreglo": null,
-    "estado": "eliminado",
+    "estado": "pendiente",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792505331/siman/iniciales/ini_TSK-1187_1792505330894.webp",
     "foto_comprobante": null,
@@ -113,7 +113,7 @@
     "modificado_por_admin": true,
     "modificado_en": "2026-10-20T14:11:20.936Z",
     "estado_anterior": "pendiente",
-    "eliminada": true,
+    "eliminada": false,
     "requiere_aprobacion": false,
     "eliminado_en": "2026-10-20T14:12:23.728Z",
     "eliminado_por": "Holger Torrado",
@@ -126,8 +126,18 @@
         "rol": "admin",
         "horas": 0,
         "descripcion": "🗑️ Tarea descartada / eliminada del flujo activo. Motivo: Descartada por duplicidad o auditoría"
+      },
+      {
+        "id": "AV-1792509326120",
+        "fecha": "2026-10-20T15:15:26.120Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "♻️ Tarea restaurada al flujo activo en estado \"pendiente\" por Holger Torrado. Suma nuevamente a los totales."
       }
-    ]
+    ],
+    "restaurado_en": "2026-10-20T15:15:26.120Z",
+    "restaurado_por": "Holger Torrado"
   },
   {
     "id": "TSK-1186",
