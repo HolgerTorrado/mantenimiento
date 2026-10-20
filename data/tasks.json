@@ -4837,13 +4837,11 @@
     "roles_asignados": [
       "electrico"
     ],
-    "tecnicos_asignados": [
-      "Anderson Jaimes"
-    ],
-    "mecanico_asignado": "Anderson Jaimes",
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Sin Asignar",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-30T17:49",
-    "fecha_arreglo": null,
+    "fecha_arreglo": "2026-10-17T13:30",
     "estado": "pendiente",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792501262/siman/iniciales/ini_TSK-1068_1792501262095.webp",
@@ -4860,11 +4858,11 @@
     "motivo_espera": "",
     "tiempos_por_rol": {
       "mecanico": 0,
-      "electrico": 0,
+      "electrico": 24234,
       "maquinista": 0
     },
     "modificado_por_admin": true,
-    "modificado_en": "2026-10-01T02:24:11.545Z",
+    "modificado_en": "2026-10-20T13:05:58.392Z",
     "completado_por_usuario": "ajaimes",
     "completado_por_nombre": "Anderson Jaimes",
     "completado_por_rol": "electrico",
