@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1195",
+    "equipo": "Desarenador Alfa laval",
+    "titulo": "Fuga en tubería de agua de desarenador Alfa laval",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificación",
+    "descripcion": "Fuga en tubería de agua de desarenador Alfa laval",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-21T03:24",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792578349/siman/iniciales/ini_TSK-1195_1792578348622.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-21T10:25:49.483Z"
+  },
+  {
     "id": "TSK-1194",
     "equipo": "Elevador de nuez",
     "titulo": "Banda de elevador de nuez destensionada",
