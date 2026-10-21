@@ -74,7 +74,8 @@
     "nombre": "Jhonier Ospino",
     "rol": "supervisor",
     "especialidad": "Supervisor de Mantenimiento / Planta",
-    "creado_en": "2026-09-29T12:46:38.366Z"
+    "creado_en": "2026-09-29T12:46:38.366Z",
+    "password_plana": "Jaospino"
   },
   {
     "id": "USR-09",
