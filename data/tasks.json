@@ -1,5 +1,31 @@
 [
   {
+    "id": "TSK-1192",
+    "equipo": "Tractor",
+    "titulo": "Lavado de tractor",
+    "tipo": "correctivo",
+    "prioridad": "baja",
+    "ubicacion": "Planta extractora Babú palm",
+    "descripcion": "Lavado de tractor",
+    "roles_asignados": [
+      "mecanico",
+      "maquinista"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica, Maquinaria",
+    "es_conjunta": true,
+    "fecha_ocurrencia": "2026-10-19T19:37",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792543261/siman/iniciales/ini_TSK-1192_1792543261273.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Jhonier Ospino",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-21T00:41:03.170Z"
+  },
+  {
     "id": "TSK-1191",
     "equipo": "Decanter",
     "titulo": "Falla del decanter",
