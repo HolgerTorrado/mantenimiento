@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1193",
+    "equipo": "Tractor",
+    "titulo": "Condición insegura con líneas hidráulicas",
+    "tipo": "preventivo",
+    "prioridad": "alta",
+    "ubicacion": "Planta BabuPalm",
+    "descripcion": "Realizar guarda para prevenir proyección de objetos y líquidos",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-20T19:40",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792543312/siman/iniciales/ini_TSK-1193_1792543312212.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-21T00:41:53.101Z"
+  },
+  {
     "id": "TSK-1192",
     "equipo": "Tractor",
     "titulo": "Lavado de tractor",
