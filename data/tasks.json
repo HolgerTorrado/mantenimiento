@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1197",
+    "equipo": "Ausencia de rejilla",
+    "titulo": "Condición insegura",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Ingreso hacia planta ( al lado de la chimenea de caldera )",
+    "descripcion": "La ausencia de la rejilla , puede generar un accidente de trabajo",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-21T11:15",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792599479/siman/iniciales/ini_TSK-1197_1792599479072.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Edgar mogollon",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-21T16:18:00.149Z"
+  },
+  {
     "id": "TSK-1196",
     "equipo": "Redler #3",
     "titulo": "Fuga",
