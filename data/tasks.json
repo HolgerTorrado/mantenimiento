@@ -835,7 +835,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-20T00:52",
     "fecha_arreglo": "2026-10-20T01:00",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792484719/siman/iniciales/ini_TSK-1182_1792484719282.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792565813/siman/comprobantes/comp_TSK-1182_1792565812711.webp",
@@ -848,7 +848,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-21T06:56:53.653Z",
     "foto_comprobante_hash": "b7b38e5730e8cb29eff411a07f71b1551f20ddeea376e786d0f07ee201bb7118",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-21T06:56:53.653Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -866,8 +866,19 @@
         "rol": "mecanico",
         "horas": 0.1,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1792650618919",
+        "fecha": "2026-10-22T06:30:18.919Z",
+        "tecnico": "Jhonier Ospino",
+        "rol": "supervisor",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Jhonier Ospino",
+    "aprobado_por_username": "jospino",
+    "aprobado_en": "2026-10-22T06:30:18.919Z"
   },
   {
     "id": "TSK-1181",
