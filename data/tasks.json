@@ -709,7 +709,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-20T05:51",
     "fecha_arreglo": "2026-10-20T05:55",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "Se ajustan visagras\n",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792493517/siman/iniciales/ini_TSK-1184_1792493517475.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792550376/siman/comprobantes/comp_TSK-1184_1792550376195.webp",
@@ -722,7 +722,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-21T02:39:37.057Z",
     "foto_comprobante_hash": "780733324c3793d1c3cf318148c1db9e631da38d38ee4cf1e5c1db43a754a60e",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-21T02:39:37.058Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -740,8 +740,19 @@
         "rol": "mecanico",
         "horas": 0.1,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1792650615176",
+        "fecha": "2026-10-22T06:30:15.176Z",
+        "tecnico": "Jhonier Ospino",
+        "rol": "supervisor",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Jhonier Ospino",
+    "aprobado_por_username": "jospino",
+    "aprobado_en": "2026-10-22T06:30:15.175Z"
   },
   {
     "id": "TSK-1183",
