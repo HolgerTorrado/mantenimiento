@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1199",
+    "equipo": "Pulidor de almendra",
+    "titulo": "Fuga",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Palmistería",
+    "descripcion": "Fuga de almendra por separación de lámina",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-22T05:35",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792665344/siman/iniciales/ini_TSK-1199_1792665344646.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-22T10:35:45.461Z"
+  },
+  {
     "id": "TSK-1198",
     "equipo": "Unidad hidráulica de prensa",
     "titulo": "No ejerce la presión graduada",
