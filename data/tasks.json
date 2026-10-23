@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1200",
+    "equipo": "Gato hidráulico de la prensa",
+    "titulo": "Fuga de hidráulico",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Prensa",
+    "descripcion": "Fuga de hidráulico",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-23T00:00",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792733720/siman/iniciales/ini_TSK-1200_1792733720112.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-23T05:35:21.500Z"
+  },
+  {
     "id": "TSK-1199",
     "equipo": "Pulidor de almendra",
     "titulo": "Fuga",
