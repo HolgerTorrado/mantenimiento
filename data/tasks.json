@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1203",
+    "equipo": "Esterilizador 2",
+    "titulo": "Falla en electroválvula de tubería de precalentamiento",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Esterilización",
+    "descripcion": "Falla en funcionamiento de electroválvula de tubería de precalentamiento de esterilizador 2, no acciona",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-24T02:53",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792828468/siman/iniciales/ini_TSK-1203_1792828468227.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-24T07:54:29.173Z"
+  },
+  {
     "id": "TSK-1202",
     "equipo": "Unidad hidráulica de prensa",
     "titulo": "Nivel bajo de hidráulico",
