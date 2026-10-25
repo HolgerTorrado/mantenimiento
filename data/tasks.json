@@ -814,16 +814,18 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Sin Asignar",
+    "tecnicos_asignados": [
+      "Ender Silva"
+    ],
+    "mecanico_asignado": "Ender Silva",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-13T21:43",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
+    "fecha_arreglo": "2026-10-24T23:06",
+    "estado": "por_aprobar",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792505331/siman/iniciales/ini_TSK-1187_1792505330894.webp",
-    "foto_comprobante": null,
-    "tiempo_arreglo_minutos": null,
+    "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792901316/siman/comprobantes/comp_TSK-1187_1792901316264.webp",
+    "tiempo_arreglo_minutos": 15923,
     "creado_por_usuario": "Holger Torrado",
     "creado_por_rol": "admin",
     "creado_en": "2026-10-20T14:08:51.704Z",
@@ -834,7 +836,7 @@
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
     "tiempos_por_rol": {
-      "mecanico": 0,
+      "mecanico": 15923,
       "electrico": 0,
       "maquinista": 0
     },
@@ -842,7 +844,7 @@
     "modificado_en": "2026-10-20T14:11:20.936Z",
     "estado_anterior": "pendiente",
     "eliminada": false,
-    "requiere_aprobacion": false,
+    "requiere_aprobacion": true,
     "eliminado_en": "2026-10-20T14:12:23.728Z",
     "eliminado_por": "Holger Torrado",
     "motivo_eliminacion": "Descartada por duplicidad o auditoría",
@@ -862,10 +864,25 @@
         "rol": "admin",
         "horas": 0,
         "descripcion": "♻️ Tarea restaurada al flujo activo en estado \"pendiente\" por Holger Torrado. Suma nuevamente a los totales."
+      },
+      {
+        "id": "AV-1792901317135",
+        "fecha": "2026-10-25T04:08:37.135Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 265.4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "restaurado_en": "2026-10-20T15:15:26.120Z",
-    "restaurado_por": "Holger Torrado"
+    "restaurado_por": "Holger Torrado",
+    "completado_por_usuario": "esilva",
+    "completado_por_nombre": "Ender Silva",
+    "completado_por_rol": "mecanico",
+    "completado_en": "2026-10-25T04:08:37.135Z",
+    "foto_comprobante_hash": "78dc0485f5fa40f8c2e2049f1ec956b4efd55f52d0377cbb66273fe626964ceb",
+    "enviado_a_aprobacion_en": "2026-10-25T04:08:37.135Z",
+    "tiempo_trabajo_activo_minutos": 15923
   },
   {
     "id": "TSK-1186",
