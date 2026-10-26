@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1204",
+    "equipo": "Australianos",
+    "titulo": "Realizar limpieza del área de bomba de tanquilla de recuperado",
+    "tipo": "5s",
+    "prioridad": "alta",
+    "ubicacion": "Tanquilla de recuperado",
+    "descripcion": "Organizar personal para disponer y recoger moños",
+    "roles_asignados": [
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Supervisión",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-26T12:47",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793037089/siman/iniciales/ini_TSK-1204_1793037088876.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-26T17:51:30.972Z"
+  },
+  {
     "id": "TSK-1203",
     "equipo": "Esterilizador 2",
     "titulo": "Falla en electroválvula de tubería de precalentamiento",
