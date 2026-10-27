@@ -2142,7 +2142,7 @@ function alCambiarEstadoDetalleModal(nuevoEstado) {
     if (puedeReabrir && (nuevoEstado === 'completado' || nuevoEstado === 'por_aprobar')) btnReabrir.classList.remove('hidden');
     else btnReabrir.classList.add('hidden');
   }
-  if (nuevoEstado === 'pendiente' || nuevoEstado === 'en_proceso') {
+  if (nuevoEstado === 'pendiente' || nuevoEstado === 'en_progreso' || nuevoEstado === 'en_proceso') {
     const inArreglo = document.getElementById('edit-det-fecha-arreglo');
     const txtArreglo = document.getElementById('det-fecha-arreglo-txt');
     if (inArreglo && !inArreglo.value) {
@@ -2159,8 +2159,8 @@ function reabrirTareaActual() {
     return;
   }
   const selEstado = document.getElementById('edit-det-estado');
-  if (selEstado) selEstado.value = 'en_proceso';
-  alCambiarEstadoDetalleModal('en_proceso');
+  if (selEstado) selEstado.value = 'en_progreso';
+  alCambiarEstadoDetalleModal('en_progreso');
 
   const t = todasLasTareas.find(item => item.id === tareaSeleccionadaId);
   if (t && t.foto_comprobante && !eliminarFotoDetallePendiente) {
@@ -2169,7 +2169,7 @@ function reabrirTareaActual() {
     }
   }
 
-  mostrarToast('ℹ️ Tarea reabierta a "En Proceso". Haz clic en "Guardar Cambios" para aplicar.');
+  mostrarToast('ℹ️ Tarea reabierta a "En Progreso". Haz clic en "Guardar Cambios" para aplicar.');
 }
 
 function marcarEliminarFotoDetalle() {
@@ -2327,9 +2327,12 @@ async function guardarEdicionDetalleAdmin() {
   };
 
   const tipoSeleccionado = document.getElementById('edit-det-tipo')?.value;
-  const estadoSeleccionado = document.getElementById('edit-det-estado')?.value || 'pendiente';
+  let estadoSeleccionado = document.getElementById('edit-det-estado')?.value || 'pendiente';
+  if (estadoSeleccionado === 'en_proceso') estadoSeleccionado = 'en_progreso';
   const tareaActual = todasLasTareas.find(item => item.id === tareaSeleccionadaId);
-  const esReapertura = Boolean(tareaActual && tareaActual.estado === 'completado' && estadoSeleccionado !== 'completado');
+  const estadoAnteriorFinalizado = Boolean(tareaActual && (tareaActual.estado === 'completado' || tareaActual.estado === 'por_aprobar'));
+  const estadoNuevoFinalizado = estadoSeleccionado === 'completado' || estadoSeleccionado === 'por_aprobar';
+  const esReapertura = Boolean(estadoAnteriorFinalizado && !estadoNuevoFinalizado);
 
   // Si la tarea queda completada y las horas se dejaron en 0, auto-deducir para no poner todo en 0 accidentalmente
   if (estadoSeleccionado === 'completado' && (tiemposPorRol.mecanico + tiemposPorRol.electrico + tiemposPorRol.maquinista === 0) && tareaActual) {
@@ -2345,11 +2348,11 @@ async function guardarEdicionDetalleAdmin() {
     eliminar_foto_comprobante: eliminarFotoDetallePendiente,
     eliminar_foto_inicial: eliminarFotoInicialDetallePendiente,
     fecha_ocurrencia: fOcurrio,
-    fecha_arreglo: esReapertura ? null : (fArreglo || null),
+    fecha_arreglo: esReapertura ? null : (fArreglo || (tareaActual ? tareaActual.fecha_arreglo : null)),
     notas_mecanico: notas,
     roles_asignados: rolesFinales,
     mecanico_asignado: especialidadesStr,
-    tecnicos_asignados: [],
+    tecnicos_asignados: tecnicosFinales.length > 0 ? tecnicosFinales : ((tareaActual && Array.isArray(tareaActual.tecnicos_asignados)) ? tareaActual.tecnicos_asignados : []),
     tiempo_espera_minutos: tiempoEsperaMin,
     tiempo_espera_repuestos_minutos: tiempoEsperaMin,
     motivo_espera: motivoEspera,

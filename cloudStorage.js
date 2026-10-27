@@ -243,6 +243,48 @@ async function subirALaNube(rutaRelativa, contenidoStr, permiteEliminar = false)
   }
 }
 
+// Obtener la marca de tiempo más reciente de cualquier evento de la tarea
+function obtenerUltimaMarcaTiempo(t) {
+  if (!t || typeof t !== 'object') return 0;
+  const campos = [
+    t.completado_en,
+    t.aprobado_en,
+    t.enviado_a_aprobacion_en,
+    t.rechazado_en,
+    t.reabierta_en,
+    t.modificado_en,
+    t.actualizado_en,
+    t.fecha_arreglo,
+    t.eliminado_en,
+    t.creado_en
+  ];
+  if (Array.isArray(t.avances) && t.avances.length > 0) {
+    t.avances.forEach(a => {
+      if (a) {
+        campos.push(a.fecha, a.fecha_hora, a.creado_en);
+      }
+    });
+  }
+  let maxTime = 0;
+  campos.forEach(c => {
+    if (c) {
+      const ms = new Date(c).getTime();
+      if (!isNaN(ms) && ms > maxTime) maxTime = ms;
+    }
+  });
+  return maxTime;
+}
+
+// Peso jerárquico de avance en el ciclo de vida de una tarea
+function pesoEstadoTarea(estado) {
+  const e = String(estado || '').toLowerCase().trim();
+  if (e === 'completado') return 4;
+  if (e === 'por_aprobar') return 3;
+  if (e === 'en_progreso' || e === 'en_proceso') return 2;
+  if (e === 'pendiente') return 1;
+  return 0;
+}
+
 // Función de fusión inteligente de tareas
 function mergeTareas(listaA = [], listaB = []) {
   const map = new Map();
@@ -251,40 +293,66 @@ function mergeTareas(listaA = [], listaB = []) {
     if (!incoming) return base;
     if (!base) return incoming;
 
-    const timeBase = new Date(base.completado_en || base.modificado_en || base.actualizado_en || base.creado_en || 0).getTime();
-    const timeInc = new Date(incoming.modificado_en || incoming.completado_en || incoming.actualizado_en || incoming.creado_en || 0).getTime();
+    const timeBase = obtenerUltimaMarcaTiempo(base);
+    const timeInc = obtenerUltimaMarcaTiempo(incoming);
+
+    const pesoBase = pesoEstadoTarea(base.estado);
+    const pesoInc = pesoEstadoTarea(incoming.estado);
 
     let primary = base;
     let secondary = incoming;
 
-    // Detectar si incoming fue explícitamente reabierta o modificada después de ser completada
-    const incomingEsMasReciente = timeInc > timeBase;
-    const incomingFueReabierta = incoming.reabierta || (incomingEsMasReciente && incoming.estado !== 'completado' && base.estado === 'completado');
+    // 1. REAPERTURA EXPLÍCITA: Solo si una versión fue explícitamente reabierta con bandera y fecha posterior
+    const incFueReabierta = Boolean(incoming.reabierta && timeInc >= timeBase);
+    const baseFueReabierta = Boolean(base.reabierta && timeBase >= timeInc);
 
-    if (incomingFueReabierta) {
+    if (incFueReabierta) {
       primary = incoming;
       secondary = base;
-    } else if (incoming.estado === 'completado' && base.estado !== 'completado') {
-      primary = incoming;
-      secondary = base;
-    } else if (base.estado === 'completado' && incoming.estado !== 'completado') {
+    } else if (baseFueReabierta) {
       primary = base;
       secondary = incoming;
-    } else if (incomingEsMasReciente) {
+    } else if (incoming.estado === 'eliminado' || incoming.eliminada) {
       primary = incoming;
       secondary = base;
+    } else if (base.estado === 'eliminado' || base.eliminada) {
+      primary = base;
+      secondary = incoming;
+    } else if (pesoInc > pesoBase) {
+      // Si la versión entrante avanzó más en el ciclo de vida (ej: completado o por_aprobar vs pendiente), gana entrante
+      primary = incoming;
+      secondary = base;
+    } else if (pesoBase > pesoInc) {
+      // Si la versión base avanzó más, gana base
+      primary = base;
+      secondary = incoming;
+    } else if (timeInc > timeBase) {
+      // Mismo peso de estado: la más recientemente actualizada gana
+      primary = incoming;
+      secondary = base;
+    } else {
+      primary = base;
+      secondary = incoming;
     }
 
     const merged = { ...secondary, ...primary };
 
-    // Si fue reabierta, asegurar que su estado sea el nuevo y limpiar fecha de completado
-    if (incomingFueReabierta) {
-      merged.estado = incoming.estado;
-      merged.completado_en = null;
-      merged.completado_por_usuario = null;
-      merged.completado_por_nombre = null;
-      merged.completado_por_rol = null;
-      merged.fecha_arreglo = incoming.fecha_arreglo || null;
+    // Si una versión tenía estado en_proceso, normalizar a en_progreso
+    if (merged.estado === 'en_proceso') {
+      merged.estado = 'en_progreso';
+    }
+
+    // BLINDAJE CRÍTICO: Si la tarea está completada o por aprobar, NUNCA perder datos de cierre
+    const esFinalizada = merged.estado === 'completado' || merged.estado === 'por_aprobar';
+    if (esFinalizada) {
+      if (!merged.completado_en) merged.completado_en = base.completado_en || incoming.completado_en || new Date().toISOString();
+      if (!merged.completado_por_nombre) merged.completado_por_nombre = base.completado_por_nombre || incoming.completado_por_nombre;
+      if (!merged.completado_por_usuario) merged.completado_por_usuario = base.completado_por_usuario || incoming.completado_por_usuario;
+      if (!merged.completado_por_rol) merged.completado_por_rol = base.completado_por_rol || incoming.completado_por_rol;
+      if (!merged.fecha_arreglo) merged.fecha_arreglo = base.fecha_arreglo || incoming.fecha_arreglo || (merged.completado_en ? merged.completado_en.slice(0, 16) : null);
+      if (merged.tiempo_arreglo_minutos === null || merged.tiempo_arreglo_minutos === undefined) {
+        merged.tiempo_arreglo_minutos = base.tiempo_arreglo_minutos ?? incoming.tiempo_arreglo_minutos ?? null;
+      }
     }
 
     // Blindaje de fotografías (solo preservar si NO fueron explícitamente eliminadas)
@@ -308,6 +376,18 @@ function mergeTareas(listaA = [], listaB = []) {
     if ((!merged.tecnicos_asignados || merged.tecnicos_asignados.length === 0) && secondary.tecnicos_asignados && secondary.tecnicos_asignados.length > 0) {
       merged.tecnicos_asignados = secondary.tecnicos_asignados;
       merged.mecanico_asignado = secondary.mecanico_asignado;
+    }
+
+    // Fusión integral de avances sin duplicados por ID
+    const advancesMap = new Map();
+    (secondary.avances || []).forEach(a => { if (a && a.id) advancesMap.set(a.id, a); });
+    (primary.avances || []).forEach(a => { if (a && a.id) advancesMap.set(a.id, a); });
+    if (advancesMap.size > 0) {
+      merged.avances = Array.from(advancesMap.values()).sort((a,b) => {
+        const tA = new Date(a.fecha || a.fecha_hora || a.creado_en || 0).getTime();
+        const tB = new Date(b.fecha || b.fecha_hora || b.creado_en || 0).getTime();
+        return tB - tA; // Más reciente primero
+      });
     }
 
     return merged;
@@ -429,13 +509,13 @@ async function sincronizarArchivoAlIniciar(nombreArchivo, archivoLocal) {
 
     let resultadoFinal = [];
     if (nombreArchivo === 'tasks.json') {
-      resultadoFinal = mergeTareas(localData, nubeData);
+      resultadoFinal = mergeTareas(nubeData, localData);
     } else if (nombreArchivo === 'users.json') {
-      resultadoFinal = mergeUsuarios(localData, nubeData);
+      resultadoFinal = mergeUsuarios(nubeData, localData);
     } else if (nombreArchivo === 'mecanicos.json') {
-      resultadoFinal = mergeMecanicos(localData, nubeData);
+      resultadoFinal = mergeMecanicos(nubeData, localData);
     } else if (nombreArchivo === 'remisiones.json') {
-      resultadoFinal = mergeRemisiones(localData, nubeData);
+      resultadoFinal = mergeRemisiones(nubeData, localData);
     } else {
       resultadoFinal = nubeData.length > 0 ? nubeData : localData;
     }
