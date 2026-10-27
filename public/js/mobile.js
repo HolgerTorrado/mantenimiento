@@ -60,6 +60,8 @@ function usuarioTienePermisoMovil(permiso) {
     const username = (user.nombre || user.username || '').toLowerCase().trim();
     const esAdmin = rol === 'admin' || username === 'holger';
     if (esAdmin && permiso !== 'asignable_tareas') return true; // Administrador siempre tiene acceso absoluto salvo si no es asignable
+    if (permiso === 'modificar_fechas' || permiso === 'cambiar_fechas') return usuarioTienePermisoMovil('cambiar_horas');
+    if (permiso === 'aprobar_tareas') return usuarioTienePermisoMovil('reabrir_tareas');
 
     // 1. Memoria activa
     if (simanPermisosCacheMovil && simanPermisosCacheMovil[rol] && simanPermisosCacheMovil[rol][permiso] !== undefined) {
@@ -2080,8 +2082,8 @@ async function guardarEdicionFechasMovil() {
     return;
   }
 
-  const fOcurrencia = new Date(inOcurrio.value).toISOString();
-  let fArreglo = inArreglo && inArreglo.value ? new Date(inArreglo.value).toISOString() : null;
+  const fOcurrencia = inOcurrio.value.slice(0, 16);
+  let fArreglo = inArreglo && inArreglo.value ? inArreglo.value.slice(0, 16) : null;
 
   if (fArreglo && new Date(fArreglo) < new Date(fOcurrencia)) {
     alert('La fecha de arreglo no puede ser anterior a la fecha en que ocurrió la falla.');
@@ -2113,17 +2115,18 @@ async function guardarEdicionFechasMovil() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error al actualizar fechas');
 
+    const tareaGuardada = data.tarea || data;
     mostrarToastMovil('✅ Fechas actualizadas y tiempos recalculados');
-    Object.assign(tareaDetalleMovilActual, data);
+    Object.assign(tareaDetalleMovilActual, tareaGuardada);
     const idx = tareasMovil.findIndex(x => x.id === tareaDetalleMovilActual.id);
-    if (idx !== -1) tareasMovil[idx] = data;
+    if (idx !== -1) tareasMovil[idx] = tareaGuardada;
 
     const elOc = document.getElementById('mob-det-ocurrio');
     const elArr = document.getElementById('mob-det-arreglo');
     const elDur = document.getElementById('mob-det-duracion');
-    if (elOc) elOc.innerText = formatearFechaCorta(data.fecha_ocurrencia);
-    if (elArr) elArr.innerText = data.fecha_arreglo ? formatearFechaCorta(data.fecha_arreglo) : 'En proceso / Pendiente';
-    if (elDur) elDur.innerText = formatMinutosMovil(data.tiempo_arreglo_minutos);
+    if (elOc) elOc.innerText = formatearFechaCorta(tareaGuardada.fecha_ocurrencia);
+    if (elArr) elArr.innerText = tareaGuardada.fecha_arreglo ? formatearFechaCorta(tareaGuardada.fecha_arreglo) : 'En proceso / Pendiente';
+    if (elDur) elDur.innerText = formatMinutosMovil(tareaGuardada.tiempo_arreglo_minutos);
 
     renderTareasMovil();
   } catch(err) {

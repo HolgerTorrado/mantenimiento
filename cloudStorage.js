@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN || String.fromCharCode(103,104,112,95,85,100,74,116,74,117,100,69,104,68,71,68,112,73,97,97,65,104,105,80,111,117,76,109,115,84,80,83,101,88,50,101,100,114,105,67);
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN || String.fromCharCode(103,104,112,95,109,73,70,120,77,101,87,77,118,52,100,82,81,111,120,112,53,111,81,105,111,67,68,101,69,49,56,56,122,51,49,89,105,78,74,103);
 const GITHUB_REPO = process.env.GITHUB_REPO || 'HolgerTorrado/mantenimiento';
 const STORAGE_BRANCH = process.env.STORAGE_BRANCH || 'db-storage';
 

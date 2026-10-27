@@ -1686,6 +1686,13 @@ app.post('/api/tasks/:id/iniciar', (req, res) => {
   const idx = tareas.findIndex(t => t.id === req.params.id);
   if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
 
+  if (tareas[idx].estado === 'eliminado' || tareas[idx].eliminada) {
+    return res.status(400).json({ error: 'La tarea ha sido eliminada o descartada.' });
+  }
+  if (tareas[idx].estado === 'completado' || tareas[idx].estado === 'por_aprobar') {
+    return res.status(400).json({ error: 'La tarea ya ha sido finalizada o está en proceso de verificación.' });
+  }
+
   tareas[idx].estado = 'en_progreso';
   if (req.body.mecanico_nombre) {
     const nombre = req.body.mecanico_nombre.trim();
@@ -1790,6 +1797,15 @@ app.post('/api/tasks/:id/completar', upload.single('foto'), async (req, res) => 
   if (idx === -1) {
     if (req.file) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
     return res.status(404).json({ error: 'Tarea no encontrada' });
+  }
+
+  if (tareas[idx].estado === 'eliminado' || tareas[idx].eliminada) {
+    if (req.file) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
+    return res.status(400).json({ error: 'La tarea ha sido eliminada o descartada.' });
+  }
+  if (tareas[idx].estado === 'completado') {
+    if (req.file) { try { fs.unlinkSync(req.file.path); } catch(e) {} }
+    return res.status(400).json({ error: 'La tarea ya se encuentra completada.' });
   }
 
   const {
@@ -2137,6 +2153,14 @@ app.put('/api/tasks/:id', async (req, res) => {
     if (!puedeCambiarFoto) {
       return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar fotografías.' });
     }
+    const hashFoto = calcularHashDeDatosImagen(foto_base64);
+    if (hashFoto) {
+      const errorDuplicada = validarFotografiaDuplicada(hashFoto, tareas[idx].id, tareas);
+      if (errorDuplicada) {
+        return res.status(400).json({ error: errorDuplicada.mensaje });
+      }
+      tareas[idx].foto_comprobante_hash = hashFoto;
+    }
     tareas[idx].foto_comprobante = await imageStorage.subirImagenNube(foto_base64, `comp_${tareas[idx].id}`, 'comprobantes');
     tareas[idx].foto_actualizada_en = new Date().toISOString();
   } else if (foto_comprobante !== undefined) {
@@ -2394,6 +2418,15 @@ app.post('/api/tasks/:id/foto', async (req, res) => {
     return res.status(400).json({ error: 'Se requiere una imagen válida en formato Data URL Base64.' });
   }
 
+  const hashFoto = calcularHashDeDatosImagen(foto_base64);
+  if (hashFoto) {
+    const errorDuplicada = validarFotografiaDuplicada(hashFoto, req.params.id, tareas);
+    if (errorDuplicada) {
+      return res.status(400).json({ error: errorDuplicada.mensaje });
+    }
+    tareas[idx].foto_comprobante_hash = hashFoto;
+  }
+
   const fotoSubida = await imageStorage.subirImagenNube(foto_base64, `comp_${tareas[idx].id}`, 'comprobantes');
 
   tareas[idx].foto_comprobante = fotoSubida;
@@ -2421,6 +2454,11 @@ app.post('/api/tasks/:id/foto-inicial', async (req, res) => {
   const { foto_base64 } = req.body;
   if (!foto_base64 || !foto_base64.startsWith('data:image/')) {
     return res.status(400).json({ error: 'Se requiere una imagen válida en formato Data URL Base64.' });
+  }
+
+  const hashFotoIni = calcularHashDeDatosImagen(foto_base64);
+  if (hashFotoIni) {
+    tareas[idx].foto_inicial_hash = hashFotoIni;
   }
 
   const fotoSubida = await imageStorage.subirImagenNube(foto_base64, `ini_${tareas[idx].id}`, 'iniciales');
