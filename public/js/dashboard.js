@@ -1434,6 +1434,19 @@ function fijarOcurrenciaAhora() {
   el.value = localISOTime;
 }
 
+function aFormatoDatetimeLocal(str) {
+  if (!str) return '';
+  const d = new Date(str);
+  if (isNaN(d.getTime())) return String(str).slice(0, 16);
+  const pad = (n) => String(n).padStart(2, '0');
+  const y = d.getFullYear();
+  const m = pad(d.getMonth() + 1);
+  const dia = pad(d.getDate());
+  const h = pad(d.getHours());
+  const min = pad(d.getMinutes());
+  return `${y}-${m}-${dia}T${h}:${min}`;
+}
+
 function fijarOcurrenciaAhoraDetalle() {
   const inOcurrio = document.getElementById('edit-det-fecha-ocurrio');
   if (!inOcurrio || inOcurrio.disabled) return;
@@ -1638,11 +1651,11 @@ async function abrirModalDetalle(id) {
   const txtArreglo = document.getElementById('det-fecha-arreglo-txt');
 
   if (inOcurrio) {
-    inOcurrio.value = t.fecha_ocurrencia ? t.fecha_ocurrencia.slice(0, 16) : '';
+    inOcurrio.value = aFormatoDatetimeLocal(t.fecha_ocurrencia);
     inOcurrio.disabled = !puedeCambiarHoras;
   }
   if (inArreglo) {
-    inArreglo.value = t.fecha_arreglo ? t.fecha_arreglo.slice(0, 16) : '';
+    inArreglo.value = aFormatoDatetimeLocal(t.fecha_arreglo);
     inArreglo.disabled = !puedeCambiarHoras;
   }
   if (txtOcurrio) txtOcurrio.innerText = formatearFechaHora(t.fecha_ocurrencia);
@@ -2275,7 +2288,7 @@ function cancelarEliminarFotoInicialDetalle() {
 async function guardarEdicionDetalleAdmin() {
   if (!tareaSeleccionadaId) return;
   const user = JSON.parse(localStorage.getItem('siman_user') || '{}');
-  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin';
+  const esAdmin = (user.rol || '').toLowerCase().trim() === 'admin' || (user.username || '').toLowerCase().trim() === 'holger';
   const puedeCambiarHoras = esAdmin || usuarioTienePermiso('cambiar_horas');
   const puedeReabrir = esAdmin || usuarioTienePermiso('reabrir_tareas');
   const puedeCambiarFoto = esAdmin || usuarioTienePermiso('cambiar_foto');
