@@ -2053,6 +2053,12 @@ app.post('/api/tasks/:id/rechazar', (req, res) => {
   tareas[idx].rechazado_en = new Date().toISOString();
   tareas[idx].rechazado_por = rechazoPor;
   tareas[idx].motivo_rechazo = motivoRechazo;
+  tareas[idx].fecha_arreglo = null;
+  tareas[idx].tiempo_arreglo_minutos = null;
+  tareas[idx].completado_en = null;
+  tareas[idx].reabierta = true;
+  tareas[idx].reabierta_en = new Date().toISOString();
+  tareas[idx].reabierta_por = userRol || 'admin';
 
   tareas[idx].avances.push({
     id: `AV-${Date.now()}`,
@@ -2109,8 +2115,20 @@ app.put('/api/tasks/:id', async (req, res) => {
     estado
   } = req.body;
 
+  // Evaluar reapertura explícita o implícita
+  const puedeReabrir = esAdmin || tienePermiso(userRol, 'reabrir_tareas');
+  const esEstadoFinalizado = tareas[idx].estado === 'completado' || tareas[idx].estado === 'por_aprobar';
+  const nuevoEstadoEsFinalizado = estado === 'completado' || estado === 'por_aprobar';
+  const quiereReabrir = esEstadoFinalizado && (req.body.reabrir === true || (estado !== undefined && !nuevoEstadoEsFinalizado));
+
   if (fecha_ocurrencia !== undefined && puedeCambiarHoras) tareas[idx].fecha_ocurrencia = fecha_ocurrencia;
-  if (fecha_arreglo !== undefined && puedeCambiarHoras) tareas[idx].fecha_arreglo = fecha_arreglo || null;
+  if (fecha_arreglo !== undefined && puedeCambiarHoras) {
+    if (fecha_arreglo) {
+      tareas[idx].fecha_arreglo = fecha_arreglo;
+    } else if (quiereReabrir) {
+      tareas[idx].fecha_arreglo = null;
+    }
+  }
   if (notas_mecanico !== undefined) tareas[idx].notas_mecanico = notas_mecanico;
 
   // Actualizar fotografía comprobante si se envía nueva (Subir a Cloudinary si está activo)
@@ -2204,14 +2222,13 @@ app.put('/api/tasks/:id', async (req, res) => {
   if (tipo !== undefined) tareas[idx].tipo = tipo.toLowerCase();
   if (prioridad !== undefined) tareas[idx].prioridad = prioridad;
   
-  // Soporte explícito para Reabrir Tarea
-  const puedeReabrir = esAdmin || tienePermiso(userRol, 'reabrir_tareas');
-  const quiereReabrir = tareas[idx].estado === 'completado' && (req.body.reabrir === true || (estado !== undefined && estado !== 'completado'));
+  // Aplicar cambio de estado o reapertura
   if (quiereReabrir) {
     if (!puedeReabrir) {
       return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para reabrir una tarea finalizada.' });
     }
-    tareas[idx].estado = (estado && estado !== 'completado') ? estado : 'en_proceso';
+    const estadoDestino = (estado && estado !== 'completado' && estado !== 'por_aprobar') ? (estado === 'en_proceso' ? 'en_progreso' : estado) : 'en_progreso';
+    tareas[idx].estado = estadoDestino;
     tareas[idx].completado_en = null;
     tareas[idx].completado_por_usuario = null;
     tareas[idx].completado_por_nombre = null;
@@ -2222,16 +2239,17 @@ app.put('/api/tasks/:id', async (req, res) => {
     tareas[idx].reabierta_en = new Date().toISOString();
     tareas[idx].reabierta_por = userRol;
   } else if (estado !== undefined) {
-    if (tareas[idx].estado === 'completado' && estado !== 'completado' && !puedeReabrir) {
+    const estadoNormalizado = estado === 'en_proceso' ? 'en_progreso' : estado;
+    if (esEstadoFinalizado && !nuevoEstadoEsFinalizado && !puedeReabrir) {
       return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para modificar el estado de una tarea finalizada.' });
     }
-    if (tareas[idx].estado !== 'completado' && estado === 'completado') {
-      const puedeCerrar = esAdmin || tienePermiso(userRol, 'cerrar_tareas');
+    if (tareas[idx].estado !== 'completado' && estadoNormalizado === 'completado') {
+      const puedeCerrar = esAdmin || tienePermiso(userRol, 'cerrar_tareas') || tienePermiso(userRol, 'reabrir_tareas');
       if (!puedeCerrar) {
         return res.status(403).json({ error: 'Acceso Restringido: Su rol no tiene autorización para finalizar o cerrar tareas.' });
       }
     }
-    tareas[idx].estado = estado;
+    tareas[idx].estado = estadoNormalizado;
   }
 
   // Soporte explícito para Quitar / Eliminar Foto Comprobante de Finalización
@@ -2317,7 +2335,8 @@ app.post('/api/tasks/:id/reabrir', (req, res) => {
   if (idx === -1) return res.status(404).json({ error: 'Tarea no encontrada' });
 
   const { nuevo_estado, quitar_foto } = req.body;
-  tareas[idx].estado = nuevo_estado || 'en_proceso';
+  const targetEstado = nuevo_estado || 'en_progreso';
+  tareas[idx].estado = targetEstado === 'en_proceso' ? 'en_progreso' : targetEstado;
   tareas[idx].completado_en = null;
   tareas[idx].completado_por_usuario = null;
   tareas[idx].completado_por_nombre = null;

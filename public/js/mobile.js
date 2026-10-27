@@ -1982,7 +1982,7 @@ async function reabrirTareaMovil() {
         'Content-Type': 'application/json',
         'x-user-role': user.rol || 'admin'
       },
-      body: JSON.stringify({ nuevo_estado: 'en_proceso', quitar_foto: quitarFoto })
+      body: JSON.stringify({ nuevo_estado: 'en_progreso', quitar_foto: quitarFoto })
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error al reabrir tarea');
