@@ -1108,7 +1108,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-14T19:19",
     "fecha_arreglo": "2026-10-25T11:38",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "Se le cambia el palaqui y que operativo ",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792506103/siman/iniciales/ini_TSK-1188_1792506103150.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792946341/siman/comprobantes/comp_TSK-1188_1792946341104.webp",
@@ -1134,7 +1134,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-25T16:39:02.003Z",
     "foto_comprobante_hash": "5d00c478f8c009a3644126df274347df836417a9f2b111cec327b712b71e8a0d",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-25T16:39:02.003Z",
     "tiempo_trabajo_activo_minutos": 15379,
     "avances": [
@@ -1145,8 +1145,19 @@
         "rol": "mecanico",
         "horas": 256.3,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1793223068751",
+        "fecha": "2026-10-28T21:31:08.751Z",
+        "tecnico": "Stefany Torrado",
+        "rol": "supervisor",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Stefany Torrado",
+    "aprobado_por_username": "storrado",
+    "aprobado_en": "2026-10-28T21:31:08.751Z"
   },
   {
     "id": "TSK-1187",
