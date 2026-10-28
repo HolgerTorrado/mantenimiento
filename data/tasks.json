@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1208",
+    "equipo": "Retroexcavadora",
+    "titulo": "Instalación de vidrio",
+    "tipo": "correctivo",
+    "prioridad": "baja",
+    "ubicacion": "Maquinaria",
+    "descripcion": "Instalación de vidrio en retro",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-28T16:13",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-28T21:14:29.744Z"
+  },
+  {
     "id": "TSK-1207",
     "equipo": "Chimenea de emisiones",
     "titulo": "Sección de la chimenea partida",
