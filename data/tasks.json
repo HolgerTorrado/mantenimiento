@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1207",
+    "equipo": "Chimenea de emisiones",
+    "titulo": "Sección de la chimenea partida",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Caldera",
+    "descripcion": "Se presenta riesgo de colapso de chimenea, se evalúan posibles medidas provisionales pero queda pendiente cambiar estructuras nuevas",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-28T14:50",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793217150/siman/iniciales/ini_TSK-1207_1793217150265.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Richard Patiño",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-28T19:52:31.399Z"
+  },
+  {
     "id": "TSK-1206",
     "equipo": "Tamiz",
     "titulo": "Se requiere diseñar tapa o recubrimiento a recipiente que recibe licor de prensa desde el tamiz hacia el tanque preclarificador",
