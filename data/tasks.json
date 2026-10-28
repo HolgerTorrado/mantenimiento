@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1209",
+    "equipo": "Tolva de ceniza",
+    "titulo": "Fabricación de tapa",
+    "tipo": "correctivo",
+    "prioridad": "baja",
+    "ubicacion": "Caldera",
+    "descripcion": "Fabricación de tapa para tolva de ceniza, anclar a tolva de ceniza mediante una cadena soldada para evitar pérdidas",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-28T16:14",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793222262/siman/iniciales/ini_TSK-1209_1793222262402.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-28T21:17:43.325Z"
+  },
+  {
     "id": "TSK-1208",
     "equipo": "Retroexcavadora",
     "titulo": "Instalación de vidrio",
