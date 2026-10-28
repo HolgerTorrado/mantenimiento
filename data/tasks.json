@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1205",
+    "equipo": "Redler de fibra",
+    "titulo": "Se desencadena redler de fibra",
+    "tipo": "correctivo",
+    "prioridad": "critica",
+    "ubicacion": "Caldera",
+    "descripcion": "Se desencadena redler de fibra",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-27T22:06",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793156892/siman/iniciales/ini_TSK-1205_1793156891746.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-28T03:08:12.693Z"
+  },
+  {
     "id": "TSK-1204",
     "equipo": "Australianos",
     "titulo": "Realizar limpieza del área de bomba de tanquilla de recuperado",
@@ -147,20 +172,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792733844649",
-        "fecha": "2026-10-23T05:37:24.649Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792828535799",
         "fecha": "2026-10-24T07:55:35.799Z",
         "tecnico": "Stefany Torrado",
         "rol": "supervisor",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792733844649",
+        "fecha": "2026-10-23T05:37:24.649Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Stefany Torrado",
@@ -210,20 +235,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792733794228",
-        "fecha": "2026-10-23T05:36:34.228Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0.4,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792828545825",
         "fecha": "2026-10-24T07:55:45.825Z",
         "tecnico": "Stefany Torrado",
         "rol": "supervisor",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792733794228",
+        "fecha": "2026-10-23T05:36:34.228Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0.4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Stefany Torrado",
@@ -458,20 +483,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792565879535",
-        "fecha": "2026-10-21T06:57:59.535Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0.3,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792650629424",
         "fecha": "2026-10-22T06:30:29.424Z",
         "tecnico": "Jhonier Ospino",
         "rol": "supervisor",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792565879535",
+        "fecha": "2026-10-21T06:57:59.535Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0.3,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Jhonier Ospino",
@@ -521,20 +546,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792546115566",
-        "fecha": "2026-10-21T01:28:35.566Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 0.8,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792595798738",
         "fecha": "2026-10-21T15:16:38.738Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792546115566",
+        "fecha": "2026-10-21T01:28:35.566Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 0.8,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -638,20 +663,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792546141526",
-        "fecha": "2026-10-21T01:29:01.526Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 2.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792595813775",
         "fecha": "2026-10-21T15:16:53.775Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792546141526",
+        "fecha": "2026-10-21T01:29:01.526Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 2.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -701,20 +726,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792509573047",
-        "fecha": "2026-10-20T15:19:33.047Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 1.3,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792523446079",
         "fecha": "2026-10-20T19:10:46.079Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792509573047",
+        "fecha": "2026-10-20T15:19:33.047Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 1.3,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -770,20 +795,20 @@
     "tiempo_trabajo_activo_minutos": 39,
     "avances": [
       {
-        "id": "AV-1792550671309",
-        "fecha": "2026-10-21T02:44:31.309Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0.7,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792650637309",
         "fecha": "2026-10-22T06:30:37.309Z",
         "tecnico": "Jhonier Ospino",
         "rol": "supervisor",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792550671309",
+        "fecha": "2026-10-21T02:44:31.309Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0.7,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Jhonier Ospino",
@@ -895,12 +920,12 @@
     "motivo_eliminacion": "Descartada por duplicidad o auditoría",
     "avances": [
       {
-        "id": "AV-1792505543728",
-        "fecha": "2026-10-20T14:12:23.728Z",
-        "tecnico": "Holger Torrado",
-        "rol": "admin",
-        "horas": 0,
-        "descripcion": "🗑️ Tarea descartada / eliminada del flujo activo. Motivo: Descartada por duplicidad o auditoría"
+        "id": "AV-1792901317135",
+        "fecha": "2026-10-25T04:08:37.135Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 265.4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       },
       {
         "id": "AV-1792509326120",
@@ -911,12 +936,12 @@
         "descripcion": "♻️ Tarea restaurada al flujo activo en estado \"pendiente\" por Holger Torrado. Suma nuevamente a los totales."
       },
       {
-        "id": "AV-1792901317135",
-        "fecha": "2026-10-25T04:08:37.135Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 265.4,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+        "id": "AV-1792505543728",
+        "fecha": "2026-10-20T14:12:23.728Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "🗑️ Tarea descartada / eliminada del flujo activo. Motivo: Descartada por duplicidad o auditoría"
       }
     ],
     "restaurado_en": "2026-10-20T15:15:26.120Z",
@@ -1011,20 +1036,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792511421600",
-        "fecha": "2026-10-20T15:50:21.600Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 4.7,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792523438969",
         "fecha": "2026-10-20T19:10:38.969Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792511421600",
+        "fecha": "2026-10-20T15:50:21.600Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 4.7,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -1074,20 +1099,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792550377058",
-        "fecha": "2026-10-21T02:39:37.058Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792650615176",
         "fecha": "2026-10-22T06:30:15.176Z",
         "tecnico": "Jhonier Ospino",
         "rol": "supervisor",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792550377058",
+        "fecha": "2026-10-21T02:39:37.058Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Jhonier Ospino",
@@ -1137,20 +1162,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792565719762",
-        "fecha": "2026-10-21T06:55:19.762Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0.3,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792595828011",
         "fecha": "2026-10-21T15:17:08.011Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792565719762",
+        "fecha": "2026-10-21T06:55:19.762Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0.3,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -1200,20 +1225,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792565813654",
-        "fecha": "2026-10-21T06:56:53.654Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792650618919",
         "fecha": "2026-10-22T06:30:18.919Z",
         "tecnico": "Jhonier Ospino",
         "rol": "supervisor",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792565813654",
+        "fecha": "2026-10-21T06:56:53.654Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Jhonier Ospino",
@@ -1416,6 +1441,14 @@
     "actualizado_en": "2026-10-20T16:57:57.308Z",
     "avances": [
       {
+        "id": "AV-1792637935914",
+        "fecha": "2026-10-22T02:58:55.914Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 40.5,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
         "id": "AV-1792515477308-808",
         "fecha_hora": "2026-10-20T16:57",
         "tecnico_nombre": "Diego Chamorro",
@@ -1426,14 +1459,6 @@
         "minutos_dedicados": 0,
         "foto": null,
         "creado_en": "2026-10-20T16:57:57.308Z"
-      },
-      {
-        "id": "AV-1792637935914",
-        "fecha": "2026-10-22T02:58:55.914Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 40.5,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "completado_por_usuario": "mcastillejo",
@@ -1520,20 +1545,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792409202326",
-        "fecha": "2026-10-19T11:26:42.326Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 31.8,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501919546",
         "fecha": "2026-10-20T13:11:59.546Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792409202326",
+        "fecha": "2026-10-19T11:26:42.326Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 31.8,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -1584,20 +1609,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792295510848",
-        "fecha": "2026-10-18T03:51:50.848Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 0.2,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501916871",
         "fecha": "2026-10-20T13:11:56.871Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792295510848",
+        "fecha": "2026-10-18T03:51:50.848Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 0.2,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -1647,20 +1672,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792290738088",
-        "fecha": "2026-10-18T02:32:18.088Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 4,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501913442",
         "fecha": "2026-10-20T13:11:53.442Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792290738088",
+        "fecha": "2026-10-18T02:32:18.088Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -1782,16 +1807,12 @@
     "creado_en": "2026-10-17T17:39:04.928Z",
     "avances": [
       {
-        "id": "AV-1792258822606-873",
-        "fecha_hora": "2026-10-17T17:40",
-        "tecnico_nombre": "Jhonier Ospino",
-        "tecnico_usuario": "jospino",
-        "tecnico_rol": "supervisor",
-        "descripcion": "Se evidencia que rompedor se frenó por acumulación en el sinfín del pulidor de almendra",
-        "horas_dedicadas": 0,
-        "minutos_dedicados": 0,
-        "foto": null,
-        "creado_en": "2026-10-17T17:40:22.606Z"
+        "id": "AV-1792501907974",
+        "fecha": "2026-10-20T13:11:47.974Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       },
       {
         "id": "AV-1792284426819",
@@ -1802,12 +1823,16 @@
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       },
       {
-        "id": "AV-1792501907974",
-        "fecha": "2026-10-20T13:11:47.974Z",
-        "tecnico": "Holger Torrado",
-        "rol": "admin",
-        "horas": 0,
-        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+        "id": "AV-1792258822606-873",
+        "fecha_hora": "2026-10-17T17:40",
+        "tecnico_nombre": "Jhonier Ospino",
+        "tecnico_usuario": "jospino",
+        "tecnico_rol": "supervisor",
+        "descripcion": "Se evidencia que rompedor se frenó por acumulación en el sinfín del pulidor de almendra",
+        "horas_dedicadas": 0,
+        "minutos_dedicados": 0,
+        "foto": null,
+        "creado_en": "2026-10-17T17:40:22.606Z"
       }
     ],
     "actualizado_en": "2026-10-17T17:40:22.606Z",
@@ -1976,20 +2001,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792444575453",
-        "fecha": "2026-10-19T21:16:15.453Z",
-        "tecnico": "Richard Patiño",
-        "rol": "sst",
-        "horas": 61.2,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501748010",
         "fecha": "2026-10-20T13:09:08.010Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792444575453",
+        "fecha": "2026-10-19T21:16:15.453Z",
+        "tecnico": "Richard Patiño",
+        "rol": "sst",
+        "horas": 61.2,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2039,20 +2064,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792444341874",
-        "fecha": "2026-10-19T21:12:21.874Z",
-        "tecnico": "Richard Patiño",
-        "rol": "sst",
-        "horas": 61.2,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501744971",
         "fecha": "2026-10-20T13:09:04.971Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792444341874",
+        "fecha": "2026-10-19T21:12:21.874Z",
+        "tecnico": "Richard Patiño",
+        "rol": "sst",
+        "horas": 61.2,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2127,20 +2152,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792226567001",
-        "fecha": "2026-10-17T08:42:47.001Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 0.8,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501741929",
         "fecha": "2026-10-20T13:09:01.929Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792226567001",
+        "fecha": "2026-10-17T08:42:47.001Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 0.8,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2191,20 +2216,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792284106015",
-        "fecha": "2026-10-18T00:41:46.015Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 22.4,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501738317",
         "fecha": "2026-10-20T13:08:58.317Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792284106015",
+        "fecha": "2026-10-18T00:41:46.015Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 22.4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2254,20 +2279,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792221400654",
-        "fecha": "2026-10-17T07:16:40.654Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 88.9,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501708793",
         "fecha": "2026-10-20T13:08:28.793Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792221400654",
+        "fecha": "2026-10-17T07:16:40.654Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 88.9,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2317,20 +2342,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792221191685",
-        "fecha": "2026-10-17T07:13:11.685Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 0,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501730295",
         "fecha": "2026-10-20T13:08:50.295Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792221191685",
+        "fecha": "2026-10-17T07:13:11.685Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 0,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2430,20 +2455,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792157587064",
-        "fecha": "2026-10-16T13:33:07.064Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 84.5,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501704515",
         "fecha": "2026-10-20T13:08:24.515Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792157587064",
+        "fecha": "2026-10-16T13:33:07.064Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 84.5,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2493,20 +2518,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792157042291",
-        "fecha": "2026-10-16T13:24:02.291Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0.8,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501718173",
         "fecha": "2026-10-20T13:08:38.173Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792157042291",
+        "fecha": "2026-10-16T13:24:02.291Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0.8,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2556,20 +2581,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792153469713",
-        "fecha": "2026-10-16T12:24:29.713Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 6.5,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501734638",
         "fecha": "2026-10-20T13:08:54.638Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792153469713",
+        "fecha": "2026-10-16T12:24:29.713Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 6.5,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2645,20 +2670,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792192205525",
-        "fecha": "2026-10-16T23:10:05.525Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 69.4,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501711802",
         "fecha": "2026-10-20T13:08:31.802Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792192205525",
+        "fecha": "2026-10-16T23:10:05.525Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 69.4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2755,20 +2780,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792102519518",
-        "fecha": "2026-10-15T22:15:19.518Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 2.8,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792423994849",
         "fecha": "2026-10-19T15:33:14.849Z",
         "tecnico": "Juliana Rangel",
         "rol": "supervisor",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792102519518",
+        "fecha": "2026-10-15T22:15:19.518Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 2.8,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Juliana Rangel",
@@ -2824,20 +2849,20 @@
     "tiempo_trabajo_activo_minutos": 746,
     "avances": [
       {
-        "id": "AV-1792149121794",
-        "fecha": "2026-10-16T11:12:01.794Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 12.4,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501724974",
         "fecha": "2026-10-20T13:08:44.974Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792149121794",
+        "fecha": "2026-10-16T11:12:01.794Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 12.4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2887,20 +2912,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792087582726",
-        "fecha": "2026-10-15T18:06:22.726Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 5.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092646017",
         "fecha": "2026-10-15T19:30:46.017Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792087582726",
+        "fecha": "2026-10-15T18:06:22.726Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 5.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -2950,20 +2975,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792087555807",
-        "fecha": "2026-10-15T18:05:55.807Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 4.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092640672",
         "fecha": "2026-10-15T19:30:40.672Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792087555807",
+        "fecha": "2026-10-15T18:05:55.807Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 4.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3055,20 +3080,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792087721802",
-        "fecha": "2026-10-15T18:08:41.802Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 110.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092763291",
         "fecha": "2026-10-15T19:32:43.291Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792087721802",
+        "fecha": "2026-10-15T18:08:41.802Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 110.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3118,20 +3143,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792517509152",
-        "fecha": "2026-10-20T17:31:49.152Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 193.5,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792523429382",
         "fecha": "2026-10-20T19:10:29.382Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792517509152",
+        "fecha": "2026-10-20T17:31:49.152Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 193.5,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3181,20 +3206,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792095899338",
-        "fecha": "2026-10-15T20:24:59.338Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 156.4,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792156537110",
         "fecha": "2026-10-16T13:15:37.110Z",
         "tecnico": "Jhonier Ospino",
         "rol": "supervisor",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792095899338",
+        "fecha": "2026-10-15T20:24:59.338Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 156.4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Jhonier Ospino",
@@ -3251,20 +3276,20 @@
     "tiempo_trabajo_activo_minutos": 14091,
     "avances": [
       {
-        "id": "AV-1792096813067",
-        "fecha": "2026-10-15T20:40:13.067Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 234.9,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501696332",
         "fecha": "2026-10-20T13:08:16.332Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792096813067",
+        "fecha": "2026-10-15T20:40:13.067Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 234.9,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3368,20 +3393,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792153103617",
-        "fecha": "2026-10-16T12:18:23.617Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 0.7,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501721286",
         "fecha": "2026-10-20T13:08:41.286Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792153103617",
+        "fecha": "2026-10-16T12:18:23.617Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 0.7,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3437,20 +3462,20 @@
     "tiempo_trabajo_activo_minutos": 1007,
     "avances": [
       {
-        "id": "AV-1792127628194",
-        "fecha": "2026-10-16T05:13:48.194Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 16.8,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501699030",
         "fecha": "2026-10-20T13:08:19.030Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792127628194",
+        "fecha": "2026-10-16T05:13:48.194Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 16.8,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3506,20 +3531,20 @@
     "tiempo_trabajo_activo_minutos": 0,
     "avances": [
       {
-        "id": "AV-1792160095208",
-        "fecha": "2026-10-16T14:14:55.208Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501693598",
         "fecha": "2026-10-20T13:08:13.598Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792160095208",
+        "fecha": "2026-10-16T14:14:55.208Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3569,20 +3594,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792073703550",
-        "fecha": "2026-10-15T14:15:03.550Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 3.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092651082",
         "fecha": "2026-10-15T19:30:51.082Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792073703550",
+        "fecha": "2026-10-15T14:15:03.550Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 3.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3632,20 +3657,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792095671414",
-        "fecha": "2026-10-15T20:21:11.414Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 24.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501715150",
         "fecha": "2026-10-20T13:08:35.150Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792095671414",
+        "fecha": "2026-10-15T20:21:11.414Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 24.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3696,20 +3721,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791974531236",
-        "fecha": "2026-10-14T10:42:11.236Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 7.6,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092678811",
         "fecha": "2026-10-15T19:31:18.811Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791974531236",
+        "fecha": "2026-10-14T10:42:11.236Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 7.6,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3812,20 +3837,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791974823413",
-        "fecha": "2026-10-14T10:47:03.413Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 13.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092715600",
         "fecha": "2026-10-15T19:31:55.600Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791974823413",
+        "fecha": "2026-10-14T10:47:03.413Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 13.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3875,20 +3900,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791926172125",
-        "fecha": "2026-10-13T21:16:12.125Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 6.2,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092725433",
         "fecha": "2026-10-15T19:32:05.433Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791926172125",
+        "fecha": "2026-10-13T21:16:12.125Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 6.2,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -3938,20 +3963,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791918643556",
-        "fecha": "2026-10-13T19:10:43.556Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 1.5,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092730006",
         "fecha": "2026-10-15T19:32:10.006Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791918643556",
+        "fecha": "2026-10-13T19:10:43.556Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 1.5,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -4024,7 +4049,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-12T18:27",
     "fecha_arreglo": null,
-    "estado": "en_proceso",
+    "estado": "en_progreso",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791883753/siman/iniciales/ini_TSK-1128_1791883753009.webp",
     "foto_comprobante": null,
@@ -4100,20 +4125,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791975201270",
-        "fecha": "2026-10-14T10:53:21.270Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 3.7,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092745460",
         "fecha": "2026-10-15T19:32:25.460Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791975201270",
+        "fecha": "2026-10-14T10:53:21.270Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 3.7,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -4163,20 +4188,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791922983246",
-        "fecha": "2026-10-13T20:23:03.246Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 27,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092758861",
         "fecha": "2026-10-15T19:32:38.861Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791922983246",
+        "fecha": "2026-10-13T20:23:03.246Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 27,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -4350,20 +4375,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791813434924",
-        "fecha": "2026-10-12T13:57:14.924Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 69.9,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1791897412811",
         "fecha": "2026-10-13T13:16:52.811Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791813434924",
+        "fecha": "2026-10-12T13:57:14.924Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 69.9,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -4543,23 +4568,19 @@
     "actualizado_en": "2026-10-09T20:55:10.336Z",
     "avances": [
       {
-        "id": "AV-1791579310336-827",
-        "fecha_hora": "2026-10-09T20:55",
-        "tecnico_nombre": "Marwin Castillejo",
-        "tecnico_usuario": "mcastillejo",
-        "tecnico_rol": "mecanico",
-        "descripcion": "Se inicia fabricacion de isométrico",
-        "horas_dedicadas": 0,
-        "minutos_dedicados": 0,
-        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791579309/siman/avances/av_TSK-1115_1791579309287_1791579309287.webp",
-        "creado_en": "2026-10-09T20:55:10.336Z"
+        "id": "AV-1792501701628",
+        "fecha": "2026-10-20T13:08:21.628Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       },
       {
-        "id": "AV-1791920643223",
-        "fecha": "2026-10-13T19:44:03.223Z",
-        "tecnico": "Marwin Castillejo",
+        "id": "AV-1792284179043",
+        "fecha": "2026-10-18T00:42:59.043Z",
+        "tecnico": "Diego Chamorro",
         "rol": "mecanico",
-        "horas": 118.3,
+        "horas": 219.3,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       },
       {
@@ -4571,20 +4592,24 @@
         "descripcion": "❌ FINALIZACIÓN RECHAZADA: Fotografía no corresponde al equipo o trabajo incompleto. La tarea regresa a estado \"En Progreso\" para corrección por el técnico."
       },
       {
-        "id": "AV-1792284179043",
-        "fecha": "2026-10-18T00:42:59.043Z",
-        "tecnico": "Diego Chamorro",
+        "id": "AV-1791920643223",
+        "fecha": "2026-10-13T19:44:03.223Z",
+        "tecnico": "Marwin Castillejo",
         "rol": "mecanico",
-        "horas": 219.3,
+        "horas": 118.3,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       },
       {
-        "id": "AV-1792501701628",
-        "fecha": "2026-10-20T13:08:21.628Z",
-        "tecnico": "Holger Torrado",
-        "rol": "admin",
-        "horas": 0,
-        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+        "id": "AV-1791579310336-827",
+        "fecha_hora": "2026-10-09T20:55",
+        "tecnico_nombre": "Marwin Castillejo",
+        "tecnico_usuario": "mcastillejo",
+        "tecnico_rol": "mecanico",
+        "descripcion": "Se inicia fabricacion de isométrico",
+        "horas_dedicadas": 0,
+        "minutos_dedicados": 0,
+        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791579309/siman/avances/av_TSK-1115_1791579309287_1791579309287.webp",
+        "creado_en": "2026-10-09T20:55:10.336Z"
       }
     ],
     "completado_por_usuario": "dchamorro",
@@ -4658,20 +4683,20 @@
     "tiempo_trabajo_activo_minutos": 215,
     "avances": [
       {
-        "id": "AV-1791475749729",
-        "fecha": "2026-10-08T16:09:09.729Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 3.6,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1791476426248",
         "fecha": "2026-10-08T16:20:26.248Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791475749729",
+        "fecha": "2026-10-08T16:09:09.729Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 3.6,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -4789,20 +4814,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791494851757",
-        "fecha": "2026-10-08T21:27:31.757Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 28.2,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1791498431128",
         "fecha": "2026-10-08T22:27:11.128Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791494851757",
+        "fecha": "2026-10-08T21:27:31.757Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 28.2,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "tiempo_espera_repuestos_minutos": 0,
@@ -4858,20 +4883,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791475712908",
-        "fecha": "2026-10-08T16:08:32.908Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 24.1,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1791476436802",
         "fecha": "2026-10-08T16:20:36.802Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791475712908",
+        "fecha": "2026-10-08T16:08:32.908Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 24.1,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -4992,20 +5017,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791974929439",
-        "fecha": "2026-10-14T10:48:49.439Z",
-        "tecnico": "Ender Silva",
-        "rol": "mecanico",
-        "horas": 165,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092767735",
         "fecha": "2026-10-15T19:32:47.735Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791974929439",
+        "fecha": "2026-10-14T10:48:49.439Z",
+        "tecnico": "Ender Silva",
+        "rol": "mecanico",
+        "horas": 165,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -5055,20 +5080,20 @@
     },
     "avances": [
       {
-        "id": "AV-1792077392412",
-        "fecha": "2026-10-15T15:16:32.412Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 194.2,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792092773041",
         "fecha": "2026-10-15T19:32:53.041Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792077392412",
+        "fecha": "2026-10-15T15:16:32.412Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 194.2,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -5928,11 +5953,19 @@
     },
     "avances": [
       {
-        "id": "AV-1791922358384",
-        "fecha": "2026-10-13T20:12:38.384Z",
-        "tecnico": "Marwin Castillejo",
+        "id": "AV-1792501689896",
+        "fecha": "2026-10-20T13:08:09.896Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792284245840",
+        "fecha": "2026-10-18T00:44:05.840Z",
+        "tecnico": "Diego Chamorro",
         "rol": "mecanico",
-        "horas": 237.8,
+        "horas": 338.3,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       },
       {
@@ -5944,20 +5977,12 @@
         "descripcion": "❌ FINALIZACIÓN RECHAZADA: Fotografía no corresponde al equipo o trabajo incompleto. La tarea regresa a estado \"En Progreso\" para corrección por el técnico."
       },
       {
-        "id": "AV-1792284245840",
-        "fecha": "2026-10-18T00:44:05.840Z",
-        "tecnico": "Diego Chamorro",
+        "id": "AV-1791922358384",
+        "fecha": "2026-10-13T20:12:38.384Z",
+        "tecnico": "Marwin Castillejo",
         "rol": "mecanico",
-        "horas": 338.3,
+        "horas": 237.8,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
-        "id": "AV-1792501689896",
-        "fecha": "2026-10-20T13:08:09.896Z",
-        "tecnico": "Holger Torrado",
-        "rol": "admin",
-        "horas": 0,
-        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
     ],
     "rechazado_en": "2026-10-15T12:23:29.953Z",
@@ -5983,7 +6008,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-03T19:36",
     "fecha_arreglo": null,
-    "estado": "en_proceso",
+    "estado": "en_progreso",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791209934/siman/iniciales/ini_TSK-1078_1791209934294.webp",
     "foto_comprobante": null,
@@ -6455,20 +6480,20 @@
     "tiempo_trabajo_activo_minutos": 24221,
     "avances": [
       {
-        "id": "AV-1792441319326",
-        "fecha": "2026-10-19T20:21:59.326Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 403.9,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792501686097",
         "fecha": "2026-10-20T13:08:06.097Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1792441319326",
+        "fecha": "2026-10-19T20:21:59.326Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 403.9,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -6769,12 +6794,12 @@
     "mecanico_asignado": "Diego Chamorro, Marwin Castillejo, Ender Silva",
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-09-30T14:19",
-    "fecha_arreglo": null,
-    "estado": "en_progreso",
+    "fecha_arreglo": "2026-10-15T04:34",
+    "estado": "por_aprobar",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793055005/siman/iniciales/ini_TSK-1060_1793055004983.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792056845/siman/comprobantes/comp_TSK-1060_1792056845336.webp",
-    "tiempo_arreglo_minutos": null,
+    "tiempo_arreglo_minutos": 21014,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-09-30T19:19:50.028Z",
@@ -6988,12 +7013,12 @@
     "mecanico_asignado": "Diego Chamorro",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-30T10:02",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
+    "fecha_arreglo": "2026-10-15T15:27",
+    "estado": "por_aprobar",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793055015/siman/iniciales/ini_TSK-1055_1793055015101.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792096059/siman/comprobantes/comp_TSK-1055_1792096058622.webp",
-    "tiempo_arreglo_minutos": null,
+    "tiempo_arreglo_minutos": 21925,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-09-30T15:02:07.864Z",
@@ -7021,19 +7046,19 @@
     "tiempo_trabajo_activo_minutos": 21925,
     "avances": [
       {
-        "id": "AV-1791933937776",
-        "fecha": "2026-10-13T23:25:37.776Z",
-        "tecnico": "Diego Chamorro",
-        "rol": "mecanico",
-        "horas": 320.3,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1792096059804",
         "fecha": "2026-10-15T20:27:39.804Z",
         "tecnico": "Diego Chamorro",
         "rol": "mecanico",
         "horas": 365.4,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1791933937776",
+        "fecha": "2026-10-13T23:25:37.776Z",
+        "tecnico": "Diego Chamorro",
+        "rol": "mecanico",
+        "horas": 320.3,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ]
@@ -7081,20 +7106,20 @@
     },
     "avances": [
       {
-        "id": "AV-1791494918607",
-        "fecha": "2026-10-08T21:28:38.607Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 198.6,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1791498455561",
         "fecha": "2026-10-08T22:27:35.561Z",
         "tecnico": "Holger Torrado",
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1791494918607",
+        "fecha": "2026-10-08T21:28:38.607Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 198.6,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Holger Torrado",
@@ -8038,16 +8063,12 @@
     "creado_en": "2026-09-29T14:59:35.770Z",
     "avances": [
       {
-        "id": "AV-1791686745704-186",
-        "fecha_hora": "2026-10-11T02:45",
-        "tecnico_nombre": "Marwin Castillejo",
-        "tecnico_usuario": "mcastillejo",
-        "tecnico_rol": "mecanico",
-        "descripcion": "Fabricacion de miples y se solda",
-        "horas_dedicadas": 0,
-        "minutos_dedicados": 0,
-        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791686745/siman/avances/av_TSK-1027_1791686744853_1791686744853.webp",
-        "creado_en": "2026-10-11T02:45:45.704Z"
+        "id": "AV-1791687009767",
+        "fecha": "2026-10-11T02:50:09.767Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       },
       {
         "id": "AV-1791686792838",
@@ -8058,12 +8079,16 @@
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       },
       {
-        "id": "AV-1791687009767",
-        "fecha": "2026-10-11T02:50:09.767Z",
-        "tecnico": "Holger Torrado",
-        "rol": "admin",
-        "horas": 0,
-        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+        "id": "AV-1791686745704-186",
+        "fecha_hora": "2026-10-11T02:45",
+        "tecnico_nombre": "Marwin Castillejo",
+        "tecnico_usuario": "mcastillejo",
+        "tecnico_rol": "mecanico",
+        "descripcion": "Fabricacion de miples y se solda",
+        "horas_dedicadas": 0,
+        "minutos_dedicados": 0,
+        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791686745/siman/avances/av_TSK-1027_1791686744853_1791686744853.webp",
+        "creado_en": "2026-10-11T02:45:45.704Z"
       }
     ],
     "actualizado_en": "2026-10-11T02:45:45.704Z",
@@ -8101,16 +8126,24 @@
     "mecanico_asignado": "Sin Asignar",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-29T09:58",
-    "fecha_arreglo": null,
-    "estado": "pendiente",
+    "fecha_arreglo": "2026-10-10T21:44",
+    "estado": "por_aprobar",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791683415/siman/iniciales/ini_TSK-1026_1791683414827.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791686653/siman/comprobantes/comp_TSK-1026_1791686652889.webp",
-    "tiempo_arreglo_minutos": null,
+    "tiempo_arreglo_minutos": 16245,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-09-29T14:58:23.680Z",
     "avances": [
+      {
+        "id": "AV-1791686961652",
+        "fecha": "2026-10-11T02:49:21.652Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "❌ FINALIZACIÓN RECHAZADA: Fotografía no corresponde al equipo o trabajo incompleto. La tarea regresa a estado \"En Progreso\" para corrección por el técnico."
+      },
       {
         "id": "AV-1791683418215-707",
         "fecha_hora": "2026-10-11T01:50",
@@ -8122,14 +8155,6 @@
         "minutos_dedicados": 0,
         "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791683417/siman/avances/av_TSK-1026_1791683417360_1791683417360.webp",
         "creado_en": "2026-10-11T01:50:18.215Z"
-      },
-      {
-        "id": "AV-1791686961652",
-        "fecha": "2026-10-11T02:49:21.652Z",
-        "tecnico": "Holger Torrado",
-        "rol": "admin",
-        "horas": 0,
-        "descripcion": "❌ FINALIZACIÓN RECHAZADA: Fotografía no corresponde al equipo o trabajo incompleto. La tarea regresa a estado \"En Progreso\" para corrección por el técnico."
       }
     ],
     "actualizado_en": "2026-10-11T01:50:18.215Z",
@@ -8138,11 +8163,11 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-11T02:44:13.967Z",
     "foto_comprobante_hash": "71a48f15db6837381b827693228923cf4b642b944cee9204d8b72273ae408540",
-    "requiere_aprobacion": false,
+    "requiere_aprobacion": true,
     "enviado_a_aprobacion_en": "2026-10-11T02:44:13.967Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
-    "tiempo_trabajo_activo_minutos": 16545,
+    "tiempo_trabajo_activo_minutos": 16245,
     "tiempos_por_rol": {
       "mecanico": 16548,
       "electrico": 0,
