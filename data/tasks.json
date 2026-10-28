@@ -1644,7 +1644,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-19T10:29",
     "fecha_arreglo": "2026-10-21T03:00",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792423929/siman/iniciales/ini_TSK-1176_1792423929118.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792637935/siman/comprobantes/comp_TSK-1176_1792637935038.webp",
@@ -1673,6 +1673,14 @@
         "minutos_dedicados": 0,
         "foto": null,
         "creado_en": "2026-10-20T16:57:57.308Z"
+      },
+      {
+        "id": "AV-1793222434060",
+        "fecha": "2026-10-28T21:20:34.060Z",
+        "tecnico": "Stefany Torrado",
+        "rol": "supervisor",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
     ],
     "completado_por_usuario": "mcastillejo",
@@ -1680,7 +1688,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-22T02:58:55.913Z",
     "foto_comprobante_hash": "e7960198c0574b347ed6d33edf3496c753cec1fdca0bf13b66e8bc2f5cb8486b",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-22T02:58:55.913Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -1689,7 +1697,10 @@
       "mecanico": 2431,
       "electrico": 0,
       "maquinista": 0
-    }
+    },
+    "aprobado_por": "Stefany Torrado",
+    "aprobado_por_username": "storrado",
+    "aprobado_en": "2026-10-28T21:20:34.060Z"
   },
   {
     "id": "TSK-1175",
