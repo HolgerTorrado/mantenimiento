@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1210",
+    "equipo": "Gato hidráulico de la prensa",
+    "titulo": "Instalación de orring para corrección de fuga de hidráulico",
+    "tipo": "correctivo",
+    "prioridad": "critica",
+    "ubicacion": "Prensa",
+    "descripcion": "Instalación de orring para corrección de fuga de hidráulico",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-26T18:22",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793222885/siman/iniciales/ini_TSK-1210_1793222884659.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-28T21:28:05.878Z"
+  },
+  {
     "id": "TSK-1209",
     "equipo": "Tolva de ceniza",
     "titulo": "Fabricación de tapa",
