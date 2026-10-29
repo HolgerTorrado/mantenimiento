@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1215",
+    "equipo": "Rejilla",
+    "titulo": "Rejilla deteriorada",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Palmisteria",
+    "descripcion": "Rejillas del área de palmisteria se encuentran dañadas por deterioro",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-29T17:12",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793312126/siman/iniciales/ini_TSK-1215_1793312125842.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-29T22:15:27.207Z"
+  },
+  {
     "id": "TSK-1214",
     "equipo": "Manija de puerta",
     "titulo": "Manija defectuosa",
