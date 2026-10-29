@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1216",
+    "equipo": "Rejilla",
+    "titulo": "Rejillas deterioradas",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Tolvas de Resección",
+    "descripcion": "Se evidencia rejillas en mal estado por deterioro",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-29T17:16",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793313452/siman/iniciales/ini_TSK-1216_1793313452048.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-29T22:37:33.699Z"
+  },
+  {
     "id": "TSK-1215",
     "equipo": "Rejilla",
     "titulo": "Rejilla deteriorada",
