@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1217",
+    "equipo": "Rejilla",
+    "titulo": "Rejillas obstruidas",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Tolvas de resección",
+    "descripcion": "Se evidencia rejillas en tolvas de Resección que se encuentran obstruidas por acumulación de sedimentos",
+    "roles_asignados": [
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Supervisión",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-29T17:37",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793313821/siman/iniciales/ini_TSK-1217_1793313820666.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-29T22:43:41.766Z"
+  },
+  {
     "id": "TSK-1216",
     "equipo": "Rejilla",
     "titulo": "Rejillas deterioradas",
