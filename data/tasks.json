@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1218",
+    "equipo": "Rejilla",
+    "titulo": "Rejilla obstruidas por acumulación de sedimentos",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Esterilización",
+    "descripcion": "Se evidencia rejillas en el área de esterilización, obstruidas por acumulación de sedimentos",
+    "roles_asignados": [
+      "supervisor"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Supervisión",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-29T17:47",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793314183/siman/iniciales/ini_TSK-1218_1793314183367.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-29T22:49:44.525Z"
+  },
+  {
     "id": "TSK-1217",
     "equipo": "Rejilla",
     "titulo": "Rejillas obstruidas",
