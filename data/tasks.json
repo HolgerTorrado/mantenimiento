@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1220",
+    "equipo": "Guarda cadena motor Redler 2",
+    "titulo": "Roce de guardacadena",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Esterilización",
+    "descripcion": "Roce y movimiento de guarda cadena de redler 2, verificar si guardacadena se soltó",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-29T20:26",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-30T01:27:53.092Z"
+  },
+  {
     "id": "TSK-1219",
     "equipo": "Redler #2",
     "titulo": "Fuga en tubería",
