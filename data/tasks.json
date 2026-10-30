@@ -10,19 +10,36 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-29T12:30",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793323858/siman/iniciales/ini_TSK-1221_1793323857910.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Stefany Torrado",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-30T01:30:58.914Z"
+    "creado_en": "2026-10-30T01:30:58.914Z",
+    "avances": [
+      {
+        "id": "AV-1793383900556-320",
+        "fecha_hora": "2026-10-30T18:11",
+        "tecnico_nombre": "Marwin Castillejo",
+        "tecnico_usuario": "mcastillejo",
+        "tecnico_rol": "mecanico",
+        "descripcion": "Se desmonta reloj y se restaura láminas Anti desgaste de la parte superior",
+        "horas_dedicadas": 0,
+        "minutos_dedicados": 0,
+        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793383899/siman/avances/av_TSK-1221_1793383898825_1793383898825.webp",
+        "creado_en": "2026-10-30T18:11:40.556Z"
+      }
+    ],
+    "actualizado_en": "2026-10-30T18:11:40.556Z"
   },
   {
     "id": "TSK-1220",
