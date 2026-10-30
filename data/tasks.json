@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1221",
+    "equipo": "Rompedor",
+    "titulo": "Intervención de rompedor",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Palmistería",
+    "descripcion": "Intervención de rompedor",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-29T12:30",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793323858/siman/iniciales/ini_TSK-1221_1793323857910.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-30T01:30:58.914Z"
+  },
+  {
     "id": "TSK-1220",
     "equipo": "Guarda cadena motor Redler 2",
     "titulo": "Roce de guardacadena",
