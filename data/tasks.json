@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1219",
+    "equipo": "Redler #2",
+    "titulo": "Fuga en tubería",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Esterilización",
+    "descripcion": "Se evidencia fuga de agua caliente debajo de la tubería de inyección de vapor al redler #2",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-29T20:05",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793322492/siman/iniciales/ini_TSK-1219_1793322491877.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-10-30T01:08:12.925Z"
+  },
+  {
     "id": "TSK-1218",
     "equipo": "Rejilla",
     "titulo": "Rejilla obstruidas por acumulación de sedimentos",
