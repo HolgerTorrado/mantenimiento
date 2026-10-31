@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1224",
+    "equipo": "Desarenador Alfa laval",
+    "titulo": "Fuga en manguera de agua",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Clarificación plataforma decanter",
+    "descripcion": "Se requiere cambio de manguera de línea de agua de desarenador de alfa laval",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-30T07:14",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793448981/siman/iniciales/ini_TSK-1224_1793448980808.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-31T12:16:21.730Z"
+  },
+  {
     "id": "TSK-1223",
     "equipo": "Homogéneizador",
     "titulo": "Fuga en válvula de salida de bomba de homogéneizador",
