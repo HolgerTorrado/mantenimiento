@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1223",
+    "equipo": "Homogéneizador",
+    "titulo": "Fuga en válvula de salida de bomba de homogéneizador",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Clarificación planta baja",
+    "descripcion": "Se requiere cambio de válvula de bola de 3 pulgadas",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-10-30T07:10",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793448782/siman/iniciales/ini_TSK-1223_1793448781497.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-10-31T12:13:02.723Z"
+  },
+  {
     "id": "TSK-1222",
     "equipo": "Rejilla",
     "titulo": "Rejilla en mal estado",
