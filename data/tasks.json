@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1225",
+    "equipo": "Tanque",
+    "titulo": "Fuga en el tanque alimentador de caldera",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Caldera",
+    "descripcion": "Se evidencia fuga en el tanque alimentador de caldera",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-11-03T13:18",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793729981/siman/iniciales/ini_TSK-1225_1793729981023.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-11-03T18:19:42.114Z"
+  },
+  {
     "id": "TSK-1224",
     "equipo": "Desarenador Alfa laval",
     "titulo": "Fuga en manguera de agua",
