@@ -2818,19 +2818,41 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-17T03:26",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792225695/siman/iniciales/ini_TSK-1168_1792225695202.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-17T08:28:16.019Z"
+    "creado_en": "2026-10-17T08:28:16.019Z",
+    "avances": [
+      {
+        "id": "AV-1793819230032-880",
+        "fecha_hora": "2026-11-04T19:07",
+        "tecnico_nombre": "Marwin Castillejo",
+        "tecnico_usuario": "mcastillejo",
+        "tecnico_rol": "mecanico",
+        "descripcion": "Se resoldan sinfín y se recupera uno de la chatarra",
+        "horas_dedicadas": 5,
+        "minutos_dedicados": 300,
+        "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793819229/siman/avances/av_TSK-1168_1793819228970_1793819228970.webp",
+        "creado_en": "2026-11-04T19:07:10.032Z"
+      }
+    ],
+    "tiempos_por_rol": {
+      "mecanico": 300,
+      "electrico": 0,
+      "maquinista": 0
+    },
+    "actualizado_en": "2026-11-04T19:07:10.032Z"
   },
   {
     "id": "TSK-1167",
