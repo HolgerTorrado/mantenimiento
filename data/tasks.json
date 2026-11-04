@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1226",
+    "equipo": "Rejilla",
+    "titulo": "Rejilla en mal estado",
+    "tipo": "preventivo",
+    "prioridad": "media",
+    "ubicacion": "Desfibracion",
+    "descripcion": "Se evidencia Rejilla deteriorada, condición insegura",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-11-04T10:58",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793808185/siman/iniciales/ini_TSK-1226_1793808184762.webp",
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Nestor Urbina",
+    "creado_por_rol": "sst",
+    "creado_en": "2026-11-04T16:03:06.418Z"
+  },
+  {
     "id": "TSK-1225",
     "equipo": "Tanque",
     "titulo": "Fuga en el tanque alimentador de caldera",
