@@ -1171,19 +1171,22 @@
     "roles_asignados": [
       "mecanico"
     ],
-    "tecnicos_asignados": [],
-    "mecanico_asignado": "Mecánica",
+    "tecnicos_asignados": [
+      "Marwin Castillejo"
+    ],
+    "mecanico_asignado": "Marwin Castillejo",
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-22T01:33",
     "fecha_arreglo": null,
-    "estado": "pendiente",
+    "estado": "en_progreso",
     "notas_mecanico": null,
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792651550/siman/iniciales/ini_TSK-1198_1792651549887.webp",
     "foto_comprobante": null,
     "tiempo_arreglo_minutos": null,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
-    "creado_en": "2026-10-22T06:45:50.767Z"
+    "creado_en": "2026-10-22T06:45:50.767Z",
+    "actualizado_en": "2026-11-04T19:00:02.927Z"
   },
   {
     "id": "TSK-1197",
@@ -4975,6 +4978,14 @@
     "creado_en": "2026-10-13T14:17:47.892Z",
     "avances": [
       {
+        "id": "AV-1793811043336",
+        "fecha": "2026-11-04T16:50:43.336Z",
+        "tecnico": "Anderson Jaimes",
+        "rol": "electrico",
+        "horas": 529.7,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
         "id": "AV-1791905948103-730",
         "fecha_hora": "2026-10-13T15:39",
         "tecnico_nombre": "Anderson Jaimes",
@@ -4985,14 +4996,6 @@
         "minutos_dedicados": 120,
         "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791905947/siman/avances/av_TSK-1129_1791905947028_1791905947028.webp",
         "creado_en": "2026-10-13T15:39:08.103Z"
-      },
-      {
-        "id": "AV-1793811043336",
-        "fecha": "2026-11-04T16:50:43.336Z",
-        "tecnico": "Anderson Jaimes",
-        "rol": "electrico",
-        "horas": 529.7,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "tiempos_por_rol": {
