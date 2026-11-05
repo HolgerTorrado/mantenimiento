@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1227",
+    "equipo": "Pulmón 1",
+    "titulo": "Quitar colombina 6\" de tubería de transporte de vapor a esterilizador 1",
+    "tipo": "correctivo",
+    "prioridad": "alta",
+    "ubicacion": "Caldera",
+    "descripcion": "Quitar colombina 6\" de tubería de transporte de vapor a esterilizador 1",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-11-02T08:32",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-11-05T13:33:42.536Z"
+  },
+  {
     "id": "TSK-1226",
     "equipo": "Rejilla",
     "titulo": "Rejilla en mal estado",
