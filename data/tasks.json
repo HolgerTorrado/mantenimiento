@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1233",
+    "equipo": "Redler 1",
+    "titulo": "Sonidos en redler 1",
+    "tipo": "correctivo",
+    "prioridad": "critica",
+    "ubicacion": "Tolva/Redler1",
+    "descripcion": "Sonidos en redler 1, ajuste de cadena",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-11-04T09:26",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-11-06T14:29:51.697Z"
+  },
+  {
     "id": "TSK-1232",
     "equipo": "Unidad hidráulica de prensa",
     "titulo": "Falla en bomba de unidad hidráulica",
