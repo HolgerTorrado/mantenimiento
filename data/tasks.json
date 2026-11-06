@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1236",
+    "equipo": "Tablero clarificación",
+    "titulo": "Pantalla presenta problemas al táctil",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Clarificación",
+    "descripcion": "Pantalla presenta problemas al táctil, no se logra manipular con facilidad",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-11-05T09:45",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-11-06T14:46:34.568Z"
+  },
+  {
     "id": "TSK-1235",
     "equipo": "Transportador de torta con moños",
     "titulo": "Sonido en transportador",
