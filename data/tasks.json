@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1232",
+    "equipo": "Unidad hidráulica de prensa",
+    "titulo": "Falla en bomba de unidad hidráulica",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Prensa",
+    "descripcion": "Unidad no ejerce presión",
+    "roles_asignados": [
+      "mecanico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Mecánica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-11-03T09:24",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-11-06T14:26:12.407Z"
+  },
+  {
     "id": "TSK-1231",
     "equipo": "Plataforma de caldera",
     "titulo": "Piso de plataforma en deterioro",
