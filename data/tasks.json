@@ -1,5 +1,30 @@
 [
   {
+    "id": "TSK-1238",
+    "equipo": "Electroválvula tanque de caldera",
+    "titulo": "Falla en accionamiento de electroválvula",
+    "tipo": "correctivo",
+    "prioridad": "media",
+    "ubicacion": "Caldera",
+    "descripcion": "Falla en accionamiento electroválvula tanque de caldera",
+    "roles_asignados": [
+      "electrico"
+    ],
+    "tecnicos_asignados": [],
+    "mecanico_asignado": "Eléctrica",
+    "es_conjunta": false,
+    "fecha_ocurrencia": "2026-11-06T07:49",
+    "fecha_arreglo": null,
+    "estado": "pendiente",
+    "notas_mecanico": null,
+    "foto_inicial": null,
+    "foto_comprobante": null,
+    "tiempo_arreglo_minutos": null,
+    "creado_por_usuario": "Stefany Torrado",
+    "creado_por_rol": "supervisor",
+    "creado_en": "2026-11-06T14:50:03.337Z"
+  },
+  {
     "id": "TSK-1237",
     "equipo": "Electroválvula tanque de caldera",
     "titulo": "Falla en accionamiento electroválvula tanque de caldera",
