@@ -3010,7 +3010,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-10-19T14:08",
     "fecha_arreglo": "2026-10-22T08:17",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "Se  le aplica teflón y se agustas las turcas",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792437008/siman/iniciales/ini_TSK-1179_1792437008184.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792675121/siman/comprobantes/comp_TSK-1179_1792675121443.webp",
@@ -3023,7 +3023,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-22T13:18:42.415Z",
     "foto_comprobante_hash": "5c69bf6ba26c3d1dc9e56f72c13ab6b3b7030054723ca9cb1316c03549a8c340",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-22T13:18:42.415Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -3041,8 +3041,19 @@
         "rol": "mecanico",
         "horas": 66.2,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1794494503878",
+        "fecha": "2026-11-12T14:41:43.878Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-11-12T14:41:43.878Z"
   },
   {
     "id": "TSK-1178",
