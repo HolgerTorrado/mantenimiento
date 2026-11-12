@@ -8757,6 +8757,14 @@
         "rol": "admin",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1794494836101",
+        "fecha": "2026-11-12T14:47:16.101Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
     ],
     "tiempos_por_rol": {
@@ -8783,7 +8791,7 @@
     "tiempo_trabajo_activo_minutos": 21014,
     "aprobado_por": "Holger Torrado",
     "aprobado_por_username": "Holger",
-    "aprobado_en": "2026-11-12T14:47:07.205Z"
+    "aprobado_en": "2026-11-12T14:47:16.101Z"
   },
   {
     "id": "TSK-1059",
@@ -8959,7 +8967,7 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-30T10:02",
     "fecha_arreglo": "2026-10-15T15:27",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793055015/siman/iniciales/ini_TSK-1055_1793055015101.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792096059/siman/comprobantes/comp_TSK-1055_1792096058622.webp",
@@ -8986,7 +8994,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-15T20:27:39.804Z",
     "foto_comprobante_hash": "ebc2d751af97f16eeb587316ee1f11c9120178e6bdb5805abf2791a92da5acb5",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-15T20:27:39.804Z",
     "tiempo_trabajo_activo_minutos": 21925,
     "avances": [
@@ -9005,8 +9013,19 @@
         "rol": "mecanico",
         "horas": 320.3,
         "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
+      },
+      {
+        "id": "AV-1794494852192",
+        "fecha": "2026-11-12T14:47:32.192Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
-    ]
+    ],
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-11-12T14:47:32.192Z"
   },
   {
     "id": "TSK-1054",
