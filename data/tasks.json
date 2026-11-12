@@ -8729,11 +8729,11 @@
     "es_conjunta": true,
     "fecha_ocurrencia": "2026-09-30T14:19",
     "fecha_arreglo": "2026-10-15T04:34",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793055005/siman/iniciales/ini_TSK-1060_1793055004983.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1792056845/siman/comprobantes/comp_TSK-1060_1792056845336.webp",
-    "tiempo_arreglo_minutos": 21014,
+    "tiempo_arreglo_minutos": 21015,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-09-30T19:19:50.028Z",
@@ -8749,6 +8749,14 @@
         "minutos_dedicados": 90,
         "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1793055005/siman/avances/av_TSK-1060_AV-1790815315670-3_1793055005700.webp",
         "creado_en": "2026-10-01T00:41:55.670Z"
+      },
+      {
+        "id": "AV-1794494827205",
+        "fecha": "2026-11-12T14:47:07.205Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
     ],
     "tiempos_por_rol": {
@@ -8770,9 +8778,12 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-15T09:34:06.330Z",
     "foto_comprobante_hash": "922eb23737585b16d778701441c26edd0790f0d27842cb316a7a2a264fe72310",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-15T09:34:06.330Z",
-    "tiempo_trabajo_activo_minutos": 21014
+    "tiempo_trabajo_activo_minutos": 21014,
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-11-12T14:47:07.205Z"
   },
   {
     "id": "TSK-1059",
