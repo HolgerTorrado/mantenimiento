@@ -10091,11 +10091,11 @@
     "es_conjunta": false,
     "fecha_ocurrencia": "2026-09-29T09:58",
     "fecha_arreglo": "2026-10-10T21:44",
-    "estado": "por_aprobar",
+    "estado": "completado",
     "notas_mecanico": "",
     "foto_inicial": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791683415/siman/iniciales/ini_TSK-1026_1791683414827.webp",
     "foto_comprobante": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791686653/siman/comprobantes/comp_TSK-1026_1791686652889.webp",
-    "tiempo_arreglo_minutos": 16245,
+    "tiempo_arreglo_minutos": 16546,
     "creado_por_usuario": "Jhonier Ospino",
     "creado_por_rol": "supervisor",
     "creado_en": "2026-09-29T14:58:23.680Z",
@@ -10119,6 +10119,14 @@
         "minutos_dedicados": 0,
         "foto": "https://res.cloudinary.com/iazmhpwq/image/upload/v1791683417/siman/avances/av_TSK-1026_1791683417360_1791683417360.webp",
         "creado_en": "2026-10-11T01:50:18.215Z"
+      },
+      {
+        "id": "AV-1794494863069",
+        "fecha": "2026-11-12T14:47:43.069Z",
+        "tecnico": "Holger Torrado",
+        "rol": "admin",
+        "horas": 0,
+        "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
       }
     ],
     "actualizado_en": "2026-10-11T01:50:18.215Z",
@@ -10127,7 +10135,7 @@
     "completado_por_rol": "mecanico",
     "completado_en": "2026-10-11T02:44:13.967Z",
     "foto_comprobante_hash": "71a48f15db6837381b827693228923cf4b642b944cee9204d8b72273ae408540",
-    "requiere_aprobacion": true,
+    "requiere_aprobacion": false,
     "enviado_a_aprobacion_en": "2026-10-11T02:44:13.967Z",
     "tiempo_espera_minutos": 0,
     "motivo_espera": "",
@@ -10145,7 +10153,10 @@
     "tiempo_fuera_planta_minutos": 0,
     "motivo_fuera_planta": "",
     "modificado_por_admin": true,
-    "modificado_en": "2026-10-11T02:50:55.354Z"
+    "modificado_en": "2026-10-11T02:50:55.354Z",
+    "aprobado_por": "Holger Torrado",
+    "aprobado_por_username": "Holger",
+    "aprobado_en": "2026-11-12T14:47:43.069Z"
   },
   {
     "id": "TSK-1025",
