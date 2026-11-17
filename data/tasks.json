@@ -1658,20 +1658,20 @@
     },
     "avances": [
       {
-        "id": "AV-1793222080704",
-        "fecha": "2026-10-28T21:14:40.704Z",
-        "tecnico": "Marwin Castillejo",
-        "rol": "mecanico",
-        "horas": 0,
-        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
-      },
-      {
         "id": "AV-1793222383689",
         "fecha": "2026-10-28T21:19:43.689Z",
         "tecnico": "Stefany Torrado",
         "rol": "supervisor",
         "horas": 0,
         "descripcion": "✅ Trabajo y fotografía comprobante VERIFICADOS Y APROBADOS por la administración. Tarea cerrada oficialmente."
+      },
+      {
+        "id": "AV-1793222080704",
+        "fecha": "2026-10-28T21:14:40.704Z",
+        "tecnico": "Marwin Castillejo",
+        "rol": "mecanico",
+        "horas": 0,
+        "descripcion": "📋 Finalización enviada con fotografía comprobante. En espera de verificación y aprobación por Holger."
       }
     ],
     "aprobado_por": "Stefany Torrado",
